@@ -35,16 +35,19 @@
     footer a { color: inherit; }
   </style>
 </head>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 <body>
   <main>
     <h1>Fluentio</h1>
-    <p class="lead">My personal web playground.</p>
+    <p class="lead">Web stack workspace</p>
 
     <h2>Projects</h2>
     <div class="grid">
       <a class="card" href="geography/"><b>🌍 Geography Tests</b><span>Find countries on the world map, or one continent at a time.</span></a>
     </div>
   </main>
-  <footer>Made by TrixWotel · <a href="https://github.com/TrixWotel/Fluentio">Source on GitHub</a></footer>
+  <footer>TrixWotel <span id="year">2026</span> · <a href="https://github.com/TrixWotel/Fluentio">Source on GitHub</a></footer>
 </body>
 </html>
