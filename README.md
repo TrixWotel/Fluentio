@@ -1,18 +1,16 @@
 # Fluentio
 
-My personal web playground, on GitHub Pages.
+My personal web playground. Private repo, hosted on Cloudflare Pages (served from this private repo, kept off search engines with robots noindex).
 
-Main page: https://trixwotel.github.io/Fluentio/
+## Layout
 
-Geography tests: https://trixwotel.github.io/Fluentio/geography/
+Everything is on `main`, served as static files:
 
-## Branches
+- `index.html`, `404.html` — the main page
+- `geography/` — the geography tests (world map and each continent)
+- `robots.txt` — tells search engines not to index the site
 
-**main** is the main page, at the top of the site.
-
-**geography** is the geography tests, served under /geography: find countries on the world map, or one continent at a time.
-
-A push to either branch puts the whole site online again in about a minute (Actions, "Deploy the site").
+No build step: Cloudflare Pages serves these files as they are.
 
 ## License
 

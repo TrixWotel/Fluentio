@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Geography Tests · Fluentio</title>
+  <meta name="description" content="Find countries on the world map, or one continent at a time.">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f7f9; --card: #ffffff; --text: #1b1f24; --muted: #5b6470; --accent: #2f6fed; --line: #e3e6ea;
+      --ocean: #d6e6f5; --land: #e4e1da; --country: #fbf8f1; --border: #9aa4b1; --hover: #c9d9ff;
+      --good: #2da44e; --late: #d4a72c; --bad: #e5534b;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1115; --card: #171a21; --text: #e8eaee; --muted: #9aa3ae; --accent: #6c9bff; --line: #262b35;
+        --ocean: #0c1828; --land: #23272e; --country: #4d5768; --border: #151920; --hover: #5b7fd6;
+        --good: #3fb950; --late: #d29922; --bad: #f85149;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+      font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg); color: var(--text);
+    }
+    main { width: 100%; max-width: 1100px; margin: 0 auto; padding: 40px 20px 32px; flex: 1; }
+    [hidden] { display: none !important; }
+    .back { display: inline-block; color: var(--muted); text-decoration: none; margin-bottom: 20px; }
+    .back:hover { color: var(--accent); }
+    h1 { font-size: 2.4rem; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 8px; }
+    .lead { color: var(--muted); font-size: 1.1rem; margin: 0 0 32px; }
+    h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 12px; }
+    button { font: inherit; color: inherit; cursor: pointer; }
+
+    /* the tests */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+    .card {
+      text-align: left; padding: 18px 20px; background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .card.big { grid-column: 1 / -1; }
+    .card b { display: block; font-size: 1.1rem; }
+    .card .count { color: var(--muted); font-size: .95rem; }
+    .card .best { display: block; margin-top: 8px; font-size: .85rem; color: var(--muted); }
+    .card .best.has { color: var(--good); }
+
+    /* a test */
+    .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-bottom: 12px; }
+    .prompt { flex: 1 1 320px; font-size: 1.05rem; }
+    .prompt b { display: block; font-size: 1.8rem; line-height: 1.2; letter-spacing: -0.01em; }
+    .stats { display: flex; gap: 16px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .stats span b { color: var(--text); }
+    .btn { padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); }
+    .btn:hover { border-color: var(--accent); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .note { min-height: 1.6em; color: var(--muted); margin: 0 0 10px; }
+    .note.bad { color: var(--bad); }
+    .note.good { color: var(--good); }
+    .map-wrap { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: var(--ocean); }
+    .map-wrap svg { display: block; width: 100%; height: auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+    .zoom { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .zoom button { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line); background: var(--card); font-size: 1.1rem; line-height: 1; }
+    .hint { color: var(--muted); font-size: .85rem; margin: 8px 2px 0; }
+
+    /* the map */
+    .sphere { fill: var(--ocean); }
+    .land, .country { stroke: var(--border); stroke-width: .6; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+    .land { fill: var(--land); pointer-events: none; }
+    .country { fill: var(--country); cursor: pointer; transition: fill .15s ease; }
+    .country:hover { fill: var(--hover); }
+    .dot { fill: var(--country); stroke: var(--border); stroke-width: 1; vector-effect: non-scaling-stroke; cursor: pointer; }
+    .dot:hover { fill: var(--hover); }
+    .found, .found:hover { fill: var(--good); }
+    .late, .late:hover { fill: var(--late); }
+    .missed, .missed:hover { fill: var(--bad); }
+    .wrong { animation: wrong .6s ease; }
+    .reveal { animation: reveal .5s ease 3; }
+    @keyframes wrong { 0%, 100% { fill: var(--country); } 30% { fill: var(--bad); } }
+    @keyframes reveal { 0%, 100% { fill: var(--bad); } 50% { fill: var(--country); } }
+
+    /* the results */
+    .result { max-width: 640px; }
+    .score { font-size: 3.6rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin: 6px 0 8px; }
+    .result .row { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0; }
+    .missed-list { color: var(--muted); }
+    .missed-list b { color: var(--text); }
+
+    footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 24px 20px 32px; }
+    footer a { color: inherit; }
+  </style>
+</head>
+<body>
+  <main>
+    <!-- the tests -->
+    <section id="picker">
+      <a class="back" href="../">← Fluentio</a>
+      <h1>🌍 Geography Tests</h1>
+      <p class="lead">Find each country on the map. Pick the whole world, or one continent.</p>
+      <h2>Tests</h2>
+      <div class="grid" id="tests"></div>
+    </section>
+
+    <!-- a test -->
+    <section id="quiz" hidden>
+      <div class="bar">
+        <div class="prompt">Click on <b id="target">…</b></div>
+        <div class="stats">
+          <span><b id="done">0</b> / <b id="total">0</b></span>
+          <span>✓ <b id="right">0</b></span>
+          <span>⏱ <b id="time">0:00</b></span>
+        </div>
+        <button class="btn" id="skip">Skip</button>
+        <button class="btn" id="quit">Quit</button>
+      </div>
+      <p class="note" id="note"></p>
+      <div class="map-wrap">
+        <div id="map"></div>
+        <div class="zoom">
+          <button id="zoom-in" title="Zoom in">+</button>
+          <button id="zoom-out" title="Zoom out">−</button>
+          <button id="zoom-reset" title="Whole map">⤢</button>
+        </div>
+      </div>
+      <p class="hint">Scroll or pinch to zoom, drag to move. Three wrong tries and the answer is shown.</p>
+    </section>
+
+    <!-- the results -->
+    <section id="result" class="result" hidden>
+      <h2 id="result-name"></h2>
+      <div class="score" id="score"></div>
+      <div id="summary"></div>
+      <div class="row">
+        <button class="btn primary" id="again">Try Again</button>
+        <button class="btn" id="others">All Tests</button>
+      </div>
+      <p class="missed-list" id="missed"></p>
+    </section>
+  </main>
+  <footer>Made by TrixWotel · Map data: <a href="https://www.naturalearthdata.com/">Natural Earth</a></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <script src="quiz.js"></script>
+</body>
+</html>
