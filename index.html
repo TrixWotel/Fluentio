@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TrixWotel's Playground</title>
+  <meta name="description" content="My personal web playground.">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f7f9; --card: #ffffff; --text: #1b1f24; --muted: #5b6470; --accent: #2f6fed; --line: #e3e6ea;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #0f1115; --card: #171a21; --text: #e8eaee; --muted: #9aa3ae; --accent: #6c9bff; --line: #262b35; }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+      font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg); color: var(--text);
+    }
+    main { width: 100%; max-width: 760px; margin: 0 auto; padding: 72px 20px 40px; flex: 1; }
+    h1 { font-size: 2.4rem; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 8px; }
+    .lead { color: var(--muted); font-size: 1.1rem; margin: 0 0 40px; }
+    h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+    .card {
+      display: block; padding: 18px 20px; background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      color: inherit; text-decoration: none; transition: transform .15s ease, border-color .15s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .card b { display: block; font-size: 1.05rem; margin-bottom: 4px; }
+    .card span { color: var(--muted); font-size: .95rem; }
+    footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 24px 20px 32px; }
+    footer a { color: inherit; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>TrixWotel's Playground</h1>
+    <p class="lead">My corner of the web for trying things out.</p>
+
+    <h2>Projects</h2>
+    <div class="grid">
+      <a class="card" href="geography/"><b>🌍 Geography Tests</b><span>Quizzes and experiments about the world.</span></a>
+    </div>
+  </main>
+  <footer>Made by TrixWotel · <a href="https://github.com/TrixWotel/TrixWotel.github.io">Source on GitHub</a></footer>
+</body>
+</html>
