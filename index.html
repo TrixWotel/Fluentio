@@ -3,52 +3,51 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Fluentio</title>
-  <meta name="description" content="My personal web playground.">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --bg: #f6f7f9; --card: #ffffff; --text: #1b1f24; --muted: #5b6470; --accent: #2f6fed; --line: #e3e6ea;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root { --bg: #0f1115; --card: #171a21; --text: #e8eaee; --muted: #9aa3ae; --accent: #6c9bff; --line: #262b35; }
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; min-height: 100vh; display: flex; flex-direction: column;
-      font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg); color: var(--text);
-    }
-    main { width: 100%; max-width: 760px; margin: 0 auto; padding: 72px 20px 40px; flex: 1; }
-    h1 { font-size: 2.4rem; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 8px; }
-    .lead { color: var(--muted); font-size: 1.1rem; margin: 0 0 40px; }
-    h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 12px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
-    .card {
-      display: block; padding: 18px 20px; background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-      color: inherit; text-decoration: none; transition: transform .15s ease, border-color .15s ease;
-    }
-    .card:hover { transform: translateY(-2px); border-color: var(--accent); }
-    .card b { display: block; font-size: 1.05rem; margin-bottom: 4px; }
-    .card span { color: var(--muted); font-size: .95rem; }
-    footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 24px 20px 32px; }
-    footer a { color: inherit; }
-  </style>
+  <title>Science Tests · Fluentio</title>
+  <meta name="description" content="Heat capacity questions, Q = mcΔT, with hundreds of variants and a worked solution for each.">
+  <link rel="stylesheet" href="../kit/tests.css">
 </head>
-<body>
+<body data-title="Science Tests · Fluentio">
   <main>
-    <h1>Fluentio</h1>
-    <p class="lead">Web stack workspace</p>
-
-    <h2>Projects</h2>
-    <div class="grid">
-      <a class="card" href="geography/"><b>🌍 Geography Tests</b><span>Find countries on the world map, or one continent at a time.</span></a>
-      <a class="card" href="math/"><b>📐 Math Tests</b><span>Triangle angles and AMC 10 practice, hundreds of variants each.</span></a>
-      <a class="card" href="science/"><b>🧪 Science Tests</b><span>Heat capacity with Q = mcΔT: warming, cooling and mixing.</span></a>
-      <a class="card" href="physics/"><b>🚀 Physics Tests</b><span>Kinematics with motion graphs, a new graph for every variant.</span></a>
-    </div>
+    <header id="top">
+      <a class="back" href="../">← Fluentio</a>
+      <h1>🧪 Science Tests</h1>
+      <p class="lead">Heat capacity with Q = mcΔT. Every question comes in hundreds of variants, each with a worked solution.</p>
+    </header>
+    <div id="app"><noscript>These tests need JavaScript.</noscript></div>
   </main>
   <footer>TrixWotel <span id="year">2026</span></footer>
-  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  <script type="module">
+    import { testsPage } from '../kit/tests.js';
+    import { heat, MATERIALS } from './heat.js';
+
+    // the formulas, next to the table of specific heats the questions use
+    const formulas = () => {
+      const box = document.createElement('div');
+      box.className = 'cols';
+      box.innerHTML = `<ul>
+          <li><span class="f">Q = mcΔT</span>: heat (J) = mass (g) × specific heat × change in temperature (°C).</li>
+          <li><span class="f">ΔT = final − initial</span>. Something that cools gives heat off.</li>
+          <li>Mixing: heat lost by the hot thing = heat gained by the cold thing.</li>
+          <li>A heater gives <span class="f">Q = P × t</span> (watts × seconds = joules).</li>
+          <li>1 kJ = 1000 J, and 1 cal = 4.184 J.</li>
+          <li>In J/(kg·°C) a specific heat is 1000 times bigger than in J/(g·°C).</li>
+        </ul>
+        <table class="data"><thead><tr><th>Material</th><th>c, J/(g·°C)</th></tr></thead><tbody>${
+          MATERIALS.map(([name, c]) => `<tr><td>${name[0].toUpperCase() + name.slice(1)}</td><td>${c}</td></tr>`).join('')
+        }</tbody></table>`;
+      return box;
+    };
+
+    testsPage({ tests: [
+      {
+        bank: heat, name: 'Heat Capacity: Q = mcΔT', length: 10,
+        blurb: 'Warming, cooling, mixing hot metal into water, heaters and calories.',
+        about: 'Use Q = mcΔT to find the heat, the temperature change, the mass or the specific heat. Answers within 1% are right, so round as you like. The specific heats are in the table below.',
+        asideName: 'Formulas and specific heats', aside: formulas, asideOpen: true,   // some questions ask which material in the table
+      },
+    ] });
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
