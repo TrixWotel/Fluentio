@@ -1,9 +1,0 @@
-{
-  // Serves this repo's static files (index.html, /geography, 404.html) on Cloudflare — no build step.
-  "name": "fluentio",
-  "compatibility_date": "2025-10-01",
-  "assets": {
-    "directory": ".",
-    "not_found_handling": "404-page"
-  }
-}
