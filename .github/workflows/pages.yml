@@ -1,0 +1,55 @@
+# Puts the whole site online whenever either branch changes:
+# the main branch is the main page, and the geography branch is served under /geography.
+name: Deploy the site
+
+on:
+  push:
+    branches: [main, geography]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# one deploy at a time, and none cancelled halfway
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Get the main page (main branch)
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          path: main
+
+      - name: Get the geography tests (geography branch)
+        uses: actions/checkout@v7
+        with:
+          ref: geography
+          path: geography
+
+      - name: Put the site together
+        run: |
+          mkdir -p _site/geography
+          cp -R main/. _site/
+          cp -R geography/. _site/geography/
+          for d in _site _site/geography; do rm -rf "$d/.git" "$d/.github" "$d/README.md" "$d/LICENSE"; done
+          find _site -type f | sort
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
