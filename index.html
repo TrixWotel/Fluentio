@@ -3,52 +3,52 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Fluentio</title>
-  <meta name="description" content="My personal web playground.">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --bg: #f6f7f9; --card: #ffffff; --text: #1b1f24; --muted: #5b6470; --accent: #2f6fed; --line: #e3e6ea;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root { --bg: #0f1115; --card: #171a21; --text: #e8eaee; --muted: #9aa3ae; --accent: #6c9bff; --line: #262b35; }
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; min-height: 100vh; display: flex; flex-direction: column;
-      font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg); color: var(--text);
-    }
-    main { width: 100%; max-width: 760px; margin: 0 auto; padding: 72px 20px 40px; flex: 1; }
-    h1 { font-size: 2.4rem; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 8px; }
-    .lead { color: var(--muted); font-size: 1.1rem; margin: 0 0 40px; }
-    h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 12px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
-    .card {
-      display: block; padding: 18px 20px; background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-      color: inherit; text-decoration: none; transition: transform .15s ease, border-color .15s ease;
-    }
-    .card:hover { transform: translateY(-2px); border-color: var(--accent); }
-    .card b { display: block; font-size: 1.05rem; margin-bottom: 4px; }
-    .card span { color: var(--muted); font-size: .95rem; }
-    footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 24px 20px 32px; }
-    footer a { color: inherit; }
-  </style>
+  <title>Physics Tests · Fluentio</title>
+  <meta name="description" content="Kinematics questions with motion graphs, hundreds of variants and a worked solution for each.">
+  <link rel="stylesheet" href="../kit/tests.css">
 </head>
-<body>
+<body data-title="Physics Tests · Fluentio">
   <main>
-    <h1>Fluentio</h1>
-    <p class="lead">Web stack workspace</p>
-
-    <h2>Projects</h2>
-    <div class="grid">
-      <a class="card" href="geography/"><b>🌍 Geography Tests</b><span>Find countries on the world map, or one continent at a time.</span></a>
-      <a class="card" href="math/"><b>📐 Math Tests</b><span>Triangle angles and AMC 10 practice, hundreds of variants each.</span></a>
-      <a class="card" href="science/"><b>🧪 Science Tests</b><span>Heat capacity with Q = mcΔT: warming, cooling and mixing.</span></a>
-      <a class="card" href="physics/"><b>🚀 Physics Tests</b><span>Kinematics with motion graphs, a new graph for every variant.</span></a>
-    </div>
+    <header id="top">
+      <a class="back" href="../">← Fluentio</a>
+      <h1>🚀 Physics Tests</h1>
+      <p class="lead">Kinematics with motion graphs. Every question comes in hundreds of variants, each with its own graph and a worked solution.</p>
+    </header>
+    <div id="app"><noscript>These tests need JavaScript.</noscript></div>
   </main>
   <footer>TrixWotel <span id="year">2026</span></footer>
-  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  <script type="module">
+    import { testsPage } from '../kit/tests.js';
+    import { kinematics } from './kinematics.js';
+
+    const formulas = () => {
+      const box = document.createElement('div');
+      box.className = 'cols';
+      box.innerHTML = `<ul>
+          <li>Position–time (x–t) graph: the <b>slope</b> is the velocity.</li>
+          <li>Velocity–time (v–t) graph: the <b>slope</b> is the acceleration and the <b>area</b> under it is the displacement (area below the axis counts as negative; for distance, count it all as positive).</li>
+          <li>Acceleration–time (a–t) graph: the <b>area</b> is the change in velocity.</li>
+          <li>Average velocity = displacement ÷ time.</li>
+        </ul>
+        <ul>
+          <li><span class="f">v = u + at</span></li>
+          <li><span class="f">s = ut + ½at²</span></li>
+          <li><span class="f">v² = u² + 2as</span></li>
+          <li><span class="f">s = ½(u + v)t</span></li>
+          <li>Falling (no air resistance): <span class="f">g = 9.8 m/s²</span>, downward.</li>
+        </ul>`;
+      return box;
+    };
+
+    testsPage({ tests: [
+      {
+        bank: kinematics, name: 'Kinematics', length: 10,
+        blurb: 'Read x–t, v–t and a–t graphs, plus braking, free fall and throwing things up. Every variant has its own graph.',
+        about: 'Slopes and areas of motion graphs, and the equations of constant acceleration. Answers within 2% are right, so round as you like.',
+        asideName: 'Formulas', aside: formulas,
+      },
+    ] });
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
