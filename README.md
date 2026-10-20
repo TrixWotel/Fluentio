@@ -1,17 +1,10 @@
-# Fluentio
+# Fluentio: Geography Tests
 
-My personal web playground. Private repo, hosted on Cloudflare Pages (served from this private repo, kept off search engines with robots noindex).
+Served at https://trixwotel.github.io/Fluentio/geography/ as the geography folder of the Fluentio site (see the main branch).
 
-## Layout
-
-Everything is on `main`, served as static files:
-
-- `index.html`, `404.html` — the main page
-- `geography/` — the geography tests (world map and each continent)
-- `robots.txt` — tells search engines not to index the site
-
-No build step: Cloudflare Pages serves these files as they are.
+* **index.html** and **quiz.js** are the tests: the World Map, or one continent at a time. A test names a country and you click it.
+* **countries.json** is the map: Natural Earth countries at 50m (public domain), simplified.
 
 ## License
 
-Apache License 2.0, see LICENSE. The geography tests' map comes from Natural Earth (public domain).
+Apache License 2.0, see LICENSE. The map comes from Natural Earth (public domain).
