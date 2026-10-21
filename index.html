@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Geography Tests · Fluentio</title>
-  <meta name="description" content="Find countries on the world map, or one continent at a time.">
+  <meta name="description" content="Find countries and capitals on the world map, or one continent at a time.">
   <style>
     :root {
       color-scheme: light dark;
@@ -42,6 +42,7 @@
     }
     .card:hover { transform: translateY(-2px); border-color: var(--accent); }
     .card.big { grid-column: 1 / -1; }
+    .grid + h2 { margin-top: 32px; }
     .card b { display: block; font-size: 1.1rem; }
     .card .count { color: var(--muted); font-size: .95rem; }
     .card .best { display: block; margin-top: 8px; font-size: .85rem; color: var(--muted); }
@@ -73,6 +74,8 @@
     .country:hover { fill: var(--hover); }
     .dot { fill: var(--country); stroke: var(--border); stroke-width: 1; vector-effect: non-scaling-stroke; cursor: pointer; }
     .dot:hover { fill: var(--hover); }
+    .capital { fill: var(--text); stroke: var(--card); }
+    .capital:hover { fill: var(--accent); }
     .found, .found:hover { fill: var(--good); }
     .late, .late:hover { fill: var(--late); }
     .missed, .missed:hover { fill: var(--bad); }
@@ -98,15 +101,17 @@
     <section id="picker">
       <a class="back" href="../">← Fluentio</a>
       <h1>🌍 Geography Tests</h1>
-      <p class="lead">Find each country on the map. Pick the whole world, or one continent.</p>
-      <h2>Tests</h2>
+      <p class="lead">Find each country on the map, or each capital. Pick the whole world, or one continent.</p>
+      <h2>Countries</h2>
       <div class="grid" id="tests"></div>
+      <h2>Capitals</h2>
+      <div class="grid" id="capital-tests"></div>
     </section>
 
     <!-- a test -->
     <section id="quiz" hidden>
       <div class="bar">
-        <div class="prompt">Click on <b id="target">…</b></div>
+        <div class="prompt"><span id="ask">Click on</span> <b id="target">…</b></div>
         <div class="stats">
           <span><b id="done">0</b> / <b id="total">0</b></span>
           <span>✓ <b id="right">0</b></span>
@@ -124,7 +129,7 @@
           <button id="zoom-reset" title="Whole map">⤢</button>
         </div>
       </div>
-      <p class="hint">Scroll or pinch to zoom, drag to move. Three wrong tries and the answer is shown.</p>
+      <p class="hint"><span id="hint-capitals" hidden>Each dot is a capital: click it, or anywhere in its country. </span>Scroll or pinch to zoom, drag to move. Three wrong tries and the answer is shown.</p>
     </section>
 
     <!-- the results -->

@@ -1,9 +1,11 @@
-// Geography Tests: find each country on the map, for the whole world or one continent at a time.
+// Geography Tests: find each country on the map, or each capital, for the whole world or one continent at a time.
 // The map is Natural Earth's (countries.json: every country's shape, name and continent). d3 draws it.
-// A country right on the first try is worth 1 point, on the second or third try half a point. After three
+// capitals.json is each country's capital and where it is: [name, longitude, latitude, and maybe a line to say after].
+// A capitals test names a capital, and its dot or anywhere in its country is the answer.
+// Right on the first try is worth 1 point, on the second or third try half a point. After three
 // wrong tries (or Skip) the answer blinks, and it's worth nothing. Best scores stay in this browser.
 
-const TESTS = [
+const MAPS = [
   { id: 'world', name: 'World Map', icon: '🌍', box: [-180, -57, 180, 84] },
   { id: 'af', name: 'Africa', icon: '🌍', box: [-26, -36, 58, 38] },
   { id: 'as', name: 'Asia', icon: '🌏', box: [25, -11, 146, 56] },
@@ -12,25 +14,33 @@ const TESTS = [
   { id: 'sa', name: 'South America', icon: '🌎', box: [-82, -56, -34, 13] },
   { id: 'oc', name: 'Oceania', icon: '🌏', box: [112, -48, 200, 16] },
 ];
+// every map twice: its countries (geography/#eu), and its capitals (geography/#capitals/eu)
+const TESTS = [
+  ...MAPS.map((m) => ({ id: m.id, name: m.name, icon: m.icon, map: m })),
+  ...MAPS.map((m) => ({ id: 'capitals/' + m.id, name: m.id === 'world' ? 'World Capitals' : 'Capitals of ' + m.name, icon: m.icon, map: m, capitals: true })),
+];
 const W = 960, H = 600, PAD = 14, DOT = 30;        // (a country smaller than DOT square px on the map also gets a dot to click)
 const $ = (id) => document.getElementById(id);
 
 let features = [];                                  // every shape on the map
 const countries = new Map();                        // id -> { id, name, c }
+const capitals = new Map();                         // country id -> { name, at: [longitude, latitude], also }
 let test = null, order = [], at = 0, tries = 0, points = 0, firstTry = 0, late = 0, missed = [];
 let startedAt = 0, tick = 0, busy = false, svg = null, zoom = null;
 
 // ---------- the map's data ----------
 async function load() {
-  const topo = await d3.json('countries.json');
+  const [topo, caps] = await Promise.all([d3.json('countries.json'), d3.json('capitals.json')]);
   features = topojson.feature(topo, topo.objects.countries).features;
   for (const f of features) {
     const p = f.properties;
     if (p.n) countries.set(p.id, { id: p.id, name: p.n, c: p.c });
   }
+  for (const [id, [name, lon, lat, also]] of Object.entries(caps)) capitals.set(id, { name, at: [lon, lat], also });
 }
-const countriesOf = (t) => [...countries.values()].filter((x) => t.id === 'world' || x.c === t.id);
+const countriesOf = (t) => [...countries.values()].filter((x) => (t.map.id === 'world' || x.c === t.map.id) && (!t.capitals || capitals.has(x.id)));
 const nameOf = (id) => (countries.get(id) || {}).name || id;
+const capitalOf = (id) => (capitals.get(id) || {}).name || id;
 
 // ---------- best scores (this browser only) ----------
 function bests() { try { return JSON.parse(localStorage.getItem('fluentio.geo.best')) || {}; } catch { return {}; } }
@@ -48,14 +58,16 @@ function showPicker() {
   stop();
   $('quiz').hidden = true; $('result').hidden = true; $('picker').hidden = false;
   const all = bests();
-  $('tests').replaceChildren(...TESTS.map((t) => {
+  const card = (t) => {
     const b = document.createElement('button'), best = all[t.id];
-    b.className = 'card' + (t.id === 'world' ? ' big' : '');
-    b.innerHTML = `<b>${t.icon} ${t.name}</b><span class="count">${countriesOf(t).length} countries</span>`
+    b.className = 'card' + (t.map.id === 'world' ? ' big' : '');
+    b.innerHTML = `<b>${t.icon} ${t.name}</b><span class="count">${countriesOf(t).length} ${t.capitals ? 'capitals' : 'countries'}</span>`
       + `<span class="best${best ? ' has' : ''}">${best ? `Best: ${best.pct}% in ${clock(best.ms)}` : 'Not tried yet'}</span>`;
     b.onclick = () => { location.hash = t.id; };
     return b;
-  }));
+  };
+  $('tests').replaceChildren(...TESTS.filter((t) => !t.capitals).map(card));
+  $('capital-tests').replaceChildren(...TESTS.filter((t) => t.capitals).map(card));
 }
 
 // ---------- a test ----------
@@ -66,34 +78,35 @@ function boxShape([w, s, e, n]) {           // the area a test shows, as points 
   return { type: 'MultiPoint', coordinates: pts };
 }
 function projectionFor(t) {
-  const [w, s, e, n] = t.box;
-  const p = t.id === 'world' ? d3.geoNaturalEarth1() : d3.geoAzimuthalEqualArea().rotate([-(w + e) / 2, -(s + n) / 2]);
-  return p.fitExtent([[PAD, PAD], [W - PAD, H - PAD]], boxShape(t.box));
+  const [w, s, e, n] = t.map.box;
+  const p = t.map.id === 'world' ? d3.geoNaturalEarth1() : d3.geoAzimuthalEqualArea().rotate([-(w + e) / 2, -(s + n) / 2]);
+  return p.fitExtent([[PAD, PAD], [W - PAD, H - PAD]], boxShape(t.map.box));
 }
 
 function drawMap(t) {
-  const path = d3.geoPath(projectionFor(t));
+  const projection = projectionFor(t), path = d3.geoPath(projection);
   const playing = new Set(countriesOf(t).map((x) => x.id));
-  const root = d3.create('svg').attr('viewBox', [0, 0, W, H]).attr('role', 'img').attr('aria-label', `Map of ${t.name}`);
+  const root = d3.create('svg').attr('viewBox', [0, 0, W, H]).attr('role', 'img').attr('aria-label', `Map of ${t.map.name}`);
   const g = root.append('g');
   g.append('path').attr('class', 'sphere').attr('d', path({ type: 'Sphere' }));
   g.selectAll('path.shape').data(features).join('path')
     .attr('class', (f) => (playing.has(f.properties.id) ? 'country' : 'land'))
     .attr('data-id', (f) => (playing.has(f.properties.id) ? f.properties.id : null))
     .attr('d', path);
-  // tiny countries: a dot to click as well
+  // tiny countries: a dot to click as well. A capitals test has a dot on every capital instead (a big one for a tiny country).
   const dots = [];
   for (const id of playing) {
     const shapes = features.filter((f) => f.properties.id === id);
-    if (d3.sum(shapes, (f) => path.area(f)) >= DOT) continue;
-    const [x, y] = path.centroid(d3.greatest(shapes, (f) => path.area(f)));
-    if (Number.isFinite(x) && Number.isFinite(y)) dots.push({ id, x, y });
+    const tiny = d3.sum(shapes, (f) => path.area(f)) < DOT;
+    if (!tiny && !t.capitals) continue;
+    const [x, y] = t.capitals ? projection(capitals.get(id).at) : path.centroid(d3.greatest(shapes, (f) => path.area(f)));
+    if (Number.isFinite(x) && Number.isFinite(y)) dots.push({ id, x, y, r: tiny ? 6 : 3 });
   }
-  g.selectAll('circle').data(dots).join('circle').attr('class', 'dot').attr('data-id', (d) => d.id)
-    .attr('cx', (d) => d.x).attr('cy', (d) => d.y).attr('r', 6);
+  g.selectAll('circle').data(dots).join('circle').attr('class', t.capitals ? 'dot capital' : 'dot').attr('data-id', (d) => d.id)
+    .attr('cx', (d) => d.x).attr('cy', (d) => d.y).attr('r', (d) => d.r);
 
   zoom = d3.zoom().scaleExtent([1, 24]).translateExtent([[0, 0], [W, H]]).clickDistance(4)
-    .on('zoom', (e) => { g.attr('transform', e.transform); g.selectAll('circle').attr('r', 6 / Math.sqrt(e.transform.k)); });
+    .on('zoom', (e) => { g.attr('transform', e.transform); g.selectAll('circle').attr('r', (d) => d.r / Math.sqrt(e.transform.k)); });
   root.call(zoom).on('dblclick.zoom', null);
   root.on('click', (e) => { const el = e.target.closest('[data-id]'); if (el) answer(el.dataset.id); });
   svg = root.node();
@@ -108,7 +121,10 @@ function start(t) {
   $('picker').hidden = true; $('result').hidden = true; $('quiz').hidden = false;
   drawMap(t);
   $('total').textContent = order.length;
-  note(`${t.name}: ${order.length} countries. Click the one named above.`);
+  $('ask').textContent = t.capitals ? 'Find the capital' : 'Click on';
+  $('hint-capitals').hidden = !t.capitals;
+  note(t.capitals ? `${t.name}: ${order.length} capitals. Click the one named above, or its country.`
+    : `${t.name}: ${order.length} countries. Click the one named above.`);
   ask();
   startedAt = Date.now();
   tick = setInterval(() => { $('time').textContent = clock(Date.now() - startedAt); }, 1000);
@@ -116,7 +132,7 @@ function start(t) {
 }
 function stop() { clearInterval(tick); tick = 0; }
 function ask() {
-  $('target').textContent = nameOf(order[at]);
+  $('target').textContent = test.capitals ? capitalOf(order[at]) : nameOf(order[at]);
   $('done').textContent = at;
   $('right').textContent = firstTry + late;
 }
@@ -130,19 +146,24 @@ function flash(id, cls, ms) {
   }
 }
 
+// what the notes say about a country: in a capitals test, its capital too
+const fact = (id) => `${capitalOf(id)} is the capital of ${nameOf(id)}.` + (capitals.get(id)?.also ? ' ' + capitals.get(id).also : '');
+const clicked = (id) => (test.capitals ? `That's ${nameOf(id)}, whose capital is ${capitalOf(id)}.` : `That's ${nameOf(id)}.`);
+const blinking = (id) => (test.capitals ? `${capitalOf(id)} is in ${nameOf(id)}, the one blinking.` : `${nameOf(id)} is the one blinking.`);
+
 function answer(id) {
   if (busy || at >= order.length) return;
   const want = order[at];
   if (id === want) {
-    if (tries === 0) { points += 1; firstTry++; mark(id, 'found'); note(`Right, that's ${nameOf(id)}.`, 'good'); }
-    else { points += 0.5; late++; mark(id, 'late'); note(`Got it on try ${tries + 1}: ${nameOf(id)}.`, 'good'); }
+    if (tries === 0) { points += 1; firstTry++; mark(id, 'found'); note(test.capitals ? `Right, ${fact(id)}` : `Right, that's ${nameOf(id)}.`, 'good'); }
+    else { points += 0.5; late++; mark(id, 'late'); note(`Got it on try ${tries + 1}: ${test.capitals ? fact(id) : nameOf(id) + '.'}`, 'good'); }
     next();
     return;
   }
   tries++;
   flash(id, 'wrong', 600);
-  if (tries >= 3) reveal(want, `That's ${nameOf(id)}. ${nameOf(want)} is the one blinking.`);
-  else note(`That's ${nameOf(id)}. Try again (${3 - tries} ${3 - tries === 1 ? 'try' : 'tries'} left).`, 'bad');
+  if (tries >= 3) reveal(want, `${clicked(id)} ${blinking(want)}`);
+  else note(`${clicked(id)} Try again (${3 - tries} ${3 - tries === 1 ? 'try' : 'tries'} left).`, 'bad');
 }
 // the answer blinks, then the next country
 function reveal(id, text) {
@@ -167,11 +188,12 @@ function finish() {
   $('score').textContent = pct + '%';
   $('summary').textContent = `${firstTry} on the first try, ${late} after a wrong try, ${missed.length} shown to you. Time: ${clock(ms)}.`
     + (best ? ' A new best!' : '');
-  $('missed').innerHTML = missed.length ? '<b>To practice:</b> ' + missed.map(nameOf).sort().join(', ') : '';
+  const practice = test.capitals ? (id) => `${capitalOf(id)} (${nameOf(id)})` : nameOf;
+  $('missed').innerHTML = missed.length ? '<b>To practice:</b> ' + missed.map(practice).sort().join(', ') : '';
 }
 
-// ---------- buttons, and links like geography/#eu ----------
-$('skip').onclick = () => { if (!busy && at < order.length) reveal(order[at], `${nameOf(order[at])} is the one blinking.`); };
+// ---------- buttons, and links like geography/#eu or geography/#capitals/eu ----------
+$('skip').onclick = () => { if (!busy && at < order.length) reveal(order[at], blinking(order[at])); };
 $('quit').onclick = () => { if (at === 0 || confirm('Quit this test?')) toPicker(); };
 $('again').onclick = () => start(test);
 $('others').onclick = () => toPicker();
