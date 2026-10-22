@@ -6,7 +6,7 @@ My personal web playground, live at https://trixwotel.github.io/Fluentio/
 
 Every branch is one part of the site. A push to any of them puts the whole site back together and deploys it with the workflow in .github/workflows/pages.yml (the same file is on every branch).
 
-* **main** is the main page, served at the top. It also holds kit/, the test runner and question toolkit that the Math, Science and Physics tests share.
+* **space** is the main page, served at the top. It also holds kit/, the test runner and question toolkit that the Math, Science and Physics tests share.
 * **geography** is served at /geography: find countries on the world map, or one continent at a time.
 * **math** is served at /math: Triangle Angles (220 variants) and AMC 10 Practice (240 variants).
 * **science** is served at /science: Heat Capacity with Q = mcΔT (220 variants).
