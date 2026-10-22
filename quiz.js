@@ -1,7 +1,7 @@
 // Geography Tests: find each country on the map, or each capital, for the whole world or one continent at a time.
 // The map is Natural Earth's (countries.json: every country's shape, name and continent). d3 draws it.
 // capitals.json is each country's capital and where it is: [name, longitude, latitude, and maybe a line to say after].
-// A capitals test names a capital, and its dot or anywhere in its country is the answer.
+// A capitals test has the same map as a country test: it names a capital, and you click its country.
 // Right on the first try is worth 1 point, on the second or third try half a point. After three
 // wrong tries (or Skip) the answer blinks, and it's worth nothing. Best scores stay in this browser.
 
@@ -24,7 +24,7 @@ const $ = (id) => document.getElementById(id);
 
 let features = [];                                  // every shape on the map
 const countries = new Map();                        // id -> { id, name, c }
-const capitals = new Map();                         // country id -> { name, at: [longitude, latitude], also }
+const capitals = new Map();                         // country id -> { name, also }
 let test = null, order = [], at = 0, tries = 0, points = 0, firstTry = 0, late = 0, missed = [];
 let startedAt = 0, tick = 0, busy = false, svg = null, zoom = null;
 
@@ -36,7 +36,7 @@ async function load() {
     const p = f.properties;
     if (p.n) countries.set(p.id, { id: p.id, name: p.n, c: p.c });
   }
-  for (const [id, [name, lon, lat, also]] of Object.entries(caps)) capitals.set(id, { name, at: [lon, lat], also });
+  for (const [id, [name, , , also]] of Object.entries(caps)) capitals.set(id, { name, also });
 }
 const countriesOf = (t) => [...countries.values()].filter((x) => (t.map.id === 'world' || x.c === t.map.id) && (!t.capitals || capitals.has(x.id)));
 const nameOf = (id) => (countries.get(id) || {}).name || id;
@@ -84,7 +84,7 @@ function projectionFor(t) {
 }
 
 function drawMap(t) {
-  const projection = projectionFor(t), path = d3.geoPath(projection);
+  const path = d3.geoPath(projectionFor(t));
   const playing = new Set(countriesOf(t).map((x) => x.id));
   const root = d3.create('svg').attr('viewBox', [0, 0, W, H]).attr('role', 'img').attr('aria-label', `Map of ${t.map.name}`);
   const g = root.append('g');
@@ -93,20 +93,19 @@ function drawMap(t) {
     .attr('class', (f) => (playing.has(f.properties.id) ? 'country' : 'land'))
     .attr('data-id', (f) => (playing.has(f.properties.id) ? f.properties.id : null))
     .attr('d', path);
-  // tiny countries: a dot to click as well. A capitals test has a dot on every capital instead (a big one for a tiny country).
+  // tiny countries: a dot to click as well
   const dots = [];
   for (const id of playing) {
     const shapes = features.filter((f) => f.properties.id === id);
-    const tiny = d3.sum(shapes, (f) => path.area(f)) < DOT;
-    if (!tiny && !t.capitals) continue;
-    const [x, y] = t.capitals ? projection(capitals.get(id).at) : path.centroid(d3.greatest(shapes, (f) => path.area(f)));
-    if (Number.isFinite(x) && Number.isFinite(y)) dots.push({ id, x, y, r: tiny ? 6 : 3 });
+    if (d3.sum(shapes, (f) => path.area(f)) >= DOT) continue;
+    const [x, y] = path.centroid(d3.greatest(shapes, (f) => path.area(f)));
+    if (Number.isFinite(x) && Number.isFinite(y)) dots.push({ id, x, y });
   }
-  g.selectAll('circle').data(dots).join('circle').attr('class', t.capitals ? 'dot capital' : 'dot').attr('data-id', (d) => d.id)
-    .attr('cx', (d) => d.x).attr('cy', (d) => d.y).attr('r', (d) => d.r);
+  g.selectAll('circle').data(dots).join('circle').attr('class', 'dot').attr('data-id', (d) => d.id)
+    .attr('cx', (d) => d.x).attr('cy', (d) => d.y).attr('r', 6);
 
   zoom = d3.zoom().scaleExtent([1, 24]).translateExtent([[0, 0], [W, H]]).clickDistance(4)
-    .on('zoom', (e) => { g.attr('transform', e.transform); g.selectAll('circle').attr('r', (d) => d.r / Math.sqrt(e.transform.k)); });
+    .on('zoom', (e) => { g.attr('transform', e.transform); g.selectAll('circle').attr('r', 6 / Math.sqrt(e.transform.k)); });
   root.call(zoom).on('dblclick.zoom', null);
   root.on('click', (e) => { const el = e.target.closest('[data-id]'); if (el) answer(el.dataset.id); });
   svg = root.node();
@@ -121,9 +120,8 @@ function start(t) {
   $('picker').hidden = true; $('result').hidden = true; $('quiz').hidden = false;
   drawMap(t);
   $('total').textContent = order.length;
-  $('ask').textContent = t.capitals ? 'Find the capital' : 'Click on';
-  $('hint-capitals').hidden = !t.capitals;
-  note(t.capitals ? `${t.name}: ${order.length} capitals. Click the one named above, or its country.`
+  $('ask').textContent = t.capitals ? 'Click the country whose capital is' : 'Click on';
+  note(t.capitals ? `${t.name}: ${order.length} capitals. Click the country of the one named above.`
     : `${t.name}: ${order.length} countries. Click the one named above.`);
   ask();
   startedAt = Date.now();
