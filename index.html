@@ -23,9 +23,6 @@
     import { amc } from './amc.js';
 
     const list = (...items) => { const ul = document.createElement('ul'); ul.innerHTML = items.map((i) => `<li>${i}</li>`).join(''); return ul; };
-    // AMC problems get harder as you go, so a test puts the easier kinds first
-    const EASY_FIRST = ['Percent change', 'Averages', 'Arithmetic sequences', 'Working together', 'Counting divisors', 'Inclusion and exclusion',
-      'Remainders of powers', 'Probability with dice', 'Counting committees', 'Right triangles', 'Coordinate geometry', 'Symmetric sums'];
 
     testsPage({ tests: [
       {
@@ -42,9 +39,10 @@
       },
       {
         bank: amc, name: 'AMC 10 Practice', amc: true,
-        order: (n) => EASY_FIRST.indexOf(amc.make(n).topic),
+        // AMC problems get harder as you go, so a test puts them in order of rank (where each would sit in a real AMC 10)
+        order: (n) => amc.make(n).rank,
         blurb: 'Contest-style problems with five choices, and 25-question tests scored like the real AMC 10.',
-        about: 'Original problems in the style of the AMC 10 (the real ones belong to the MAA), on 12 classic contest topics. A test is 25 problems, easier ones first, with a 75 minute clock. Answer in any order and change your mind; nothing is marked until you finish.',
+        about: 'Original problems in the style of the AMC 10 (the real ones belong to the MAA): 12 classic contest topics, plus number theory, algebra, geometry, counting and probability problems modelled on past contests, with new numbers. A test is 25 problems, easier ones first, with a 75 minute clock. Answer in any order and change your mind; nothing is marked until you finish.',
       },
     ] });
     document.getElementById('year').textContent = new Date().getFullYear();
