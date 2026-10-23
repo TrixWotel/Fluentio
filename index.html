@@ -3,48 +3,58 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TrixWotel's Playground</title>
-  <meta name="description" content="My personal web playground.">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --bg: #f6f7f9; --card: #ffffff; --text: #1b1f24; --muted: #5b6470; --accent: #2f6fed; --line: #e3e6ea;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root { --bg: #0f1115; --card: #171a21; --text: #e8eaee; --muted: #9aa3ae; --accent: #6c9bff; --line: #262b35; }
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; min-height: 100vh; display: flex; flex-direction: column;
-      font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg); color: var(--text);
-    }
-    main { width: 100%; max-width: 760px; margin: 0 auto; padding: 72px 20px 40px; flex: 1; }
-    h1 { font-size: 2.4rem; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 8px; }
-    .lead { color: var(--muted); font-size: 1.1rem; margin: 0 0 40px; }
-    h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 12px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
-    .card {
-      display: block; padding: 18px 20px; background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-      color: inherit; text-decoration: none; transition: transform .15s ease, border-color .15s ease;
-    }
-    .card:hover { transform: translateY(-2px); border-color: var(--accent); }
-    .card b { display: block; font-size: 1.05rem; margin-bottom: 4px; }
-    .card span { color: var(--muted); font-size: .95rem; }
-    footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 24px 20px 32px; }
-    footer a { color: inherit; }
-  </style>
+  <title>Spanish · Fluentio</title>
+  <meta name="description" content="1,100 Spanish words in 25 themes, and the preterite and the imperfect: type the forms, choose them in sentences, and learn with lessons.">
+  <link rel="stylesheet" href="../kit/tests.css">
 </head>
-<body>
+<body data-title="Spanish · Fluentio">
   <main>
-    <h1>TrixWotel's Playground</h1>
-    <p class="lead">My corner of the web for trying things out.</p>
-
-    <h2>Projects</h2>
-    <div class="grid">
-      <a class="card" href="geography/"><b>🌍 Geography Tests</b><span>Quizzes and experiments about the world.</span></a>
-    </div>
+    <header id="top">
+      <a class="back" href="../">← Fluentio</a>
+      <h1>🇪🇸 Spanish</h1>
+      <p class="lead">1,100 words in 25 themes, and the two past tenses: the preterite and the imperfect. Learn with lessons, practise, and take tests.</p>
+    </header>
+    <div id="app"><noscript>These tests need JavaScript.</noscript></div>
   </main>
-  <footer>Made by TrixWotel · <a href="https://github.com/TrixWotel/TrixWotel.github.io">Source on GitHub</a></footer>
+  <footer>TrixWotel <span id="year">2026</span></footer>
+  <script type="module">
+    import { testsPage } from '../kit/tests.js';
+    import { vocab, vocabLearning } from './vocab.js';
+    import { preteriteTest, imperfectTest } from './tenses.js';
+    import { preteriteLearning, imperfectLearning } from './tense-lessons.js';
+    import { PERSONS, WHO, preterite, imperfect } from './verbs.js';
+
+    // the endings, and a few verbs in full, next to each tense
+    const endings = (tense) => () => {
+      const box = document.createElement('div');
+      const verbs = tense === 'pret' ? ['hablar', 'comer', 'vivir', 'ser', 'tener', 'hacer'] : ['hablar', 'comer', 'vivir', 'ser', 'ir', 'ver'];
+      const form = tense === 'pret' ? preterite : imperfect;
+      box.innerHTML = `<table class="data words"><thead><tr><th></th>${verbs.map((v) => `<th lang="es">${v}</th>`).join('')}</tr></thead><tbody>${
+        PERSONS.map((p) => `<tr><td>${WHO[p]}</td>${verbs.map((v) => `<td lang="es">${form(v, p)}</td>`).join('')}</tr>`).join('')
+      }</tbody></table>`;
+      return box;
+    };
+
+    testsPage({ tests: [
+      {
+        bank: vocab, name: 'Vocabulary', length: 20, learn: vocabLearning,
+        blurb: '1,100 everyday words in 25 themes, from greetings and food to travel and technology.',
+        about: 'Each question shows a word and five choices: what a Spanish word means, or how to say an English word in Spanish. Nouns come with their article (el or la), so you learn the gender too. Learning goes theme by theme, each with its word list.',
+      },
+      {
+        bank: preteriteTest, name: 'Preterite (pretérito)', length: 15, learn: preteriteLearning,
+        blurb: 'Finished actions in the past: hablé, comí, fui, tuve. Regular verbs, spelling and stem changes, irregular stems, and the tense in sentences.',
+        about: 'Type the form of a verb for a person (with or without the pronoun), or choose the form that fits a sentence. Accents count, so use the letter buttons if your keyboard has no á or ñ. Vosotros is left out.',
+        asideName: 'The preterite of six verbs', aside: endings('pret'),
+      },
+      {
+        bank: imperfectTest, name: 'Imperfect (imperfecto)', length: 15, learn: imperfectLearning,
+        blurb: 'What used to happen, and what was going on: hablaba, comía, era, iba. Plus choosing between the preterite and the imperfect.',
+        about: 'Type the form of a verb for a person (with or without the pronoun), or choose the form that fits a sentence, including whether a sentence needs the preterite or the imperfect. Accents count, so use the letter buttons if your keyboard has no á or ñ. Vosotros is left out.',
+        asideName: 'The imperfect of six verbs', aside: endings('imp'),
+      },
+    ] });
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
