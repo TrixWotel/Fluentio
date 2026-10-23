@@ -46,13 +46,39 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .grow { flex: 1; }
 .best-line { margin: -4px 0 0; color: var(--good); }
 .note { margin: -4px 0 8px; font-size: .92rem; }
-/* learning: the topics, how far along each is, and the dots for right in a row */
-.grid.topics { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
-.card.topic { padding: 12px 16px; }
-.card.topic b { font-size: 1rem; margin-bottom: 2px; }
-.card .status { display: block; font-size: .85rem; color: var(--muted); }
-.card .status.learned { color: var(--good); }
+/* learning: the path (units of numbered topics), saving, a topic's stages, its lesson and worked example */
+.save { display: flex; align-items: center; gap: 6px; margin: 4px 0 6px; font-size: .95rem; cursor: pointer; }
+.save input { width: 16px; height: 16px; accent-color: var(--accent); }
+.unitcount { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.path { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.path .step { display: flex; align-items: center; gap: 12px; padding: 9px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: inherit; text-decoration: none; }
+.path .step:hover { border-color: var(--accent); }
+.path .step .name { flex: 1; }
+.path .step .muted { font-size: .85rem; }
+.path .mark { width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; color: var(--muted); border: 1.5px solid var(--line); flex: none; }
+.path .learned .mark { background: var(--good); border-color: var(--good); color: #fff; }
+.path .next { border-color: var(--accent); }
+.path .next .mark { border-color: var(--accent); color: var(--accent); }
+.path .next .muted { color: var(--accent); font-weight: 600; }
 .learnhead { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-bottom: 12px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.tab { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); font-size: .9rem; }
+.tab:hover { border-color: var(--accent); }
+.tab.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.lesson { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; }
+.lesson .idea { font-size: 1.08rem; }
+.lesson .idea p { margin: 0 0 10px; }
+.lesson h4 { margin: 18px 0 6px; font-size: .95rem; }
+.lesson ol, .lesson ul { margin: 0; padding-left: 22px; }
+.lesson li { margin: 4px 0; }
+.lesson ul li::marker { color: var(--bad); }
+.worked { margin: 14px 0 0; padding: 12px 14px 12px 36px; background: var(--soft); border-radius: 10px; }
+.worked:empty { display: none; }
+.worked li { margin: 4px 0; }
+.choices.still .choice { cursor: default; }
+.choices.still .choice:hover { border-color: var(--line); }
+.choices.still .choice.right { border-color: var(--good); }
+.nudge { margin: 8px 0 0; padding: 10px 14px; border-left: 3px solid var(--accent); background: var(--soft); border-radius: 0 10px 10px 0; }
 .dots { display: inline-flex; gap: 5px; }
 .dots span { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--accent); }
 .dots span.on { background: var(--accent); }
