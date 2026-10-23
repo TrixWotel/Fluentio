@@ -1,7 +1,7 @@
 // AMC 10–style practice: 17 kinds of question, 20 variants each (340). These are original problems in the style of
 // the AMC 10 (real past AMC problems are the MAA's copyright). Five choices, (A)–(E), in increasing order, the wrong
 // ones mostly the slips people actually make. Each problem has a rank, roughly where it would sit in a real AMC 10
-// (1 to 25), so a test can put the easier ones first.
+// (1 to 25), so learning can list the easier topics first.
 // The first 12 kinds are classic topics. The last 5 are families (number theory, algebra, geometry, counting,
 // probability) that take turns through problems modelled on past contest ideas, with new numbers and wording.
 import { bank, combo, num, frac, gcd, lcm, choose } from '../kit/bank.js';

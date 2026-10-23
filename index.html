@@ -39,10 +39,10 @@
       },
       {
         bank: amc, name: 'AMC 10 Practice', amc: true,
-        // AMC problems get harder as you go, so a test puts them in order of rank (where each would sit in a real AMC 10)
+        // how hard a problem is: its rank, where it would sit in a real AMC 10 (learning lists the easier topics first)
         order: (n) => amc.make(n).rank,
-        blurb: 'Contest-style problems with five choices, and 25-question tests scored like the real AMC 10.',
-        about: 'Original problems in the style of the AMC 10 (the real ones belong to the MAA): 12 classic contest topics, plus number theory, algebra, geometry, counting and probability problems modelled on past contests, with new numbers. A test is 25 problems, easier ones first, with a 75 minute clock. Answer in any order and change your mind; nothing is marked until you finish.',
+        blurb: 'Contest-style problems with five choices, and tests scored like the real AMC 10.',
+        about: 'Original problems in the style of the AMC 10 (the real ones belong to the MAA): 12 classic contest topics, plus number theory, algebra, geometry, counting and probability problems modelled on past contests, with new numbers. A test is 25 random problems unless you choose another number, with 3 minutes a problem. Answer in any order and change your mind; nothing is marked until you finish.',
       },
     ] });
     document.getElementById('year').textContent = new Date().getFullYear();
