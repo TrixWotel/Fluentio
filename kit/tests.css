@@ -107,6 +107,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .answer { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .ans { width: 180px; padding: 10px 12px; font: inherit; font-size: 1.05rem; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: inherit; }
 .ans:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ans.wide { width: 260px; max-width: 100%; }
+/* letters a keyboard may not have (á, ñ…), typed into the answer */
+.keys { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.key { min-width: 38px; height: 36px; padding: 0 8px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg); font-size: 1.05rem; }
+.key:hover { border-color: var(--accent); }
 .unit { color: var(--muted); }
 .choices { display: grid; gap: 8px; }
 .choice { display: flex; align-items: center; gap: 12px; text-align: left; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); }
@@ -156,6 +161,10 @@ table.data { border-collapse: collapse; width: 100%; max-width: 520px; font-size
 table.data th, table.data td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); }
 table.data th { color: var(--muted); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
 table.data td:last-child, table.data th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+/* word lists and verb tables in lessons read left to right */
+table.data.words td:last-child, table.data.words th:last-child, .lesson table.data td, .lesson table.data th { text-align: left; }
+.lesson table.data { margin: 10px 0 4px; }
+.lesson table.data.words td:first-child { font-weight: 600; }
 footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 24px 20px 32px; }
 @media (max-width: 560px) {
   main { padding-top: 28px; } h1 { font-size: 2rem; } .q { padding: 16px; } .qtext { font-size: 1.05rem; }

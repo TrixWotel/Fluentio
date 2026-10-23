@@ -7,7 +7,7 @@
 const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); for (const k of kids.flat()) if (k != null && k !== false) n.append(k.nodeType ? k : document.createTextNode(k)); return n; };
 const html = (tag, cls, markup) => { const n = el(tag, { className: cls }); n.innerHTML = markup; return n; };   // markup here is always the banks' own, never typed by anyone
 const LETTERS = ['A', 'B', 'C', 'D', 'E'];
-const GOAL = 3;                                     // right in a row (first try, no hints) to learn a topic
+const GOAL = 3;                                     // right in a row (first try, no hints) to learn a topic, unless a test says
 const store = { get: (k) => { try { return JSON.parse(localStorage.getItem('fluentio.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('fluentio.' + k, JSON.stringify(v)); } catch {} } };
 const clockText = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 const random = (t) => 1 + Math.floor(Math.random() * t.bank.count);
@@ -24,10 +24,16 @@ export function readNumber(text) {
   const v = parseFloat(m[1]) / (m[2] ? parseFloat(m[2]) : 1);
   return Number.isFinite(v) ? v : null;
 }
-// right if within the question's tolerance: { abs } is plus or minus that much, a plain number is a share of the answer
+// typed words: capitals, spaces and a final full stop don't matter; accents do (nearly() spots a slip in only those)
+const words = (s) => String(s ?? '').normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ').replace(/[.!?]+$/, '');
+const bare = (s) => words(s).normalize('NFD').replace(/[̀-ͯ]/g, '');
+export const nearly = (answer, given) => answer.kind === 'text' && given != null && !isRight(answer, given) && answer.accept.some((a) => bare(a) === bare(given));
+// right if within the question's tolerance: { abs } is plus or minus that much, a plain number is a share of the answer;
+// a typed answer is right if it's one of answer.accept
 export function isRight(answer, given) {
   if (given == null) return false;
   if (answer.kind === 'choice') return given === answer.correct;
+  if (answer.kind === 'text') return answer.accept.some((a) => words(a) === words(given));
   const v = readNumber(given);
   if (v == null) return false;
   const tol = answer.tol && typeof answer.tol === 'object' ? answer.tol.abs : Math.max((answer.tol ?? 0.02) * Math.abs(answer.value), 0.005);
@@ -54,12 +60,16 @@ export function steps(markup) {
   return out.filter((s) => s.trim());
 }
 const fmt = (v) => (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('en-US', { maximumFractionDigits: 3 });
-const shown = (answer) => (answer.kind === 'choice' ? `(${LETTERS[answer.correct]}) ${answer.choices[answer.correct]}` : `${fmt(answer.value)}${answer.unit ? (answer.unit === '°' ? '°' : ' ' + answer.unit) : ''}`);
+const shown = (answer) => (answer.kind === 'choice' ? `(${LETTERS[answer.correct]}) ${answer.choices[answer.correct]}`
+  : answer.kind === 'text' ? answer.accept[0] : `${fmt(answer.value)}${answer.unit ? (answer.unit === '°' ? '°' : ' ' + answer.unit) : ''}`);
 
 // the page: tests = [{ bank, name, blurb, about, length, amc, order(n), learn, aside(), asideName, asideOpen }]
 // order(n), if given, is how hard variant n is: without a path, learning lists the easier topics first.
-// learn, if given, is { path: [{ unit, topics: [names] }], lessons: { name: { idea, how: [steps], watch: [traps], tip } } }:
-// the order to learn the topics in, and a short lesson for each
+// learn, if given, is { path: [{ unit, topics: [names] }], lessons: { name: { idea, how: [steps], watch: [traps], tip } }, goal,
+// example }: the order to learn the topics in, a short lesson for each, how many right in a row learn a topic (3 if not
+// given), and example: false to skip the worked example (for a word list, say, where it would add nothing).
+// An answer is { kind: 'choice', choices, correct }, { kind: 'number', value, unit, tol }, or { kind: 'text', accept: [the
+// right answers], keys: [letters to offer as buttons], lang }
 export function testsPage({ tests }) {
   const app = document.getElementById('app'), top = document.getElementById('top');   // top: the page's title, shown on the cards only
   const byId = Object.fromEntries(tests.map((t) => [t.bank.id, t]));
@@ -123,7 +133,7 @@ export function testsPage({ tests }) {
     show(el('div', { className: 'grid' }, ...tests.map((t) => {
       const best = store.get(t.bank.id + '.best'), learned = learnedIn(progressOf(t));
       return el('a', { className: 'card', href: '#' + t.bank.id },
-        el('b', {}, t.name), el('span', { className: 'count' }, `${t.blurb} ${t.bank.count} variants.`),
+        el('b', {}, t.name), el('span', { className: 'count' }, `${t.blurb} ${t.bank.count.toLocaleString('en-US')} variants.`),
         el('span', { className: 'best' + (best ? ' has' : '') }, best ? `Best: ${best.text}` : 'Not taken yet'),
         learned ? el('span', { className: 'best has' }, `${plural(learned, 'topic')} learned`) : null);
     })));
@@ -181,9 +191,9 @@ export function testsPage({ tests }) {
     const working = el('details', { className: 'working', hidden: true }, el('summary', {}, 'Show the working'));
     working.append(html('div', 'sol', q.solution));
     let answered = false;
-    const reveal = (ok) => {
+    const reveal = (ok, value) => {
       result.className = 'result ' + (ok ? 'good' : 'bad');
-      result.innerHTML = ok ? '✓ Right.' : `✗ ${ok === null ? 'Skipped.' : 'Not quite.'} The answer is <b>${shown(q.answer)}</b>.`;
+      result.innerHTML = ok ? '✓ Right.' : `✗ ${ok === null ? 'Skipped.' : nearly(q.answer, value) ? 'Almost: check the accents.' : 'Not quite.'} The answer is <b>${shown(q.answer)}</b>.`;
       working.hidden = false;
       if (!ok) working.open = true;
     };
@@ -191,7 +201,7 @@ export function testsPage({ tests }) {
       if (answered && feedback) return;
       answered = true;
       const ok = isRight(q.answer, value);
-      if (feedback) reveal(ok);
+      if (feedback) reveal(ok, value);
       onAnswer(value, ok);
     };
     // learning: the working comes out a sentence at a time, and all of it once the answer is right
@@ -208,9 +218,9 @@ export function testsPage({ tests }) {
     const hint = el('button', { className: 'btn', hidden: parts.length < 2, onclick: () => more(1) }, `Hint 1 of ${parts.length}`);
     const hints = el('div', { className: 'hints' }, hint, el('button', { className: 'btn', onclick: () => more(parts.length) }, 'Show the working'));
     const tip = el('p', { className: 'nudge', hidden: true });
-    const tryAgain = () => {
+    const tryAgain = (value) => {
       result.className = 'result bad';
-      result.textContent = nudge ? 'Not quite. Try again.' : 'Not quite. Try again, or take a hint.';
+      result.textContent = nearly(q.answer, value) ? 'Almost: check the accents, then try again.' : nudge ? 'Not quite. Try again.' : 'Not quite. Try again, or take a hint.';
       if (nudge) { tip.innerHTML = `<b>Tip:</b> ${nudge}`; tip.hidden = false; }
       onWrong();
     };
@@ -235,13 +245,24 @@ export function testsPage({ tests }) {
       });
       box.append(list);
     } else {
-      const input = el('input', { type: 'text', inputMode: 'decimal', autocomplete: 'off', spellcheck: false, className: 'ans', placeholder: 'Your answer', value: given ?? '' });
+      // a number, or (kind 'text') words, with buttons for the letters a keyboard may not have (answer.keys)
+      const text = q.answer.kind === 'text';
+      const input = el('input', { type: 'text', inputMode: text ? 'text' : 'decimal', autocomplete: 'off', autocapitalize: 'off', spellcheck: false, className: 'ans' + (text ? ' wide' : ''), placeholder: 'Your answer', value: given ?? '' });
       input.setAttribute('aria-label', 'Your answer');
+      if (q.answer.lang) input.lang = q.answer.lang;
+      const type = (ch) => {
+        if (input.readOnly) return;
+        const a = input.selectionStart ?? input.value.length, b = input.selectionEnd ?? a;
+        input.value = input.value.slice(0, a) + ch + input.value.slice(b);
+        input.focus();
+        input.setSelectionRange(a + ch.length, a + ch.length);
+      };
+      const keys = text && q.answer.keys ? el('div', { className: 'keys' }, ...q.answer.keys.map((ch) => el('button', { className: 'key', type: 'button', onmousedown: (e) => e.preventDefault(), onclick: () => type(ch) }, ch))) : null;
       const check = el('button', { className: 'btn primary', onclick: () => {
         if (answered) return;
-        if (readNumber(input.value) == null) { input.focus(); result.className = 'result bad'; result.textContent = 'Type a number (like 12.5, −3 or 3/4).'; return; }
+        if (text ? !input.value.trim() : readNumber(input.value) == null) { input.focus(); result.className = 'result bad'; result.textContent = text ? 'Type your answer first.' : 'Type a number (like 12.5, −3 or 3/4).'; return; }
         if (learn) {
-          if (!isRight(q.answer, input.value)) { input.select(); return tryAgain(); }
+          if (!isRight(q.answer, input.value)) { input.select(); return tryAgain(input.value); }
           input.readOnly = true; check.disabled = true;
           return gotIt(input.value);
         }
@@ -250,7 +271,7 @@ export function testsPage({ tests }) {
       } }, 'Check');
       const skip = el('button', { className: 'btn', hidden: !onSkip, onclick: () => { if (answered) return; answered = true; input.readOnly = true; check.disabled = true; skip.hidden = true; reveal(null); onSkip(); } }, 'Skip');
       input.addEventListener('keydown', (e) => { if (e.key === 'Enter') check.click(); });
-      box.append(el('div', { className: 'answer' }, input, q.answer.unit ? el('span', { className: 'unit' }, q.answer.unit) : null, check, skip));
+      box.append(el('div', { className: 'answer' }, input, q.answer.unit ? el('span', { className: 'unit' }, q.answer.unit) : null, check, skip), keys);
       requestAnimationFrame(() => input.focus({ preventScroll: true }));
     }
     box.append(result, ...(learn ? [tip, hints, sol] : [working]));
@@ -275,9 +296,10 @@ export function testsPage({ tests }) {
 
   // ---------- learning: a path of units, and each topic on it a lesson, a worked example, then practice ----------
   function learnHome(t) {
+    const goal = t.learn?.goal ?? GOAL;
     document.title = `Learn ${t.name} · ${document.body.dataset.title}`;
     const units = pathOf(t), order = units.flatMap((u) => u.topics), p = progressOf(t), next = upNext(t, p), done = learnedIn(p);
-    const status = (s) => (!s ? '' : s.learned ? 'learned' : s.streak ? `${s.streak} of ${GOAL} in a row` : `${s.right} of ${s.tried} right`);
+    const status = (s) => (!s ? '' : s.learned ? 'learned' : s.streak ? `${s.streak} of ${goal} in a row` : `${s.right} of ${s.tried} right`);
     const save = el('input', { type: 'checkbox', checked: saving(), onchange: () => {
       if (!save.checked && !confirm('Stop saving your progress? What this device has saved will be forgotten; this visit keeps it until you close the page.')) { save.checked = true; return; }
       setSaving(save.checked);
@@ -286,7 +308,7 @@ export function testsPage({ tests }) {
     show(
       el('a', { className: 'back', href: '#' + t.bank.id }, '← ' + t.name),
       el('h2', { className: 'tname' }, `Learn: ${t.name}`),
-      el('p', { className: 'lead small' }, `${order.length} topics${units.length > 1 ? ` in ${units.length} units` : ''}, in an order where each builds on the ones before. Every topic starts with a short lesson and a worked example, then practice with hints until you get ${GOAL} right in a row on the first try.`),
+      el('p', { className: 'lead small' }, `${order.length} topics${units.length > 1 ? ` in ${units.length} units` : ''}, in an order where each builds on the ones before. Every topic starts with a short lesson${t.learn?.example === false ? '' : ' and a worked example'}, then practice with hints until you get ${goal} right in a row on the first try.`),
       el('div', { className: 'start' },
         next >= 0 ? el('a', { className: 'btn primary big', href: `#${t.bank.id}/learn/${next}` }, `${Object.keys(p).length ? 'Continue' : 'Start'}: ${order[next]}`)
           : el('span', { className: 'learned-note' }, '✓ Every topic learned!'),
@@ -307,6 +329,7 @@ export function testsPage({ tests }) {
       extra(t, false));
   }
   function learn(t, which) {
+    const goal = t.learn?.goal ?? GOAL;
     const order = sequence(t), { byTopic } = kindsOf(t), mixed = which === 'all', k = +which;
     if (!mixed && !(Number.isInteger(k) && k >= 0 && k < order.length)) return go(`#${t.bank.id}/learn`);
     const topic = mixed ? null : order[k], lesson = (name) => t.learn?.lessons?.[name];
@@ -316,8 +339,8 @@ export function testsPage({ tests }) {
     // a variant of a topic, new ones first; the next topic on the path that isn't learned yet (−1 if none)
     const variant = (name) => { const all = byTopic.get(name), fresh = all.filter((n) => !seen.has(n)), n = pick(fresh.length ? fresh : all); seen.add(n); return n; };
     const after = (from) => { for (let j = 1; j <= order.length; j++) { const x = (from + j) % order.length; if (!p[order[x]]?.learned) return x; } return -1; };
-    const dots = (s) => el('span', { className: 'dots', title: `${Math.min(s?.streak ?? 0, GOAL)} of ${GOAL} in a row` },
-      ...Array.from({ length: GOAL }, (_, i) => el('span', { className: s?.learned || i < (s?.streak ?? 0) ? 'on' : '' })));
+    const dots = (s) => el('span', { className: 'dots', title: `${Math.min(s?.streak ?? 0, goal)} of ${goal} in a row` },
+      ...Array.from({ length: goal }, (_, i) => el('span', { className: s?.learned || i < (s?.streak ?? 0) ? 'on' : '' })));
     let current = topic;                             // the topic of the question showing (in mixed practice it changes)
     const head = el('div', { className: 'learnhead' });
     const paint = () => {
@@ -326,11 +349,11 @@ export function testsPage({ tests }) {
         el('b', {}, mixed ? `Mixed practice: ${learnedIn(p)} of ${order.length} topics learned` : current),
         el('span', { className: 'muted' }, mixed ? `This one: ${current}` : `${units.length > 1 ? unit + ' · ' : ''}topic ${k + 1} of ${order.length}`),
         dots(s),
-        el('span', { className: 'muted' }, s?.learned ? '✓ Learned' : `${Math.min(s?.streak ?? 0, GOAL)} of ${GOAL} in a row`)]);
+        el('span', { className: 'muted' }, s?.learned ? '✓ Learned' : `${Math.min(s?.streak ?? 0, goal)} of ${goal} in a row`)]);
     };
 
     // a topic's stages: the lesson (when there is one), a worked example, and practice; mixed practice is only practice
-    const stages = mixed ? ['practice'] : [lesson(topic) && 'lesson', 'example', 'practice'].filter(Boolean);
+    const stages = mixed ? ['practice'] : [lesson(topic) && 'lesson', t.learn?.example !== false && 'example', 'practice'].filter(Boolean);
     const LABEL = { lesson: 'Lesson', example: 'Worked example', practice: 'Practice' };
     const tabs = el('div', { className: 'tabs', hidden: stages.length < 2 }), stage = el('div');
     const views = {};
@@ -345,7 +368,9 @@ export function testsPage({ tests }) {
         html('div', 'idea', l.idea),
         el('h4', {}, 'How to do it'), el('ol', {}, ...l.how.map((s) => html('li', '', s))),
         el('h4', {}, 'Watch out for'), el('ul', {}, ...l.watch.map((s) => html('li', '', s))),
-        el('div', { className: 'start' }, el('button', { className: 'btn primary', onclick: () => goTo('example') }, 'See a worked example ›')));
+        el('div', { className: 'start' }, stages.includes('example')
+          ? el('button', { className: 'btn primary', onclick: () => goTo('example') }, 'See a worked example ›')
+          : el('button', { className: 'btn primary', onclick: () => goTo('practice') }, 'Start practicing ›')));
     }
     // a worked example: a real variant, its working shown a step at a time
     function exampleView() {
@@ -372,7 +397,7 @@ export function testsPage({ tests }) {
       box.append(...[options, worked, answer, el('div', { className: 'hints' }, one, all, tryIt)].filter(Boolean));
       return box;
     }
-    // practice: as many tries as it takes; a topic is learned after GOAL right in a row on the first try without hints
+    // practice: as many tries as it takes; a topic is learned after `goal` right in a row on the first try without hints
     function practiceView() {
       const box = el('div');
       const ask = () => {
@@ -389,7 +414,7 @@ export function testsPage({ tests }) {
           s.tried++;
           if (right) s.right++;
           s.streak = right && clean ? s.streak + 1 : 0;
-          if (s.streak >= GOAL && !s.learned) { s.learned = true; note.hidden = false; note.textContent = mixed ? `You've learned ${name}!` : 'Topic learned!'; }
+          if (s.streak >= goal && !s.learned) { s.learned = true; note.hidden = false; note.textContent = mixed ? `You've learned ${name}!` : 'Topic learned!'; }
           if (!mixed && s.learned) {
             const j = after(k);
             onward.href = j >= 0 ? `#${t.bank.id}/learn/${j}` : `#${t.bank.id}/learn`;

@@ -6,11 +6,12 @@ My personal web playground, live at https://trixwotel.github.io/Fluentio/
 
 Every branch is one part of the site. A push to any of them puts the whole site back together and deploys it with the workflow in .github/workflows/pages.yml (the same file is on every branch).
 
-* **space** is the main page, served at the top. It also holds kit/, the test runner and question toolkit that the Math, Science and Physics tests share.
+* **space** is the main page, served at the top. It also holds kit/, the test runner and question toolkit that the Math, Science, Physics and Spanish tests share.
 * **geography** is served at /geography: find countries or capitals on the world map, or one continent at a time.
 * **math** is served at /math: Triangle Angles (220 variants) and AMC 10 Practice (340 variants).
 * **science** is served at /science: Heat Capacity with Q = mcΔT (220 variants).
 * **physics** is served at /physics: Kinematics with motion graphs (240 variants).
+* **spanish** is served at /spanish: Vocabulary (1,100 words in 25 themes, 2,200 variants), the Preterite (270 variants) and the Imperfect (180 variants).
 
 There is no build step. The files are served as they are.
 
