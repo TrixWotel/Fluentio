@@ -45,6 +45,19 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .timer.over { color: var(--bad); font-weight: 600; }
 .grow { flex: 1; }
 .best-line { margin: -4px 0 0; color: var(--good); }
+.note { margin: -4px 0 8px; font-size: .92rem; }
+/* learning: the topics, how far along each is, and the dots for right in a row */
+.grid.topics { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.card.topic { padding: 12px 16px; }
+.card.topic b { font-size: 1rem; margin-bottom: 2px; }
+.card .status { display: block; font-size: .85rem; color: var(--muted); }
+.card .status.learned { color: var(--good); }
+.learnhead { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-bottom: 12px; }
+.dots { display: inline-flex; gap: 5px; }
+.dots span { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--accent); }
+.dots span.on { background: var(--accent); }
+.hints { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.learned-note { color: var(--good); font-weight: 600; margin: 14px 0 0; }
 /* the AMC question map: jump to any question, filled in once answered */
 .qmap { display: grid; grid-template-columns: repeat(auto-fill, minmax(34px, 1fr)); gap: 6px; margin-bottom: 12px; }
 .qmap button { height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); font-size: .85rem; font-variant-numeric: tabular-nums; padding: 0; }
@@ -76,6 +89,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .choice.picked { border-color: var(--accent); background: var(--soft); }
 .choice.right { border-color: var(--good); }
 .choice.wrong { border-color: var(--bad); }
+.choice.wrong:disabled { opacity: .55; cursor: default; }
 .result { margin-top: 14px; font-weight: 600; min-height: 1.4em; }
 .result.good { color: var(--good); } .result.bad { color: var(--bad); }
 .working { margin-top: 10px; }
