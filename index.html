@@ -20,6 +20,7 @@
   <script type="module">
     import { testsPage } from '../kit/tests.js';
     import { kinematics } from './kinematics.js';
+    import { kinematicsLearning } from './kinematics-lessons.js';
 
     const formulas = () => {
       const box = document.createElement('div');
@@ -42,7 +43,7 @@
 
     testsPage({ tests: [
       {
-        bank: kinematics, name: 'Kinematics', length: 10,
+        bank: kinematics, name: 'Kinematics', length: 10, learn: kinematicsLearning,
         blurb: 'Read x–t, v–t and a–t graphs, plus braking, free fall and throwing things up. Every variant has its own graph.',
         about: 'Slopes and areas of motion graphs, and the equations of constant acceleration. Answers within 2% are right, so round as you like.',
         asideName: 'Formulas', aside: formulas,
