@@ -1,5 +1,5 @@
 // What the AMC 10 problems share: five choices in increasing order, fractions and surds that read well, and
-// families (one kind of question that takes turns through a list of problems).
+// family(), which makes a topic's different question types take turns.
 import { num, frac, gcd } from '../kit/bank.js';
 
 export const ord = (n) => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
@@ -50,8 +50,8 @@ export function fracSurd(p, q, r = 1) {
   return [(p / q) * Math.sqrt(inside), q === 1 ? top : `<span class="fr"><span>${top}</span><span>${q}</span></span>`];
 }
 
-// a family of problems is one kind of question in the bank: its k-th turn is problem k mod (how many), and that
-// problem learns which of its own turns this is, so the second time round it can walk on to new numbers
+// a topic's question types make one kind of question in the bank: its k-th turn is type k mod (how many), and that
+// type learns which of its own turns this is, so the second time round it can walk on to new numbers
 export function family(problems) {
   return (d, ctx) => {
     const i = ctx.k % problems.length;
