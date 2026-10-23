@@ -21,12 +21,14 @@
     import { testsPage } from '../kit/tests.js';
     import { triangles } from './triangles.js';
     import { amc } from './amc.js';
+    import { triangleLearning } from './triangles-lessons.js';
+    import { amcLearning } from './amc-lessons.js';
 
     const list = (...items) => { const ul = document.createElement('ul'); ul.innerHTML = items.map((i) => `<li>${i}</li>`).join(''); return ul; };
 
     testsPage({ tests: [
       {
-        bank: triangles, name: 'Triangle Angles', length: 10,
+        bank: triangles, name: 'Triangle Angles', length: 10, learn: triangleLearning,
         blurb: 'Find the missing angle: isosceles, right, exterior angles, bisectors and more, each drawn to scale.',
         about: 'Every question has its triangle drawn to scale. Type the angle in degrees (or the value of x when asked).',
         asideName: 'Angle facts',
@@ -38,8 +40,8 @@
           'A bisector splits an angle into two equal halves. An altitude meets the opposite side at 90°.'),
       },
       {
-        bank: amc, name: 'AMC 10 Practice', amc: true,
-        // how hard a problem is: its rank, where it would sit in a real AMC 10 (learning lists the easier topics first)
+        bank: amc, name: 'AMC 10 Practice', amc: true, learn: amcLearning,
+        // how hard a problem is: its rank, where it would sit in a real AMC 10 (the list of topics puts the easier ones first)
         order: (n) => amc.make(n).rank,
         blurb: 'Contest-style problems with five choices, and tests scored like the real AMC 10.',
         about: 'Original problems in the style of the AMC 10 (the real ones belong to the MAA): 12 classic contest topics, plus number theory, algebra, geometry, counting and probability problems modelled on past contests, with new numbers. A test is 25 random problems unless you choose another number, with 3 minutes a problem. Answer in any order and change your mind; nothing is marked until you finish.',
