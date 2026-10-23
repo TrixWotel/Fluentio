@@ -20,6 +20,7 @@
   <script type="module">
     import { testsPage } from '../kit/tests.js';
     import { heat, MATERIALS } from './heat.js';
+    import { heatLearning } from './heat-lessons.js';
 
     // the formulas, next to the table of specific heats the questions use
     const formulas = () => {
@@ -41,7 +42,7 @@
 
     testsPage({ tests: [
       {
-        bank: heat, name: 'Heat Capacity: Q = mcΔT', length: 10,
+        bank: heat, name: 'Heat Capacity: Q = mcΔT', length: 10, learn: heatLearning,
         blurb: 'Warming, cooling, mixing hot metal into water, heaters and calories.',
         about: 'Use Q = mcΔT to find the heat, the temperature change, the mass or the specific heat. Answers within 1% are right, so round as you like. The specific heats are in the table below.',
         asideName: 'Formulas and specific heats', aside: formulas, asideOpen: true,   // some questions ask which material in the table
