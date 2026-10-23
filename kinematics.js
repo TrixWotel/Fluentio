@@ -1,5 +1,5 @@
-// Kinematics with motion graphs: 12 kinds of question, 20 variants each (240). Every variant draws its own graph,
-// built so the numbers you need sit exactly on grid lines.
+// Kinematics with motion graphs: 14 kinds of question, 20 variants each (280). Every variant draws its own graph,
+// built so the numbers you need sit exactly on grid lines (or are marked).
 import { bank, combo, graph, span, num, round } from '../kit/bank.js';
 
 const G = 9.8;
@@ -9,6 +9,8 @@ const vt = (pts, extra = {}) => graph({ x: span(along(pts, extra).map((p) => p[0
 const xt = (pts, extra = {}) => graph({ x: span(along(pts, extra).map((p) => p[0]), 6), y: span(along(pts, extra).map((p) => p[1]), 6), xLabel: 'time t (s)', yLabel: 'position x (m)', lines: [pts], ...extra });
 const numAns = (value, unit, tol = 0.02) => ({ kind: 'number', value: round(value, 4), unit, tol });
 const CART = ['cart', 'toy car', 'runner', 'cyclist', 'robot', 'skateboarder', 'train', 'drone'];
+// a kind with several types of question takes turns through them; each type walks through its own combinations
+const turn = (ctx, types, lists, ok) => combo({ ...ctx, k: Math.floor(ctx.k / types), salt: `${ctx.salt}-${ctx.k % types}` }, lists, ok);
 
 const templates = [
   // 1. velocity is the slope of a position–time graph
@@ -48,37 +50,108 @@ const templates = [
       solution: `Distance is the area under the v–t graph between the two times. That area is a trapezoid: (${num(v(t1))} + ${num(v(t2))}) / 2 × (${t2} − ${t1}) = <b>${num(area)} m</b>.`,
     };
   },
-  // 4. a trip in three parts: speeding up, cruising, braking
-  (d) => {
-    const V = d.pick([4, 6, 8, 10, 12, 15, 20]), t1 = d.pick([2, 3, 4, 5]), t2 = t1 + d.pick([2, 3, 4, 5, 6, 8]), t3 = t2 + d.pick([2, 3, 4, 5, 6]);
-    const dist = 0.5 * V * t1 + V * (t2 - t1) + 0.5 * V * (t3 - t2), avg = d.chance(0.5);
+  // 4. total distance: the area under a v–t graph (a whole trip, one part of it, or a trip that starts moving)
+  (d, ctx) => {
+    const type = ['trip', 'part', 'start'][ctx.k % 3], vehicle = d.pick(['bus', 'car', 'tram', 'scooter', 'cyclist']);
+    const [V, a, b, c] = turn(ctx, 3, [[4, 6, 8, 10, 12, 15, 20], [2, 3, 4, 5], [2, 3, 4, 5, 6, 8], [2, 3, 4, 5, 6]]);
+    if (type === 'start') {
+      const u = V / 2, t1 = a, t2 = t1 + b, dist = ((u + V) / 2) * t1 + V * b;
+      return {
+        topic: 'Total distance from a v–t graph',
+        text: `A ${vehicle} is already moving at ${num(u)} m/s when it speeds up steadily to ${V} m/s, then keeps that speed, as the graph shows. How far does it travel in the first ${t2} s?`,
+        figure: vt([[0, u], [t1, V], [t2, V]], { points: [[0, u, true], [t1, V, true], [t2, V, true]] }),
+        answer: numAns(dist, 'm'),
+        solution: `The distance is the area under the graph: a trapezoid while it speeds up, (${num(u)} + ${V})/2 × ${t1} = ${num(((u + V) / 2) * t1)} m, then a rectangle, ${V} × ${b} = ${V * b} m. Altogether <b>${num(dist)} m</b>.`,
+      };
+    }
+    const t1 = a, t2 = t1 + b, t3 = t2 + c, parts = [['speeding up', 0.5 * V * t1, `½ × ${t1} × ${V}`], ['at the steady speed', V * b, `${b} × ${V}`], ['braking', 0.5 * V * c, `½ × ${c} × ${V}`]];
+    const total = parts.reduce((s, p) => s + p[1], 0), [phase, part, how] = parts[ctx.k % 3 === 1 ? Math.floor(ctx.k / 3) % 3 : 0];
     return {
-      topic: avg ? 'Average velocity from a v–t graph' : 'Total distance from a v–t graph',
-      text: `A ${d.pick(['bus', 'car', 'tram', 'scooter', 'cyclist'])} speeds up from rest, travels at a steady speed, then brakes to a stop, as the graph shows. ${avg ? 'What is its average velocity for the whole trip?' : 'How far does it travel altogether?'}`,
+      topic: 'Total distance from a v–t graph',
+      text: `A ${vehicle} speeds up from rest, travels at a steady speed, then brakes to a stop, as the graph shows. ${type === 'trip' ? 'How far does it travel altogether?' : `How far does it travel while ${phase}?`}`,
       figure: vt([[0, 0], [t1, V], [t2, V], [t3, 0]], { points: [[t1, V, true], [t2, V, true], [t3, 0, true]] }),
-      answer: avg ? numAns(dist / t3, 'm/s') : numAns(dist, 'm'),
-      solution: `Total distance = area under the graph = ½·${t1}·${V} + ${t2 - t1}·${V} + ½·${t3 - t2}·${V} = ${num(dist)} m.` + (avg ? ` Average velocity = total displacement / total time = ${num(dist)} m / ${t3} s = <b>${num(dist / t3)} m/s</b>.` : ` So it travels <b>${num(dist)} m</b>.`),
+      answer: numAns(type === 'trip' ? total : part, 'm'),
+      solution: type === 'trip'
+        ? `Total distance = area under the graph = ½·${t1}·${V} + ${b}·${V} + ½·${c}·${V} = <b>${num(total)} m</b>.`
+        : `Only the part of the graph while ${phase} counts: its area is ${how} = <b>${num(part)} m</b>.`,
     };
   },
-  // 5. a walk out, a stop, and part of the way back
-  (d) => {
-    const D = d.pick([10, 12, 15, 16, 20, 24, 30]), t1 = d.pick([3, 4, 5, 6]), t2 = t1 + d.pick([2, 3, 4]), t3 = t2 + d.pick([3, 4, 5, 6]);
-    const back = d.pick([D, D / 2, D / 4 * 3 === Math.round(D / 4 * 3) ? D / 4 * 3 : D / 2]), end = D - back;
-    const ask = d.pick(['distance', 'displacement', 'speed back']);
-    const value = ask === 'distance' ? D + back : ask === 'displacement' ? end : back / (t3 - t2);
+  // 5. average velocity from a v–t graph: total distance (the area) over total time
+  (d, ctx) => {
+    const type = ['trip', 'steps', 'speedup'][ctx.k % 3], vehicle = d.pick(['bus', 'car', 'tram', 'scooter', 'cyclist']);
+    const [V, a, b, c] = turn(ctx, 3, [[4, 6, 8, 10, 12, 15, 20], [2, 3, 4, 5], [2, 3, 4, 5, 6, 8], [2, 3, 4, 5, 6]]);
+    if (type === 'steps') {
+      const u = [2, 3, 4, 5, 6][Math.floor(ctx.k / 3) % 5], w = V === u ? V + 4 : V, dist = u * a + w * b, time = a + b;
+      return {
+        topic: 'Average velocity from a v–t graph',
+        text: `A ${vehicle} goes at a steady ${u} m/s for ${a} s, then at a steady ${w} m/s for ${b} s (graph below). What is its average velocity over the ${time} s?`,
+        figure: vt([[0, u], [a, u], [a, w], [time, w]], { points: [[a, u, true], [a, w, true], [time, w, true]] }),
+        answer: numAns(dist / time, 'm/s'),
+        solution: `Average velocity = total distance / total time, not the average of the two speeds. Distance = ${u}·${a} + ${w}·${b} = ${num(dist)} m, so the average is ${num(dist)} / ${time} = <b>${num(dist / time)} m/s</b>.`,
+      };
+    }
+    if (type === 'speedup') {
+      const dist = 0.5 * V * a;
+      return {
+        topic: 'Average velocity from a v–t graph',
+        text: `A ${vehicle} speeds up steadily from rest to ${V} m/s in ${a} s, then keeps that speed (graph below). What is its average velocity during the ${a} s it is speeding up?`,
+        figure: vt([[0, 0], [a, V], [a + b, V]], { points: [[a, V, true], [a + b, V, true]] }),
+        answer: numAns(dist / a, 'm/s'),
+        solution: `While speeding up it covers the triangle's area, ½ × ${a} × ${V} = ${num(dist)} m, in ${a} s: average velocity = ${num(dist)} / ${a} = <b>${num(dist / a)} m/s</b> (halfway between 0 and ${V}, since the speed rises steadily).`,
+      };
+    }
+    const t1 = a, t2 = t1 + b, t3 = t2 + c, dist = 0.5 * V * t1 + V * b + 0.5 * V * c;
     return {
-      topic: ask === 'speed back' ? 'Velocity on one part of an x–t graph' : `Distance or displacement from an x–t graph`,
-      text: `A ${d.pick(['student', 'dog', 'robot', 'runner'])} walks away from a wall, stops, then walks back toward it. The graph shows the position. ${ask === 'distance' ? 'What total distance is walked?' : ask === 'displacement' ? 'What is the displacement for the whole trip?' : 'At what speed does it walk back?'}`,
-      figure: xt([[0, 0], [t1, D], [t2, D], [t3, end]], { points: [[t1, D, true], [t2, D, true], [t3, end, true]] }),
-      answer: numAns(value, ask === 'speed back' ? 'm/s' : 'm'),
-      solution: ask === 'distance' ? `Out: ${D} m. Back: ${D} − ${num(end)} = ${num(back)} m. Distance adds both: <b>${num(D + back)} m</b>.`
-        : ask === 'displacement' ? `Displacement is final position − starting position = ${num(end)} m − 0 m = <b>${num(end)} m</b> (it doesn't care about the path).`
-        : `Walking back, it covers ${num(back)} m in ${t3 - t2} s: speed = ${num(back)} / ${t3 - t2} = <b>${num(value)} m/s</b>. (The velocity is −${num(value)} m/s, since x is decreasing.)`,
+      topic: 'Average velocity from a v–t graph',
+      text: `A ${vehicle} speeds up from rest, travels at a steady speed, then brakes to a stop, as the graph shows. What is its average velocity for the whole trip?`,
+      figure: vt([[0, 0], [t1, V], [t2, V], [t3, 0]], { points: [[t1, V, true], [t2, V, true], [t3, 0, true]] }),
+      answer: numAns(dist / t3, 'm/s'),
+      solution: `Total distance = area under the graph = ½·${t1}·${V} + ${b}·${V} + ½·${c}·${V} = ${num(dist)} m. Average velocity = total displacement / total time = ${num(dist)} m / ${t3} s = <b>${num(dist / t3)} m/s</b>.`,
     };
   },
-  // 6. change in velocity is the area under an acceleration–time graph
+  // 6. a walk out, a stop, and part of the way back: distance or displacement
+  (d, ctx) => {
+    const type = ['distance', 'displacement', 'end', 'back'][ctx.k % 4];
+    const [D, t1, stop, tb, share] = turn(ctx, 4, [[10, 12, 15, 16, 20, 24, 30], [3, 4, 5, 6], [2, 3, 4], [3, 4, 5, 6], [1, 0.5, 0.75]], (D, t1, s, tb, f) => Number.isInteger(D * f));
+    const t2 = t1 + stop, t3 = t2 + tb, back = D * share, end = D - back, who = d.pick(['student', 'dog', 'robot', 'runner']);
+    const value = { distance: D + back, displacement: end, end, back: -back }[type];
+    return {
+      topic: 'Distance or displacement from an x–t graph',
+      text: `A ${who} walks away from a wall, stops, then walks back toward it. The graph shows its distance from the wall. ${{
+        distance: 'What total distance does it walk?', displacement: 'What is its displacement for the whole trip?',
+        end: 'How far from the wall is it at the end?', back: `What is its displacement from t = ${t2} s to t = ${t3} s?` }[type]}`,
+      figure: xt([[0, 0], [t1, D], [t2, D], [t3, end]], { points: [[t1, D, true], [t2, D, true], [t3, end, true]] }),
+      answer: numAns(value, 'm'),
+      solution: {
+        distance: `Out: ${D} m. Back: ${D} − ${num(end)} = ${num(back)} m. Distance adds every leg: ${D} + ${num(back)} = <b>${num(D + back)} m</b>.`,
+        displacement: `Displacement is final position − starting position = ${num(end)} m − 0 m = <b>${num(end)} m</b> (the path in between doesn't matter).`,
+        end: `Read the graph at the end, t = ${t3} s: the line ends at x = ${num(end)} m, so it is <b>${num(end)} m</b> from the wall.`,
+        back: `From t = ${t2} s to t = ${t3} s, x goes from ${D} m to ${num(end)} m: displacement = ${num(end)} − ${D} = <b>${num(-back)} m</b>. It is negative because it moves back toward the wall.`,
+      }[type],
+    };
+  },
+  // 7. the velocity on one part of an x–t graph: that part's slope
+  (d, ctx) => {
+    const type = ['speed back', 'speed out', 'velocity back'][ctx.k % 3];
+    const [D, t1, stop, tb, share] = turn(ctx, 3, [[10, 12, 15, 16, 20, 24, 30], [2, 3, 4, 5, 6], [2, 3, 4], [2, 3, 4, 5, 6], [1, 0.5, 0.75]], (D, t1, s, tb, f) => Number.isInteger(D * f));
+    const t2 = t1 + stop, t3 = t2 + tb, back = D * share, end = D - back, who = d.pick(['student', 'dog', 'robot', 'runner']);
+    const value = { 'speed back': back / tb, 'speed out': D / t1, 'velocity back': -back / tb }[type];
+    return {
+      topic: 'Velocity on one part of an x–t graph',
+      text: `A ${who} walks away from a wall, stops, then walks back toward it. The graph shows its distance from the wall. ${{
+        'speed back': 'At what speed does it walk back?', 'speed out': 'At what speed does it walk away from the wall?',
+        'velocity back': 'What is its velocity while it walks back? (Away from the wall is positive.)' }[type]}`,
+      figure: xt([[0, 0], [t1, D], [t2, D], [t3, end]], { points: [[t1, D, true], [t2, D, true], [t3, end, true]] }),
+      answer: numAns(value, 'm/s'),
+      solution: type === 'speed out'
+        ? `Walking away, x goes from 0 to ${D} m in ${t1} s: speed = ${D} / ${t1} = <b>${num(value)} m/s</b>. Only that first piece of the graph counts.`
+        : `Walking back, x goes from ${D} m to ${num(end)} m in ${tb} s (from t = ${t2} s to t = ${t3} s): the slope is (${num(end)} − ${D}) / ${tb} = ${num(-back / tb)} m/s. ${type === 'speed back' ? `The speed is its size: <b>${num(value)} m/s</b>.` : `So the velocity is <b>${num(value)} m/s</b>; negative because x is decreasing.`}`,
+    };
+  },
+  // 8. change in velocity is the area under an acceleration–time graph
   (d) => {
-    const T = d.pick([2, 3, 4, 5, 6, 8]), a = d.pick([1, 1.5, 2, 2.5, 3, 4, -1, -1.5, -2]), v0 = a < 0 ? d.pick([15, 20, 24, 30]) : d.pick([0, 2, 4, 5, 10]);
+    const a = d.pick([1, 1.5, 2, 2.5, 3, 4, -1, -1.5, -2]), v0 = a < 0 ? d.pick([15, 20, 24, 30]) : d.pick([0, 2, 4, 5, 10]);
+    const T = d.pick([2, 3, 4, 5, 6, 8].filter((t) => v0 + a * t >= 0));   // (slowing down, it stops at worst: it doesn't reverse)
     return {
       topic: 'Velocity from an acceleration–time graph',
       text: `A ${d.pick(CART)} is moving at ${v0} m/s at t = 0. The graph shows its acceleration. What is its velocity at t = ${T} s?`,
@@ -87,19 +160,19 @@ const templates = [
       solution: `The area under an a–t graph is the change in velocity: Δv = ${num(a)} m/s² × ${T} s = ${num(a * T)} m/s. So v = ${v0} + (${num(a * T)}) = <b>${num(v0 + a * T)} m/s</b>.`,
     };
   },
-  // 7. braking distance (graph + equation)
+  // 9. braking distance (graph + equation)
   (d, ctx) => {
     const [v0, a] = combo(ctx, [[10, 12, 14, 15, 16, 18, 20, 21, 24, 25, 27, 28, 30, 32, 35], [2, 2.5, 3, 3.5, 4, 5, 6, 7, 8]], (v, x) => (v / x) % 0.5 === 0 && v / x >= 2);
     const ts = v0 / a, dist = (v0 * v0) / (2 * a);
     return {
       topic: 'Braking distance',
       text: `A car moving at ${v0} m/s brakes with a steady deceleration of ${num(a)} m/s² until it stops (graph below). How far does it travel while braking?`,
-      figure: vt([[0, v0], [ts, 0]], { points: [[0, v0], [ts, 0]] }),
+      figure: vt([[0, v0], [ts, 0]], { points: [[0, v0, true], [ts, 0, true]] }),
       answer: numAns(dist, 'm'),
       solution: `Use v² = v₀² + 2aΔx with v = 0: Δx = v₀² / (2a) = ${v0}² / (2·${num(a)}) = <b>${num(dist)} m</b>. (Same as the triangle's area: ½ · ${num(ts)} s · ${v0} m/s.)`,
     };
   },
-  // 8. free fall from rest
+  // 10. free fall from rest
   (d, ctx) => {
     const [t, speed] = combo(ctx, [[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6], [true, false]]);
     const fig = speed ? graph({ x: span([0, t + 0.5], 5), y: span([0, G * (t + 0.5)], 6), xLabel: 'time t (s)', yLabel: 'speed (m/s)', lines: [[[0, 0], [t + 0.5, G * (t + 0.5)]]], points: [[t, G * t]] })
@@ -112,7 +185,7 @@ const templates = [
       solution: speed ? `From rest, v = g·t = 9.8 × ${num(t)} = <b>${num(G * t)} m/s</b>.` : `From rest, d = ½·g·t² = ½ × 9.8 × ${num(t)}² = <b>${num(0.5 * G * t * t)} m</b>.`,
     };
   },
-  // 9. thrown straight up
+  // 11. thrown straight up
   (d, ctx) => {
     const [top, height] = combo(ctx, [[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6], [true, false]]), v0 = round(G * top, 2);
     return {
@@ -124,7 +197,7 @@ const templates = [
         : `At the top the velocity is zero, where the line crosses the time axis: t = v₀/g = ${num(v0)} / 9.8 = <b>${num(top)} s</b>.`,
     };
   },
-  // 10. acceleration from a curved position–time graph (starting from rest)
+  // 12. acceleration from a curved position–time graph (starting from rest)
   (d, ctx) => {
     const [a, T] = combo(ctx, [[0.5, 1, 1.5, 2, 2.5, 3, 4, 5], [2, 3, 4, 5, 6]]), xT = 0.5 * a * T * T;
     return {
@@ -135,7 +208,7 @@ const templates = [
       solution: `From rest, x = ½·a·t². So a = 2x/t² = 2 × ${num(xT)} / ${T}² = <b>${num(a)} m/s²</b>.`,
     };
   },
-  // 11. two cars: when are their speeds equal, and how far apart then
+  // 13. two cars: when are their speeds equal, and how far apart then
   (d, ctx) => {
     const [vA, aB, gap] = combo(ctx, [[6, 8, 10, 12, 15, 20], [1, 2, 2.5, 3, 4, 5], [true, false]], (v, x) => (v / x) % 0.5 === 0 && v / x >= 1.5), ts = vA / aB;
     const T = Math.ceil(ts * 1.6);
@@ -148,7 +221,7 @@ const templates = [
         : `They have the same speed where the lines cross: ${num(aB)}·t = ${vA}, so t = <b>${num(ts)} s</b>.`,
     };
   },
-  // 12. average velocity between two times on a position–time graph
+  // 14. average velocity between two times on a position–time graph
   (d) => {
     const pts = [[0, d.pick([0, 2, 4])]];
     let t = 0;
@@ -164,4 +237,4 @@ const templates = [
   },
 ];
 
-export const kinematics = bank('kinematics', templates, 240);
+export const kinematics = bank('kinematics', templates, 280);
