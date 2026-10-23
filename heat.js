@@ -12,6 +12,9 @@ const METALS = MATERIALS.filter(([n]) => ['aluminum', 'iron', 'zinc', 'copper', 
 // ones far enough apart to tell apart by measuring c
 const TELLABLE = ['water', 'ethanol', 'olive oil', 'aluminum', 'granite', 'iron', 'copper', 'silver', 'lead'].map((n) => MATERIALS.find((m) => m[0] === n));
 const CW = 4.18, J = 'J', C = '°C', CU = 'J/(g·°C)';
+// what the questions use: no steam or ice (ice above 0 °C would have melted), and ethanol only below its 78 °C boiling point
+const USED = MATERIALS.filter(([n]) => n !== 'steam' && n !== 'ice');
+const TOP = (mat) => (mat === 'ethanol' ? 75 : mat === 'water' ? 95 : 300);   // the warmest it may get
 const ans = (value, unit, tol = 0.01) => ({ kind: 'number', value: round(value, 4), unit, tol });
 const closest = (c) => MATERIALS.reduce((best, m) => (Math.abs(m[1] - c) < Math.abs(best[1] - c) ? m : best));
 const MASS = [20, 25, 40, 50, 60, 75, 80, 100, 120, 125, 150, 200, 250, 300, 350, 400, 500];
@@ -19,7 +22,7 @@ const MASS = [20, 25, 40, 50, 60, 75, 80, 100, 120, 125, 150, 200, 250, 300, 350
 const templates = [
   // 1. heat needed: Q = mcΔT
   (d) => {
-    const [mat, c] = d.pick(MATERIALS.filter(([n]) => n !== 'steam' && n !== 'ice')), m = d.pick(MASS), T1 = d.int(10, 30), dT = d.int(5, 60), T2 = T1 + dT;
+    const [mat, c] = d.pick(USED), m = d.pick(MASS), T1 = d.int(10, 30), dT = d.int(5, Math.min(60, TOP(mat) - T1)), T2 = T1 + dT;
     return {
       topic: 'Heat needed to warm something',
       text: `How much heat is needed to warm ${m} g of ${mat} from ${T1} °C to ${T2} °C? (c = ${num(c, 3)} J/(g·°C))`,
@@ -29,7 +32,7 @@ const templates = [
   },
   // 2. kilograms and kilojoules
   (d) => {
-    const [mat, c] = d.pick(MATERIALS.filter(([n]) => n !== 'steam')), m = d.pick([0.2, 0.25, 0.4, 0.5, 0.75, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5]), dT = d.int(4, 45), ck = round(c * 1000, 1);
+    const [mat, c] = d.pick(USED), m = d.pick([0.2, 0.25, 0.4, 0.5, 0.75, 1, 1.2, 1.5, 2, 2.5, 3, 4, 5]), dT = d.int(4, 45), ck = round(c * 1000, 1);
     return {
       topic: 'Heat in kilojoules',
       text: `${['water', 'ethanol', 'olive oil', 'sand'].includes(mat) ? `${num(m)} kg of ${mat}` : `A ${num(m)} kg block of ${mat}`} warms by ${dT} °C. How much heat did it absorb, in kilojoules? (c = ${num(ck, 1)} J/(kg·°C))`,
@@ -39,7 +42,7 @@ const templates = [
   },
   // 3. final temperature from the heat added
   (d) => {
-    const [mat, c] = d.pick(MATERIALS.filter(([n]) => n !== 'steam' && n !== 'ice')), m = d.pick(MASS), T0 = d.int(12, 30), dT = d.int(5, 50), Q = Math.round(m * c * dT);
+    const [mat, c] = d.pick(USED), m = d.pick(MASS), T0 = d.int(12, 30), dT = d.int(5, Math.min(50, TOP(mat) - T0 - 1)), Q = Math.round(m * c * dT);
     const rise = Q / (m * c);
     return {
       topic: 'Final temperature',
@@ -50,7 +53,7 @@ const templates = [
   },
   // 4. find the mass
   (d) => {
-    const [mat, c] = d.pick(MATERIALS.filter(([n]) => n !== 'steam' && n !== 'ice')), m = d.pick(MASS), dT = d.int(5, 40), Q = Math.round(m * c * dT);
+    const [mat, c] = d.pick(USED), m = d.pick(MASS), dT = d.int(5, 40), Q = Math.round(m * c * dT);
     return {
       topic: 'Finding the mass',
       text: `It takes ${num(Q, 0)} J to raise the temperature of some ${mat} by ${dT} °C. What is its mass? (c = ${num(c, 3)} J/(g·°C))`,
@@ -71,7 +74,7 @@ const templates = [
   },
   // 6. heat given off while cooling
   (d) => {
-    const [mat, c] = d.pick(MATERIALS.filter(([n]) => n !== 'steam')), m = d.pick(MASS), T1 = d.int(60, 95), dT = d.int(10, 50), T2 = T1 - dT;
+    const [mat, c] = d.pick(USED), m = d.pick(MASS), T1 = d.int(60, Math.min(95, TOP(mat))), dT = d.int(10, 50), T2 = T1 - dT;
     return {
       topic: 'Heat released while cooling',
       text: `${m} g of ${mat} cools from ${T1} °C to ${T2} °C. How much heat does it give off? (c = ${num(c, 3)} J/(g·°C); answer as a positive number)`,
@@ -118,7 +121,10 @@ const templates = [
   },
   // 10. same heat, same mass, different materials
   (d) => {
-    const [A, cA] = d.pick(SOLIDS.concat([['water', 4.18]])), others = MATERIALS.filter(([n, c]) => n !== A && c !== cA && n !== 'steam'), [B, cB] = d.pick(others), dTA = d.int(4, 30);
+    // (only pairs where the second change is believable: up to 100 °C for a solid, 50 °C for a liquid)
+    const most = (n) => (['water', 'ethanol', 'olive oil'].includes(n) ? 50 : 100);
+    const [A, cA] = d.pick(SOLIDS.concat([['water', 4.18]])), others = USED.filter(([n, c]) => n !== A && c !== cA && cA * 4 <= most(n) * c), [B, cB] = d.pick(others);
+    const dTA = d.int(4, Math.min(30, Math.floor((most(B) * cB) / cA)));
     return {
       topic: 'Same heat, different materials',
       text: `Equal masses of ${A} and ${B} absorb the same amount of heat. The ${A} warms by ${dTA} °C. By how much does the ${B} warm? (c: ${A} ${num(cA, 3)}, ${B} ${num(cB, 3)} J/(g·°C))`,
