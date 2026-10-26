@@ -5,18 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Science Tests · Fluentio</title>
   <meta name="description" content="Heat capacity questions, Q = mcΔT, with hundreds of variants and a worked solution for each.">
+  <script src="../settings.js"></script>
+  <script src="../kit/look.js"></script>
+  <script src="../kit/bar.js"></script>
+  <link rel="stylesheet" href="../kit/site.css">
   <link rel="stylesheet" href="../kit/tests.css">
 </head>
-<body data-title="Science Tests · Fluentio">
+<body data-title="Science Tests">
+  <script>window.fluentio?.bar?.()</script>
   <main>
     <header id="top">
-      <a class="back" href="../">← Fluentio</a>
+      <a class="back" href="../study/">← <span data-fill="studyTitle">Study</span></a>
       <h1>🧪 Science Tests</h1>
       <p class="lead">Heat capacity with Q = mcΔT. Every question comes in hundreds of variants, each with a worked solution.</p>
     </header>
     <div id="app"><noscript>These tests need JavaScript.</noscript></div>
   </main>
-  <footer>TrixWotel <span id="year">2026</span></footer>
+  <footer><span data-fill="footer">TrixWotel</span> <span id="year">2026</span></footer>
   <script type="module">
     import { testsPage } from '../kit/tests.js';
     import { heat, MATERIALS } from './heat.js';

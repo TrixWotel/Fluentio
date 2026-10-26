@@ -6,7 +6,7 @@ Served at https://trixwotel.github.io/Fluentio/science/ as the science folder of
 * **heat.js** makes the Heat Capacity questions (Q = mcΔT): 11 kinds, 20 variants each (220), from warming and cooling to mixing hot metal into water, electric heaters and calories.
 * **heat-lessons.js** is the learning path (3 units) and a short lesson for each kind of question.
 
-The test runner is in the space branch's kit folder.
+The test runner is in the space branch's kit folder. The colors and the rest of the look come from its settings.js.
 
 ## License
 
