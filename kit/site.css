@@ -137,6 +137,8 @@ html.has-bar body { padding-top: var(--bar-h); }
 .finder-empty { margin: 0; padding: 22px; text-align: center; color: var(--muted); }
 .finder-foot { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 8px 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
 .finder-foot kbd { margin-right: 2px; }
+.finder-foot a { margin-left: auto; color: var(--accent); text-decoration: none; }
+.finder-foot a:hover { text-decoration: underline; }
 
 /* the drifting colors (look.js puts them behind every page; settings.js can turn them off) */
 .sky { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; view-transition-name: sky; }

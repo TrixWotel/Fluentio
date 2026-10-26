@@ -18,6 +18,7 @@
       dark: { ocean: '#0c1828', land: '#23272e', country: '#4d5768', border: '#151920', late: '#d29922' },
     },
     font: 'system', corners: 14, style: 'glow', animations: true, speed: 1, floatingColors: true,
+    keys: { search: 'Ctrl+K', home: 'Ctrl+1', study: 'Ctrl+2', workspace: 'Ctrl+3' },
     home: ['workspace', 'study', 'data', 'quick'],
     quick: [
       { title: 'New note', link: 'workspace/#new/note' },
@@ -166,11 +167,41 @@
   const icon = (name) => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ''}</svg>`;
   const svg = (name) => { const t = document.createElement('template'); t.innerHTML = icon(name); return t.content.firstChild; };
 
+  // keys written like 'Ctrl+Shift+K', matched by where the key sits on the keyboard (so Alt with a number, which types a
+  // symbol on a Mac, still counts as that number). Windows and Linux browsers keep Ctrl with a number for their tabs,
+  // so there Ctrl+1 is taken as Alt+1
+  const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  const MODS = ['Ctrl', 'Alt', 'Shift', 'Meta'];
+  const ALIAS = { ctrl: 'Ctrl', control: 'Ctrl', '⌃': 'Ctrl', alt: 'Alt', option: 'Alt', opt: 'Alt', '⌥': 'Alt', shift: 'Shift', '⇧': 'Shift', meta: 'Meta', cmd: 'Meta', command: 'Meta', '⌘': 'Meta', win: 'Meta' };
+  const NAMED = { Slash: '/', Backslash: '\\', Comma: ',', Period: '.', Semicolon: ';', Quote: "'", BracketLeft: '[', BracketRight: ']', Minus: '-', Equal: '=', Backquote: '`', Space: 'Space', Enter: 'Enter', ArrowUp: 'Up', ArrowDown: 'Down', ArrowLeft: 'Left', ArrowRight: 'Right' };
+  const keyName = (code) => (/^Key[A-Z]$/.test(code) ? code.slice(3) : /^(Digit|Numpad)\d$/.test(code) ? code.slice(-1) : /^F\d{1,2}$/.test(code) ? code : NAMED[code] || '');
+  const tidy = (text) => {                          // 'ctrl + k' and '⌃K' are 'Ctrl+K', and anything it can't read is '' (no key)
+    const parts = String(text || '').replace(/^\s*([⌃⌥⇧⌘]+)(?=.)/, (m, marks) => `${[...marks].join('+')}+`).split('+').map((p) => p.trim()).filter(Boolean), key = parts.pop();
+    if (!key) return '';
+    const mods = parts.map((p) => ALIAS[p.toLowerCase()] || ALIAS[p]);
+    if (mods.some((m) => !m)) return '';
+    return [...MODS.filter((m) => mods.includes(m)), key.length === 1 ? key.toUpperCase() : key[0].toUpperCase() + key.slice(1)].join('+');
+  };
+  const meant = (text) => { const t = tidy(text); return !mac && /^Ctrl\+\d$/.test(t) ? t.replace('Ctrl', 'Alt') : t; };
+  const SYMBOL = { Ctrl: '⌃', Alt: '⌥', Shift: '⇧', Meta: '⌘' }, ARROW = { Up: '↑', Down: '↓', Left: '←', Right: '→' };
+  const key = {
+    mac, tidy, meant,
+    // what was pressed, written the same way ('' for a key on its own like Shift)
+    pressed: (e) => { const k = keyName(e.code); return k ? [e.ctrlKey && 'Ctrl', e.altKey && 'Alt', e.shiftKey && 'Shift', e.metaKey && 'Meta', k].filter(Boolean).join('+') : ''; },
+    // how a key reads: ⌃K on a Mac, Ctrl+K elsewhere
+    shown: (text) => {
+      const t = meant(text);
+      if (!t) return '';
+      const parts = t.split('+'), k = parts.pop();
+      return mac ? parts.map((m) => SYMBOL[m]).join('') + (ARROW[k] || k) : [...parts, ARROW[k] || k].join('+');
+    },
+  };
+
   // the site's top folder (this file is in its kit folder), for the links in the settings
   const here = document.currentScript && document.currentScript.src;
   const root = here ? new URL('..', here).href : new URL('./', location.href).href;
   window.fluentio = {
-    settings: s, site, DEFAULTS, FONTS, root, read, write, el, svg, icon,
+    settings: s, site, DEFAULTS, FONTS, root, read, write, el, svg, icon, key,
     link: (href) => new URL(String(href || ''), root).href,
     moving: () => s.animations !== false && !matchMedia('(prefers-reduced-motion: reduce)').matches,
     // the Workspace's notes, docs, tables and code: kept in this browser only (Settings can download a backup)

@@ -215,13 +215,51 @@ function names() {
     set('Workspace', 'The Workspace’s name, in the bar and on the home page.', text(s.workspaceTitle, (v) => { s.workspaceTitle = v; save(); }, 'Workspace’s name')));
 }
 
+// a key you can change: click it, then press the new one. Esc keeps the old one, Delete (or Backspace) turns it off,
+// and a key another action had moves here (that one is left with none)
+const ACTIONS = () => [['search', 'Search', 'Pages, subjects and your workspace. / works too, when you aren’t typing.'], ['home', 'Home', ''], ['study', s.studyTitle, ''], ['workspace', s.workspaceTitle, '']];
+// (keys a browser usually keeps for itself, like ⌘T, or ⌘K in Fluent, never reach the page)
+const kept = (k) => { const t = f.key.meant(k); return /^(Shift\+)?Meta\+([0-9TWNQRLKEPSFDHMYZXCVAOG,])$/.test(t) || /^Ctrl\+(Shift\+)?Tab$/.test(t); };
+let recording = null;                               // how to stop the key being recorded
+function recorder(name, title) {
+  const b = el('button', { type: 'button', className: 'key-rec', 'aria-label': `${title}'s key` });
+  const show = () => { const k = f.key.shown(s.keys[name]); b.classList.remove('rec'); b.replaceChildren(k ? el('kbd', {}, k) : el('span', { className: 'muted' }, 'Off')); };
+  const stop = () => { removeEventListener('keydown', listen, true); b.removeEventListener('blur', stop); if (recording === stop) recording = null; show(); };
+  const listen = (e) => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (e.key === 'Escape') return stop();
+    if (e.key === 'Backspace' || e.key === 'Delete') { s.keys[name] = ''; stop(); save(); draw(); return; }
+    const k = f.key.pressed(e);
+    if (!k) return;                                 // (Shift or another modifier on its own: wait for the key)
+    const had = ACTIONS().find(([other]) => other !== name && f.key.meant(s.keys[other]) === f.key.meant(k));
+    if (had) s.keys[had[0]] = '';
+    s.keys[name] = k;
+    stop();
+    save();
+    if (had) toast(`${f.key.shown(k)} was ${had[1]}’s, so ${had[1]} has no key now`);
+    draw();
+  };
+  b.onclick = () => {
+    if (recording === stop) return stop();
+    recording?.();
+    recording = stop;
+    b.classList.add('rec');
+    b.replaceChildren(el('span', {}, 'Press a key…'));
+    addEventListener('keydown', listen, true);
+    b.addEventListener('blur', stop);
+  };
+  show();
+  return b;
+}
 function keys() {
-  const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent), j = mac ? '⌃' : 'Alt+';
   const row = (k, what) => [el('dt', {}, k.map((x) => el('kbd', {}, x))), el('dd', {}, what)];
   return el('section', { className: 'panel', id: 'keys' }, el('h2', {}, 'Keys'),
+    el('p', {}, 'Click a key, then press the new one, with Ctrl, Alt, Shift or ⌘ if you like. Esc keeps it as it was, and Delete turns it off.'),
+    ...ACTIONS().map(([name, title, note]) => set(title, [note, kept(s.keys[name]) ? `Your browser may keep ${f.key.shown(s.keys[name])} for itself, so it might not reach the page.` : ''].filter(Boolean).join(' '), recorder(name, title))),
+    el('div', { className: 'set' }, el('div', { className: 'what' }, el('small', {}, 'Back to the keys in settings.js.')),
+      el('button', { type: 'button', className: 'btn', onclick: () => { s.keys = clone(f.site.keys); save(); draw(); } }, 'Reset the keys')),
     el('dl', { className: 'keys' },
-      row([mac ? '⌃K' : 'Ctrl+K', '/'], 'Search pages, subjects and your workspace'),
-      row([`${j}1`], 'Home'), row([`${j}2`], s.studyTitle), row([`${j}3`], s.workspaceTitle),
       row(['↑', '↓', 'Enter'], 'Pick in Search, and open it'),
       row(['Esc'], 'Close Search, or the details pane'),
       row(['Enter'], 'In a table: the cell below (a new row at the end)'),

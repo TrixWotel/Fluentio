@@ -24,7 +24,7 @@ Every page has the same bar at the top: Home, Study and Workspace, Search, and S
 * **Workspace** keeps notes, docs, tables and code. Notes are Markdown, where [[a note's name]] links to another note and the right side shows the outline and the links both ways. A doc is your own writing, with a Google Docs, Slides or Sheets link to open beside it. A table takes CSV in and out and shows each column's numbers. Code can be any language, and JavaScript runs right there. All of it stays in your browser, never in this repo, so download a backup in Settings now and then.
 * **Settings** picks a theme (Fluentio, or GitHub: flat, with GitHub's own colors) or changes each part of the look: the colors (or a ready-made pair), light or dark, the style, font, corners, motion, the home page's tiles and buttons, and the names. Each change shows straight away and stays in that browser. Copy as settings.js turns them into a new settings.js to paste here for every device. Settings also downloads and restores a backup of everything Fluentio keeps in the browser.
 
-Keys: ⌃K (or /) searches everything, and ⌃1, ⌃2 and ⌃3 go to Home, Study and Workspace (on Windows and Linux, Alt with the number).
+Keys: ⌃K (or /) searches everything, and ⌃1, ⌃2 and ⌃3 go to Home, Study and Workspace (on Windows and Linux, Alt with the number). Settings → Keys can change each one: click it and press the new key.
 
 ## Settings
 
@@ -36,6 +36,7 @@ Keys: ⌃K (or /) searches everything, and ⌃1, ⌃2 and ⌃3 go to Home, Study
 * **map** is the colors of the Geography map, light and dark.
 * **font** is 'system', 'rounded', 'serif', 'mono' or any CSS font list, and **corners** is how round the cards and buttons are, in pixels.
 * **style** is 'glow' (soft shadows, glowing edges and gradients) or 'flat' (borders and solid colors, like GitHub).
+* **keys** are the keys for search, home, study and workspace, written like 'Ctrl+K' (Ctrl, Alt, Shift or Meta with a key, Meta being ⌘ on a Mac). An empty one ('') turns that key off.
 * **animations** turns every animation on or off, **speed** makes them faster (2) or slower (0.5), and **floatingColors** turns the soft colors drifting behind the pages on or off. A device set to reduce motion never gets the animations.
 * **home** is the home page's tiles in order ('workspace', 'study', 'data' and 'quick'), and **quick** the Quick tile's buttons, each a title and a link.
 * **workspaceTitle** is the Workspace's name. **studyTitle**, **studyIntro** and **study** are the Study page: its title, the line under it, and the subjects in order, each with an emoji, its words, a link and its own color.

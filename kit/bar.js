@@ -1,18 +1,17 @@
 // The bar at the top of every page: the site's name, Home, Study and Workspace (the one you're in is marked, and the
 // mark slides across when you go to another), Search, and Settings. Each page loads this right after look.js and calls
 // fluentio.bar() first thing in its <body>, so the bar is there before the page is drawn.
-// Search (⌃K, or /) finds the pages, the subjects, and everything in the Workspace. ⌃1, ⌃2 and ⌃3 go to Home, Study
-// and Workspace from anywhere (Alt+1, Alt+2 and Alt+3 on Windows and Linux, where the browser keeps Ctrl with a number).
+// Search finds the pages, the subjects, and everything in the Workspace. The keys are the settings' (Settings can record
+// new ones): ⌃K (or /) searches, and ⌃1, ⌃2 and ⌃3 go to Home, Study and Workspace from anywhere.
 (() => {
   const f = window.fluentio;
   if (!f) return;
   const { el, svg } = f;
-  const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
-  const jumpKey = mac ? '⌃' : 'Alt+', findKey = mac ? '⌃K' : 'Ctrl+K';
+  const keyFor = (name) => f.key.shown(f.settings.keys[name]);   // how a key reads ('' when it's off)
   const spaces = () => [
-    { id: 'home', title: 'Home', href: f.link('./'), icon: 'home' },
-    { id: 'study', title: f.settings.studyTitle, href: f.link('study/'), icon: 'study' },
-    { id: 'workspace', title: f.settings.workspaceTitle, href: f.link('workspace/'), icon: 'workspace' },
+    { id: 'home', title: 'Home', href: f.link('./'), icon: 'home', key: keyFor('home') },
+    { id: 'study', title: f.settings.studyTitle, href: f.link('study/'), icon: 'study', key: keyFor('study') },
+    { id: 'workspace', title: f.settings.workspaceTitle, href: f.link('workspace/'), icon: 'workspace', key: keyFor('workspace') },
   ];
   // the space this page is in (a subject's page is in Study), or what it is: 'settings', say
   const where = () => {
@@ -23,18 +22,22 @@
     return first;
   };
 
-  let nav = null;
+  let nav = null, find = null;
   const drawNav = () => {
     const here = where();
-    nav.replaceChildren(...spaces().map((x, i) => el('a', { href: x.href, className: x.id === here ? 'on' : '', title: `${x.title} (${jumpKey}${i + 1})`, 'aria-current': x.id === here ? 'page' : null },
+    nav.replaceChildren(...spaces().map((x) => el('a', { href: x.href, className: x.id === here ? 'on' : '', title: x.key ? `${x.title} (${x.key})` : x.title, 'aria-current': x.id === here ? 'page' : null },
       x.id === here ? el('span', { className: 'pill', 'aria-hidden': 'true' }) : null, x.title)));
+    const k = keyFor('search');
+    find.title = k ? `Search (${k})` : 'Search';
+    find.querySelector('kbd').textContent = k;
+    find.querySelector('kbd').hidden = !k;
   };
   f.bar = () => {
     if (!document.body || document.querySelector('body > .topbar')) return;
     nav = el('nav', { className: 'spaces', 'aria-label': 'Spaces' });
+    find = el('button', { type: 'button', className: 'find', onclick: () => openFind() }, svg('search'), el('span', {}, 'Search'), el('kbd'));
     drawNav();
     const brand = el('a', { className: 'brand', href: f.link('./'), 'data-fill': 'name' }, f.settings.name);
-    const find = el('button', { type: 'button', className: 'find', title: `Search (${findKey})`, onclick: () => openFind() }, svg('search'), el('span', {}, 'Search'), el('kbd', {}, findKey));
     const gear = el('a', { className: 'gear' + (where() === 'settings' ? ' on' : ''), href: f.link('settings/'), title: 'Settings', 'aria-label': 'Settings' }, svg('settings'));
     document.body.prepend(el('header', { className: 'topbar' }, brand, nav, el('div', { className: 'tools' }, find, gear)));
     document.documentElement.classList.add('has-bar');
@@ -47,7 +50,7 @@
   // everything there is to find, in the order it shows with nothing typed
   function everything(q) {
     const s = f.settings, out = [];
-    spaces().forEach((x, i) => out.push({ title: x.title, kind: `${jumpKey}${i + 1}`, icon: x.icon, href: x.href, group: 'Go to' }));
+    spaces().forEach((x) => out.push({ title: x.title, kind: x.key || 'Page', icon: x.icon, href: x.href, group: 'Go to' }));
     out.push({ title: 'Settings', kind: 'Colors and more', icon: 'settings', href: f.link('settings/'), group: 'Go to' });
     const items = f.workspace.items().sort((a, b) => (b.edited || 0) - (a.edited || 0));
     for (const it of q ? items : items.slice(0, 6)) {
@@ -102,7 +105,7 @@
         list,
         el('div', { className: 'finder-foot' },
           el('span', {}, el('kbd', {}, '↑'), el('kbd', {}, '↓'), ' move'), el('span', {}, el('kbd', {}, 'Enter'), ' open'),
-          el('span', {}, `${jumpKey}1 ${jumpKey}2 ${jumpKey}3 go to Home, ${s.studyTitle} and ${s.workspaceTitle}`))));
+          el('a', { href: f.link('settings/#keys'), onclick: () => closeFind(true) }, 'Change the keys'))));
     input.addEventListener('input', () => { at = 0; draw(); });
     input.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); move(e.key === 'ArrowDown' ? 1 : -1); }
@@ -127,21 +130,21 @@
   const go = (href) => { closeFind(true); if (href !== location.href) location.href = href; };
   f.find = openFind;
 
-  // the keys: Search, and the three spaces
+  // the keys: Search (and / too, when you're not typing), and the three spaces. A key without Ctrl, Alt or Meta only
+  // counts when you're not typing, so it can't get in the way of writing
   addEventListener('keydown', (e) => {
     if (e.defaultPrevented || e.isComposing) return;
     if (e.key === 'Escape' && box && !box.hidden) { e.preventDefault(); closeFind(); return; }
+    const pressed = f.key.pressed(e);
+    if (!pressed) return;
     const typing = e.target instanceof Element && !!e.target.closest('input, textarea, select, [contenteditable]');
-    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-    if ((key === 'k' && (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey) || (key === '/' && !typing && !e.ctrlKey && !e.metaKey && !e.altKey)) {
+    const is = (name) => { const want = f.key.meant(f.settings.keys[name]); return !!want && want === pressed && (!typing || /Ctrl|Alt|Meta/.test(want)); };
+    if (is('search') || (pressed === '/' && !typing)) {
       e.preventDefault();
       if (box && !box.hidden) closeFind(); else openFind();
       return;
     }
-    const n = /^Digit([1-3])$/.exec(e.code);
-    if (n && !e.shiftKey && (mac ? e.ctrlKey && !e.metaKey && !e.altKey : e.altKey && !e.ctrlKey && !e.metaKey)) {
-      e.preventDefault();
-      go(spaces()[n[1] - 1].href);
-    }
+    const space = spaces().find((x) => is(x.id));
+    if (space) { e.preventDefault(); go(space.href); }
   });
 })();

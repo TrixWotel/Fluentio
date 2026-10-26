@@ -60,6 +60,10 @@ window.FLUENTIO_SETTINGS = {
   speed: 1,                // 1 is normal, 2 is twice as fast, 0.5 is half as fast
   floatingColors: true,    // the soft colors drifting behind the pages
 
+  // the keys (Settings can record new ones): Ctrl, Alt, Shift or Meta (⌘ on a Mac) with a key, like 'Ctrl+K', and ''
+  // turns one off. On Windows and Linux the browser keeps Ctrl with a number for its tabs, so there Ctrl+1 works as Alt+1
+  keys: { search: 'Ctrl+K', home: 'Ctrl+1', study: 'Ctrl+2', workspace: 'Ctrl+3' },
+
   // the home page's tiles, in this order (take one out to hide it): 'workspace', 'study', 'data' and 'quick'
   home: ['workspace', 'study', 'data', 'quick'],
   // the buttons on the Quick tile (a link can also be a whole web address)
