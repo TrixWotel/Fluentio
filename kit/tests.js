@@ -1,4 +1,4 @@
-// Fluentio's test runner, shared by the Math, Science and Physics pages: a card for each test, a test of random variants
+// Fluentio's test runner, shared by the Math, Science, Physics and Spanish pages: a card for each test, a test of random variants
 // with a score (your best is kept in this browser), learning a topic at a time with hints, and practice by variant
 // number with worked solutions.
 // Links: #triangles opens a test's page, #triangles/test starts a test (#triangles/test/40 one of 40 questions),
@@ -76,7 +76,16 @@ export function testsPage({ tests }) {
   const topics = new Map();                         // each test's kinds of question, and the variants of each (worked out once)
   let run = null, clock = 0;                        // the test in progress, and its timer
   const show = (...nodes) => app.replaceChildren(...nodes.flat().filter(Boolean));   // (replaceChildren would print a null as "null")
-  const go = (hash) => { if (location.hash !== hash) location.hash = hash; else route(); };
+  // the tab's title: what's showing, then the page (its body's data-title), then the site's name (settings.js)
+  const titled = (...parts) => { document.title = [...parts, document.body.dataset.title, window.fluentio?.settings.name ?? 'Fluentio'].join(' · '); };
+  // a new screen: the old one fades as the new one rises, where the browser can (look.js says whether motion is on)
+  const moving = () => window.fluentio?.moving?.() ?? !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const swap = (draw) => (document.startViewTransition && moving() ? document.startViewTransition(draw).ready.catch(() => {}) : draw());
+  const go = (hash) => { if (location.hash !== hash) location.hash = hash; else swap(route); };
+  // a question asked on the page itself (the Fluent browser has no confirm()): the first button does it
+  const confirmBox = (question, yes, onYes, onNo, no = 'Cancel') => el('div', { className: 'confirm' },
+    el('span', {}, question), el('span', { className: 'grow' }),
+    el('button', { className: 'btn primary', onclick: onYes }, yes), el('button', { className: 'btn', onclick: onNo }, no));
   function route() {
     clearInterval(clock);
     const [id, part, sub] = location.hash.slice(1).split('/');
@@ -129,8 +138,8 @@ export function testsPage({ tests }) {
 
   // ---------- the cards ----------
   function home() {
-    document.title = document.body.dataset.title;
-    show(el('div', { className: 'grid' }, ...tests.map((t) => {
+    titled();
+    show(el('div', { className: 'grid stagger' }, ...tests.map((t) => {
       const best = store.get(t.bank.id + '.best'), learned = learnedIn(progressOf(t));
       return el('a', { className: 'card', href: '#' + t.bank.id },
         el('b', {}, t.name), el('span', { className: 'count' }, `${t.blurb} ${t.bank.count.toLocaleString('en-US')} variants.`),
@@ -141,7 +150,7 @@ export function testsPage({ tests }) {
 
   // ---------- one test's page: start a test, learn, or practise any variant ----------
   function testHome(t) {
-    document.title = `${t.name} · ${document.body.dataset.title}`;
+    titled(t.name);
     const { names } = kindsOf(t), p = progressOf(t), learned = learnedIn(p), next = upNext(t, p);
     const howMany = el('input', { type: 'number', min: 1, max: t.bank.count, value: Math.min(standard(t), t.bank.count), className: 'num' });
     howMany.setAttribute('aria-label', 'Number of questions');
@@ -191,8 +200,10 @@ export function testsPage({ tests }) {
     const working = el('details', { className: 'working', hidden: true }, el('summary', {}, 'Show the working'));
     working.append(html('div', 'sol', q.solution));
     let answered = false;
+    // the line that says right or wrong moves each time it changes (so a second wrong try shakes too)
+    const mark = (cls) => { result.className = 'result'; void result.offsetWidth; result.className = `result ${cls}`; };
     const reveal = (ok, value) => {
-      result.className = 'result ' + (ok ? 'good' : 'bad');
+      mark(ok ? 'good' : 'bad');
       result.innerHTML = ok ? '✓ Right.' : `✗ ${ok === null ? 'Skipped.' : nearly(q.answer, value) ? 'Almost: check the accents.' : 'Not quite.'} The answer is <b>${shown(q.answer)}</b>.`;
       working.hidden = false;
       if (!ok) working.open = true;
@@ -204,13 +215,14 @@ export function testsPage({ tests }) {
       if (feedback) reveal(ok, value);
       onAnswer(value, ok);
     };
-    // learning: the working comes out a sentence at a time, and all of it once the answer is right
+    // learning: the working comes out a sentence at a time (each new one fades in), and all of it once the answer is right
     const parts = steps(q.solution), sol = el('div', { className: 'sol', hidden: true });
     let out = 0;
     const more = (k) => {
       if (!answered) onHelp();
+      const from = out;
       out = Math.min(parts.length, out + k);
-      sol.innerHTML = parts.slice(0, out).join(' ');
+      if (out > from) sol.insertAdjacentHTML('beforeend', `${from ? ' ' : ''}<span class="fresh">${parts.slice(from, out).join(' ')}</span>`);
       sol.hidden = false;
       hint.textContent = out === parts.length - 1 ? 'Last hint' : `Hint ${out + 1} of ${parts.length}`;
       if (out === parts.length) { hints.hidden = true; if (!answered) onReveal(); }
@@ -219,14 +231,14 @@ export function testsPage({ tests }) {
     const hints = el('div', { className: 'hints' }, hint, el('button', { className: 'btn', onclick: () => more(parts.length) }, 'Show the working'));
     const tip = el('p', { className: 'nudge', hidden: true });
     const tryAgain = (value) => {
-      result.className = 'result bad';
+      mark('bad');
       result.textContent = nearly(q.answer, value) ? 'Almost: check the accents, then try again.' : nudge ? 'Not quite. Try again.' : 'Not quite. Try again, or take a hint.';
       if (nudge) { tip.innerHTML = `<b>Tip:</b> ${nudge}`; tip.hidden = false; }
       onWrong();
     };
-    const gotIt = (value) => { answered = true; tip.hidden = true; result.className = 'result good'; result.textContent = '✓ Right.'; more(parts.length); onAnswer(value, true); };
+    const gotIt = (value) => { answered = true; tip.hidden = true; mark('good'); result.textContent = '✓ Right.'; more(parts.length); onAnswer(value, true); };
     if (q.answer.kind === 'choice') {
-      const list = el('div', { className: 'choices' });
+      const list = el('div', { className: 'choices stagger' });
       q.answer.choices.forEach((c, i) => {
         const b = el('button', { className: 'choice' + (given === i ? ' picked' : ''), onclick: () => {
           if (answered && (feedback || learn)) return;
@@ -260,7 +272,7 @@ export function testsPage({ tests }) {
       const keys = text && q.answer.keys ? el('div', { className: 'keys' }, ...q.answer.keys.map((ch) => el('button', { className: 'key', type: 'button', onmousedown: (e) => e.preventDefault(), onclick: () => type(ch) }, ch))) : null;
       const check = el('button', { className: 'btn primary', onclick: () => {
         if (answered) return;
-        if (text ? !input.value.trim() : readNumber(input.value) == null) { input.focus(); result.className = 'result bad'; result.textContent = text ? 'Type your answer first.' : 'Type a number (like 12.5, −3 or 3/4).'; return; }
+        if (text ? !input.value.trim() : readNumber(input.value) == null) { input.focus(); mark('bad'); result.textContent = text ? 'Type your answer first.' : 'Type a number (like 12.5, −3 or 3/4).'; return; }
         if (learn) {
           if (!isRight(q.answer, input.value)) { input.select(); return tryAgain(input.value); }
           input.readOnly = true; check.disabled = true;
@@ -271,7 +283,7 @@ export function testsPage({ tests }) {
       } }, 'Check');
       const skip = el('button', { className: 'btn', hidden: !onSkip, onclick: () => { if (answered) return; answered = true; input.readOnly = true; check.disabled = true; skip.hidden = true; reveal(null); onSkip(); } }, 'Skip');
       input.addEventListener('keydown', (e) => { if (e.key === 'Enter') check.click(); });
-      box.append(el('div', { className: 'answer' }, input, q.answer.unit ? el('span', { className: 'unit' }, q.answer.unit) : null, check, skip), keys);
+      box.append(...[el('div', { className: 'answer' }, input, q.answer.unit ? el('span', { className: 'unit' }, q.answer.unit) : null, check, skip), keys].filter(Boolean));   // (append would print a null as "null")
       requestAnimationFrame(() => input.focus({ preventScroll: true }));
     }
     box.append(result, ...(learn ? [tip, hints, sol] : [working]));
@@ -280,7 +292,7 @@ export function testsPage({ tests }) {
 
   // ---------- practice: any variant, check it, see the working ----------
   function practice(t, n) {
-    document.title = `${t.name} ${n} · ${document.body.dataset.title}`;
+    titled(`${t.name} ${n}`);
     const q = t.bank.make(n);
     const next = el('button', { className: 'btn', disabled: n >= t.bank.count, onclick: () => go(`#${t.bank.id}/${n + 1}`) }, 'Next ›');
     show(
@@ -297,13 +309,16 @@ export function testsPage({ tests }) {
   // ---------- learning: a path of units, and each topic on it a lesson, a worked example, then practice ----------
   function learnHome(t) {
     const goal = t.learn?.goal ?? GOAL;
-    document.title = `Learn ${t.name} · ${document.body.dataset.title}`;
+    titled(`Learn ${t.name}`);
     const units = pathOf(t), order = units.flatMap((u) => u.topics), p = progressOf(t), next = upNext(t, p), done = learnedIn(p);
     const status = (s) => (!s ? '' : s.learned ? 'learned' : s.streak ? `${s.streak} of ${goal} in a row` : `${s.right} of ${s.tried} right`);
+    const asking = el('div', { hidden: true });
     const save = el('input', { type: 'checkbox', checked: saving(), onchange: () => {
-      if (!save.checked && !confirm('Stop saving your progress? What this device has saved will be forgotten; this visit keeps it until you close the page.')) { save.checked = true; return; }
-      setSaving(save.checked);
-      learnHome(t);
+      if (save.checked) { setSaving(true); return learnHome(t); }
+      save.checked = true;                         // not until they say so
+      asking.hidden = false;
+      asking.replaceChildren(confirmBox('Stop saving your progress? What this device has saved will be forgotten, and this visit keeps it until you close the page.',
+        'Stop saving', () => { setSaving(false); learnHome(t); }, () => { asking.hidden = true; }, 'Keep saving'));
     } });
     show(
       el('a', { className: 'back', href: '#' + t.bank.id }, '← ' + t.name),
@@ -316,16 +331,21 @@ export function testsPage({ tests }) {
       el('div', { className: 'progress' }, el('div', { style: `width:${(done / order.length) * 100}%` })),
       el('p', { className: 'muted qcount' }, `${done} of ${order.length} topics learned`),
       el('label', { className: 'save' }, save, ' Save my progress on this device', saving() ? null : el('span', { className: 'muted' }, ' (off: it lasts until you close the page)')),
+      asking,
       units.flatMap((u, i) => [
         el('h3', {}, `${units.length > 1 ? `${i + 1}. ` : ''}${u.unit}`, el('span', { className: 'unitcount' }, ` · ${u.topics.filter((n) => p[n]?.learned).length} of ${u.topics.length}`)),
-        el('ol', { className: 'path' }, ...u.topics.map((name) => {
+        el('ol', { className: 'path stagger' }, ...u.topics.map((name) => {
           const k = order.indexOf(name), s = p[name];
           return el('li', {}, el('a', { className: 'step' + (s?.learned ? ' learned' : '') + (k === next ? ' next' : ''), href: `#${t.bank.id}/learn/${k}` },
             el('span', { className: 'mark' }, s?.learned ? '✓' : String(k + 1)), el('span', { className: 'name' }, name), el('span', { className: 'muted' }, k === next ? 'up next' : status(s))));
         }))]),
-      Object.keys(p).length ? el('div', { className: 'start' }, el('button', { className: 'btn', onclick: () => {
-        if (confirm(`Forget what you've learned in ${t.name}?`)) { memory[t.bank.id] = {}; keep(t); learnHome(t); }
-      } }, 'Start over')) : null,
+      Object.keys(p).length ? (() => {
+        const box = el('div', { className: 'start' });
+        const button = el('button', { className: 'btn', onclick: () => box.replaceChildren(confirmBox(`Forget what you've learned in ${t.name}?`,
+          'Forget it', () => { memory[t.bank.id] = {}; keep(t); learnHome(t); }, () => box.replaceChildren(button), 'Keep it')) }, 'Start over');
+        box.append(button);
+        return box;
+      })() : null,
       extra(t, false));
   }
   function learn(t, which) {
@@ -333,22 +353,29 @@ export function testsPage({ tests }) {
     const order = sequence(t), { byTopic } = kindsOf(t), mixed = which === 'all', k = +which;
     if (!mixed && !(Number.isInteger(k) && k >= 0 && k < order.length)) return go(`#${t.bank.id}/learn`);
     const topic = mixed ? null : order[k], lesson = (name) => t.learn?.lessons?.[name];
-    document.title = `Learn ${topic ?? t.name} · ${document.body.dataset.title}`;
+    titled(`Learn ${topic ?? t.name}`);
     const p = progressOf(t), seen = new Set(), units = pathOf(t);
     const stat = (name) => (p[name] ??= { streak: 0, right: 0, tried: 0, learned: false });
     // a variant of a topic, new ones first; the next topic on the path that isn't learned yet (−1 if none)
     const variant = (name) => { const all = byTopic.get(name), fresh = all.filter((n) => !seen.has(n)), n = pick(fresh.length ? fresh : all); seen.add(n); return n; };
     const after = (from) => { for (let j = 1; j <= order.length; j++) { const x = (from + j) % order.length; if (!p[order[x]]?.learned) return x; } return -1; };
-    const dots = (s) => el('span', { className: 'dots', title: `${Math.min(s?.streak ?? 0, goal)} of ${goal} in a row` },
-      ...Array.from({ length: goal }, (_, i) => el('span', { className: s?.learned || i < (s?.streak ?? 0) ? 'on' : '' })));
+    const lit = {};                                  // how many dots each topic showed last time, so only a new one pops
+    const dots = (s, name) => {
+      const n = s?.learned ? goal : Math.min(s?.streak ?? 0, goal), was = lit[name] ?? n;
+      lit[name] = n;
+      return el('span', { className: 'dots', title: `${Math.min(s?.streak ?? 0, goal)} of ${goal} in a row` },
+        ...Array.from({ length: goal }, (_, i) => el('span', { className: i < n ? (i >= was ? 'on new' : 'on') : '' })));
+    };
     let current = topic;                             // the topic of the question showing (in mixed practice it changes)
+    // (for Continue on the home page: this topic, and how far along this test you are)
+    const remember = () => { if (!mixed && saving()) store.set('last', { href: `${location.pathname}#${t.bank.id}/learn/${k}`, topic, test: t.name, learned: learnedIn(p), total: order.length, at: Date.now() }); };
     const head = el('div', { className: 'learnhead' });
     const paint = () => {
       const s = p[current], unit = units.find((u) => u.topics.includes(current))?.unit;
       head.replaceChildren(...[
         el('b', {}, mixed ? `Mixed practice: ${learnedIn(p)} of ${order.length} topics learned` : current),
         el('span', { className: 'muted' }, mixed ? `This one: ${current}` : `${units.length > 1 ? unit + ' · ' : ''}topic ${k + 1} of ${order.length}`),
-        dots(s),
+        dots(s, current),
         el('span', { className: 'muted' }, s?.learned ? '✓ Learned' : `${Math.min(s?.streak ?? 0, goal)} of ${goal} in a row`)]);
     };
 
@@ -379,7 +406,7 @@ export function testsPage({ tests }) {
         el('div', { className: 'qhead' }, el('span', {}, 'Worked example'), el('span', { className: 'muted' }, `Variant ${q.n}`)),
         html('p', 'qtext', q.text));
       if (q.figure) box.append(html('div', 'fig', q.figure));
-      const options = q.answer.kind === 'choice' ? el('div', { className: 'choices still' }, ...q.answer.choices.map((c, i) => el('div', { className: 'choice' }, el('span', { className: 'letter' }, `(${LETTERS[i]})`), html('span', 'cv', c)))) : null;
+      const options = q.answer.kind === 'choice' ? el('div', { className: 'choices still stagger' }, ...q.answer.choices.map((c, i) => el('div', { className: 'choice' }, el('span', { className: 'letter' }, `(${LETTERS[i]})`), html('span', 'cv', c)))) : null;
       const worked = el('ol', { className: 'worked' }), answer = html('p', 'answer-line', `Answer: <b>${shown(q.answer)}</b>`);
       answer.hidden = true;
       let out = 0;
@@ -422,6 +449,7 @@ export function testsPage({ tests }) {
             onward.hidden = false; next.className = 'btn';
           }
           keep(t);
+          remember();
           paint();
         };
         const next = el('button', { className: 'btn primary', hidden: true, onclick: () => { settle(false); ask(); window.scrollTo(0, 0); } }, mixed ? 'Next question ›' : 'Another one ›');
@@ -436,6 +464,7 @@ export function testsPage({ tests }) {
     }
 
     paint();
+    remember();
     show(el('div', { className: 'pnav' }, el('a', { className: 'back', href: `#${t.bank.id}/learn` }, '← The learning path'), el('span', { className: 'grow' })),
       head, tabs, stage, extra(t, false));
     // a new topic starts at its lesson; one you've practised before starts at practice
@@ -444,7 +473,7 @@ export function testsPage({ tests }) {
 
   // ---------- a test ----------
   function startTest(t, length) {
-    document.title = `${t.name} test · ${document.body.dataset.title}`;
+    titled(`${t.name} test`);
     // a test is spread over every kind of question (each kind once before any kind twice), in a random order
     const { kinds, count } = t.bank;
     const pool = Array.from({ length: kinds }, (_, k) => shuffle(Array.from({ length: Math.ceil((count - k) / kinds) }, (_, j) => k + 1 + j * kinds)));
@@ -487,7 +516,7 @@ export function testsPage({ tests }) {
       const next = el('button', { className: 'btn primary', hidden: true, onclick: () => (last ? results() : move(i + 1)) }, last ? 'See my score' : 'Next ›');
       const done = () => { next.hidden = false; requestAnimationFrame(() => next.focus({ preventScroll: true })); };
       const body = card(q, { feedback: true, onAnswer: (value) => { run.given[i] = value; done(); }, onSkip: () => { run.given[i] = null; done(); } });
-      bar = [el('div', { className: 'progress' }, el('div', { style: `width:${(i / list.length) * 100}%` })),
+      bar = [el('div', { className: 'progress' }, el('div', { style: `width:${(i / list.length) * 100}%; --from:${(Math.max(0, i - 1) / list.length) * 100}%` })),
         el('p', { className: 'muted qcount' }, `Question ${i + 1} of ${list.length}`), body, el('div', { className: 'start' }, next)];
     }
     show(el('div', { className: 'pnav' }, el('a', { className: 'back', href: '#' + t.bank.id }, '← Stop the test'), el('span', { className: 'grow' }), timer), ...bar, extra(t, false));
@@ -517,7 +546,7 @@ export function testsPage({ tests }) {
         + (full ? '' : `Only tests of ${standard(t)} or more questions count for your best. `) + `It took about ${plural(mins, 'minute')}.`),
       el('div', { className: 'start' }, el('button', { className: 'btn primary', onclick: () => go(again) }, 'Take another test'), el('a', { className: 'btn', href: `#${t.bank.id}/learn` }, 'Learn'), el('a', { className: 'btn', href: '#' }, 'All tests')),
       el('h3', {}, 'Review'),
-      el('div', { className: 'review' }, ...qs.map((q, i) => {
+      el('div', { className: 'review stagger' }, ...qs.map((q, i) => {
         const g = given[i];
         const yours = g == null ? 'left blank' : q.answer.kind === 'choice' ? `(${LETTERS[g]})` : `${g}`;
         const d = el('details', { className: 'rv ' + (right[i] ? 'good' : g == null ? 'blank' : 'bad') });
@@ -530,6 +559,6 @@ export function testsPage({ tests }) {
   }
 
   // start once everything above is set up (a link straight to a test or a variant opens it)
-  addEventListener('hashchange', route);
+  addEventListener('hashchange', () => swap(route));
   route();
 }

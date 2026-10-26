@@ -1,0 +1,291 @@
+// Settings: everything settings.js holds, changed here, each change showing straight away. What's changed stays in this
+// browser (look.js keeps it as fluentio.look, over settings.js), and "Copy as settings.js" turns all of it into a new
+// settings.js to paste on GitHub for every device. Also here: the keys, and a backup of everything Fluentio keeps in
+// this browser (the Workspace, these settings, learning progress and best scores).
+const f = window.fluentio;
+const { el, svg } = f;
+const $ = (id) => document.getElementById(id);
+const panels = $('panels');
+let s = structuredClone(f.settings);                // what's being changed
+const clone = (v) => structuredClone(v);
+
+// ---------- saving, with a word at the bottom of the screen ----------
+let queued = 0, toastTimer = 0;
+function toast(text) {
+  const t = $('toast');
+  t.textContent = text;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
+}
+// (once a frame at most, so dragging through colors stays smooth)
+function save() {
+  if (queued) return;
+  queued = requestAnimationFrame(() => {
+    queued = 0;
+    toast(f.save(s) ? 'Saved in this browser' : "Couldn't save: this browser's storage is full or turned off");
+  });
+}
+
+// ---------- pieces ----------
+const set = (title, note, ...controls) => el('div', { className: 'set' }, el('div', { className: 'what' }, el('b', {}, title), note ? el('small', {}, note) : null), ...controls);
+function seg(options, value, pick, label) {
+  const box = el('div', { className: 'seg', role: 'group', 'aria-label': label });
+  for (const [v, name, style] of options) {
+    const b = el('button', { type: 'button', className: v === value ? 'on' : '', 'aria-pressed': String(v === value), onclick: () => {
+      for (const x of box.children) { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); }
+      pick(v);
+    } }, name);
+    if (style) b.style.fontFamily = style;
+    box.append(b);
+  }
+  return box;
+}
+const toggle = (checked, pick, label) => el('input', { type: 'checkbox', className: 'switch', checked, 'aria-label': label, onchange: (e) => pick(e.target.checked) });
+function text(value, pick, label, attrs = {}) {
+  let wait = 0;
+  return el(attrs.long ? 'textarea' : 'input', { className: 'input text-in', value, 'aria-label': label, spellcheck: attrs.long || false, rows: attrs.long ? 3 : null,
+    oninput: (e) => { clearTimeout(wait); wait = setTimeout(() => pick(e.target.value), 250); } });
+}
+// a color: the picker (which only knows #rrggbb), and the color as typed, which can be any CSS color
+const paint = document.createElement('canvas').getContext('2d');
+const hex = (c) => { paint.fillStyle = '#000000'; paint.fillStyle = c; return /^#[0-9a-f]{6}$/i.test(paint.fillStyle) ? paint.fillStyle : '#000000'; };
+function colorInput(value, pick, label) {
+  const typed = el('input', { className: 'input', value, spellcheck: false, 'aria-label': `${label}, as a CSS color`,
+    oninput: () => {
+      const ok = CSS.supports('color', typed.value.trim());
+      typed.classList.toggle('bad', !ok);
+      if (ok) { picker.value = hex(typed.value.trim()); pick(typed.value.trim()); }
+    } });
+  const picker = el('input', { type: 'color', value: hex(value), 'aria-label': label, oninput: () => { typed.value = picker.value; typed.classList.remove('bad'); pick(picker.value); } });
+  return el('div', { className: 'color' }, picker, typed);
+}
+function confirmIn(where, question, yes, onYes) {
+  where.querySelector('.confirm')?.remove();
+  const box = el('div', { className: 'confirm' }, el('span', {}, question), el('span', { className: 'grow' }),
+    el('button', { type: 'button', className: 'btn danger', onclick: () => { box.remove(); onYes(); } }, yes),
+    el('button', { type: 'button', className: 'btn', onclick: () => box.remove() }, 'Cancel'));
+  where.append(box);
+}
+function download(name, body, type) {
+  const a = el('a', { href: URL.createObjectURL(new Blob([body], { type })), download: name });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+// ---------- the panels ----------
+const PRESETS = [
+  ['Fluentio', ['#2f6fed', '#9b5cf6'], ['#6c9bff', '#b48cff']],
+  ['Ocean', ['#0e7490', '#2563eb'], ['#22d3ee', '#60a5fa']],
+  ['Forest', ['#15803d', '#0d9488'], ['#4ade80', '#2dd4bf']],
+  ['Sunset', ['#ea580c', '#db2777'], ['#fb923c', '#f472b6']],
+  ['Rose', ['#e11d48', '#c026d3'], ['#fb7185', '#e879f9']],
+  ['Grape', ['#7c3aed', '#c026d3'], ['#a78bfa', '#e879f9']],
+  ['Mono', ['#374151', '#6b7280'], ['#e5e7eb', '#9ca3af']],
+];
+const COLORS = [
+  ['accent', 'Accent', 'Buttons, links and anything selected'],
+  ['accent2', 'Second color', 'Gradients, and the colors drifting behind'],
+  ['background', 'Background', 'Behind everything'],
+  ['card', 'Cards', 'Cards, questions and panels'],
+  ['text', 'Text', ''],
+  ['muted', 'Quieter text', ''],
+  ['line', 'Lines', 'Borders'],
+  ['right', 'Right', 'Right answers'],
+  ['wrong', 'Wrong', 'Wrong answers'],
+  ['second', 'Graphs', 'The second line on graphs and drawings'],
+];
+const MAP = [['ocean', 'Ocean'], ['land', 'Land'], ['country', 'Countries'], ['border', 'Borders'], ['late', 'Found late', 'A country found after a wrong try']];
+const TILES = () => ({ workspace: s.workspaceTitle, study: s.studyTitle, data: 'Data', quick: 'Quick' });
+const shown = () => (s.theme === 'dark' || s.theme === 'light' ? s.theme : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+let palette = shown();                              // which colors the Colors panel changes
+
+function look() {
+  return el('section', { className: 'panel', id: 'look' }, el('h2', {}, 'Look'),
+    set('Theme', 'Auto follows your device’s light or dark mode.',
+      seg([['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']], s.theme, (v) => { s.theme = v; palette = shown(); save(); draw(); }, 'Theme')),
+    set('Colors', 'A ready-made accent and second color, for light and dark.',
+      el('div', { className: 'swatches' }, PRESETS.map(([name, light, dark]) => {
+        const on = s.colors.light.accent === light[0] && s.colors.light.accent2 === light[1] && s.colors.dark.accent === dark[0] && s.colors.dark.accent2 === dark[1];
+        const b = el('button', { type: 'button', className: 'swatch' + (on ? ' on' : ''), title: name, 'aria-label': name, 'aria-pressed': String(on), onclick: () => {
+          [s.colors.light.accent, s.colors.light.accent2] = light;
+          [s.colors.dark.accent, s.colors.dark.accent2] = dark;
+          save();
+          draw();
+        } });
+        const pair = palette === 'dark' ? dark : light;
+        b.style.setProperty('--a', pair[0]);
+        b.style.setProperty('--b', pair[1]);
+        return b;
+      }))),
+    set('Font', '',
+      el('div', { className: 'fonts' }, seg([['system', 'System', f.FONTS.system], ['rounded', 'Rounded', f.FONTS.rounded], ['serif', 'Serif', f.FONTS.serif], ['mono', 'Mono', f.FONTS.mono]], s.font, (v) => { s.font = v; save(); }, 'Font'))),
+    (() => {
+      const value = el('span', { className: 'value' }, `${s.corners} px`);
+      return set('Corners', 'How round cards and buttons are (0 is square).',
+        el('input', { type: 'range', min: 0, max: 28, step: 1, value: s.corners, 'aria-label': 'Corners', oninput: (e) => { s.corners = +e.target.value; value.textContent = `${s.corners} px`; save(); } }), value);
+    })());
+}
+
+function colors() {
+  const editing = palette;
+  const rows = (list, where) => list.map(([key, title, note]) => set(title, note || '', colorInput(where[key], (v) => { where[key] = v; save(); }, title)));
+  return el('section', { className: 'panel colors', id: 'colors' }, el('h2', {}, 'Colors'),
+    el('p', {}, 'Any color, for light mode and for dark mode.'),
+    set('Change', editing === shown() ? 'These are the colors you’re seeing now.' : `You’re seeing the ${shown()} ones now, so these show in ${editing} mode (or with Theme set to ${editing === 'dark' ? 'Dark' : 'Light'}).`,
+      seg([['light', 'Light'], ['dark', 'Dark']], editing, (v) => { palette = v; draw(); }, 'Which colors')),
+    ...rows(COLORS, s.colors[editing]),
+    el('details', { className: 'more' }, el('summary', {}, 'The Geography map’s colors'), ...rows(MAP, s.map[editing])),
+    el('div', { className: 'set' }, el('div', { className: 'what' }, el('small', {}, `Back to the site’s ${editing} colors (from settings.js).`)),
+      el('button', { type: 'button', className: 'btn', onclick: () => { s.colors[editing] = clone(f.site.colors[editing]); s.map[editing] = clone(f.site.map[editing]); save(); draw(); } }, `Reset the ${editing} colors`)));
+}
+
+function motion() {
+  const value = el('span', { className: 'value' }, `${s.speed}×`);
+  return el('section', { className: 'panel', id: 'motion' }, el('h2', {}, 'Motion'),
+    set('Animations', 'Off stops every animation. A device set to reduce motion never gets them.', toggle(s.animations, (v) => { s.animations = v; save(); }, 'Animations')),
+    set('Speed', '1× is normal. Higher is faster.',
+      el('input', { type: 'range', min: 0.5, max: 2, step: 0.25, value: s.speed, 'aria-label': 'Speed', oninput: (e) => { s.speed = +e.target.value; value.textContent = `${s.speed}×`; save(); } }), value),
+    set('Drifting colors', 'The soft colors moving slowly behind the pages.', toggle(s.floatingColors, (v) => { s.floatingColors = v; save(); }, 'Drifting colors')));
+}
+
+function home() {
+  const names = TILES(), all = Object.keys(names);
+  const order = [...s.home.filter((k) => all.includes(k)), ...all.filter((k) => !s.home.includes(k))];
+  const place = (list) => { s.home = list.filter((k) => s.home.includes(k)); };
+  const tiles = el('ul', { className: 'list' }, order.map((k, i) => el('li', { className: s.home.includes(k) ? '' : 'off' },
+    toggle(s.home.includes(k), (on) => { s.home = on ? order.filter((x) => x === k || s.home.includes(x)) : s.home.filter((x) => x !== k); save(); draw(); }, `Show ${names[k]}`),
+    el('span', { className: 'name' }, names[k]),
+    el('button', { type: 'button', className: 'icon-btn up', title: 'Move up', 'aria-label': `Move ${names[k]} up`, disabled: i === 0, onclick: () => { [order[i - 1], order[i]] = [order[i], order[i - 1]]; place(order); save(); draw(); } }, svg('chevron')),
+    el('button', { type: 'button', className: 'icon-btn', title: 'Move down', 'aria-label': `Move ${names[k]} down`, disabled: i === order.length - 1, onclick: () => { [order[i + 1], order[i]] = [order[i], order[i + 1]]; place(order); save(); draw(); } }, svg('chevron')))));
+  const quick = el('ul', { className: 'list quick-list' }, s.quick.map((q, i) => el('li', { className: 'quick' },
+    el('input', { className: 'input', value: q.title, 'aria-label': 'Button name', placeholder: 'Name', oninput: (e) => { q.title = e.target.value; save(); } }),
+    el('input', { className: 'input link', value: q.link, 'aria-label': 'Where it goes', placeholder: 'workspace/#new/note, or a web address', spellcheck: false, oninput: (e) => { q.link = e.target.value.trim(); save(); } }),
+    el('button', { type: 'button', className: 'icon-btn', title: 'Remove', 'aria-label': `Remove ${q.title || 'this button'}`, onclick: () => { s.quick.splice(i, 1); save(); draw(); } }, svg('x')))));
+  return el('section', { className: 'panel', id: 'home' }, el('h2', {}, 'Home'),
+    set('Name', 'At the top of the home page and the bar, and in every tab’s title.', text(s.name, (v) => { s.name = v; save(); }, 'Name')),
+    set('Line under it', '', text(s.tagline, (v) => { s.tagline = v; save(); }, 'Line under the name')),
+    set('Footer', 'At the bottom of the pages.', text(s.footer, (v) => { s.footer = v; save(); }, 'Footer')),
+    set('Greeting', 'Good morning, Good afternoon or Good evening above the name.', toggle(s.greeting, (v) => { s.greeting = v; save(); }, 'Greeting')),
+    set('Tiles', 'Which show on the home page, and in what order.', tiles),
+    set('Quick buttons', 'The Quick tile’s buttons: a name, and where each goes.', quick,
+      el('button', { type: 'button', className: 'btn', onclick: () => { s.quick.push({ title: 'New button', link: 'workspace/' }); save(); draw(); panels.querySelector('#home .quick-list li:last-child input')?.select(); } }, svg('plus'), 'Add a button')));
+}
+
+function names() {
+  return el('section', { className: 'panel', id: 'names' }, el('h2', {}, 'Names'),
+    set('Study', 'The Study page’s title, in the bar and on the home page.', text(s.studyTitle, (v) => { s.studyTitle = v; save(); }, 'Study’s name')),
+    set('Study’s line', 'Under the Study page’s title.', text(s.studyIntro, (v) => { s.studyIntro = v; save(); }, 'Study’s line', { long: true })),
+    set('Workspace', 'The Workspace’s name, in the bar and on the home page.', text(s.workspaceTitle, (v) => { s.workspaceTitle = v; save(); }, 'Workspace’s name')));
+}
+
+function keys() {
+  const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent), j = mac ? '⌃' : 'Alt+';
+  const row = (k, what) => [el('dt', {}, k.map((x) => el('kbd', {}, x))), el('dd', {}, what)];
+  return el('section', { className: 'panel', id: 'keys' }, el('h2', {}, 'Keys'),
+    el('dl', { className: 'keys' },
+      row([mac ? '⌃K' : 'Ctrl+K', '/'], 'Search pages, subjects and your workspace'),
+      row([`${j}1`], 'Home'), row([`${j}2`], s.studyTitle), row([`${j}3`], s.workspaceTitle),
+      row(['↑', '↓', 'Enter'], 'Pick in Search, and open it'),
+      row(['Esc'], 'Close Search, or the details pane'),
+      row(['Enter'], 'In a table: the cell below (a new row at the end)'),
+      row(['Tab'], 'In code: two spaces in')));
+}
+
+function data() {
+  const items = f.workspace.items(), count = (kind) => items.filter((x) => x.kind === kind).length;
+  const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  const ours = () => Object.keys(localStorage).filter((k) => k.startsWith('fluentio.'));
+  const file = el('input', { type: 'file', accept: '.json,application/json', hidden: true, onchange: async () => {
+    const chosen = file.files[0];
+    file.value = '';
+    let backup = null;
+    try { backup = JSON.parse(await chosen.text()); } catch {}
+    if (!backup || backup.app !== 'Fluentio' || !backup.data || typeof backup.data !== 'object') { toast('That isn’t a Fluentio backup'); return; }
+    const made = backup.made ? new Date(backup.made).toLocaleString() : 'earlier';
+    confirmIn(panel, `Restore the backup from ${made}? It replaces your workspace, settings and progress in this browser.`, 'Restore', () => {
+      for (const k of ours()) localStorage.removeItem(k);
+      for (const [k, v] of Object.entries(backup.data)) if (k.startsWith('fluentio.')) f.write(k, v);
+      location.reload();
+    });
+  } });
+  const panel = el('section', { className: 'panel', id: 'data' }, el('h2', {}, 'Your data'),
+    el('p', {}, `In this browser only: ${plural(count('note'), 'note')}, ${plural(count('doc'), 'doc')}, ${plural(count('table'), 'table')} and ${plural(count('code'), 'code file')}, these settings, and your learning progress. Clearing the browser’s site data deletes them, so download a backup now and then.`),
+    el('div', { className: 'set' }, el('div', { className: 'row' },
+      el('button', { type: 'button', className: 'btn primary', onclick: () => {
+        const all = Object.fromEntries(ours().map((k) => [k, f.read(k)]));
+        download(`fluentio-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ app: 'Fluentio', v: 1, made: new Date().toISOString(), data: all }, null, 2), 'application/json');
+        toast('Backup downloaded');
+      } }, svg('download'), 'Download a backup'),
+      el('button', { type: 'button', className: 'btn', onclick: () => file.click() }, svg('upload'), 'Restore a backup'),
+      el('button', { type: 'button', className: 'btn', onclick: () => confirmIn(panel, `Delete everything in your ${s.workspaceTitle.toLowerCase()}? Download a backup first if you might want it back.`, 'Delete it all', () => {
+        f.workspace.save([]);
+        toast('Your workspace is empty');
+        draw();
+      }) }, svg('trash'), `Empty the ${s.workspaceTitle.toLowerCase()}`),
+      file)));
+  return panel;
+}
+
+// settings.js, made from what's here, with the comments people need when they paste it
+const HEADER = `// Fluentio's settings: the colors, the look, the motion, and the words on the pages.
+// Made by Settings on the site. To use it on every device, open settings.js on the space branch, press the pencil,
+// paste this over everything, then press Commit changes.
+//
+// Colors can be any CSS color: '#2f6fed', 'tomato', 'rgb(47 111 237)'. Keep the quotes and the commas.
+// If something here has a typo, the site keeps working with its usual look.
+`;
+function code(value) {
+  const q = (v) => `'${String(v).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n')}'`;
+  const key = (k) => (/^[A-Za-z_$][\w$]*$/.test(k) ? k : q(k));
+  const deep = (v) => v && typeof v === 'object';
+  const val = (v, pad, inList) => {
+    if (typeof v === 'string') return q(v);
+    if (!deep(v)) return String(v);
+    const inner = `${pad}  `;
+    if (Array.isArray(v)) {
+      const one = `[${v.map((x) => val(x, inner, true)).join(', ')}]`;
+      return !v.some(deep) && one.length + pad.length < 100 ? one : `[\n${v.map((x) => `${inner}${val(x, inner, true)},`).join('\n')}\n${pad}]`;
+    }
+    const pairs = Object.entries(v).filter(([, x]) => x !== undefined), one = `{ ${pairs.map(([k, x]) => `${key(k)}: ${val(x, inner)}`).join(', ')} }`;
+    return !pairs.some(([, x]) => deep(x)) && (inList || one.length + pad.length < 110) ? one : `{\n${pairs.map(([k, x]) => `${inner}${key(k)}: ${val(x, inner)},`).join('\n')}\n${pad}}`;
+  };
+  return `${HEADER}\nwindow.FLUENTIO_SETTINGS = ${val(value, '')};\n`;
+}
+function everywhere() {
+  const out = el('div');
+  const panel = el('section', { className: 'panel', id: 'everywhere' }, el('h2', {}, 'Every device'),
+    el('p', {}, 'What you change here stays in this browser. To use it everywhere, copy it as a new settings.js and paste that on GitHub.'),
+    el('div', { className: 'set' }, el('div', { className: 'row' },
+      el('button', { type: 'button', className: 'btn primary', onclick: () => {
+        const area = el('textarea', { className: 'input code-out', readOnly: true, spellcheck: false, 'aria-label': 'settings.js', value: code(s) });
+        out.replaceChildren(area, el('div', { className: 'row', style: 'margin-top:10px' },
+          el('button', { type: 'button', className: 'btn primary', onclick: async () => {
+            try { await navigator.clipboard.writeText(area.value); toast('Copied. Now paste it in settings.js'); } catch { area.select(); toast('Press ⌘C to copy it'); }
+          } }, svg('copy'), 'Copy'),
+          el('a', { className: 'btn', href: 'https://github.com/TrixWotel/Fluentio/edit/space/settings.js', target: '_blank', rel: 'noopener' }, svg('external'), 'Open settings.js on GitHub')));
+        area.focus();
+        area.select();
+      } }, svg('code'), 'Copy as settings.js'),
+      el('button', { type: 'button', className: 'btn', onclick: () => confirmIn(panel, 'Go back to the site’s settings (settings.js) in this browser?', 'Reset', () => {
+        f.reset();
+        s = structuredClone(f.settings);
+        palette = shown();
+        toast('Back to the site’s settings');
+        draw();
+      }) }, 'Reset this browser’s settings'))),
+    out);
+  return panel;
+}
+
+// ---------- drawing it all (again after a change that moves things about, keeping your place) ----------
+function draw() {
+  const y = scrollY;
+  panels.replaceChildren(look(), colors(), motion(), home(), names(), keys(), data(), everywhere());
+  scrollTo(0, y);
+}
+draw();
+setTimeout(() => panels.classList.add('ready'), 800);
+if (location.hash) document.querySelector(location.hash)?.scrollIntoView();

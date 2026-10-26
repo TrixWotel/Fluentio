@@ -6,7 +6,7 @@ My personal web playground, live at https://trixwotel.github.io/Fluentio/
 
 Every branch is one part of the site. A push to any of them puts the whole site back together and deploys it with the workflow in .github/workflows/pages.yml (the same file is on every branch).
 
-* **space** is the main page, served at the top. It also holds kit/, the test runner and question toolkit that the Math, Science, Physics and Spanish tests share.
+* **space** is served at the top: the home page, the Study page (study/), the Workspace (workspace/) and Settings (settings/). It also holds settings.js (see below) and kit/: the look and the bar every page shares, and the test runner and question toolkit that the Math, Science, Physics and Spanish tests share.
 * **geography** is served at /geography: find countries or capitals on the world map, or one continent at a time.
 * **math** is served at /math: Triangle Angles (220 variants) and AMC 10 Practice (1,044 variants, 87 topics).
 * **science** is served at /science: Heat Capacity with Q = mcΔT (220 variants).
@@ -14,6 +14,36 @@ Every branch is one part of the site. A push to any of them puts the whole site 
 * **spanish** is served at /spanish: Vocabulary (1,100 words in 25 themes, 2,200 variants), the Preterite (270 variants) and the Imperfect (180 variants).
 
 There is no build step. The files are served as they are.
+
+## The pages
+
+Every page has the same bar at the top: Home, Study and Workspace, Search, and Settings.
+
+* **Home** has a tile for each part: Workspace (what you worked on last), Study (Continue, with the topic you were learning and how far along that test you are), Data (your tables) and Quick (a row of buttons from settings.js).
+* **Study** lists the subjects, with what you've learned and your best scores in each.
+* **Workspace** keeps notes, docs, tables and code. Notes are Markdown, where [[a note's name]] links to another note and the right side shows the outline and the links both ways. A doc is your own writing, with a Google Docs, Slides or Sheets link to open beside it. A table takes CSV in and out and shows each column's numbers. Code can be any language, and JavaScript runs right there. All of it stays in your browser, never in this repo, so download a backup in Settings now and then.
+* **Settings** changes the colors (or picks a ready-made pair), the theme, font, corners, motion, the home page's tiles and buttons, and the names. Each change shows straight away and stays in that browser. Copy as settings.js turns them into a new settings.js to paste here for every device. Settings also downloads and restores a backup of everything Fluentio keeps in the browser.
+
+Keys: ⌃K (or /) searches everything, and ⌃1, ⌃2 and ⌃3 go to Home, Study and Workspace (on Windows and Linux, Alt with the number).
+
+## Settings
+
+**settings.js**, at the top of the space branch, holds the colors and settings for the whole site. To change one on GitHub, open the file, press the pencil, change a value and press Commit changes. The site follows a minute or two later. (Or try changes in Settings on the site first, then paste its Copy as settings.js here.)
+
+* **name**, **tagline** and **footer** are the words at the top of the home page and at the bottom of the pages, and **greeting** turns the "Good morning" above the name on or off.
+* **theme** is 'auto' (the device's light or dark mode), 'light' or 'dark'.
+* **colors** has a light set and a dark set: the accent (buttons, links and anything selected), a second color for gradients, the background, cards, text, quieter text, borders, right and wrong answers, and the second line on graphs. Any CSS color works, like '#2f6fed' or 'tomato'.
+* **map** is the colors of the Geography map, light and dark.
+* **font** is 'system', 'rounded', 'serif', 'mono' or any CSS font list, and **corners** is how round the cards and buttons are, in pixels.
+* **animations** turns every animation on or off, **speed** makes them faster (2) or slower (0.5), and **floatingColors** turns the soft colors drifting behind the pages on or off. A device set to reduce motion never gets the animations.
+* **home** is the home page's tiles in order ('workspace', 'study', 'data' and 'quick'), and **quick** the Quick tile's buttons, each a title and a link.
+* **workspaceTitle** is the Workspace's name. **studyTitle**, **studyIntro** and **study** are the Study page: its title, the line under it, and the subjects in order, each with an emoji, its words, a link and its own color.
+
+A typo can't break the site. Anything missing or mistyped falls back to the usual look.
+
+## How it looks and moves
+
+kit/look.js puts settings.js (and what Settings changed in that browser) on each page before the page is drawn, and kit/bar.js adds the bar, Search and the keys. kit/site.css is the look every page shares: the colors drifting behind the page (they carry on from one page to the next), cards that lift and glow under the pointer, buttons, page transitions, and the animations the pages share. kit/tests.css is the test pages' own layout, where questions rise in, a right choice bumps and a wrong one shakes, hints fade in a sentence at a time, and graphs draw themselves.
 
 ## The tests
 

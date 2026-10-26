@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings · Fluentio</title>
+  <meta name="description" content="Fluentio's colors, look, motion and words, and a backup of what it keeps in your browser.">
+  <script src="../settings.js"></script>
+  <script src="../kit/look.js"></script>
+  <script src="../kit/bar.js"></script>
+  <link rel="stylesheet" href="../kit/site.css">
+  <style>
+    main { width: 100%; max-width: 860px; margin: 0 auto; padding: clamp(28px, 6vh, 56px) 20px 64px; flex: 1; }
+    .top > * { animation: rise var(--t3) var(--ease) backwards; }
+    .top > :nth-child(2) { animation-delay: calc(60ms / var(--speed)); }
+    .top > :nth-child(3) { animation-delay: calc(120ms / var(--speed)); }
+    h1 { margin: 0 0 6px; font-size: clamp(2rem, 5vw, 2.6rem); letter-spacing: -0.03em; line-height: 1.1; }
+    .lead { margin: 0 0 18px; color: var(--muted); font-size: 1.05rem; }
+    .jump { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 22px; }
+    .jump a { padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: color-mix(in srgb, var(--card) 70%, transparent); color: var(--text); text-decoration: none; font-size: .9rem; transition: border-color var(--t1), transform var(--t2) var(--spring); }
+    .jump a:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .panel {
+      margin: 0 0 16px; padding: 18px 20px; border: 1px solid var(--line); border-radius: calc(var(--radius) + 4px); box-shadow: var(--shadow);
+      background: color-mix(in srgb, var(--card) 88%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); scroll-margin-top: calc(var(--bar-h) + 16px);
+    }
+    .panel h2 { margin: 0 0 2px; font-size: 1.2rem; letter-spacing: -0.01em; }
+    .panel > p { margin: 0 0 6px; color: var(--muted); font-size: .95rem; }
+    .set { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 12px 0; border-top: 1px solid var(--line); }
+    .panel > h2 + .set, .panel > p + .set { border-top: 0; }
+    .what { flex: 1 1 220px; min-width: 0; }
+    .what b { display: block; font-weight: 600; }
+    .what small { display: block; color: var(--muted); font-size: .86rem; line-height: 1.45; }
+    .muted { color: var(--muted); }
+    .hint { margin: 6px 0 0; color: var(--muted); font-size: .88rem; }
+    .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .panel .btn { padding: 6px 12px; font-size: .92rem; }
+    .panel .btn .i { width: 16px; height: 16px; }
+    .btn.danger { background: var(--bad); border-color: transparent; color: #fff; }
+    /* colors: a ready-made pair of colors, then each color of the palette you pick (Light or Dark) */
+    .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+    .swatch {
+      width: 36px; height: 36px; padding: 0; border-radius: 50%; border: 3px solid var(--card); box-shadow: 0 0 0 1px var(--line);
+      background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%); transition: transform var(--t2) var(--spring), box-shadow var(--t2);
+    }
+    .swatch:hover { transform: scale(1.12); }
+    .swatch.on { box-shadow: 0 0 0 2px var(--accent); }
+    .color { display: flex; align-items: center; gap: 8px; }
+    .color input[type=color] { width: 40px; height: 34px; padding: 2px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); cursor: pointer; }
+    .color .input { width: 120px; font: .9rem ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    .color .input.bad { border-color: var(--bad); box-shadow: 0 0 0 3px color-mix(in srgb, var(--bad) 25%, transparent); }
+    .colors .set { padding: 9px 0; }
+    details.more { margin-top: 6px; border-top: 1px solid var(--line); padding-top: 10px; }
+    details.more summary { cursor: pointer; color: var(--accent); }
+    details.more[open] > :not(summary) { animation: rise var(--t2) var(--ease) backwards; }
+    .fonts button { font-size: .95rem; }
+    input[type=range] { width: 200px; accent-color: var(--accent); }
+    .value { min-width: 54px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .text-in { flex: 1 1 260px; }
+    textarea.input { width: 100%; resize: vertical; min-height: 70px; line-height: 1.5; }
+    /* the home page's tiles (each on or off, and in your order), and the Quick tile's buttons */
+    .list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; width: 100%; }
+    .list li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: calc(var(--radius) * .7); background: var(--bg); animation: fade-in var(--t2) var(--ease) backwards; }
+    .list li.off .name { color: var(--muted); }
+    .list .name { flex: 1; }
+    .list .input { flex: 1; min-width: 0; }
+    .list .input.link { flex: 1.5; }
+    .icon-btn { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border-radius: 8px; border: 1px solid transparent; background: none; color: var(--muted); transition: color var(--t1), border-color var(--t1), background var(--t1); }
+    .icon-btn:hover:not(:disabled) { color: var(--text); border-color: var(--line); background: var(--card); }
+    .icon-btn:disabled { opacity: .35; cursor: default; }
+    .icon-btn .i { width: 16px; height: 16px; }
+    .up .i { transform: rotate(180deg); }
+    /* the keys */
+    .keys { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 10px 0 0; align-items: center; }
+    .keys dt { display: flex; gap: 4px; flex-wrap: wrap; }
+    .keys dd { margin: 0; color: var(--muted); }
+    kbd { font: 500 .78rem/1 var(--font); padding: 4px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+    /* every device: settings.js to copy */
+    .code-out { width: 100%; min-height: 300px; margin-top: 10px; font: 12.5px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace; white-space: pre; animation: rise var(--t2) var(--ease) backwards; }
+    .confirm { margin: 10px 0 0; width: 100%; }
+    .toast {
+      position: fixed; left: 50%; bottom: 20px; z-index: 50; padding: 9px 16px; border-radius: 999px; background: var(--text); color: var(--bg); font-size: .9rem;
+      box-shadow: var(--shadow-up); opacity: 0; translate: -50% 8px; pointer-events: none; transition: opacity var(--t2) var(--ease), translate var(--t2) var(--spring);
+    }
+    .toast.show { opacity: 1; translate: -50% 0; }
+    #panels > .panel { animation: rise var(--t3) var(--ease) backwards; }
+    #panels > .panel:nth-child(2) { animation-delay: calc(50ms / var(--speed)); }
+    #panels > .panel:nth-child(3) { animation-delay: calc(100ms / var(--speed)); }
+    #panels > .panel:nth-child(n + 4) { animation-delay: calc(150ms / var(--speed)); }
+    #panels.ready > .panel { animation: none; }
+    @media (max-width: 560px) { .list .quick { flex-wrap: wrap; } .list .input.link { flex-basis: 100%; } input[type=range] { width: 150px; } }
+  </style>
+</head>
+<body>
+  <script>window.fluentio?.bar?.()</script>
+  <main>
+    <header class="top">
+      <h1>Settings</h1>
+      <p class="lead">Each change shows straight away and stays in this browser. To use them on every device, copy them as settings.js at the end.</p>
+      <nav class="jump" aria-label="Sections">
+        <a href="#look">Look</a><a href="#colors">Colors</a><a href="#motion">Motion</a><a href="#home">Home</a><a href="#names">Names</a><a href="#keys">Keys</a><a href="#data">Your data</a><a href="#everywhere">Every device</a>
+      </nav>
+    </header>
+    <div id="panels"><noscript><p class="muted">Settings needs JavaScript.</p></noscript></div>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

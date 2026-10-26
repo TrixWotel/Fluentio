@@ -81,10 +81,11 @@ export function graph({ x: [x0, x1, xs], y: [y0, y1, ys], xLabel, yLabel, lines 
   out.push(`<line class="ax" x1="${L}" y1="${zy}" x2="${L + iw}" y2="${zy}"/><line class="ax" x1="${zx}" y1="${T}" x2="${zx}" y2="${T + ih}"/>`);
   out.push(`<text class="al" x="${L + iw / 2}" y="${h - 6}" text-anchor="middle">${xLabel}</text>`);
   out.push(`<text class="al" transform="translate(14 ${T + ih / 2}) rotate(-90)" text-anchor="middle">${yLabel}</text>`);
-  lines.forEach((pts, i) => out.push(`<polyline class="ln ln${i}" points="${pts.map(([a, b]) => `${round(X(a), 2)},${round(Y(b), 2)}`).join(' ')}"/>`));
+  // (pathLength 1 lets the page draw each line in, whatever its real length)
+  lines.forEach((pts, i) => out.push(`<polyline class="ln ln${i}" pathLength="1" points="${pts.map(([a, b]) => `${round(X(a), 2)},${round(Y(b), 2)}`).join(' ')}"/>`));
   curves.forEach(({ f, from, to }, i) => {
     const pts = []; for (let k = 0; k <= 60; k++) { const t = from + ((to - from) * k) / 60; pts.push(`${round(X(t), 2)},${round(Y(f(t)), 2)}`); }
-    out.push(`<polyline class="ln ln${i}" points="${pts.join(' ')}"/>`);
+    out.push(`<polyline class="ln ln${i}" pathLength="1" points="${pts.join(' ')}"/>`);
   });
   // a point's label: its own text, or with true, its coordinates, but only when it sits between grid lines (hard to read)
   const between = (v, s) => Math.abs(v / s - Math.round(v / s)) > 1e-6;

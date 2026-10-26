@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Study · Fluentio</title>
+  <meta name="description" content="Geography, Math, Science, Physics and Spanish: tests, lessons and practice.">
+  <script src="../settings.js"></script>
+  <script src="../kit/look.js"></script>
+  <script src="../kit/bar.js"></script>
+  <link rel="stylesheet" href="../kit/site.css">
+  <style>
+    main { width: 100%; max-width: 920px; margin: 0 auto; padding: clamp(36px, 8vh, 80px) 20px 48px; flex: 1; }
+    .top > * { animation: rise var(--t3) var(--ease) backwards; }
+    .top > :nth-child(2) { animation-delay: calc(70ms / var(--speed)); }
+    .top > :nth-child(3) { animation-delay: calc(140ms / var(--speed)); }
+    h1 { font-size: clamp(2.4rem, 6vw, 3.4rem); line-height: 1.1; letter-spacing: -0.035em; margin: 0 0 10px; }
+    .lead { color: var(--muted); font-size: 1.12rem; margin: 0 0 36px; max-width: 620px; }
+    .subjects { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 14px; }
+    .subjects > * { animation-delay: calc((var(--n, 12) * 60ms + 180ms) / var(--speed)); }
+
+    /* a subject: its own color (--c) for the tile, the glowing edge and the light under the pointer */
+    .subject {
+      --c: var(--accent); --glow: color-mix(in srgb, var(--c) 30%, transparent);
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; padding: 18px 20px;
+      color: inherit; text-decoration: none; background: color-mix(in srgb, var(--card) 86%, transparent); backdrop-filter: blur(12px);
+      border: 1px solid var(--line); border-radius: calc(var(--radius) + 4px); box-shadow: var(--shadow);
+    }
+    .subject::before { background: linear-gradient(135deg, var(--c), var(--accent-2)); }
+    .subject:hover { box-shadow: 0 18px 40px -18px color-mix(in srgb, var(--c) 60%, transparent); }
+    .tile {
+      width: 58px; height: 58px; border-radius: var(--radius); display: grid; place-items: center; font-size: 1.85rem;
+      background: color-mix(in srgb, var(--c) 16%, var(--card)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 26%, transparent);
+      transition: transform var(--t2) var(--spring);
+    }
+    .subject:hover .tile { animation: wiggle calc(.7s / var(--speed)) var(--ease); }
+    .info { display: grid; gap: 2px; min-width: 0; }
+    .info b { font-size: 1.2rem; letter-spacing: -0.01em; }
+    .text { color: var(--muted); font-size: .95rem; }
+    .mine { font-size: .85rem; color: var(--muted); }
+    .mine.has { color: var(--good); font-weight: 600; }
+    .go {
+      width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: var(--c);
+      background: color-mix(in srgb, var(--c) 12%, var(--card)); transition: transform var(--t2) var(--spring), background var(--t2), color var(--t2);
+    }
+    .subject:hover .go { transform: translateX(4px); background: var(--c); color: #fff; }
+    @media (max-width: 560px) { .subject { grid-template-columns: auto 1fr; } .go { display: none; } .tile { width: 50px; height: 50px; font-size: 1.6rem; } }
+  </style>
+</head>
+<body>
+  <script>window.fluentio?.bar?.()</script>
+  <main>
+    <div class="top">
+      <h1 id="title">📚 Study</h1>
+      <p class="lead" id="intro">Pick a subject. Take a test, learn it one topic at a time, or practise any question.</p>
+    </div>
+    <nav class="subjects stagger" id="subjects" aria-label="Subjects">
+      <a class="card subject" href="../geography/"><span class="tile">🌍</span><span class="info"><b>Geography</b><span class="text">Countries and capitals on the world map.</span></span><span class="go">→</span></a>
+      <a class="card subject" href="../math/"><span class="tile">📐</span><span class="info"><b>Math</b><span class="text">Triangle angles and AMC 10 practice.</span></span><span class="go">→</span></a>
+      <a class="card subject" href="../science/"><span class="tile">🧪</span><span class="info"><b>Science</b><span class="text">Heat capacity with Q = mcΔT.</span></span><span class="go">→</span></a>
+      <a class="card subject" href="../physics/"><span class="tile">🚀</span><span class="info"><b>Physics</b><span class="text">Kinematics with motion graphs.</span></span><span class="go">→</span></a>
+      <a class="card subject" href="../spanish/"><span class="tile">🇪🇸</span><span class="info"><b>Spanish</b><span class="text">Vocabulary, the preterite and the imperfect.</span></span><span class="go">→</span></a>
+    </nav>
+  </main>
+  <footer><span id="footer">TrixWotel</span> <span id="year">2026</span></footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    // what this browser remembers of each subject: best scores and topics learned (the test pages keep them)
+    const read = (key) => { try { return JSON.parse(localStorage.getItem('fluentio.' + key)); } catch { return null; } };
+    const BANKS = { math: ['triangles', 'amc10'], science: ['heat'], physics: ['kinematics'], spanish: ['vocab', 'preterite', 'imperfect'] };
+    const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+    function progress(folder) {
+      if (folder === 'geography') { const best = read('geo.best'), n = best ? Object.keys(best).length : 0; return n ? `${plural(n, 'map')} with a best score` : ''; }
+      let tests = 0, learned = 0;
+      for (const id of BANKS[folder] || []) {
+        if (read(id + '.best')) tests++;
+        learned += Object.values(read(id + '.learn') || {}).filter((t) => t && t.learned).length;
+      }
+      return [learned && `${plural(learned, 'topic')} learned`, tests && `${plural(tests, 'test')} with a best score`].filter(Boolean).join(' · ');
+    }
+    if (window.fluentio) {
+      const { settings: s, link } = window.fluentio, $ = (id) => document.getElementById(id);
+      const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids.filter((k) => k != null)); return n; };
+      document.title = `${s.studyTitle} · ${s.name}`;
+      $('title').textContent = `📚 ${s.studyTitle}`;
+      $('intro').textContent = s.studyIntro;
+      $('footer').textContent = s.footer;
+      $('subjects').replaceChildren(...s.study.map((x) => {
+        const href = link(x.link), folder = new URL(href).pathname.split('/').filter(Boolean).pop(), mine = progress(folder);
+        const card = el('a', { className: 'card subject', href },
+          el('span', { className: 'tile', ariaHidden: 'true', textContent: x.emoji || '📘' }),
+          el('span', { className: 'info' },
+            el('b', { textContent: x.title || '' }),
+            x.text ? el('span', { className: 'text', textContent: x.text }) : null,
+            el('span', { className: 'mine' + (mine ? ' has' : ''), textContent: mine ? `✓ ${mine}` : 'Not started yet' })),
+          el('span', { className: 'go', ariaHidden: 'true', textContent: '→' }));
+        if (x.color && CSS.supports('color', x.color)) card.style.setProperty('--c', x.color);
+        return card;
+      }));
+    }
+  </script>
+</body>
+</html>

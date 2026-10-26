@@ -1,0 +1,203 @@
+/* Fluentio's shared look, on every page: the built-in colors (settings.js, through look.js, can change them all), the
+   colors drifting behind the page, cards that glow under the pointer, page transitions, and the motion every page
+   shares. Every duration is divided by --speed, and nothing moves for people whose device asks for less motion. */
+:root {
+  color-scheme: light dark;
+  --bg: #f6f7f9; --card: #ffffff; --text: #1b1f24; --muted: #5b6470; --line: #e3e6ea;
+  --accent: #2f6fed; --accent-2: #9b5cf6; --good: #2da44e; --bad: #e5534b; --plot2: #e8743b;
+  --sky: .5;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --radius: 14px; --speed: 1;
+  --bar-h: 58px;
+  /* made from the colors above, so changing those changes these */
+  --soft: color-mix(in srgb, var(--accent) 9%, var(--card));
+  --glow: color-mix(in srgb, var(--accent) 28%, transparent);
+  --shadow: 0 1px 2px rgb(0 0 0 / .04), 0 8px 24px -12px rgb(0 0 0 / .18);
+  --shadow-up: 0 2px 4px rgb(0 0 0 / .05), 0 18px 40px -16px color-mix(in srgb, var(--accent) 45%, rgb(0 0 0 / .3));
+  /* timing */
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --spring: cubic-bezier(.34, 1.45, .64, 1);
+  --t1: calc(.16s / var(--speed)); --t2: calc(.34s / var(--speed)); --t3: calc(.62s / var(--speed));
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115; --card: #171a21; --text: #e8eaee; --muted: #9aa3ae; --line: #262b35;
+    --accent: #6c9bff; --accent-2: #b48cff; --good: #3fb950; --bad: #f85149; --plot2: #f0a04b;
+    --sky: .34;
+    --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 10px 28px -14px rgb(0 0 0 / .6);
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; font: 16px/1.6 var(--font); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.grow { flex: 1; }
+footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 24px 20px 32px; }
+footer a { color: inherit; }
+
+/* what the subject pages share: the link back, buttons (they lift under the pointer and press in when clicked), and a
+   question asked on the page itself (the Fluent browser has no pop-ups for it) */
+.back { display: inline-block; color: var(--muted); text-decoration: none; margin-bottom: 18px; transition: color var(--t1), transform var(--t2) var(--ease); }
+.back:hover { color: var(--accent); transform: translateX(-3px); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 14px; border-radius: calc(var(--radius) * .72);
+  border: 1px solid var(--line); background: var(--card); color: inherit; text-decoration: none;
+  transition: transform var(--t2) var(--spring), border-color var(--t1), box-shadow var(--t2) var(--ease), filter var(--t1);
+}
+.btn:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn:active:not(:disabled) { transform: scale(.97); transition-duration: var(--t1); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.primary { background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 62%, var(--accent-2))); border-color: transparent; color: #fff; }
+.btn.primary:hover:not(:disabled) { border-color: transparent; box-shadow: var(--shadow-up); filter: brightness(1.06); }
+.btn.big { padding: 11px 18px; font-weight: 600; }
+.confirm {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px; margin: 8px 0; border-radius: var(--radius);
+  background: var(--soft); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); animation: pop var(--t2) var(--spring) backwards;
+}
+.i { width: 18px; height: 18px; flex: none; }
+/* text boxes, switches, and a row of choices where one is on (the Workspace and Settings pages) */
+.input {
+  font: inherit; color: inherit; padding: 8px 10px; border-radius: calc(var(--radius) * .65); border: 1px solid var(--line);
+  background: var(--bg); min-width: 0; transition: border-color var(--t1), box-shadow var(--t2);
+}
+.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+.switch {
+  appearance: none; -webkit-appearance: none; flex: none; width: 42px; height: 24px; margin: 0; border-radius: 999px; position: relative;
+  background: var(--line); cursor: pointer; transition: background var(--t2) var(--ease);
+}
+.switch::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / .3); transition: transform var(--t2) var(--spring);
+}
+.switch:checked { background: var(--accent); }
+.switch:checked::after { transform: translateX(18px); }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border-radius: calc(var(--radius) * .75); background: var(--bg); border: 1px solid var(--line); }
+.seg button {
+  padding: 5px 12px; border: 0; border-radius: calc(var(--radius) * .55); background: none; color: var(--muted);
+  transition: background var(--t2) var(--ease), color var(--t1), box-shadow var(--t2);
+}
+.seg button:hover { color: var(--text); }
+.seg button.on { background: var(--card); color: var(--text); box-shadow: var(--shadow); }
+
+/* the bar at the top (bar.js): fixed, with room kept for it, so nothing moves while a page is drawn. The mark on the
+   space you're in slides across to the next page's */
+html.has-bar body { padding-top: var(--bar-h); }
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 40; height: var(--bar-h); padding: 0 18px;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px;
+  background: color-mix(in srgb, var(--bg) 76%, transparent); backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 75%, transparent); view-transition-name: topbar;
+}
+.topbar .brand { justify-self: start; color: var(--text); text-decoration: none; font-weight: 700; font-size: 1.08rem; letter-spacing: -0.02em; white-space: nowrap; }
+.spaces { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: color-mix(in srgb, var(--card) 55%, transparent); border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); }
+.spaces a { position: relative; isolation: isolate; padding: 5px 14px; border-radius: 999px; color: var(--muted); text-decoration: none; white-space: nowrap; transition: color var(--t1); }
+.spaces a:hover, .spaces a.on { color: var(--text); }
+.spaces .pill { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--card); box-shadow: var(--shadow); view-transition-name: space-pill; }
+.tools { justify-self: end; display: flex; align-items: center; gap: 6px; }
+.find {
+  display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 6px 0 10px; border-radius: 999px; color: var(--muted); font-size: .9rem;
+  border: 1px solid var(--line); background: color-mix(in srgb, var(--card) 65%, transparent); transition: border-color var(--t1), color var(--t1);
+}
+.find:hover { border-color: var(--accent); color: var(--text); }
+.find kbd, .finder kbd { font: 500 .72rem/1 var(--font); padding: 3px 5px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg); color: var(--muted); }
+.gear {
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; color: var(--muted); border: 1px solid transparent;
+  transition: color var(--t1), background var(--t2), border-color var(--t2);
+}
+.gear:hover, .gear.on { color: var(--text); background: color-mix(in srgb, var(--card) 80%, transparent); border-color: var(--line); }
+.gear .i { transition: transform var(--t2) var(--spring); }
+.gear:hover .i { transform: rotate(90deg); }
+@media (max-width: 680px) { .find span, .find kbd { display: none; } .find { width: 34px; padding: 0; justify-content: center; } .spaces a { padding: 5px 10px; } }
+@media (max-width: 500px) { .topbar { grid-template-columns: 1fr auto; padding: 0 10px; } .topbar .brand { display: none; } .spaces { justify-self: start; } }
+
+/* Search (⌃K): over the page, everything there is to find, and arrows and Enter to open one */
+.finder {
+  position: fixed; inset: 0; z-index: 60; display: grid; justify-items: center; align-items: start; padding: 12vh 16px 16px;
+  background: color-mix(in srgb, var(--bg) 40%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: fade-in var(--t2) var(--ease);
+}
+.finder-box {
+  width: min(640px, 100%); max-height: 76vh; display: flex; flex-direction: column; overflow: hidden; border-radius: calc(var(--radius) + 4px);
+  border: 1px solid var(--line); background: var(--card); box-shadow: 0 30px 70px -24px rgb(0 0 0 / .45); animation: pop var(--t2) var(--spring);
+}
+.finder-in { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); color: var(--muted); }
+.finder-in input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: inherit; font-size: 1.05rem; color: var(--text); }
+.finder-list { overflow: auto; padding: 6px; }
+.finder-head { padding: 10px 10px 4px; font-size: .72rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.finder-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: calc(var(--radius) * .7); color: var(--text); text-decoration: none; }
+.finder-item.at { background: var(--soft); }
+.finder-ic { width: 28px; height: 28px; flex: none; display: grid; place-items: center; border-radius: 8px; background: color-mix(in srgb, var(--accent) 12%, var(--card)); color: var(--accent); font-size: 15px; }
+.finder-ic .i { width: 16px; height: 16px; }
+.finder-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.finder-kind { margin-left: auto; padding-left: 10px; color: var(--muted); font-size: .8rem; white-space: nowrap; }
+.finder-empty { margin: 0; padding: 22px; text-align: center; color: var(--muted); }
+.finder-foot { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 8px 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
+.finder-foot kbd { margin-right: 2px; }
+
+/* the drifting colors (look.js puts them behind every page; settings.js can turn them off) */
+.sky { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; view-transition-name: sky; }
+.sky i {
+  position: absolute; width: 62vmax; height: 62vmax; border-radius: 50%;
+  opacity: calc(var(--sky) * var(--sky-scale, 1)); background: radial-gradient(closest-side, var(--c), transparent);
+  animation: drift calc(30s / var(--speed)) ease-in-out infinite alternate;
+}
+/* (look.js starts each one where the clock says it is, so they carry on from one page to the next) */
+.sky i:nth-child(1) { --c: color-mix(in srgb, var(--accent) 55%, transparent); top: -30vmax; left: -18vmax; }
+.sky i:nth-child(2) { --c: color-mix(in srgb, var(--accent-2) 50%, transparent); top: -14vmax; right: -30vmax; animation-duration: calc(37s / var(--speed)); }
+.sky i:nth-child(3) { --c: color-mix(in srgb, var(--good) 30%, transparent); bottom: -36vmax; left: 12vmax; animation-duration: calc(44s / var(--speed)); }
+@keyframes drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(7vmax, 5vmax) scale(1.08); }
+  100% { transform: translate(-5vmax, 8vmax) scale(.94); }
+}
+
+/* cards: they lift, a gradient edge fades in, and a soft light follows the pointer (look.js sets --mx and --my) */
+.card { position: relative; isolation: isolate; transition: transform var(--t2) var(--ease), box-shadow var(--t2) var(--ease), border-color var(--t2) var(--ease); }
+.card::before, .card::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity var(--t2) var(--ease); }
+.card::before {
+  padding: 1.5px; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+}
+.card::after { z-index: -1; background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), var(--glow), transparent 70%); }
+.card:hover { transform: translateY(-3px); box-shadow: var(--shadow-up); border-color: transparent; }
+.card:hover::before, .card:hover::after { opacity: 1; }
+.card:active { transform: translateY(-1px) scale(.995); transition-duration: var(--t1); }
+
+/* moving between pages (look.js turns this on): the old page fades, the new one rises, the drifting colors carry on,
+   the bar stays put, and the mark on its spaces slides across */
+::view-transition-old(root) { animation: calc(.2s / var(--speed)) var(--ease) both fade-out; }
+::view-transition-new(root) { animation: calc(.42s / var(--speed)) var(--ease) both rise-in; }
+::view-transition-group(sky) { animation-duration: calc(.42s / var(--speed)); }
+::view-transition-group(topbar) { animation-duration: 0s; }
+::view-transition-group(space-pill) { animation-duration: calc(.45s / var(--speed)); animation-timing-function: var(--spring); }
+
+/* the motions pages share */
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(12px); } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes pop { 0% { transform: scale(.94); opacity: 0; } 60% { transform: scale(1.02); opacity: 1; } 100% { transform: none; } }
+@keyframes bump { 0%, 100% { transform: none; } 45% { transform: scale(1.04); } }
+@keyframes shake { 0%, 100% { transform: none; } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes shimmer { to { background-position: 200% center; } }
+@keyframes ring { 0% { box-shadow: 0 0 0 0 var(--glow); } 70%, 100% { box-shadow: 0 0 0 9px transparent; } }
+@keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg) scale(1.08); } 60% { transform: rotate(8deg) scale(1.08); } }
+/* a bar that fills from --from (0 if there's none) to its width */
+@keyframes fill { from { width: var(--from, 0%); } }
+@keyframes grow-up { from { transform: scaleY(0); } }
+
+/* children that come in one after another: give the parent the class "stagger". (Entrances fill backwards only, so
+   once they're done nothing of them is left to stop a hover lifting the card.) */
+.stagger > * { animation: rise var(--t3) var(--ease) backwards; animation-delay: calc(var(--n, 12) * 45ms / var(--speed)); }
+.stagger > :nth-child(1) { --n: 0; } .stagger > :nth-child(2) { --n: 1; } .stagger > :nth-child(3) { --n: 2; }
+.stagger > :nth-child(4) { --n: 3; } .stagger > :nth-child(5) { --n: 4; } .stagger > :nth-child(6) { --n: 5; }
+.stagger > :nth-child(7) { --n: 6; } .stagger > :nth-child(8) { --n: 7; } .stagger > :nth-child(9) { --n: 8; }
+.stagger > :nth-child(10) { --n: 9; } .stagger > :nth-child(11) { --n: 10; } .stagger > :nth-child(12) { --n: 11; }
+
+/* less motion: when the device asks for it, or settings.js turns animations off */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+html.no-motion *, html.no-motion *::before, html.no-motion *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }

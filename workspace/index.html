@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workspace · Fluentio</title>
+  <meta name="description" content="Notes, docs, tables and code, kept in your browser.">
+  <script src="../settings.js"></script>
+  <script src="../kit/look.js"></script>
+  <script src="../kit/bar.js"></script>
+  <link rel="stylesheet" href="../kit/site.css">
+  <style>
+    /* three panes under the bar: your things on the left, the open one in the middle, what's in it on the right */
+    body { --sky-scale: .5; height: 100dvh; min-height: 0; overflow: hidden; }
+    .ws { flex: 1; min-height: 0; display: grid; grid-template-columns: 260px minmax(0, 1fr) 260px; }
+    .side, .info { min-height: 0; overflow: auto; background: color-mix(in srgb, var(--card) 70%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+    .side { display: flex; flex-direction: column; gap: 4px; padding: 12px 10px; border-right: 1px solid var(--line); }
+    .info { padding: 18px 16px; border-left: 1px solid var(--line); }
+    .editor { min-height: 0; overflow: auto; display: flex; flex-direction: column; background: var(--card); }
+
+    /* the left pane: a filter, then each kind with its things */
+    .filter { width: 100%; margin-bottom: 4px; }
+    .group { margin-top: 6px; }
+    .tree.enter .group { animation: rise var(--t3) var(--ease) backwards; }
+    .tree.enter .group:nth-child(2) { animation-delay: calc(50ms / var(--speed)); }
+    .tree.enter .group:nth-child(3) { animation-delay: calc(100ms / var(--speed)); }
+    .tree.enter .group:nth-child(4) { animation-delay: calc(150ms / var(--speed)); }
+    .group-head { display: flex; align-items: center; gap: 4px; }
+    .group-name {
+      flex: 1; display: flex; align-items: center; gap: 6px; padding: 4px 6px; border: 0; border-radius: 6px; background: none; text-align: left;
+      color: var(--muted); font-size: .74rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
+    }
+    .group-name:hover { color: var(--text); }
+    .group-name .i { width: 14px; height: 14px; transition: transform var(--t2) var(--ease); }
+    .group.shut .group-name .i { transform: rotate(-90deg); }
+    .count { margin-left: auto; font-weight: 500; letter-spacing: 0; }
+    .add { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; border: 1px solid transparent; color: var(--muted); transition: color var(--t1), border-color var(--t1), background var(--t1), transform var(--t2) var(--spring); }
+    .add:hover { color: var(--k); border-color: var(--line); background: var(--card); transform: rotate(90deg); }
+    .add .i { width: 15px; height: 15px; }
+    .items { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 1px; }
+    .item { display: flex; align-items: center; gap: 9px; padding: 6px 8px; border-radius: calc(var(--radius) * .55); color: var(--text); text-decoration: none; font-size: .95rem; transition: background var(--t1), color var(--t1); }
+    .item:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+    .item.on { background: color-mix(in srgb, var(--k) 14%, transparent); font-weight: 600; }
+    .item .i { width: 16px; height: 16px; color: var(--k); }
+    .item span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .empty-group { margin: 2px 8px 6px; color: var(--muted); font-size: .85rem; }
+    .side-foot { margin: auto 0 0; padding: 12px 8px 2px; color: var(--muted); font-size: .8rem; }
+    .side-foot a { color: inherit; }
+
+    /* the middle: the open thing's name, then its own tools and editor */
+    .editor-in { width: 100%; max-width: 880px; margin: 0 auto; padding: 22px 28px 64px; display: flex; flex-direction: column; gap: 14px; flex: 1; animation: rise var(--t2) var(--ease) backwards; }
+    .ed-head { display: flex; align-items: center; gap: 10px; }
+    .ed-ic { width: 38px; height: 38px; flex: none; display: grid; place-items: center; border-radius: calc(var(--radius) * .7); color: var(--k); background: color-mix(in srgb, var(--k) 15%, var(--card)); }
+    .ed-title { flex: 1; min-width: 0; padding: 2px 0; border: 0; outline: 0; background: none; color: var(--text); font: inherit; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+    .ed-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .saved { color: var(--muted); font-size: .8rem; opacity: 0; transition: opacity var(--t2); }
+    .saved.show { opacity: 1; }
+    .saved.bad { color: var(--bad); opacity: 1; }
+    .ask { font-size: .9rem; }
+    .icon-btn { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border-radius: 9px; border: 1px solid transparent; background: none; color: var(--muted); transition: color var(--t1), border-color var(--t1), background var(--t1); }
+    .icon-btn:hover { color: var(--text); border-color: var(--line); background: var(--bg); }
+    .icon-btn.danger:hover { color: var(--bad); }
+    .btn.danger { background: var(--bad); border-color: transparent; color: #fff; }
+    .only-phone, .only-narrow { display: none; }
+    .ed-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .ed-tools .btn, .ed-actions .btn { padding: 6px 12px; font-size: .9rem; }
+    .ed-tools .btn .i { width: 16px; height: 16px; }
+    .link-row { color: var(--muted); }
+    .link-row .input { flex: 1; }
+    .lang { color: var(--muted); font-size: .9rem; }
+    .muted { color: var(--muted); }
+    .small { font-size: .88rem; }
+    /* writing: a note's Markdown and a doc's text grow with what's in them */
+    .write { width: 100%; min-height: 50vh; padding: 0; border: 0; outline: 0; resize: none; overflow: hidden; background: none; color: var(--text); font: inherit; font-size: 1.05rem; line-height: 1.75; }
+    .write::placeholder { color: var(--muted); }
+    .md { font-size: 1.05rem; line-height: 1.75; overflow-wrap: anywhere; }
+    .md > :first-child { margin-top: 0; }
+    .md h1, .md h2, .md h3, .md h4 { margin: 1.1em 0 .4em; line-height: 1.25; letter-spacing: -0.01em; }
+    .md h1 { font-size: 1.6rem; } .md h2 { font-size: 1.3rem; } .md h3 { font-size: 1.12rem; } .md h4 { font-size: 1rem; }
+    .md p { margin: 0 0 .8em; }
+    .md a { color: var(--accent); }
+    .md a.wiki { text-decoration: none; border-bottom: 1px dashed color-mix(in srgb, var(--accent) 60%, transparent); }
+    .md a.wiki.new { color: var(--muted); border-bottom-color: var(--line); }
+    .md code { padding: 1px 5px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg); font: .9em ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    .md pre { padding: 12px 14px; border-radius: calc(var(--radius) * .7); border: 1px solid var(--line); background: var(--bg); overflow: auto; }
+    .md pre code { padding: 0; border: 0; background: none; }
+    .md blockquote { margin: 0 0 .8em; padding: 2px 14px; border-left: 3px solid var(--k); color: var(--muted); }
+    .md ul, .md ol { margin: 0 0 .8em; padding-left: 1.4em; }
+    .md ul.tasks { list-style: none; padding-left: .2em; }
+    .md ul.tasks input { margin: 0 8px 0 0; accent-color: var(--accent); }
+    .md hr { margin: 1.2em 0; border: 0; border-top: 1px solid var(--line); }
+    .md .tag { color: var(--accent-2); }
+    .md .empty { color: var(--muted); }
+    /* a table: type in any cell, Enter goes down, and a row's or column's x deletes it */
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: calc(var(--radius) * .7); background: var(--bg); }
+    table.grid { min-width: 100%; border-collapse: separate; border-spacing: 0; font-size: .95rem; }
+    .grid th, .grid td { position: relative; padding: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .grid th:last-child, .grid td:last-child { border-right: 0; }
+    .grid tbody tr:last-child td { border-bottom: 0; }
+    .grid tbody tr.new { animation: rise var(--t2) var(--ease) backwards; }
+    .grid input { width: 100%; min-width: 120px; padding: 8px 10px; border: 0; outline: 0; background: none; color: inherit; font: inherit; }
+    .grid th input { color: var(--muted); font-weight: 600; }
+    .grid input:focus { background: var(--soft); box-shadow: inset 0 0 0 2px var(--accent); }
+    .grid .num { width: 46px; min-width: 46px; text-align: center; color: var(--muted); font-size: .8rem; background: var(--card); }
+    .kill {
+      position: absolute; top: 50%; right: 4px; translate: 0 -50%; display: grid; place-items: center; width: 22px; height: 22px; padding: 0;
+      border: 0; border-radius: 6px; background: var(--card); color: var(--muted); opacity: 0; transition: opacity var(--t1), color var(--t1);
+    }
+    .kill .i { width: 13px; height: 13px; }
+    .num .kill { right: 50%; translate: 50% -50%; }
+    th:hover .kill, tr:hover .num .kill, .kill:focus-visible { opacity: 1; }
+    tr:hover .num span { opacity: 0; }
+    .kill:hover { color: var(--bad); }
+    /* code: line numbers beside it, and what a run prints underneath */
+    .code-wrap { display: grid; grid-template-columns: auto minmax(0, 1fr); border: 1px solid var(--line); border-radius: calc(var(--radius) * .7); background: var(--bg); overflow: hidden; font: 14px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    .gutter { margin: 0; padding: 12px 10px; min-width: 3.2ch; text-align: right; color: var(--muted); background: var(--card); border-right: 1px solid var(--line); user-select: none; font: inherit; }
+    .code { width: 100%; min-height: 40vh; margin: 0; padding: 12px 14px; border: 0; outline: 0; resize: none; overflow-x: auto; overflow-y: hidden; white-space: pre; tab-size: 2; background: none; color: var(--text); font: inherit; }
+    .out { margin: 0; padding: 10px 12px; max-height: 280px; overflow: auto; border-radius: calc(var(--radius) * .7); border: 1px solid var(--line); background: var(--bg); font: 13px/1.55 ui-monospace, "SF Mono", Menlo, Consolas, monospace; white-space: pre-wrap; animation: rise var(--t2) var(--ease) backwards; }
+    .out .warn { color: var(--plot2); } .out .error { color: var(--bad); } .out .note { color: var(--muted); }
+    /* with nothing open: a way to make each kind of thing */
+    .welcome { margin: auto; padding: 40px 24px; max-width: 560px; text-align: center; animation: rise var(--t3) var(--ease) backwards; }
+    .welcome h1 { margin: 0 0 8px; font-size: 1.9rem; letter-spacing: -0.02em; }
+    .welcome p { margin: 0 0 24px; color: var(--muted); }
+    .makes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; text-align: left; }
+    .make { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg); color: var(--text); text-decoration: none; }
+    .make b { display: block; }
+    .make small { display: block; color: var(--muted); line-height: 1.4; }
+    .makes .make { animation: rise var(--t3) var(--ease) backwards; }
+    .makes .make:nth-child(2) { animation-delay: calc(60ms / var(--speed)); }
+    .makes .make:nth-child(3) { animation-delay: calc(120ms / var(--speed)); }
+    .makes .make:nth-child(4) { animation-delay: calc(180ms / var(--speed)); }
+
+    /* the right pane */
+    .info h3 { margin: 20px 0 8px; color: var(--muted); font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+    .info h3:first-child { margin-top: 0; }
+    .info > * { animation: fade-in var(--t2) var(--ease) backwards; }
+    .facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: .9rem; }
+    .facts dt { color: var(--muted); }
+    .facts dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .links { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+    .links a, .links button {
+      display: flex; align-items: center; gap: 8px; width: 100%; padding: 5px 8px; border: 0; border-radius: 7px; background: none; color: var(--text);
+      text-align: left; text-decoration: none; font-size: .9rem; transition: background var(--t1);
+    }
+    .links a:hover, .links button:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+    .links .i { width: 15px; height: 15px; color: var(--muted); }
+    .links .new { color: var(--muted); }
+    .outline button { padding-left: calc(8px + var(--lvl, 0) * 12px); }
+    .none { margin: 0; color: var(--muted); font-size: .88rem; }
+    .minibars { display: flex; align-items: flex-end; gap: 3px; height: 54px; margin-top: 10px; }
+    .minibars span { flex: 1; min-height: 2px; border-radius: 3px 3px 1px 1px; background: var(--good); transform-origin: bottom; animation: grow-up calc(.6s / var(--speed)) var(--spring) backwards; }
+
+    /* narrower: the right pane slides over when you want it; a phone shows the list or the open thing */
+    @media (max-width: 1100px) {
+      .ws { grid-template-columns: 240px minmax(0, 1fr); }
+      .info { display: none; }
+      .only-narrow { display: grid; }
+      .ws.details .info {
+        display: block; position: fixed; z-index: 30; top: var(--bar-h); right: 0; bottom: 0; width: min(300px, 86vw);
+        background: var(--card); box-shadow: -20px 0 40px -20px rgb(0 0 0 / .35); animation: slide-in var(--t2) var(--ease);
+      }
+      @keyframes slide-in { from { transform: translateX(100%); } }
+    }
+    @media (max-width: 760px) {
+      .ws { grid-template-columns: minmax(0, 1fr); }
+      .ws.open .side, .ws:not(.open) .editor { display: none; }
+      .only-phone { display: grid; }
+      .editor-in { padding: 16px 16px 48px; }
+      .ed-title { font-size: 1.3rem; }
+      .makes { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <script>window.fluentio?.bar?.()</script>
+  <main class="ws" id="ws">
+    <aside class="side" aria-label="Your things">
+      <input class="input filter" id="filter" type="search" placeholder="Filter" aria-label="Filter" autocomplete="off">
+      <nav class="tree enter" id="tree"></nav>
+      <p class="side-foot">Kept in this browser. <a href="../settings/#data">Back it up</a></p>
+    </aside>
+    <section class="editor" id="editor" aria-label="Editor"><noscript><p class="welcome">The Workspace needs JavaScript.</p></noscript></section>
+    <aside class="info" id="info" aria-label="Details"></aside>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
