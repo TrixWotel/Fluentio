@@ -6,6 +6,8 @@ Served at https://trixwotel.github.io/Fluentio/geography/ as the geography folde
 * **countries.json** is the map: Natural Earth countries at 50m (public domain), simplified.
 * **capitals.json** is each country's capital and where it is, from Natural Earth's populated places (public domain), brought up to date for 2026 (Gitega for Burundi, Ciudad de la Paz for Equatorial Guinea), plus Yaren for Nauru, which Natural Earth leaves out. Where one name isn't the whole story (Bolivia, South Africa, the Netherlands and a few more), a note says so after you answer.
 
+The colors, buttons and motion come from the space branch: settings.js, kit/look.js and kit/site.css.
+
 ## License
 
 Apache License 2.0, see LICENSE. The map and the capitals come from Natural Earth (public domain).

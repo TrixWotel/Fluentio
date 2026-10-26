@@ -21,6 +21,12 @@ const TESTS = [
 ];
 const W = 960, H = 600, PAD = 14, DOT = 30;        // (a country smaller than DOT square px on the map also gets a dot to click)
 const $ = (id) => document.getElementById(id);
+// a new screen: the old one fades as the new one rises, where the browser can (look.js says whether motion is on)
+const moving = () => window.fluentio?.moving?.() ?? !matchMedia('(prefers-reduced-motion: reduce)').matches;
+const swap = (draw) => (document.startViewTransition && moving() ? document.startViewTransition(draw).ready.catch(() => {}) : draw());
+// plays a little animation again (the class "new"): on the name to find, a number that changes, the note
+const replay = (el) => { el.classList.remove('new'); void el.offsetWidth; el.classList.add('new'); };
+const count = (id, v) => { const el = $(id); if (el.textContent !== String(v)) { el.textContent = v; replay(el); } };
 
 let features = [];                                  // every shape on the map
 const countries = new Map();                        // id -> { id, name, c }
@@ -117,7 +123,7 @@ function start(t) {
   test = t;
   order = d3.shuffle(countriesOf(t).map((x) => x.id));
   at = 0; tries = 0; points = 0; firstTry = 0; late = 0; missed = []; busy = false;
-  $('picker').hidden = true; $('result').hidden = true; $('quiz').hidden = false;
+  $('picker').hidden = true; $('result').hidden = true; $('quiz').hidden = false; $('quitting').hidden = true;
   drawMap(t);
   $('total').textContent = order.length;
   $('ask').textContent = t.capitals ? 'Click the country whose capital is' : 'Click on';
@@ -131,10 +137,11 @@ function start(t) {
 function stop() { clearInterval(tick); tick = 0; }
 function ask() {
   $('target').textContent = test.capitals ? capitalOf(order[at]) : nameOf(order[at]);
-  $('done').textContent = at;
-  $('right').textContent = firstTry + late;
+  replay($('target'));
+  count('done', at);
+  count('right', firstTry + late);
 }
-function note(text, kind = '') { const n = $('note'); n.textContent = text; n.className = 'note' + (kind ? ' ' + kind : ''); }
+function note(text, kind = '') { const n = $('note'); n.textContent = text; n.className = 'note' + (kind ? ' ' + kind : ''); replay(n); }
 const shapesOf = (id) => svg.querySelectorAll(`[data-id="${id}"]`);
 function mark(id, cls) { for (const el of shapesOf(id)) el.classList.add(cls); }
 function flash(id, cls, ms) {
@@ -155,6 +162,7 @@ function answer(id) {
   if (id === want) {
     if (tries === 0) { points += 1; firstTry++; mark(id, 'found'); note(test.capitals ? `Right, ${fact(id)}` : `Right, that's ${nameOf(id)}.`, 'good'); }
     else { points += 0.5; late++; mark(id, 'late'); note(`Got it on try ${tries + 1}: ${test.capitals ? fact(id) : nameOf(id) + '.'}`, 'good'); }
+    flash(id, 'got', 2000);                        // (it lights up as it turns green)
     next();
     return;
   }
@@ -174,7 +182,7 @@ function reveal(id, text) {
 }
 function next() {
   at++; tries = 0;
-  if (at >= order.length) finish();
+  if (at >= order.length) swap(finish);
   else ask();
 }
 
@@ -192,19 +200,22 @@ function finish() {
 
 // ---------- buttons, and links like geography/#eu or geography/#capitals/eu ----------
 $('skip').onclick = () => { if (!busy && at < order.length) reveal(order[at], blinking(order[at])); };
-$('quit').onclick = () => { if (at === 0 || confirm('Quit this test?')) toPicker(); };
-$('again').onclick = () => start(test);
+// Quit asks on the page first, once something's been answered
+$('quit').onclick = () => { if (at === 0) toPicker(); else $('quitting').hidden = false; };
+$('quit-yes').onclick = () => toPicker();
+$('quit-no').onclick = () => { $('quitting').hidden = true; };
+$('again').onclick = () => swap(() => start(test));
 $('others').onclick = () => toPicker();
 $('zoom-in').onclick = () => d3.select(svg).transition().duration(250).call(zoom.scaleBy, 1.8);
 $('zoom-out').onclick = () => d3.select(svg).transition().duration(250).call(zoom.scaleBy, 1 / 1.8);
 $('zoom-reset').onclick = () => d3.select(svg).transition().duration(300).call(zoom.transform, d3.zoomIdentity);
-function toPicker() { history.pushState('', '', location.pathname + location.search); showPicker(); }
+function toPicker() { history.pushState('', '', location.pathname + location.search); swap(showPicker); }
 function route() {
   const t = TESTS.find((x) => '#' + x.id === location.hash);
   if (t) start(t);
   else showPicker();
 }
-window.addEventListener('hashchange', route);
+window.addEventListener('hashchange', () => swap(route));
 
 load().then(route, () => {
   $('tests').innerHTML = '<p class="note bad">The map didn’t load. Check your connection, then reload the page.</p>';
