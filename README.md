@@ -7,7 +7,7 @@ Served at https://trixwotel.github.io/Fluentio/spanish/ as the spanish folder of
 * **verbs.js** is 178 verbs in groups (regular, -car/-gar/-zar, i to y, stem-changing -ir, and the irregular ones) and their preterite and imperfect forms. Vosotros is left out.
 * **tenses.js** makes the Preterite (9 kinds, 30 variants each, 270) and Imperfect (6 kinds, 30 each, 180) questions: type a form, or choose the one that fits a sentence from **sentences.js**. **tense-lessons.js** is both tests' learning paths and lessons.
 
-The test runner is in the space branch's kit folder.
+The test runner is in the space branch's kit folder. The colors and the rest of the look come from its settings.js.
 
 ## License
 
