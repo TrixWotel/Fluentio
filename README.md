@@ -9,7 +9,7 @@ Served at https://trixwotel.github.io/Fluentio/math/ as the math folder of the F
   * **amc-kit.js** has what they share: the five choices, surds and fractions as choices, and family(), which takes a topic's question types in turn.
   * **amc-lessons.js** is the learning path (5 units: arithmetic and algebra, number theory, counting, probability, geometry) and a short lesson for every topic.
 
-The test runner and the drawing code are in the space branch's kit folder.
+The test runner and the drawing code are in the space branch's kit folder. The colors and the rest of the look come from its settings.js.
 
 The AMC problems are original, in the style of the contest. Real AMC problems are the MAA's copyright, so none are copied here.
 
