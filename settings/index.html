@@ -44,6 +44,25 @@
     }
     .swatch:hover { transform: scale(1.12); }
     .swatch.on { box-shadow: 0 0 0 2px var(--accent); }
+    /* a theme: a little picture of it, in its own colors, light or dark as you see the page */
+    .themes { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; width: 100%; }
+    .theme {
+      display: grid; gap: 3px; padding: 10px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg); color: var(--text); text-align: left;
+      transition: border-color var(--t1), transform var(--t2) var(--spring), box-shadow var(--t2);
+    }
+    .theme:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .theme.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .theme-name { font-weight: 600; }
+    .theme small { color: var(--muted); font-size: .82rem; line-height: 1.35; }
+    .preview { display: grid; grid-template-columns: 1fr 2fr; gap: 7px; height: 74px; margin-bottom: 5px; padding: 8px; border-radius: calc(var(--radius) * .6); border: 1px solid var(--p-line); background: var(--p-bg); }
+    .p-side, .p-card { display: grid; align-content: start; gap: 5px; }
+    .p-side i, .p-card i { display: block; height: 5px; border-radius: 3px; background: var(--p-muted); opacity: .55; }
+    .p-side i:first-child { width: 80%; background: var(--p-accent); opacity: 1; }
+    .p-card { padding: 7px; border-radius: var(--p-r); border: 1px solid var(--p-line); background: var(--p-card); box-shadow: 0 8px 16px -10px rgb(0 0 0 / .45); }
+    .p-card i:first-child { width: 70%; background: var(--p-text); opacity: .9; }
+    .p-card b { display: block; width: 46%; height: 12px; margin-top: 3px; border-radius: 6px; background: linear-gradient(135deg, var(--p-accent), var(--p-accent2)); }
+    .theme.flat .p-card { box-shadow: none; }
+    .theme.flat .p-card b { background: var(--p-accent); }
     .color { display: flex; align-items: center; gap: 8px; }
     .color input[type=color] { width: 40px; height: 34px; padding: 2px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); cursor: pointer; }
     .color .input { width: 120px; font: .9rem ui-monospace, "SF Mono", Menlo, Consolas, monospace; }

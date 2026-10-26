@@ -14,6 +14,9 @@
   --glow: color-mix(in srgb, var(--accent) 28%, transparent);
   --shadow: 0 1px 2px rgb(0 0 0 / .04), 0 8px 24px -12px rgb(0 0 0 / .18);
   --shadow-up: 0 2px 4px rgb(0 0 0 / .05), 0 18px 40px -16px color-mix(in srgb, var(--accent) 45%, rgb(0 0 0 / .3));
+  /* a filled control (a main button, the tab you're on) and words in a gradient (a score): the flat style makes them solid */
+  --fill: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 62%, var(--accent-2)));
+  --ink: linear-gradient(120deg, var(--accent), var(--accent-2));
   /* timing */
   --ease: cubic-bezier(.2, .8, .2, 1);
   --spring: cubic-bezier(.34, 1.45, .64, 1);
@@ -49,7 +52,7 @@ footer a { color: inherit; }
 .btn:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--shadow); }
 .btn:active:not(:disabled) { transform: scale(.97); transition-duration: var(--t1); }
 .btn:disabled { opacity: .45; cursor: default; }
-.btn.primary { background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 62%, var(--accent-2))); border-color: transparent; color: #fff; }
+.btn.primary { background: var(--fill); border-color: transparent; color: #fff; }
 .btn.primary:hover:not(:disabled) { border-color: transparent; box-shadow: var(--shadow-up); filter: brightness(1.06); }
 .btn.big { padding: 11px 18px; font-weight: 600; }
 .confirm {
@@ -163,6 +166,16 @@ html.has-bar body { padding-top: var(--bar-h); }
 .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-up); border-color: transparent; }
 .card:hover::before, .card:hover::after { opacity: 1; }
 .card:active { transform: translateY(-1px) scale(.995); transition-duration: var(--t1); }
+
+/* the flat style (settings.js style: 'flat', which look.js marks on the page): borders and solid colors instead of
+   shadows, glowing edges and gradients, like GitHub. Things still move in, they just don't lift */
+html.flat { --shadow: none; --shadow-up: none; --fill: var(--accent); --ink: linear-gradient(var(--text), var(--text)); --raised: color-mix(in srgb, var(--text) 11%, var(--card)); }
+html.flat .card::before, html.flat .card::after { display: none; }
+html.flat .card:hover, html.flat .card:active { transform: none; box-shadow: none; border-color: color-mix(in srgb, var(--text) 30%, var(--line)); }
+html.flat .btn:hover:not(:disabled) { transform: none; }
+html.flat .btn:not(.primary):hover:not(:disabled) { background: color-mix(in srgb, var(--text) 6%, var(--card)); border-color: color-mix(in srgb, var(--text) 30%, var(--line)); }
+html.flat .seg button.on, html.flat .spaces .pill { background: var(--raised); }
+html.flat .topbar { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
 
 /* moving between pages (look.js turns this on): the old page fades, the new one rises, the drifting colors carry on,
    the bar stays put, and the mark on its spaces slides across */

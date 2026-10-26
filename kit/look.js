@@ -17,7 +17,7 @@
       light: { ocean: '#d6e6f5', land: '#e4e1da', country: '#fbf8f1', border: '#9aa4b1', late: '#d4a72c' },
       dark: { ocean: '#0c1828', land: '#23272e', country: '#4d5768', border: '#151920', late: '#d29922' },
     },
-    font: 'system', corners: 14, animations: true, speed: 1, floatingColors: true,
+    font: 'system', corners: 14, style: 'glow', animations: true, speed: 1, floatingColors: true,
     home: ['workspace', 'study', 'data', 'quick'],
     quick: [
       { title: 'New note', link: 'workspace/#new/note' },
@@ -101,6 +101,7 @@
   const apply = () => {
     style.textContent = css();
     document.documentElement.classList.toggle('no-motion', s.animations === false);
+    document.documentElement.classList.toggle('flat', s.style === 'flat');
   };
   apply();
   // (each page's <title>, which comes before this script, ends with the built-in name)

@@ -26,7 +26,7 @@ h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: 
 .pnav .back { margin: 0; }
 /* a bar fills from where it was (--from, the question before) to where it is now */
 .progress { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
-.progress div { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: inherit; transition: width var(--t3) var(--ease); animation: fill calc(.8s / var(--speed)) var(--ease) backwards; }
+.progress div { height: 100%; background: var(--fill); border-radius: inherit; transition: width var(--t3) var(--ease); animation: fill calc(.8s / var(--speed)) var(--ease) backwards; }
 .qcount { margin: 0 0 10px; font-size: .9rem; }
 .timer { font-variant-numeric: tabular-nums; }
 .timer.over { color: var(--bad); font-weight: 600; animation: bump calc(1.2s / var(--speed)) ease-in-out infinite; }
@@ -55,7 +55,7 @@ h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: 
 .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
 .tab { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); font-size: .9rem; transition: border-color var(--t1), transform var(--t2) var(--spring); }
 .tab:hover { border-color: var(--accent); transform: translateY(-1px); }
-.tab.on { background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 62%, var(--accent-2))); border-color: transparent; color: #fff; animation: bump var(--t2) var(--spring); }
+.tab.on { background: var(--fill); border-color: transparent; color: #fff; animation: bump var(--t2) var(--spring); }
 .lesson { background: var(--card); border: 1px solid var(--line); border-radius: calc(var(--radius) + 2px); padding: 20px 22px; box-shadow: var(--shadow); animation: rise var(--t3) var(--ease) backwards; }
 .lesson .idea { font-size: 1.08rem; }
 .lesson .idea p { margin: 0 0 10px; }
@@ -136,7 +136,7 @@ details[open] > :not(summary) { animation: rise var(--t2) var(--ease) backwards;
 .sol .fresh { animation: fade-in var(--t3) var(--ease) backwards; }
 .score {
   width: fit-content; font-size: 2.6rem; font-weight: 800; margin: 4px 0; letter-spacing: -0.02em; animation: pop var(--t3) var(--spring) backwards;
-  background: linear-gradient(120deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent;
+  background: var(--ink); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .review { display: grid; gap: 8px; }
 .rv { background: var(--card); border: 1px solid var(--line); border-radius: calc(var(--radius) * .85); padding: 10px 14px; transition: border-color var(--t1); }

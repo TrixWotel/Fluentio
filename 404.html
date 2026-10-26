@@ -18,14 +18,14 @@
     /* (each digit has its own gradient: Chrome can't clip a gradient to letters that move on their own) */
     h1 span {
       display: inline-block; animation: bob calc(2.4s / var(--speed)) ease-in-out infinite;
-      background: linear-gradient(120deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent;
+      background: var(--ink); -webkit-background-clip: text; background-clip: text; color: transparent;
     }
     h1 span:nth-child(2) { animation-delay: calc(.2s / var(--speed)); }
     h1 span:nth-child(3) { animation-delay: calc(.4s / var(--speed)); }
     p { color: var(--muted); margin: 8px 0 26px; font-size: 1.1rem; }
     a {
       display: inline-block; padding: 11px 20px; border-radius: 999px; color: #fff; text-decoration: none; font-weight: 600;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: var(--shadow);
+      background: var(--fill); box-shadow: var(--shadow);
       transition: transform var(--t2) var(--spring), box-shadow var(--t2);
     }
     a:hover { transform: translateY(-2px); box-shadow: var(--shadow-up); }

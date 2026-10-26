@@ -18,14 +18,21 @@ function toast(text) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
 }
-// (once a frame at most, so dragging through colors stays smooth)
+// (once a frame at most, so dragging through colors stays smooth, and straight away when the page is hidden or going,
+// as a hidden page has no frames)
+const saveNow = () => {
+  cancelAnimationFrame(queued);
+  queued = 0;
+  toast(f.save(s) ? 'Saved in this browser' : "Couldn't save: this browser's storage is full or turned off");
+};
 function save() {
-  if (queued) return;
-  queued = requestAnimationFrame(() => {
-    queued = 0;
-    toast(f.save(s) ? 'Saved in this browser' : "Couldn't save: this browser's storage is full or turned off");
-  });
+  if (document.hidden) saveNow();
+  else if (!queued) queued = requestAnimationFrame(saveNow);
 }
+const waiting = new Map();                          // typing that hasn't been saved yet
+const flush = () => { for (const go of waiting.values()) go(); waiting.clear(); if (queued) saveNow(); };
+addEventListener('pagehide', flush);
+document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); });
 
 // ---------- pieces ----------
 const set = (title, note, ...controls) => el('div', { className: 'set' }, el('div', { className: 'what' }, el('b', {}, title), note ? el('small', {}, note) : null), ...controls);
@@ -44,8 +51,14 @@ function seg(options, value, pick, label) {
 const toggle = (checked, pick, label) => el('input', { type: 'checkbox', className: 'switch', checked, 'aria-label': label, onchange: (e) => pick(e.target.checked) });
 function text(value, pick, label, attrs = {}) {
   let wait = 0;
-  return el(attrs.long ? 'textarea' : 'input', { className: 'input text-in', value, 'aria-label': label, spellcheck: attrs.long || false, rows: attrs.long ? 3 : null,
-    oninput: (e) => { clearTimeout(wait); wait = setTimeout(() => pick(e.target.value), 250); } });
+  const box = el(attrs.long ? 'textarea' : 'input', { className: 'input text-in', value, 'aria-label': label, spellcheck: attrs.long || false, rows: attrs.long ? 3 : null,
+    oninput: () => {
+      clearTimeout(wait);
+      const go = () => { clearTimeout(wait); waiting.delete(box); pick(box.value); };
+      waiting.set(box, go);
+      wait = setTimeout(go, 250);
+    } });
+  return box;
 }
 // a color: the picker (which only knows #rrggbb), and the color as typed, which can be any CSS color
 const paint = document.createElement('canvas').getContext('2d');
@@ -85,6 +98,14 @@ const PRESETS = [
   ['Grape', ['#7c3aed', '#c026d3'], ['#a78bfa', '#e879f9']],
   ['Mono', ['#374151', '#6b7280'], ['#e5e7eb', '#9ca3af']],
 ];
+// whole looks at once: the colors for light and dark, the style, the corners, and the drifting colors on or off
+const THEMES = [
+  { name: 'Fluentio', note: 'Soft glows, gradients and drifting colors', look: () => ({ style: 'glow', corners: f.DEFAULTS.corners, floatingColors: true, colors: clone(f.DEFAULTS.colors) }) },
+  { name: 'GitHub', note: 'Flat, with borders and GitHub’s own colors', look: () => ({ style: 'flat', corners: 10, floatingColors: false, colors: {
+    light: { accent: '#0969da', accent2: '#0550ae', background: '#f6f8fa', card: '#ffffff', text: '#1f2328', muted: '#59636e', line: '#d1d9e0', right: '#1a7f37', wrong: '#d1242f', second: '#9a6700' },
+    dark: { accent: '#4493f8', accent2: '#1f6feb', background: '#0d1117', card: '#151b23', text: '#f0f6fc', muted: '#9198a1', line: '#3d444d', right: '#3fb950', wrong: '#f85149', second: '#d29922' },
+  } }) },
+];
 const COLORS = [
   ['accent', 'Accent', 'Buttons, links and anything selected'],
   ['accent2', 'Second color', 'Gradients, and the colors drifting behind'],
@@ -103,10 +124,23 @@ const shown = () => (s.theme === 'dark' || s.theme === 'light' ? s.theme : match
 let palette = shown();                              // which colors the Colors panel changes
 
 function look() {
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   return el('section', { className: 'panel', id: 'look' }, el('h2', {}, 'Look'),
-    set('Theme', 'Auto follows your device’s light or dark mode.',
-      seg([['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']], s.theme, (v) => { s.theme = v; palette = shown(); save(); draw(); }, 'Theme')),
-    set('Colors', 'A ready-made accent and second color, for light and dark.',
+    set('Themes', 'A whole look at once: the colors for light and dark, the style, the corners and the drifting colors.',
+      el('div', { className: 'themes' }, THEMES.map((t) => {
+        const look = t.look(), c = look.colors[palette], on = Object.keys(look).every((k) => same(s[k], look[k]));
+        const b = el('button', { type: 'button', className: `theme${on ? ' on' : ''}${look.style === 'flat' ? ' flat' : ''}`, 'aria-pressed': String(on), onclick: () => { Object.assign(s, look); save(); draw(); } },
+          el('span', { className: 'preview', 'aria-hidden': 'true' }, el('span', { className: 'p-side' }, el('i'), el('i'), el('i')), el('span', { className: 'p-card' }, el('i'), el('i'), el('b'))),
+          el('span', { className: 'theme-name' }, t.name), el('small', {}, t.note));
+        const show = { bg: c.background, card: c.card, line: c.line, text: c.text, muted: c.muted, accent: c.accent, accent2: c.accent2, r: `${Math.round(look.corners * 0.6)}px` };
+        for (const [k, v] of Object.entries(show)) b.style.setProperty(`--p-${k}`, v);
+        return b;
+      }))),
+    set('Light or dark', 'Auto follows your device’s light or dark mode.',
+      seg([['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']], s.theme, (v) => { s.theme = v; palette = shown(); save(); draw(); }, 'Light or dark')),
+    set('Style', 'Glow has soft shadows, glowing edges and gradients. Flat has borders and solid colors, like GitHub.',
+      seg([['glow', 'Glow'], ['flat', 'Flat']], s.style === 'flat' ? 'flat' : 'glow', (v) => { s.style = v; save(); draw(); }, 'Style')),
+    set('Accent colors', 'A ready-made accent and second color, for light and dark.',
       el('div', { className: 'swatches' }, PRESETS.map(([name, light, dark]) => {
         const on = s.colors.light.accent === light[0] && s.colors.light.accent2 === light[1] && s.colors.dark.accent === dark[0] && s.colors.dark.accent2 === dark[1];
         const b = el('button', { type: 'button', className: 'swatch' + (on ? ' on' : ''), title: name, 'aria-label': name, 'aria-pressed': String(on), onclick: () => {
