@@ -42,7 +42,6 @@ function save(now) {
   const go = () => {
     dirty = false;
     const ok = f.workspace.save(items);
-    if (ok) dispatchEvent(new CustomEvent('fluentio:workspace'));   // (the sidebar lists your latest things)
     saved.textContent = ok ? 'Saved' : "Couldn't save: this browser's storage is full or turned off";
     saved.className = 'saved show' + (ok ? '' : ' bad');
     clearTimeout(saved.hide);

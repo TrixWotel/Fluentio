@@ -56,7 +56,6 @@ window.FLUENTIO_SETTINGS = {
   corners: 14,             // how round cards and buttons are, in pixels (0 is square)
   style: 'glow',           // 'glow' (soft shadows, glowing edges and gradients) or 'flat' (borders and solid colors, like GitHub)
   textSize: 16,            // how big the words are, in pixels (12 to 20)
-  bar: 'top',              // where the bar goes: 'top', or 'side' (a sidebar on the left, like Fluent's, on a wide screen)
 
   animations: true,        // false turns every animation off (devices set to reduce motion never get them)
   speed: 1,                // 1 is normal, 2 is twice as fast, 0.5 is half as fast
