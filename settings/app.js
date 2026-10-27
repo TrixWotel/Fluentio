@@ -188,8 +188,12 @@ function colors() {
 
 function motion() {
   const value = el('span', { className: 'value' }, `${s.speed}×`);
+  const tabs = s.workspaceAnimations || (s.workspaceAnimations = { notes: true, database: true, code: true });
   return el('section', { className: 'panel', id: 'motion' }, el('h2', {}, 'Motion'),
     set('Animations', 'Off stops every animation. A device set to reduce motion never gets them.', toggle(s.animations, (v) => { s.animations = v; save(); }, 'Animations')),
+    set('In the Workspace', 'Each tab’s animations on their own. Its View menu has the same switch.',
+      el('div', { className: 'pairs' }, [['notes', 'Notes'], ['database', 'Database'], ['code', 'Code']].map(([k, name]) => el('label', { className: 'pair' },
+        toggle(tabs[k] !== false, (v) => { tabs[k] = v; save(); }, `Animations in the Workspace’s ${name} tab`), name)))),
     set('Speed', '1× is normal. Higher is faster.',
       el('input', { type: 'range', min: 0.5, max: 2, step: 0.25, value: s.speed, 'aria-label': 'Speed', oninput: (e) => { s.speed = +e.target.value; value.textContent = `${s.speed}×`; save(); } }), value),
     set('Drifting colors', 'The soft colors moving slowly behind the pages.', toggle(s.floatingColors, (v) => { s.floatingColors = v; save(); }, 'Drifting colors')));
@@ -278,7 +282,9 @@ function keys() {
 
 function data() {
   const items = f.workspace.items(), count = (kind) => items.filter((x) => x.kind === kind).length;
+  const folders = f.workspace.folders?.() || [], bases = folders.filter((x) => x.tab === 'database').length;
   const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  const kept = [folders.length - bases ? plural(folders.length - bases, 'folder') : '', bases ? plural(bases, 'database') : ''].filter(Boolean).join(' and ');
   const ours = () => Object.keys(localStorage).filter((k) => k.startsWith('fluentio.'));
   const file = el('input', { type: 'file', accept: '.json,application/json', hidden: true, onchange: async () => {
     const chosen = file.files[0];
@@ -294,7 +300,7 @@ function data() {
     });
   } });
   const panel = el('section', { className: 'panel', id: 'data' }, el('h2', {}, 'Your data'),
-    el('p', {}, `In this browser only: ${plural(count('note'), 'note')}, ${plural(count('doc'), 'doc')}, ${plural(count('table'), 'table')} and ${plural(count('code'), 'code file')}, these settings, and your learning progress. Clearing the browser’s site data deletes them, so download a backup now and then.`),
+    el('p', {}, `In this browser only: ${plural(count('note'), 'note')}, ${plural(count('doc'), 'doc')}, ${plural(count('table'), 'sheet')} and ${plural(count('code'), 'code file')}${kept ? ` in ${kept}` : ''}, these settings, and your learning progress. Clearing the browser’s site data deletes them, so download a backup now and then.`),
     el('div', { className: 'set' }, el('div', { className: 'row' },
       el('button', { type: 'button', className: 'btn primary', onclick: () => {
         const all = Object.fromEntries(ours().map((k) => [k, f.read(k)]));
@@ -304,6 +310,7 @@ function data() {
       el('button', { type: 'button', className: 'btn', onclick: () => file.click() }, svg('upload'), 'Restore a backup'),
       el('button', { type: 'button', className: 'btn', onclick: () => confirmIn(panel, `Delete everything in your ${s.workspaceTitle.toLowerCase()}? Download a backup first if you might want it back.`, 'Delete it all', () => {
         f.workspace.save([]);
+        f.write('fluentio.workspace.folders', null);
         toast('Your workspace is empty');
         draw();
       }) }, svg('trash'), `Empty the ${s.workspaceTitle.toLowerCase()}`),

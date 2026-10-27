@@ -18,11 +18,12 @@
       dark: { ocean: '#0c1828', land: '#23272e', country: '#4d5768', border: '#151920', late: '#d29922' },
     },
     font: 'system', corners: 14, style: 'glow', textSize: 16, animations: true, speed: 1, floatingColors: true,
+    workspaceAnimations: { notes: true, database: true, code: true },
     keys: { search: 'Ctrl+K', home: 'Ctrl+1', study: 'Ctrl+2', workspace: 'Ctrl+3' },
     home: ['workspace', 'study', 'data', 'quick'],
     quick: [
       { title: 'New note', link: 'workspace/#new/note' },
-      { title: 'New table', link: 'workspace/#new/table' },
+      { title: 'New sheet', link: 'workspace/#new/table' },
       { title: 'Start AMC test', link: 'math/#amc10/test' },
     ],
     workspaceTitle: 'Workspace',
@@ -159,6 +160,11 @@
     doc: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/>',
     table: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>',
     code: '<path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/>',
+    folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    database: '<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/>',
+    move: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 13h6M12.5 10.5 15 13l-2.5 2.5"/>',
+    eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>',
     bolt: '<path d="M13 3 4 14h7l-1 7 9-11h-7z"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
     arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
@@ -215,10 +221,12 @@
     settings: s, site, DEFAULTS, FONTS, root, read, write, el, svg, icon, key,
     link: (href) => new URL(String(href || ''), root).href,
     moving: () => s.animations !== false && !matchMedia('(prefers-reduced-motion: reduce)').matches,
-    // the Workspace's notes, docs, tables and code: kept in this browser only (Settings can download a backup)
+    // the Workspace's notes, docs, sheets and code, and its folders: kept in this browser only (Settings can download a
+    // backup). Each thing and folder has its folder's id as parent ('' for the top of its tab)
     workspace: {
       items: () => { const w = read('fluentio.workspace'); return plain(w) && Array.isArray(w.items) ? w.items.filter((x) => plain(x) && typeof x.id === 'string') : []; },
       save: (items) => write('fluentio.workspace', { v: 1, items }),
+      folders: () => { const w = read('fluentio.workspace.folders'); return plain(w) && Array.isArray(w.folders) ? w.folders.filter((x) => plain(x) && typeof x.id === 'string') : []; },
     },
     // the topic Learn was last on (tests.js keeps it), for Continue on the home page
     last: () => { const l = read('fluentio.last'); return plain(l) && typeof l.href === 'string' && /^\/(?!\/)/.test(l.href) ? l : null; },

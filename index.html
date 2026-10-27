@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fluentio</title>
-  <meta name="description" content="My personal web playground: study, and a workspace for notes, docs, tables and code.">
+  <meta name="description" content="My personal web playground: study, and a workspace for notes, docs, sheets and code.">
   <script src="settings.js"></script>
   <script src="kit/look.js"></script>
   <script src="kit/bar.js"></script>
@@ -118,7 +118,7 @@
           items.length
             ? el('ul', { className: 'recent' }, items.slice(0, 6).map((it) => el('li', {}, el('a', { href: link(`workspace/#${it.kind}/${it.id}`) },
               svg(ICON[it.kind] || 'note'), el('span', {}, it.title || 'Untitled'), el('small', {}, ago(it.edited))))))
-            : el('p', { className: 'muted' }, 'Notes, docs, tables and code, kept in this browser.'),
+            : el('p', { className: 'muted' }, 'Notes, a database of docs and sheets, and code, kept in this browser.'),
           el('div', { className: 'row' }, button('New note', link('workspace/#new/note')), button('New doc', link('workspace/#new/doc')))),
         study: () => {
           const last = f.last(), done = last ? Math.max(0, last.learned || 0) : 0, of = last ? Math.max(1, last.total || 1) : 1;
@@ -138,11 +138,11 @@
         data: () => {
           const tables = items.filter((it) => it.kind === 'table'), size = (t) => (Array.isArray(t.rows) ? t.rows.length : 0);
           const sizes = tables.slice(0, 8).map(size), most = Math.max(1, ...sizes), rows = tables.reduce((n, t) => n + size(t), 0);
-          return tile('', 'var(--good)', head('table', 'Data', link(tables.length ? `workspace/#table/${tables[0].id}` : 'workspace/#new/table')),
-            el('p', { className: 'muted' }, tables.length ? `${plural(tables.length, 'table')}, ${plural(rows, 'row')}` : 'No tables yet. They live in your workspace.'),
+          return tile('', 'var(--good)', head('table', 'Data', link(tables.length ? 'workspace/#database' : 'workspace/#new/table')),
+            el('p', { className: 'muted' }, tables.length ? `${plural(tables.length, 'sheet')}, ${plural(rows, 'row')}` : 'No sheets yet. They live in your workspace’s Database.'),
             tables.length
               ? el('div', { className: 'bars', 'aria-hidden': 'true' }, sizes.map((n, i) => { const bar = el('span', { style: `height:${Math.max(14, Math.round((100 * n) / most))}%` }); bar.style.setProperty('--n', i); return bar; }))
-              : el('div', { className: 'row' }, button('New table', link('workspace/#new/table'))));
+              : el('div', { className: 'row' }, button('New sheet', link('workspace/#new/table'))));
         },
         quick: () => tile('wide', 'var(--plot2)',
           el('div', { className: 'quick-label' }, el('span', { className: 'tile-ic' }, svg('bolt')), 'Quick'),

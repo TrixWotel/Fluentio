@@ -73,6 +73,9 @@
     details.more[open] > :not(summary) { animation: rise var(--t2) var(--ease) backwards; }
     .fonts button { font-size: .95rem; }
     input[type=range] { width: 200px; accent-color: var(--accent); }
+    /* a switch with its name beside it, a few in a row (the Workspace's tabs) */
+    .pairs { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+    .pair { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
     .value { min-width: 54px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
     .text-in { flex: 1 1 260px; }
     textarea.input { width: 100%; resize: vertical; min-height: 70px; line-height: 1.5; }

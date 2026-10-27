@@ -60,6 +60,8 @@ window.FLUENTIO_SETTINGS = {
   animations: true,        // false turns every animation off (devices set to reduce motion never get them)
   speed: 1,                // 1 is normal, 2 is twice as fast, 0.5 is half as fast
   floatingColors: true,    // the soft colors drifting behind the pages
+  // the Workspace's tabs, each on its own: false turns that tab's animations off
+  workspaceAnimations: { notes: true, database: true, code: true },
 
   // the keys (Settings can record new ones): Ctrl, Alt, Shift or Meta (⌘ on a Mac) with a key, like 'Ctrl+K', and ''
   // turns one off. On Windows and Linux the browser keeps Ctrl with a number for its tabs, so there Ctrl+1 works as Alt+1
@@ -70,11 +72,11 @@ window.FLUENTIO_SETTINGS = {
   // the buttons on the Quick tile (a link can also be a whole web address)
   quick: [
     { title: 'New note', link: 'workspace/#new/note' },
-    { title: 'New table', link: 'workspace/#new/table' },
+    { title: 'New sheet', link: 'workspace/#new/table' },
     { title: 'Start AMC test', link: 'math/#amc10/test' },
   ],
 
-  // the Workspace: notes, docs, tables and code, kept in your browser (Settings can back them up)
+  // the Workspace: Notes, a Database of docs and sheets, and Code, kept in your browser (Settings can back them up)
   workspaceTitle: 'Workspace',
 
   // the Study page: its title, the line under it, and its subjects in this order (color is the subject's own color)

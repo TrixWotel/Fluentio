@@ -45,7 +45,7 @@
   addEventListener('fluentio:settings', () => nav && drawNav());
 
   // ---------- Search ----------
-  const KINDS = { note: 'Note', doc: 'Doc', table: 'Table', code: 'Code' };
+  const KINDS = { note: 'Note', doc: 'Doc', table: 'Sheet', code: 'Code file' };
   let box = null, input = null, list = null, found = [], at = 0, before = null;
   // everything there is to find, in the order it shows with nothing typed
   function everything(q) {
@@ -55,6 +55,11 @@
     const items = f.workspace.items().sort((a, b) => (b.edited || 0) - (a.edited || 0));
     for (const it of q ? items : items.slice(0, 6)) {
       out.push({ title: it.title || 'Untitled', kind: KINDS[it.kind] || '', icon: KINDS[it.kind] ? it.kind : 'note', href: f.link(`workspace/#${it.kind}/${it.id}`), group: s.workspaceTitle, text: typeof it.text === 'string' ? it.text : '' });
+    }
+    // (its folders and databases only once something's typed, so the list stays short)
+    for (const x of q ? f.workspace.folders?.() || [] : []) {
+      const base = x.tab === 'database';
+      out.push({ title: x.title || 'Untitled', kind: base ? 'Database' : 'Folder', icon: base ? 'database' : 'folder', href: f.link(`workspace/#folder/${x.id}`), group: s.workspaceTitle });
     }
     for (const x of s.study) out.push({ title: x.title || '', kind: s.studyTitle, emoji: x.emoji || '📘', href: f.link(x.link), group: s.studyTitle });
     for (const [k, name] of Object.entries(KINDS)) out.push({ title: `New ${name.toLowerCase()}`, kind: s.workspaceTitle, icon: 'plus', href: f.link(`workspace/#new/${k}`), group: 'Make' });
