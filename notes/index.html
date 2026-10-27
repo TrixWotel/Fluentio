@@ -9,12 +9,13 @@
   <script src="../kit/look.js"></script>
   <script src="../kit/bar.js"></script>
   <link rel="stylesheet" href="../kit/site.css">
-  <link rel="stylesheet" href="../workspace/style.css">
+  <link rel="stylesheet" href="../workspace/style.css?v=2">
 </head>
 <body data-tab="notes">
   <script>window.fluentio?.bar?.()</script>
-  <!-- (Data, Code and Notes are one app, in workspace/, that draws the page for the space its body names) -->
+  <!-- (Data, Code and Notes are one app, in workspace/, that draws the page for the space its body names. Its ?v=
+       goes up with each change to it, so a browser can't run a copy it kept from before on a newer page) -->
   <main class="ws" id="ws"><noscript><p class="nothing">Notes needs JavaScript.</p></noscript></main>
-  <script type="module" src="../workspace/app.js"></script>
+  <script type="module" src="../workspace/app.js?v=2"></script>
 </body>
 </html>
