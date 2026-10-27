@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fluentio</title>
-  <meta name="description" content="My personal web playground: study, and a workspace for notes, docs, sheets and code.">
+  <meta name="description" content="My personal web playground: modules to study, and my own data, code and notes.">
   <script src="settings.js"></script>
   <script src="kit/look.js"></script>
   <script src="kit/bar.js"></script>
@@ -23,7 +23,7 @@
     .lead { margin: 6px 0 0; color: var(--muted); font-size: 1.05rem; animation-delay: calc(140ms / var(--speed)); }
     html.flat .name { background: none; color: var(--text); animation: rise var(--t3) var(--ease) backwards; animation-delay: calc(70ms / var(--speed)); }
 
-    /* the tiles: Workspace tall on the left, Study and Data beside it, Quick across under those */
+    /* the tiles: Recent tall on the left, Modules and Data beside it, Quick across under those */
     .bento { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr); grid-auto-flow: row dense; gap: 14px; margin-top: clamp(22px, 4vh, 34px); }
     .bento > * { animation-delay: calc((var(--n, 0) * 70ms + 200ms) / var(--speed)); }
     .tile {
@@ -50,14 +50,14 @@
     .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
     .tile .btn { padding: 6px 12px; font-size: .92rem; }
     .tile .btn .i { width: 16px; height: 16px; }
-    /* Workspace: what you worked on last */
+    /* Recent: what you worked on last, in Data, Code or Notes */
     .recent { list-style: none; margin: 0 -8px; padding: 0; display: grid; gap: 2px; }
     .recent a { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: calc(var(--radius) * .6); color: var(--text); text-decoration: none; transition: background var(--t1), transform var(--t2) var(--ease); }
     .recent a:hover { background: color-mix(in srgb, var(--c) 10%, transparent); transform: translateX(3px); }
     .recent .i { color: var(--c); }
     .recent span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .recent small { margin-left: auto; padding-left: 10px; color: var(--muted); white-space: nowrap; }
-    /* Study: the topic to go on with, and how far along that test you are */
+    /* Modules: the topic to go on with, and how far along that test you are */
     .continue { display: grid; gap: 2px; color: var(--text); text-decoration: none; }
     .continue b { font-size: 1.12rem; transition: color var(--t1); }
     .continue:hover b { color: var(--c); }
@@ -66,7 +66,7 @@
     .chips { display: flex; flex-wrap: wrap; gap: 6px; }
     .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: inherit; text-decoration: none; font-size: .9rem; transition: transform var(--t2) var(--spring), border-color var(--t1); }
     .chip:hover { transform: translateY(-2px); border-color: var(--k, var(--accent)); }
-    /* Data: a bar for each table, as tall as it has rows */
+    /* Data: a bar for each sheet, as tall as it has rows */
     .bars { display: flex; align-items: flex-end; gap: 6px; height: 44px; }
     .bars span { width: 14px; border-radius: 4px 4px 2px 2px; background: var(--c); transform-origin: bottom; animation: grow-up calc(.7s / var(--speed)) var(--spring) backwards; animation-delay: calc((var(--n, 0) * 60ms + 450ms) / var(--speed)); }
     /* Quick: a row of buttons */
@@ -86,15 +86,15 @@
       <p class="lead" id="tagline">Web stack workspace</p>
     </header>
     <section class="bento stagger" id="tiles" aria-label="Your spaces">
-      <article class="card tile"><a class="tile-head" href="study/">📚 Study</a><p class="muted">Tests, lessons and practice in five subjects.</p></article>
+      <article class="card tile"><a class="tile-head" href="study/">📚 Modules</a><p class="muted">Tests, lessons and practice in five subjects.</p></article>
     </section>
   </main>
   <footer><span data-fill="footer">TrixWotel</span> <span id="year">2026</span></footer>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
     // the home page from the settings (look.js has filled in what settings.js leaves out): the greeting, the name, and
-    // the tiles in the settings' order. Workspace shows what you worked on last, Study the topic to go on with, Data
-    // your tables, and Quick the settings' buttons.
+    // the tiles in the settings' order. Recent shows what you worked on last (in Data, Code or Notes), Modules the topic
+    // to go on with, Data your sheets, and Quick the settings' buttons.
     if (window.fluentio) {
       const f = window.fluentio, s = f.settings, { el, svg, link } = f, $ = (id) => document.getElementById(id);
       document.title = s.name;
@@ -109,17 +109,17 @@
       const ago = (t) => { const m = Math.round((Date.now() - (t || 0)) / 60000); return m < 1 ? 'now' : m < 60 ? `${m} min` : m < 1440 ? `${Math.round(m / 60)} h` : `${Math.round(m / 1440)} d`; };
       const items = f.workspace.items().sort((a, b) => (b.edited || 0) - (a.edited || 0));
       const ICON = { note: 'note', doc: 'doc', table: 'table', code: 'code' };
-      const head = (icon, title, href) => el('a', { className: 'tile-head', href }, el('span', { className: 'tile-ic' }, svg(icon)), el('span', {}, title), el('span', { className: 'tile-go' }, svg('arrow')));
+      const head = (icon, title, href) => el(href ? 'a' : 'div', { className: 'tile-head', href }, el('span', { className: 'tile-ic' }, svg(icon)), el('span', {}, title), href ? el('span', { className: 'tile-go' }, svg('arrow')) : null);
       const button = (title, href) => el('a', { className: 'btn', href }, svg('plus'), title);
       const tile = (cls, color, ...kids) => { const t = el('article', { className: `card tile ${cls}`.trim() }, ...kids); t.style.setProperty('--c', color); return t; };
       const TILES = {
         workspace: () => tile('big', 'var(--accent-2)',
-          head('workspace', s.workspaceTitle, link('workspace/')),
+          head('clock', 'Recent'),
           items.length
-            ? el('ul', { className: 'recent' }, items.slice(0, 6).map((it) => el('li', {}, el('a', { href: link(`workspace/#${it.kind}/${it.id}`) },
+            ? el('ul', { className: 'recent' }, items.slice(0, 6).map((it) => el('li', {}, el('a', { href: f.workspace.link(it) },
               svg(ICON[it.kind] || 'note'), el('span', {}, it.title || 'Untitled'), el('small', {}, ago(it.edited))))))
-            : el('p', { className: 'muted' }, 'Notes, a database of docs and sheets, and code, kept in this browser.'),
-          el('div', { className: 'row' }, button('New note', link('workspace/#new/note')), button('New doc', link('workspace/#new/doc')))),
+            : el('p', { className: 'muted' }, `What you work on in ${s.dataTitle}, ${s.codeTitle} and ${s.notesTitle} shows here. It’s all kept in this browser.`),
+          el('div', { className: 'row' }, button('New note', link('notes/#new/note')), button('New file', link('code/#new/code')))),
         study: () => {
           const last = f.last(), done = last ? Math.max(0, last.learned || 0) : 0, of = last ? Math.max(1, last.total || 1) : 1;
           return tile('', 'var(--accent)', head('study', s.studyTitle, link('study/')), ...(last ? [
@@ -138,11 +138,11 @@
         data: () => {
           const tables = items.filter((it) => it.kind === 'table'), size = (t) => (Array.isArray(t.rows) ? t.rows.length : 0);
           const sizes = tables.slice(0, 8).map(size), most = Math.max(1, ...sizes), rows = tables.reduce((n, t) => n + size(t), 0);
-          return tile('', 'var(--good)', head('table', 'Data', link(tables.length ? 'workspace/#database' : 'workspace/#new/table')),
-            el('p', { className: 'muted' }, tables.length ? `${plural(tables.length, 'sheet')}, ${plural(rows, 'row')}` : 'No sheets yet. They live in your workspace’s Database.'),
+          return tile('', 'var(--good)', head('database', s.dataTitle, link('data/')),
+            el('p', { className: 'muted' }, tables.length ? `${plural(tables.length, 'sheet')}, ${plural(rows, 'row')}` : 'No sheets yet. They go in your databases.'),
             tables.length
               ? el('div', { className: 'bars', 'aria-hidden': 'true' }, sizes.map((n, i) => { const bar = el('span', { style: `height:${Math.max(14, Math.round((100 * n) / most))}%` }); bar.style.setProperty('--n', i); return bar; }))
-              : el('div', { className: 'row' }, button('New sheet', link('workspace/#new/table'))));
+              : el('div', { className: 'row' }, button('New sheet', link('data/#new/table'))));
         },
         quick: () => tile('wide', 'var(--plot2)',
           el('div', { className: 'quick-label' }, el('span', { className: 'tile-ic' }, svg('bolt')), 'Quick'),

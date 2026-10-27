@@ -6,7 +6,7 @@ My personal web playground, live at https://trixwotel.github.io/Fluentio/
 
 Every branch is one part of the site. A push to any of them puts the whole site back together and deploys it with the workflow in .github/workflows/pages.yml (the same file is on every branch).
 
-* **space** is served at the top: the home page, the Study page (study/), the Workspace (workspace/) and Settings (settings/). It also holds settings.js (see below) and kit/: the look and the bar every page shares, and the test runner and question toolkit that the Math, Science, Physics and Spanish tests share.
+* **space** is served at the top: the home page, Modules (study/), Data, Code and Notes (data/, code/ and notes/, one app kept in workspace/) and Settings (settings/). It also holds settings.js (see below) and kit/: the look and the bar every page shares, and the test runner and question toolkit that the Math, Science, Physics and Spanish tests share.
 * **geography** is served at /geography: find countries or capitals on the world map, or one continent at a time.
 * **math** is served at /math: Triangle Angles (220 variants) and AMC 10 Practice (1,404 variants, 117 topics, from problem 1 hard to problem 25 hard).
 * **science** is served at /science: Heat Capacity with Q = mcΔT (220 variants).
@@ -17,14 +17,14 @@ There is no build step. The files are served as they are.
 
 ## The pages
 
-Every page has the same bar at the top: Home, Study and Workspace, Search, and Settings.
+Every page has the same bar at the top: Home, Modules, Data, Code and Notes, Search, and Settings.
 
-* **Home** has a tile for each part: Workspace (what you worked on last), Study (Continue, with the topic you were learning and how far along that test you are), Data (your sheets) and Quick (a row of buttons from settings.js).
-* **Study** lists the subjects, with what you've learned and your best scores in each.
-* **Workspace** has three tabs. **Notes** keeps Markdown notes in folders, where [[a note's name]] links to another note and the right side shows the outline and the links both ways. **Database** holds databases (one can hold more), each with its docs and sheets. A doc is your own writing, with a Google Docs, Slides or Sheets link to open beside it, and a sheet takes CSV in and out and shows each column's numbers. **Code** keeps files in HTML, CSS, JavaScript, Python, Java and C++, in folders too, with their words in color. JavaScript and Python run right there (Python with Pyodide, which downloads the first time it runs), an HTML page shows in a preview with the CSS and JavaScript files it links, and Java and C++ download to run on a computer. Everything shows as cards, folders and databases first: drag a card onto a folder to move it, or drop files from your computer to add them. Each tab's View menu sorts its cards and turns its own animations off. All of it stays in your browser, never in this repo, so download a backup in Settings now and then.
-* **Settings** picks a theme (Fluentio, Fluent with the Fluent browser's own pure black look, or GitHub with GitHub's colors) or changes each part of the look: the colors (or a ready-made pair), light or dark, the style, font, corners, motion (with each Workspace tab's animations on their own), the home page's tiles and buttons, and the names. Each change shows straight away and stays in that browser. Copy as settings.js turns them into a new settings.js to paste here for every device. Settings also downloads and restores a backup of everything Fluentio keeps in the browser.
+* **Home** has a tile for each part: Recent (what you worked on last in Data, Code and Notes), Modules (Continue, with the topic you were learning and how far along that test you are), Data (your sheets) and Quick (a row of buttons from settings.js).
+* **Modules** lists the subjects, with what you've learned and your best scores in each.
+* **Data**, **Code** and **Notes** are where your own things live, each a space of its own in the bar (one app, in workspace/). **Notes** keeps Markdown notes in folders, where [[a note's name]] links to another note and the right side shows the outline and the links both ways. **Data** holds databases (one can hold more), each with its docs and sheets. A doc is your own writing, with a Google Docs, Slides or Sheets link to open beside it, and a sheet takes CSV in and out and shows each column's numbers. **Code** keeps files in HTML, CSS, JavaScript, Python, Java and C++, in folders too, with their words in color. JavaScript and Python run right there (Python with Pyodide, which downloads the first time it runs), an HTML page shows in a preview with the CSS and JavaScript files it links, and Java and C++ download to run on a computer. Everything shows as cards, folders and databases first: drag a card onto a folder to move it, or drop files from your computer to add them. Each space's View menu sorts its cards and turns its own animations off. All of it stays in your browser, never in this repo, so download a backup in Settings now and then. A link from when they were the Workspace goes on to where that thing is now.
+* **Settings** picks a theme (Fluentio, Fluent with the Fluent browser's own pure black look, or GitHub with GitHub's colors) or changes each part of the look: the colors (or a ready-made pair), light or dark, the style, font, corners, motion (with Data, Code and Notes each on their own), the home page's tiles and buttons, and the names. Each change shows straight away and stays in that browser. Copy as settings.js turns them into a new settings.js to paste here for every device. Settings also downloads and restores a backup of everything Fluentio keeps in the browser.
 
-Keys: ⌃K (or /) searches everything, and ⌃1, ⌃2 and ⌃3 go to Home, Study and Workspace (on Windows and Linux, Alt with the number). Settings → Keys can change each one: click it and press the new key.
+Keys: ⌃K (or /) searches everything, and ⌃1 to ⌃5 go to Home, Modules, Data, Code and Notes (on Windows and Linux, Alt with the number). Settings → Keys can change each one: click it and press the new key.
 
 ## Settings
 
@@ -37,10 +37,10 @@ Keys: ⌃K (or /) searches everything, and ⌃1, ⌃2 and ⌃3 go to Home, Study
 * **font** is 'system', 'rounded', 'serif', 'mono' or any CSS font list, and **corners** is how round the cards and buttons are, in pixels.
 * **style** is 'glow' (soft shadows, glowing edges and gradients) or 'flat' (borders and solid colors, like GitHub).
 * **textSize** is how big the words are, in pixels (12 to 20).
-* **keys** are the keys for search, home, study and workspace, written like 'Ctrl+K' (Ctrl, Alt, Shift or Meta with a key, Meta being ⌘ on a Mac). An empty one ('') turns that key off.
-* **animations** turns every animation on or off, **speed** makes them faster (2) or slower (0.5), and **floatingColors** turns the soft colors drifting behind the pages on or off. **workspaceAnimations** turns the animations in each of the Workspace's tabs (notes, database and code) on or off. A device set to reduce motion never gets the animations.
-* **home** is the home page's tiles in order ('workspace', 'study', 'data' and 'quick'), and **quick** the Quick tile's buttons, each a title and a link.
-* **workspaceTitle** is the Workspace's name. **studyTitle**, **studyIntro** and **study** are the Study page: its title, the line under it, and the subjects in order, each with an emoji, its words, a link and its own color.
+* **keys** are the keys for search, home, study (Modules), data, code and notes, written like 'Ctrl+K' (Ctrl, Alt, Shift or Meta with a key, Meta being ⌘ on a Mac). An empty one ('') turns that key off.
+* **animations** turns every animation on or off, **speed** makes them faster (2) or slower (0.5), and **floatingColors** turns the soft colors drifting behind the pages on or off. **animationsIn** turns the animations in Data, Code and Notes on or off, each on its own. A device set to reduce motion never gets the animations.
+* **home** is the home page's tiles in order ('workspace' for Recent, 'study', 'data' and 'quick'), and **quick** the Quick tile's buttons, each a title and a link.
+* **dataTitle**, **codeTitle** and **notesTitle** are the names of Data, Code and Notes. **studyTitle**, **studyIntro** and **study** are Modules (the study/ page): its title, the line under it, and the subjects in order, each with an emoji, its words, a link and its own color.
 
 A typo can't break the site. Anything missing or mistyped falls back to the usual look.
 

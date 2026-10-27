@@ -2,9 +2,9 @@
 // is drawn. Every page loads it as a plain script in its <head>, right after settings.js. The settings are the built-in
 // ones, then settings.js over them, then what the Settings page saved in this browser (fluentio.look) over those.
 // It also gives the page window.fluentio: the settings (anything missing or mistyped filled in from the built-in ones),
-// the site's top folder, link() for the links in the settings, the Workspace's items (kept in this browser), the icons,
-// el() and svg() to build things with, and save() and reset() for the Settings page. It puts the site's name in the
-// page's title, fills in any element marked data-fill="footer" (or another of the settings' words), and adds the
+// the site's top folder, link() for the links in the settings, your data, code and notes (kept in this browser), the
+// icons, el() and svg() to build things with, and save() and reset() for the Settings page. It puts the site's name in
+// the page's title, fills in any element marked data-fill="footer" (or another of the settings' words), and adds the
 // drifting colors behind the page.
 (() => {
   const DEFAULTS = {
@@ -18,16 +18,18 @@
       dark: { ocean: '#0c1828', land: '#23272e', country: '#4d5768', border: '#151920', late: '#d29922' },
     },
     font: 'system', corners: 14, style: 'glow', textSize: 16, animations: true, speed: 1, floatingColors: true,
-    workspaceAnimations: { notes: true, database: true, code: true },
-    keys: { search: 'Ctrl+K', home: 'Ctrl+1', study: 'Ctrl+2', workspace: 'Ctrl+3' },
+    animationsIn: { data: true, code: true, notes: true },
+    keys: { search: 'Ctrl+K', home: 'Ctrl+1', study: 'Ctrl+2', data: 'Ctrl+3', code: 'Ctrl+4', notes: 'Ctrl+5' },
     home: ['workspace', 'study', 'data', 'quick'],
     quick: [
-      { title: 'New note', link: 'workspace/#new/note' },
-      { title: 'New sheet', link: 'workspace/#new/table' },
+      { title: 'New note', link: 'notes/#new/note' },
+      { title: 'New sheet', link: 'data/#new/table' },
       { title: 'Start AMC test', link: 'math/#amc10/test' },
     ],
-    workspaceTitle: 'Workspace',
-    studyTitle: 'Study',
+    dataTitle: 'Data',
+    codeTitle: 'Code',
+    notesTitle: 'Notes',
+    studyTitle: 'Modules',
     studyIntro: 'Pick a subject. Take a test, learn it one topic at a time, or practise any question.',
     study: [
       { emoji: '🌍', title: 'Geography', text: 'Find countries and capitals on the world map, or one continent at a time.', link: 'geography/', color: '#1f9d74' },
@@ -165,6 +167,7 @@
     move: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 13h6M12.5 10.5 15 13l-2.5 2.5"/>',
     eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
     stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     bolt: '<path d="M13 3 4 14h7l-1 7 9-11h-7z"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
     arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
@@ -217,16 +220,22 @@
   // the site's top folder (this file is in its kit folder), for the links in the settings
   const here = document.currentScript && document.currentScript.src;
   const root = here ? new URL('..', here).href : new URL('./', location.href).href;
+  // where each kind of thing (and of folder) lives: notes in notes/, docs and sheets in data/, code files in code/
+  const SPACES = { note: 'notes', doc: 'data', table: 'data', code: 'code', notes: 'notes', database: 'data' };
+  const spaceOf = (x) => { const k = x.kind ?? x.tab; return typeof k === 'string' && Object.hasOwn(SPACES, k) ? SPACES[k] : 'notes'; };
   window.fluentio = {
     settings: s, site, DEFAULTS, FONTS, root, read, write, el, svg, icon, key,
     link: (href) => new URL(String(href || ''), root).href,
     moving: () => s.animations !== false && !matchMedia('(prefers-reduced-motion: reduce)').matches,
-    // the Workspace's notes, docs, sheets and code, and its folders: kept in this browser only (Settings can download a
-    // backup). Each thing and folder has its folder's id as parent ('' for the top of its tab)
+    // your docs and sheets (Data), code (Code) and notes (Notes), and their folders: kept in this browser only (Settings
+    // can download a backup). Each thing and folder has its folder's id as parent ('' for the top of its space)
     workspace: {
       items: () => { const w = read('fluentio.workspace'); return plain(w) && Array.isArray(w.items) ? w.items.filter((x) => plain(x) && typeof x.id === 'string') : []; },
       save: (items) => write('fluentio.workspace', { v: 1, items }),
       folders: () => { const w = read('fluentio.workspace.folders'); return plain(w) && Array.isArray(w.folders) ? w.folders.filter((x) => plain(x) && typeof x.id === 'string') : []; },
+      // the space a thing or folder is in (its folder on the site), and a link to it there
+      space: spaceOf,
+      link: (x) => new URL(`${spaceOf(x)}/#${x.kind ? `${x.kind}/${x.id}` : `folder/${x.id}`}`, root).href,
     },
     // the topic Learn was last on (tests.js keeps it), for Continue on the home page
     last: () => { const l = read('fluentio.last'); return plain(l) && typeof l.href === 'string' && /^\/(?!\/)/.test(l.href) ? l : null; },

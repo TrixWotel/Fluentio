@@ -1,7 +1,7 @@
 // Settings: everything settings.js holds, changed here, each change showing straight away. What's changed stays in this
 // browser (look.js keeps it as fluentio.look, over settings.js), and "Copy as settings.js" turns all of it into a new
 // settings.js to paste on GitHub for every device. Also here: the keys, and a backup of everything Fluentio keeps in
-// this browser (the Workspace, these settings, learning progress and best scores).
+// this browser (your data, code and notes, these settings, learning progress and best scores).
 const f = window.fluentio;
 const { el, svg } = f;
 const $ = (id) => document.getElementById(id);
@@ -124,7 +124,7 @@ const COLORS = [
   ['second', 'Graphs', 'The second line on graphs and drawings'],
 ];
 const MAP = [['ocean', 'Ocean'], ['land', 'Land'], ['country', 'Countries'], ['border', 'Borders'], ['late', 'Found late', 'A country found after a wrong try']];
-const TILES = () => ({ workspace: s.workspaceTitle, study: s.studyTitle, data: 'Data', quick: 'Quick' });
+const TILES = () => ({ workspace: 'Recent', study: s.studyTitle, data: s.dataTitle, quick: 'Quick' });
 const shown = () => (s.theme === 'dark' || s.theme === 'light' ? s.theme : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 let palette = shown();                              // which colors the Colors panel changes
 
@@ -188,12 +188,12 @@ function colors() {
 
 function motion() {
   const value = el('span', { className: 'value' }, `${s.speed}×`);
-  const tabs = s.workspaceAnimations || (s.workspaceAnimations = { notes: true, database: true, code: true });
+  const each = s.animationsIn || (s.animationsIn = { data: true, code: true, notes: true });
   return el('section', { className: 'panel', id: 'motion' }, el('h2', {}, 'Motion'),
     set('Animations', 'Off stops every animation. A device set to reduce motion never gets them.', toggle(s.animations, (v) => { s.animations = v; save(); }, 'Animations')),
-    set('In the Workspace', 'Each tab’s animations on their own. Its View menu has the same switch.',
-      el('div', { className: 'pairs' }, [['notes', 'Notes'], ['database', 'Database'], ['code', 'Code']].map(([k, name]) => el('label', { className: 'pair' },
-        toggle(tabs[k] !== false, (v) => { tabs[k] = v; save(); }, `Animations in the Workspace’s ${name} tab`), name)))),
+    set('Each space', `The animations in ${s.dataTitle}, ${s.codeTitle} and ${s.notesTitle}, each on its own. Each one’s View menu has its switch too.`,
+      el('div', { className: 'pairs' }, [['data', s.dataTitle], ['code', s.codeTitle], ['notes', s.notesTitle]].map(([k, name]) => el('label', { className: 'pair' },
+        toggle(each[k] !== false, (v) => { each[k] = v; save(); }, `Animations in ${name}`), name)))),
     set('Speed', '1× is normal. Higher is faster.',
       el('input', { type: 'range', min: 0.5, max: 2, step: 0.25, value: s.speed, 'aria-label': 'Speed', oninput: (e) => { s.speed = +e.target.value; value.textContent = `${s.speed}×`; save(); } }), value),
     set('Drifting colors', 'The soft colors moving slowly behind the pages.', toggle(s.floatingColors, (v) => { s.floatingColors = v; save(); }, 'Drifting colors')));
@@ -210,7 +210,7 @@ function home() {
     el('button', { type: 'button', className: 'icon-btn', title: 'Move down', 'aria-label': `Move ${names[k]} down`, disabled: i === order.length - 1, onclick: () => { [order[i + 1], order[i]] = [order[i], order[i + 1]]; place(order); save(); draw(); } }, svg('chevron')))));
   const quick = el('ul', { className: 'list quick-list' }, s.quick.map((q, i) => el('li', { className: 'quick' },
     el('input', { className: 'input', value: q.title, 'aria-label': 'Button name', placeholder: 'Name', oninput: (e) => { q.title = e.target.value; save(); } }),
-    el('input', { className: 'input link', value: q.link, 'aria-label': 'Where it goes', placeholder: 'workspace/#new/note, or a web address', spellcheck: false, oninput: (e) => { q.link = e.target.value.trim(); save(); } }),
+    el('input', { className: 'input link', value: q.link, 'aria-label': 'Where it goes', placeholder: 'notes/#new/note, or a web address', spellcheck: false, oninput: (e) => { q.link = e.target.value.trim(); save(); } }),
     el('button', { type: 'button', className: 'icon-btn', title: 'Remove', 'aria-label': `Remove ${q.title || 'this button'}`, onclick: () => { s.quick.splice(i, 1); save(); draw(); } }, svg('x')))));
   return el('section', { className: 'panel', id: 'home' }, el('h2', {}, 'Home'),
     set('Name', 'At the top of the home page and the bar, and in every tab’s title.', text(s.name, (v) => { s.name = v; save(); }, 'Name')),
@@ -219,19 +219,21 @@ function home() {
     set('Greeting', 'Good morning, Good afternoon or Good evening above the name.', toggle(s.greeting, (v) => { s.greeting = v; save(); }, 'Greeting')),
     set('Tiles', 'Which show on the home page, and in what order.', tiles),
     set('Quick buttons', 'The Quick tile’s buttons: a name, and where each goes.', quick,
-      el('button', { type: 'button', className: 'btn', onclick: () => { s.quick.push({ title: 'New button', link: 'workspace/' }); save(); draw(); panels.querySelector('#home .quick-list li:last-child input')?.select(); } }, svg('plus'), 'Add a button')));
+      el('button', { type: 'button', className: 'btn', onclick: () => { s.quick.push({ title: 'New button', link: 'notes/' }); save(); draw(); panels.querySelector('#home .quick-list li:last-child input')?.select(); } }, svg('plus'), 'Add a button')));
 }
 
 function names() {
   return el('section', { className: 'panel', id: 'names' }, el('h2', {}, 'Names'),
-    set('Study', 'The Study page’s title, in the bar and on the home page.', text(s.studyTitle, (v) => { s.studyTitle = v; save(); }, 'Study’s name')),
-    set('Study’s line', 'Under the Study page’s title.', text(s.studyIntro, (v) => { s.studyIntro = v; save(); }, 'Study’s line', { long: true })),
-    set('Workspace', 'The Workspace’s name, in the bar and on the home page.', text(s.workspaceTitle, (v) => { s.workspaceTitle = v; save(); }, 'Workspace’s name')));
+    set('Modules', 'The subjects’ page: its name in the bar, on its page and on the home page.', text(s.studyTitle, (v) => { s.studyTitle = v; save(); }, 'Modules’ name')),
+    set('Modules’ line', 'Under its name on its page.', text(s.studyIntro, (v) => { s.studyIntro = v; save(); }, 'Modules’ line', { long: true })),
+    set('Data', 'Your databases of docs and sheets: its name in the bar and on its page.', text(s.dataTitle, (v) => { s.dataTitle = v; save(); }, 'Data’s name')),
+    set('Code', 'Your code: its name in the bar and on its page.', text(s.codeTitle, (v) => { s.codeTitle = v; save(); }, 'Code’s name')),
+    set('Notes', 'Your notes: its name in the bar and on its page.', text(s.notesTitle, (v) => { s.notesTitle = v; save(); }, 'Notes’ name')));
 }
 
 // a key you can change: click it, then press the new one. Esc keeps the old one, Delete (or Backspace) turns it off,
 // and a key another action had moves here (that one is left with none)
-const ACTIONS = () => [['search', 'Search', 'Pages, subjects and your workspace. / works too, when you aren’t typing.'], ['home', 'Home', ''], ['study', s.studyTitle, ''], ['workspace', s.workspaceTitle, '']];
+const ACTIONS = () => [['search', 'Search', 'Pages, subjects, and your data, code and notes. / works too, when you aren’t typing.'], ['home', 'Home', ''], ['study', s.studyTitle, ''], ['data', s.dataTitle, ''], ['code', s.codeTitle, ''], ['notes', s.notesTitle, '']];
 // (keys a browser usually keeps for itself, like ⌘T, or ⌘K in Fluent, never reach the page)
 const kept = (k) => { const t = f.key.meant(k); return /^(Shift\+)?Meta\+([0-9TWNQRLKEPSFDHMYZXCVAOG,])$/.test(t) || /^Ctrl\+(Shift\+)?Tab$/.test(t); };
 let recording = null;                               // how to stop the key being recorded
@@ -276,8 +278,8 @@ function keys() {
     el('dl', { className: 'keys' },
       row(['↑', '↓', 'Enter'], 'Pick in Search, and open it'),
       row(['Esc'], 'Close Search, or the details pane'),
-      row(['Enter'], 'In a table: the cell below (a new row at the end)'),
-      row(['Tab'], 'In code: two spaces in')));
+      row(['Enter'], 'In a sheet: the cell below (a new row at the end)'),
+      row(['Tab'], 'In code: spaces in')));
 }
 
 function data() {
@@ -293,7 +295,7 @@ function data() {
     try { backup = JSON.parse(await chosen.text()); } catch {}
     if (!backup || backup.app !== 'Fluentio' || !backup.data || typeof backup.data !== 'object') { toast('That isn’t a Fluentio backup'); return; }
     const made = backup.made ? new Date(backup.made).toLocaleString() : 'earlier';
-    confirmIn(panel, `Restore the backup from ${made}? It replaces your workspace, settings and progress in this browser.`, 'Restore', () => {
+    confirmIn(panel, `Restore the backup from ${made}? It replaces your data, code, notes, settings and progress in this browser.`, 'Restore', () => {
       for (const k of ours()) localStorage.removeItem(k);
       for (const [k, v] of Object.entries(backup.data)) if (k.startsWith('fluentio.')) f.write(k, v);
       location.reload();
@@ -308,12 +310,12 @@ function data() {
         toast('Backup downloaded');
       } }, svg('download'), 'Download a backup'),
       el('button', { type: 'button', className: 'btn', onclick: () => file.click() }, svg('upload'), 'Restore a backup'),
-      el('button', { type: 'button', className: 'btn', onclick: () => confirmIn(panel, `Delete everything in your ${s.workspaceTitle.toLowerCase()}? Download a backup first if you might want it back.`, 'Delete it all', () => {
+      el('button', { type: 'button', className: 'btn', onclick: () => confirmIn(panel, `Delete everything in ${s.dataTitle}, ${s.codeTitle} and ${s.notesTitle}? Download a backup first if you might want it back.`, 'Delete it all', () => {
         f.workspace.save([]);
         f.write('fluentio.workspace.folders', null);
-        toast('Your workspace is empty');
+        toast(`${s.dataTitle}, ${s.codeTitle} and ${s.notesTitle} are empty`);
         draw();
-      }) }, svg('trash'), `Empty the ${s.workspaceTitle.toLowerCase()}`),
+      }) }, svg('trash'), `Empty ${s.dataTitle}, ${s.codeTitle} and ${s.notesTitle}`),
       file)));
   return panel;
 }

@@ -1,23 +1,25 @@
-// The Workspace: three tabs, kept in this browser (look.js's fluentio.workspace holds the things, and
-// fluentio.workspace.folders the folders; Settings can download a backup). Notes are Markdown, kept in folders
-// ([[a note's name]] links to it, and Preview shows it laid out). The Database holds databases (one can hold more),
+// Data, Code and Notes: the spaces where your own things live, each a page of its own in the bar (data/, code/ and
+// notes/ each load this, their body's data-tab saying which), kept in this browser (look.js's fluentio.workspace holds
+// the things, and fluentio.workspace.folders the folders; Settings can download a backup). Notes are Markdown, kept in
+// folders ([[a note's name]] links to it, and Preview shows it laid out). Data holds databases (one can hold more),
 // each with its docs (your own writing, and a Google Docs, Slides or Sheets link to open) and sheets (type in them, add
 // rows and columns, CSV in and out). Code keeps files in HTML, CSS, JavaScript, Python, Java and C++ (code.js has the
-// languages), in folders too. A tab or a folder shows what's in it as cards, folders first: drag a card onto a folder,
-// or onto a name in the path above it, to move it there, and drop files from your computer to add them. Each tab's
-// animations can be turned off on their own, in its View menu or in Settings → Motion.
-// Links: #notes, #database and #code open a tab, #folder/<id> a folder, #note/<id> (or doc, table, code) a thing, and
-// #new/note (or doc, table, code) makes one at the top of its tab.
+// languages), in folders too. A space or a folder shows what's in it as cards, folders first: drag a card onto a
+// folder, or onto a name in the path at the top, to move it there, and drop files from your computer to add them.
+// Each space's animations can be turned off on their own, in its View menu or in Settings → Motion.
+// Links: #folder/<id> opens a folder, #note/<id> (or doc, table, code) a thing, and #new/note (or doc, table, code)
+// makes one at the top of its space. A link to something in another space goes on to that space's page.
 import { LANGS, langOf, indent, start, PAGE_SCRIPT, SAMPLE, paint, runJs, runPython, stopPython, pythonRunning, pageFrom, preview } from './code.js';
 
 const f = window.fluentio;
 const { el, svg } = f;
-const $ = (id) => document.getElementById(id);
-const ws = $('ws'), tabsNav = $('tabs'), main = $('main'), info = $('info'), filterBox = $('filter'), viewBtn = $('view-btn'), menu = $('view-menu');
+// (names from a link or from storage could be anything, even 'constructor', so only the lists' own entries count)
+const own = (list, key) => typeof key === 'string' && Object.hasOwn(list, key);
+// each space: its folder on the site (also its word in the animationsIn setting), and the setting with its name
 const TABS = {
-  notes: { name: 'Notes', icon: 'note', color: 'var(--accent-2)', folder: 'Folder', empty: ['No notes yet', 'Keep notes together in folders, or start with a note.'] },
-  database: { name: 'Database', icon: 'database', color: 'var(--good)', folder: 'Database', empty: ['No databases yet', 'A database holds docs and sheets. Make one for each class or project, with more databases inside it if you like.'] },
-  code: { name: 'Code', icon: 'code', color: 'var(--plot2)', folder: 'Folder', empty: ['No code yet', 'A folder keeps a project’s files together, like a web page’s index.html with its style.css and script.js.'] },
+  notes: { path: 'notes', title: 'notesTitle', name: 'Notes', icon: 'note', color: 'var(--accent-2)', folder: 'Folder', empty: ['No notes yet', 'Keep notes together in folders, or start with a note.'] },
+  database: { path: 'data', title: 'dataTitle', name: 'Data', icon: 'database', color: 'var(--good)', folder: 'Database', empty: ['No databases yet', 'A database holds docs and sheets. Make one for each class or project, with more databases inside it if you like.'] },
+  code: { path: 'code', title: 'codeTitle', name: 'Code', icon: 'code', color: 'var(--plot2)', folder: 'Folder', empty: ['No code yet', 'A folder keeps a project’s files together, like a web page’s index.html with its style.css and script.js.'] },
 };
 const KINDS = {
   note: { tab: 'notes', name: 'Note', icon: 'note', color: 'var(--accent-2)', make: () => ({ title: 'Untitled note', text: '' }) },
@@ -26,16 +28,30 @@ const KINDS = {
   code: { tab: 'code', name: 'File', icon: 'code', color: 'var(--plot2)', make: () => ({ title: 'script.js', text: start('js'), input: '' }) },
 };
 const folderIcon = (t) => (t === 'database' ? 'database' : 'folder');
-// (names from a link or from storage could be anything, even 'constructor', so only the lists' own entries count)
-const own = (list, key) => typeof key === 'string' && Object.hasOwn(list, key);
+const tab = own(TABS, document.body.dataset.tab) ? document.body.dataset.tab : 'notes';   // the space this page is
+// a space's name, as Settings has it
+const nameOf = (t) => { const v = f.settings[TABS[t].title]; return typeof v === 'string' && v.trim() ? v.trim() : TABS[t].name; };
+
+// ---------- the page: where you are in the space, with Find and View beside it, then what's open (and for one
+// thing, what's in it, on the right) ----------
+const ws = document.getElementById('ws');
+const where = el('nav', { className: 'crumbs', 'aria-label': 'Where you are' });
+const filterBox = el('input', { className: 'input filter', type: 'search', autocomplete: 'off' });
+const viewBtn = el('button', { type: 'button', className: 'icon-btn', title: 'View', 'aria-label': 'View', 'aria-expanded': 'false', 'aria-controls': 'view-menu' }, svg('settings'));
+const menu = el('div', { className: 'menu', id: 'view-menu', role: 'dialog', 'aria-label': 'View', hidden: true });
+const main = el('section', { className: 'main' });
+const info = el('aside', { className: 'info', 'aria-label': 'Details' });
+ws.replaceChildren(el('div', { className: 'ws-head' }, where, el('div', { className: 'ws-tools' }, filterBox, el('div', { className: 'menu-wrap' }, viewBtn, menu))),
+  el('div', { className: 'ws-body' }, main, info));
+ws.style.setProperty('--k', TABS[tab].color);
 
 // ---------- your things and folders, and saving them ----------
-// (the folders are kept apart from the things, so a Workspace page from before folders, still open in another tab,
-// can't drop them when it saves)
+// (the folders are kept apart from the things, so a page from before folders, still open in another tab, can't drop
+// them when it saves)
 const FOLDERS = 'fluentio.workspace.folders';
 const readFolders = () => { const w = f.read(FOLDERS); return w && Array.isArray(w.folders) ? w.folders.filter((x) => x && typeof x === 'object' && typeof x.id === 'string') : []; };
 const writeFolders = (list) => f.write(FOLDERS, { v: 1, folders: list });
-// a folder as it should be, whatever is in storage: in a folder of its own tab ('' for the top of it), and never in
+// a folder as it should be, whatever is in storage: in a folder of its own space ('' for the top of it), and never in
 // itself or in a folder inside it
 function cleanFolders(list) {
   const out = list.filter((x) => own(TABS, x.tab)).map((x) => ({ id: x.id, tab: x.tab, title: String(x.title ?? ''), parent: typeof x.parent === 'string' ? x.parent : '', made: +x.made || Date.now(), edited: +x.edited || Date.now() }));
@@ -47,8 +63,8 @@ function cleanFolders(list) {
   }
   return out;
 }
-// and a thing: text for notes, docs and code, a sheet's rows all as wide as it, and in a folder of its tab (at the top
-// of it if its folder is gone)
+// and a thing: text for notes, docs and code, a sheet's rows all as wide as it, and in a folder of its space (at the
+// top of it if its folder is gone)
 function cleanItems(list, inFolders) {
   const tabOf = new Map(inFolders.map((x) => [x.id, x.tab]));
   return list.filter((x) => own(KINDS, x.kind)).map((x) => {
@@ -65,20 +81,20 @@ function cleanItems(list, inFolders) {
 }
 let folders = cleanFolders(readFolders());
 let items = cleanItems(f.workspace.items(), folders);
-const shown = f.read('fluentio.ws.tab');
-let tab = own(TABS, shown) ? shown : 'notes', at = '', current = null;   // the tab, the folder open in it ('' its top), the thing open
+let at = '', current = null;                        // the folder open ('' the top of the space), and the thing open in it
 let timer = 0, dirty = false, pending = 0, hooks = {};
-const places = { notes: '#notes', database: '#database', code: '#code' };   // where you were in each tab, this visit
 const sorting = f.read('fluentio.ws.sort');
 const sorts = Object.fromEntries(Object.keys(TABS).map((t) => [t, ['edited', 'name'].includes(sorting?.[t]) ? sorting[t] : t === 'code' ? 'name' : 'edited']));
 const modes = new Map();                            // a note's Edit or Preview, for this visit
 const byId = (id) => items.find((x) => x.id === id);
 const folderById = (id) => (id ? folders.find((x) => x.id === id) : undefined);
 const tabOf = (x) => (x.kind ? KINDS[x.kind].tab : x.tab);
-const hashOf = (x) => (x.kind ? `#${x.kind}/${x.id}` : `#folder/${x.id}`);
-const placeOf = (t, id) => (id ? `#folder/${id}` : `#${t}`);
+// where a folder or thing is: a link on this page, or to the page of the space it's in
+const linkTo = (x) => { const hash = x.kind ? `#${x.kind}/${x.id}` : `#folder/${x.id}`; return tabOf(x) === tab ? hash : f.link(`${TABS[tabOf(x)].path}/${hash}`); };
+const bare = () => location.pathname + location.search;   // this page with nothing open
+const placeOf = (id) => (id ? `#folder/${id}` : bare());
 const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-// the folders from the top of the tab down to this one, and every folder inside one, however deep
+// the folders from the top of the space down to this one, and every folder inside one, however deep
 const pathTo = (id) => { const out = []; for (let x = folderById(id); x && out.length < 64; x = folderById(x.parent)) out.unshift(x); return out; };
 const below = (id) => folders.filter((x) => x.parent === id).flatMap((x) => [x.id, ...below(x.id)]);
 const byName = (a, b) => (a.title || 'Untitled').localeCompare(b.title || 'Untitled', undefined, { numeric: true, sensitivity: 'base' });
@@ -114,12 +130,12 @@ addEventListener('pagehide', flush);
 addEventListener('beforeunload', flush);
 // a folder's things changed, so it did too (and the ones it's in), for sorting by Newest
 const bump = (id) => { const now = Date.now(); for (const x of pathTo(id)) x.edited = now; };
-// something changed: save it soon, and redraw the tabs and the right side once this frame
+// something changed: save it soon, and redraw the path at the top and the right side once this frame
 function touch(x) {
   x.edited = Date.now();
   bump(x.parent);
   save();
-  if (!pending) pending = requestAnimationFrame(() => { pending = 0; drawTabs(); drawInfo(); });
+  if (!pending) pending = requestAnimationFrame(() => { pending = 0; drawWhere(); drawInfo(); });
 }
 // another tab changed them: take its version, but keep the one you're typing in
 addEventListener('storage', (e) => {
@@ -128,7 +144,7 @@ addEventListener('storage', (e) => {
   const mine = typing ? (current ? byId(current) : folderById(at)) : null;
   folders = cleanFolders(readFolders()).map((x) => (mine && !mine.kind && x.id === mine.id ? mine : x));
   items = cleanItems(f.workspace.items(), folders).map((x) => (mine?.kind && x.id === mine.id ? mine : x));
-  if (mine && (mine.kind ? byId(mine.id) : folderById(mine.id))) { drawTabs(); drawInfo(); return; }
+  if (mine && (mine.kind ? byId(mine.id) : folderById(mine.id))) { drawWhere(); drawInfo(); return; }
   route(false);
 });
 
@@ -138,23 +154,29 @@ function route(fresh = true) {
   try { hash = decodeURIComponent(hash); } catch {}
   const [a, b] = hash.split('/');
   if (a === 'new') return makeFrom(b === 'sheet' ? 'table' : b);
-  if (own(TABS, a) && !b) return browse(a, '', fresh);
-  const folder = a === 'folder' && folderById(b);
-  if (folder) return browse(folder.tab, folder.id, fresh);
-  const it = own(KINDS, a) && byId(b);
-  if (it) return open(it, fresh);
-  history.replaceState(null, '', `#${tab}`);
-  browse(tab, '', fresh);
+  const thing = (a === 'folder' && folderById(b)) || (own(KINDS, a) && byId(b)) || null;
+  // (something in another space opens on that space's page, and so does a link from when the spaces were tabs:
+  // #notes, #database or #code)
+  if (thing && tabOf(thing) !== tab) return location.replace(linkTo(thing));
+  if (own(TABS, a) && !b && a !== tab) return location.replace(f.link(`${TABS[a].path}/`));
+  if (thing) return thing.kind ? open(thing, fresh) : browse(thing.id, fresh);
+  if (location.href.includes('#')) history.replaceState(null, '', bare());
+  browse('', fresh);
 }
 addEventListener('hashchange', () => route());
-// a link that makes something (from Search, the home page or a Quick button) makes it at the top of its tab
+// a link that makes something (from Search, the home page or a Quick button) makes it at the top of its space
 function makeFrom(kind) {
-  if (kind === 'code') { history.replaceState(null, '', '#code'); browse('code', '', true); return choose(); }
-  if (!own(KINDS, kind)) { history.replaceState(null, '', `#${tab}`); return browse(tab, '', true); }
+  if (own(KINDS, kind) && KINDS[kind].tab !== tab) return location.replace(f.link(`${TABS[KINDS[kind].tab].path}/#new/${kind}`));
+  if (!own(KINDS, kind) || kind === 'code') {
+    history.replaceState(null, '', bare());
+    browse('', true);
+    if (kind === 'code') choose();
+    return;
+  }
   make(kind, {}, '', false);
 }
-// something new in a folder ('' the top of its tab); make() opens it with its name ready to type over (on the history,
-// so Back goes to where you were, unless a link made it)
+// something new in a folder ('' the top of its space); make() opens it with its name ready to type over (on the
+// history, so Back goes to where you were, unless a link made it)
 function add(kind, extra, parent) {
   const now = Date.now();
   const it = { id: newId(), kind, ...KINDS[kind].make(), ...extra, parent, made: now, edited: now };
@@ -165,65 +187,79 @@ function add(kind, extra, parent) {
 function make(kind, extra = {}, parent = '', push = true) {
   const it = add(kind, extra, parent);
   save(true);
-  history[push ? 'pushState' : 'replaceState'](null, '', hashOf(it));
+  history[push ? 'pushState' : 'replaceState'](null, '', linkTo(it));
   open(it, true, true);
   return it;
 }
-function makeFolder(t, parent, title, go = true) {
+function makeFolder(parent, title, go = true) {
   const now = Date.now();
-  const x = { id: newId(), tab: t, title: title ?? unique(t, parent, `New ${TABS[t].folder.toLowerCase()}`), parent, made: now, edited: now };
+  const x = { id: newId(), tab, title: title ?? unique(parent, `New ${TABS[tab].folder.toLowerCase()}`), parent, made: now, edited: now };
   folders.push(x);
   bump(parent);
   save(true);
-  if (go) { history.pushState(null, '', hashOf(x)); browse(t, x.id, true, true); }
+  if (go) { history.pushState(null, '', linkTo(x)); browse(x.id, true, true); }
   return x;
 }
 // a name nothing else in that folder has: 'New folder', then 'New folder 2' (or for a file, 'index.html', then 'index2.html')
-function unique(t, parent, name, file = false) {
-  const taken = new Set([...folders.filter((x) => x.tab === t && x.parent === parent), ...items.filter((x) => KINDS[x.kind].tab === t && x.parent === parent)].map((x) => x.title.trim().toLowerCase()));
+function unique(parent, name, file = false) {
+  const taken = new Set([...folders.filter((x) => x.tab === tab && x.parent === parent), ...items.filter((x) => KINDS[x.kind].tab === tab && x.parent === parent)].map((x) => x.title.trim().toLowerCase()));
   if (!taken.has(name.toLowerCase())) return name;
   const [, base, ext = ''] = file ? /^(.*?)(\.[^.]*)?$/.exec(name) : [name, name];
   for (let n = 2; ; n++) { const next = file ? `${base}${n}${ext}` : `${base} ${n}`; if (!taken.has(next.toLowerCase())) return next; }
 }
 function open(it, fresh, naming) {
   current = it.id;
-  enter(KINDS[it.kind].tab, it.parent, hashOf(it));
+  enter(it.parent);
   ws.classList.add('open');
   drawEditor(it, fresh, naming);
   drawInfo();
 }
-function browse(t, id, fresh, naming) {
+function browse(id, fresh, naming) {
   current = null;
-  enter(t, id, placeOf(t, id));
+  enter(id);
   ws.classList.remove('open');
   drawBrowse(fresh, naming);
   drawInfo();
 }
-// going somewhere in a tab: it's remembered (the tab for next time too), and the tab's own animations come with it
-function enter(t, id, hash) {
+function enter(id) {
   closeMenu();
-  if (t !== tab) filterBox.value = '';
-  tab = t;
   at = id;
-  places[t] = hash;
-  f.write('fluentio.ws.tab', t);
   ws.classList.remove('details');
-  ws.style.setProperty('--k', TABS[t].color);
-  filterBox.placeholder = `Find in ${TABS[t].name}`;
   motion();
-  drawTabs();
+  drawWhere();
   setTitle();
 }
 function setTitle() {
-  const it = byId(current), x = folderById(at);
-  document.title = `${it ? it.title || 'Untitled' : x ? x.title || 'Untitled' : TABS[tab].name} · ${f.settings.workspaceTitle} · ${f.settings.name}`;
+  const it = byId(current), x = folderById(at), name = nameOf(tab);
+  document.title = `${it || x ? `${(it || x).title || 'Untitled'} · ` : ''}${name} · ${f.settings.name}`;
+  filterBox.placeholder = `Find in ${name}`;
+  filterBox.setAttribute('aria-label', `Find in ${name}`);
+  main.setAttribute('aria-label', name);
+}
+// where you are: the space (its top, without loading the page again), then each folder down to the open one, each
+// taking a card dropped on it
+function drawWhere() {
+  const step = (x) => {
+    const a = el('a', { href: x ? linkTo(x) : bare() }, x ? null : svg(TABS[tab].icon), x ? x.title || 'Untitled' : nameOf(tab));
+    if (!x) a.addEventListener('click', (e) => {
+      if (e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      filterBox.value = '';
+      if (location.hash) history.pushState(null, '', bare());
+      route();
+    });
+    dropOn(a, x ? x.id : '');
+    return a;
+  };
+  where.replaceChildren(step(null), ...pathTo(at).flatMap((x) => [el('span', { className: 'sep', 'aria-hidden': 'true' }, '›'), step(x)]));
+  if (!current) where.lastElementChild.setAttribute('aria-current', 'location');
 }
 function remove(it) {
   items = items.filter((x) => x !== it);
   bump(it.parent);
   save(true);
-  history.replaceState(null, '', placeOf(KINDS[it.kind].tab, it.parent));
-  browse(KINDS[it.kind].tab, it.parent, true);
+  history.replaceState(null, '', placeOf(it.parent));
+  browse(it.parent, true);
 }
 // a folder goes with everything in it
 function removeFolder(x) {
@@ -232,11 +268,11 @@ function removeFolder(x) {
   items = items.filter((y) => !gone.has(y.parent));
   bump(x.parent);
   save(true);
-  history.replaceState(null, '', placeOf(x.tab, x.parent));
-  browse(x.tab, x.parent, true);
+  history.replaceState(null, '', placeOf(x.parent));
+  browse(x.parent, true);
 }
-// whether a folder or thing can go into a folder ('' the top of its tab): the same tab, somewhere it isn't yet, and for
-// a folder, not into itself or into one inside it
+// whether a folder or thing can go into a folder ('' the top of its space): the same space, somewhere it isn't yet,
+// and for a folder, not into itself or into one inside it
 function canMove(x, id) {
   const into = folderById(id);
   if ((id && (!into || into.tab !== tabOf(x))) || x.parent === id) return false;
@@ -251,38 +287,16 @@ function moveTo(x, id) {
   route(false);
 }
 
-// ---------- the tabs, and each one's View menu ----------
-const mark = el('span', { className: 'tab-mark', 'aria-hidden': 'true' });
-const tabLinks = Object.fromEntries(Object.entries(TABS).map(([t, T]) => {
-  const a = el('a', { className: 'tab' }, svg(T.icon), el('span', { className: 'tab-name' }, T.name), el('small', { className: 'tab-n' }));
-  a.style.setProperty('--k', T.color);
-  return [t, a];
-}));
-tabsNav.append(mark, ...Object.values(tabLinks));
-function drawTabs() {
-  for (const [t, a] of Object.entries(tabLinks)) {
-    const on = t === tab, n = items.filter((x) => KINDS[x.kind].tab === t).length;
-    a.classList.toggle('on', on);
-    a.href = on ? `#${t}` : places[t];       // (the tab you're in goes back to its top)
-    if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
-    a.lastChild.textContent = String(n);
-  }
-  placeMark();
-}
-// the raised mark under the tab you're in, which slides to the next one
-function placeMark() {
-  const on = tabsNav.querySelector('.tab.on');
-  if (!on || !on.offsetWidth) return;
-  mark.style.width = `${on.offsetWidth}px`;
-  mark.style.transform = `translateX(${on.offsetLeft}px)`;
-  if (!tabsNav.classList.contains('ready')) requestAnimationFrame(() => tabsNav.classList.add('ready'));
-}
-new ResizeObserver(placeMark).observe(tabsNav);
-
-// this tab's animations: on, unless Settings (or the device) turns them all off or this tab's are off
-const moving = () => f.moving() && f.settings.workspaceAnimations?.[tab] !== false;
+// ---------- the View menu: sorting, and this space's animations ----------
+// (on, unless Settings or the device turns them all off, or this space's are off)
+const moving = () => f.moving() && f.settings.animationsIn?.[TABS[tab].path] !== false;
 const motion = () => ws.classList.toggle('still', !moving());
-addEventListener('fluentio:settings', () => { motion(); setTitle(); });
+addEventListener('fluentio:settings', () => {
+  motion();
+  setTitle();
+  drawWhere();
+  if (!current && !main.contains(document.activeElement)) drawBrowse(false);
+});
 function seg(options, value, pick, label) {
   const box = el('div', { className: 'seg', role: 'group', 'aria-label': label });
   for (const [v, name] of options) {
@@ -295,17 +309,17 @@ function seg(options, value, pick, label) {
   return box;
 }
 function drawMenu() {
-  const T = TABS[tab], all = f.settings.animations !== false;
-  const sw = el('input', { type: 'checkbox', className: 'switch', checked: all && f.settings.workspaceAnimations?.[tab] !== false, disabled: !all, 'aria-label': `Animations in ${T.name}`,
-    onchange: () => f.save({ ...f.settings, workspaceAnimations: { ...f.settings.workspaceAnimations, [tab]: sw.checked } }) });
+  const name = nameOf(tab), key = TABS[tab].path, all = f.settings.animations !== false;
+  const sw = el('input', { type: 'checkbox', className: 'switch', checked: all && f.settings.animationsIn?.[key] !== false, disabled: !all, 'aria-label': `Animations in ${name}`,
+    onchange: () => f.save({ ...f.settings, animationsIn: { ...f.settings.animationsIn, [key]: sw.checked } }) });
   menu.replaceChildren(
     el('div', { className: 'menu-row' }, el('span', {}, 'Sort'), seg([['edited', 'Newest'], ['name', 'A to Z']], sorts[tab], (v) => {
       sorts[tab] = v;
       f.write('fluentio.ws.sort', sorts);
       if (!current) drawBrowse(false);
     }, 'Sort')),
-    el('label', { className: 'menu-row' }, el('span', {}, `Animations in ${T.name}`), sw),
-    el('small', {}, all ? `Only in ${T.name}: the other tabs keep their own.` : 'Animations are off everywhere, in Settings.'),
+    el('label', { className: 'menu-row' }, el('span', {}, `Animations in ${name}`), sw),
+    el('small', {}, all ? `Only in ${name}: the other spaces keep their own.` : 'Animations are off everywhere, in Settings.'),
     el('a', { href: f.link('settings/#motion') }, 'Motion settings'));
 }
 function closeMenu() {
@@ -313,7 +327,6 @@ function closeMenu() {
   viewBtn.setAttribute('aria-expanded', 'false');
   viewBtn.classList.remove('on');
 }
-viewBtn.append(svg('settings'));
 viewBtn.addEventListener('click', () => {
   if (!menu.hidden) return closeMenu();
   drawMenu();
@@ -327,15 +340,15 @@ addEventListener('keydown', (e) => {
   if (!menu.hidden) { closeMenu(); viewBtn.focus(); }
   else if (ws.classList.contains('details')) ws.classList.remove('details');
 });
-// typing in Find shows what matches anywhere in the tab, as cards
+// typing in Find shows what matches anywhere in the space, as cards
 filterBox.addEventListener('input', () => {
   const it = byId(current);
   if (!it) return drawBrowse(false);
-  history.pushState(null, '', placeOf(tab, it.parent));
-  browse(tab, it.parent, false);
+  history.pushState(null, '', placeOf(it.parent));
+  browse(it.parent, false);
 });
 
-// ---------- a tab or a folder: what's in it, as cards ----------
+// ---------- a space or a folder: what's in it, as cards ----------
 const ago = (t) => {
   const m = Math.round((Date.now() - t) / 60000);
   return m < 1 ? 'just now' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : m < 43200 ? `${Math.round(m / 1440)} d ago`
@@ -355,7 +368,7 @@ function badge(L, small) {
 }
 const iconOf = (x) => (x.kind === 'code' ? badge(langOf(x.title), true) : svg(x.kind ? KINDS[x.kind].icon : folderIcon(x.tab)));
 // where a found card is
-const whereLine = (id) => el('p', { className: 't-where' }, `in ${[TABS[tab].name, ...pathTo(id).map((x) => x.title || 'Untitled')].join(' › ')}`);
+const whereLine = (id) => el('p', { className: 't-where' }, `in ${[nameOf(tab), ...pathTo(id).map((x) => x.title || 'Untitled')].join(' › ')}`);
 const PREVIEW = {
   note: (it) => el('p', { className: 't-text' }, gist(it.text) || 'Nothing written yet.'),
   doc: (it) => el('p', { className: 't-text' }, gist(it.text) || (/^https?:\/\//.test(it.link) ? `A ${linkKind(it.link)} to open.` : 'Nothing written yet.')),
@@ -372,10 +385,10 @@ function folderCard(x, q) {
   const k = inside(x.tab, x.id), first = [...k.folders, ...k.items];
   const card = el('article', { className: `card thing folder${x.tab === 'database' ? ' base' : ''}`, draggable: true },
     x.tab === 'database' ? null : el('span', { className: 'flap', 'aria-hidden': 'true' }),
-    el('a', { className: 'thing-link', href: hashOf(x), draggable: false }, el('span', { className: 't-ic' }, svg(folderIcon(x.tab))), el('span', { className: 't-name' }, x.title || 'Untitled')),
+    el('a', { className: 'thing-link', href: linkTo(x), draggable: false }, el('span', { className: 't-ic' }, svg(folderIcon(x.tab))), el('span', { className: 't-name' }, x.title || 'Untitled')),
     q ? whereLine(x.parent) : null,
     first.length
-      ? el('ul', { className: 't-list' }, first.slice(0, 4).map((y) => el('li', {}, el('a', { href: hashOf(y), draggable: false }, iconOf(y), el('span', {}, y.title || 'Untitled')))),
+      ? el('ul', { className: 't-list' }, first.slice(0, 4).map((y) => el('li', {}, el('a', { href: linkTo(y), draggable: false }, iconOf(y), el('span', {}, y.title || 'Untitled')))),
         first.length > 4 ? el('li', { className: 'more' }, `and ${first.length - 4} more`) : null)
       : el('p', { className: 't-text' }, `Nothing in this ${TABS[x.tab].folder.toLowerCase()} yet.`),
     el('p', { className: 't-meta' }, [first.length ? summary(x.tab, x.id) : '', ago(x.edited)].filter(Boolean).join(' · ')));
@@ -387,7 +400,7 @@ function folderCard(x, q) {
 function itemCard(it, q) {
   const K = KINDS[it.kind];
   const card = el('article', { className: 'card thing', draggable: true },
-    el('a', { className: 'thing-link', href: hashOf(it), draggable: false }, it.kind === 'code' ? badge(langOf(it.title)) : el('span', { className: 't-ic' }, svg(K.icon)), el('span', { className: 't-name' }, it.title || 'Untitled')),
+    el('a', { className: 'thing-link', href: linkTo(it), draggable: false }, it.kind === 'code' ? badge(langOf(it.title)) : el('span', { className: 't-ic' }, svg(K.icon)), el('span', { className: 't-name' }, it.title || 'Untitled')),
     q ? whereLine(it.parent) : null,
     PREVIEW[it.kind](it),
     el('p', { className: 't-meta' }, `${SIZE[it.kind](it)} · ${ago(it.edited)}`));
@@ -395,15 +408,7 @@ function itemCard(it, q) {
   dragFrom(card, it);
   return card;
 }
-// the way back up: the tab, then each folder down to this one (each takes a card dropped on it)
-function crumbs(id) {
-  const nav = el('nav', { className: 'crumbs', 'aria-label': 'Where this is' });
-  const step = (href, text, to) => { const a = el('a', { href }, text); dropOn(a, to); return a; };
-  nav.append(step(`#${tab}`, TABS[tab].name, ''));
-  for (const x of pathTo(id)) nav.append(el('span', { className: 'sep', 'aria-hidden': 'true' }, '›'), step(hashOf(x), x.title || 'Untitled', x.id));
-  return nav;
-}
-// everything in the tab that matches, wherever it is
+// everything in the space that matches, wherever it is
 function search(q) {
   const has = (x) => x.title.toLowerCase().includes(q) || (typeof x.text === 'string' && x.text.toLowerCase().includes(q))
     || (x.kind === 'table' && [x.cols, ...x.rows].some((r) => r.some((c) => c.toLowerCase().includes(q))));
@@ -412,7 +417,7 @@ function search(q) {
 // the buttons that make things here
 function makers() {
   const button = (text, go, primary, icon = 'plus') => el('button', { type: 'button', className: 'btn' + (primary ? ' primary' : ''), onclick: go }, svg(icon), text);
-  const folder = (primary) => button(`New ${TABS[tab].folder.toLowerCase()}`, () => makeFolder(tab, at), primary);
+  const folder = (primary) => button(`New ${TABS[tab].folder.toLowerCase()}`, () => makeFolder(at), primary);
   if (tab === 'notes') return [folder(false), button('New note', () => make('note', {}, at), true)];
   if (tab === 'database') {
     const file = el('input', { type: 'file', hidden: true, accept: '.csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain', onchange: () => { if (file.files[0]) importTable(file.files[0], at); file.value = ''; } });
@@ -438,20 +443,19 @@ function folderTools(x, head) {
 function drawBrowse(fresh, naming) {
   const T = TABS[tab], folder = folderById(at), q = filterBox.value.trim().toLowerCase(), top = main.scrollTop;
   const view = el('div', { className: 'browse' + (fresh ? ' enter' : '') });
-  if (folder) view.append(crumbs(folder.parent));
   // its name (a folder's, to change), what's in it, and the buttons to make more
   const name = folder
     ? el('input', { className: 'ed-title', value: folder.title, placeholder: 'Untitled', spellcheck: false, 'aria-label': `${T.folder}’s name`,
       oninput: (e) => { folder.title = e.target.value; touch(folder); setTitle(); },
       onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } } })
-    : el('h1', {}, T.name);
+    : el('h1', {}, nameOf(tab));
   const head = el('div', { className: 'b-head' }, el('span', { className: 'ed-ic' }, svg(folder ? folderIcon(tab) : T.icon)),
     el('div', { className: 'b-name' }, name, el('p', { className: 'b-sub' }, summary(tab, at))));
   head.append(el('div', { className: 'b-actions' }, ...makers(), folder ? folderTools(folder, head) : null));
   view.append(head);
   const found = q ? search(q) : inside(tab, at);
   if (found.folders.length || found.items.length) view.append(el('div', { className: 'cards' + (fresh ? ' stagger' : '') }, found.folders.map((x) => folderCard(x, q)), found.items.map((x) => itemCard(x, q))));
-  else if (q) view.append(el('p', { className: 'none-found' }, `Nothing in ${T.name} matches “${filterBox.value.trim()}”.`));
+  else if (q) view.append(el('p', { className: 'none-found' }, `Nothing in ${nameOf(tab)} matches “${filterBox.value.trim()}”.`));
   else if (folder) view.append(el('div', { className: 'nothing' }, el('p', {}, `Nothing in this ${T.folder.toLowerCase()} yet. Make something with the buttons above, drag a card onto it, or drop files here from your computer.`)));
   else view.append(el('div', { className: 'nothing' }, el('span', { className: 'ed-ic big' }, svg(T.icon)), el('h2', {}, T.empty[0]), el('p', {}, T.empty[1])));
   view.append(el('p', { className: 'foot' }, 'Kept in this browser. ', el('a', { href: f.link('settings/#data') }, 'Back it up')));
@@ -460,7 +464,7 @@ function drawBrowse(fresh, naming) {
   main.scrollTop = fresh ? 0 : top;
   if (naming) { name.focus(); name.select?.(); }
 }
-// where a folder or thing can go, in a list under its name: the top of the tab, then each folder in it
+// where a folder or thing can go, in a list under its name: the top of the space, then each folder in it
 function moveBox(x, head) {
   main.querySelector('.move-box')?.remove();
   const t = tabOf(x), rows = [];
@@ -473,7 +477,7 @@ function moveBox(x, head) {
   };
   const box = el('div', { className: 'pop-in move-box' },
     el('div', { className: 'pop-top' }, el('b', {}, `Move “${x.title || 'Untitled'}” to`), el('button', { type: 'button', className: 'icon-btn', title: 'Close', 'aria-label': 'Close', onclick: () => box.remove() }, svg('x'))),
-    el('ul', { className: 'moves' }, choice('', TABS[t].name, TABS[t].icon, 0), rows.map(([y, lvl]) => choice(y.id, y.title || 'Untitled', folderIcon(t), lvl))));
+    el('ul', { className: 'moves' }, choice('', nameOf(t), TABS[t].icon, 0), rows.map(([y, lvl]) => choice(y.id, y.title || 'Untitled', folderIcon(t), lvl))));
   head.after(box);
 }
 // a new file: one of the six, or a web page (a folder with an index.html, a style.css and a script.js that work together)
@@ -484,7 +488,7 @@ function choose() {
   const box = el('div', { className: 'pop-in picker' },
     el('div', { className: 'pop-top' }, el('b', {}, 'A new file'), el('button', { type: 'button', className: 'icon-btn', title: 'Close', 'aria-label': 'Close', onclick: () => box.remove() }, svg('x'))),
     el('div', { className: 'langs stagger' }, Object.entries(LANGS).map(([id, L]) => {
-      const name = unique('code', at, `${L.file}.${id}`, true);
+      const name = unique(at, `${L.file}.${id}`, true);
       return el('button', { type: 'button', className: 'lang-btn', onclick: () => make('code', { title: name, text: start(id, name.replace(/\.[^.]+$/, '')), input: '' }, at) },
         badge(langOf(name)), el('span', {}, el('b', {}, L.name), el('small', {}, name)));
     }), el('button', { type: 'button', className: 'lang-btn', onclick: webPage }, el('span', { className: 't-ic' }, svg('folder')),
@@ -493,13 +497,13 @@ function choose() {
   box.querySelector('.lang-btn').focus();
 }
 function webPage() {
-  const x = makeFolder('code', at, unique('code', at, 'My page'), false);
+  const x = makeFolder(at, unique(at, 'My page'), false);
   add('code', { title: 'index.html', text: start('html'), input: '' }, x.id);
   add('code', { title: 'style.css', text: start('css'), input: '' }, x.id);
   add('code', { title: 'script.js', text: PAGE_SCRIPT, input: '' }, x.id);
   save(true);
-  history.pushState(null, '', hashOf(x));
-  browse('code', x.id, true);
+  history.pushState(null, '', linkTo(x));
+  browse(x.id, true);
 }
 
 // ---------- dragging cards, and files from your computer ----------
@@ -539,8 +543,8 @@ function dropOn(target, id) {
     if (x) moveTo(x, id); else addFiles(e.dataTransfer.files, id);
   });
 }
-// files from your computer, as things in this tab: notes from text or Markdown, sheets from CSV (and docs from other
-// text) in the Database, and code files as they are. Anything over 2 MB, or that isn't text, stays out
+// files from your computer, as things in this space: notes from text or Markdown, sheets from CSV (and docs from other
+// text) in Data, and code files as they are. Anything over 2 MB, or that isn't text, stays out
 async function addFiles(list, id) {
   let added = 0, left = 0;
   for (const file of [...list].slice(0, 100)) {
@@ -548,7 +552,7 @@ async function addFiles(list, id) {
     if (text.includes('\u0000')) { left++; continue; }
     const base = file.name.replace(/\.[^.]+$/, '') || file.name;
     if (tab === 'notes') add('note', { title: base, text }, id);
-    else if (tab === 'code') add('code', { title: unique('code', id, file.name, true), text, input: '' }, id);
+    else if (tab === 'code') add('code', { title: unique(id, file.name, true), text, input: '' }, id);
     else if (/\.(csv|tsv)$/i.test(file.name) && parseCsv(text).length) sheetFrom(base, parseCsv(text), id);
     else add('doc', { title: base, text, link: '' }, id);
     added++;
@@ -599,7 +603,7 @@ function drawEditor(it, fresh, naming) {
       el('button', { type: 'button', className: 'btn danger', onclick: () => remove(it) }, 'Delete'),
       el('button', { type: 'button', className: 'btn', onclick: calm }, 'Keep')) }, svg('trash')));
   calm();
-  const box = el('div', { className: 'editor-in' + (fresh ? ' enter' : '') }, crumbs(it.parent), head, ...EDIT[it.kind](it, head));
+  const box = el('div', { className: 'editor-in' + (fresh ? ' enter' : '') }, head, ...EDIT[it.kind](it, head));
   box.style.setProperty('--k', K.color);
   main.replaceChildren(box);
   main.scrollTop = fresh ? 0 : top;
@@ -797,7 +801,7 @@ const EDIT = {
   },
 };
 
-// a file in the Code tab by its path from a folder ('style.css', 'css/site.css', '../shared/app.js'), as a page links it
+// a file in Code by its path from a folder ('style.css', 'css/site.css', '../shared/app.js'), as a page links it
 function fileAt(from, path) {
   if (/^(?:[a-z][\w+.-]*:|\/\/|#)/i.test(path)) return null;     // (a web address, or a place on the page)
   let here = path.startsWith('/') ? '' : from, parts;
@@ -834,7 +838,7 @@ const wordCount = (text) => (text.trim() ? text.trim().split(/\s+/).length : 0);
 const named = (name) => { const key = name.trim().toLowerCase(); return items.find((x) => (x.kind === 'note' || x.kind === 'doc') && x.title.trim().toLowerCase() === key); };
 function openTitle(name) {
   const it = named(name);
-  if (it) location.hash = hashOf(it);
+  if (it) location.href = linkTo(it);
   else make('note', { title: name.trim() }, byId(current)?.parent ?? at, true);
 }
 // the notes and docs whose text links here
@@ -847,7 +851,7 @@ function linkedFrom(it) {
 function drawInfo() {
   const it = byId(current);
   if (!it) { info.replaceChildren(); return; }
-  const where = [TABS[KINDS[it.kind].tab].name, ...pathTo(it.parent).map((x) => x.title || 'Untitled')].join(' › ');
+  const where = [nameOf(tab), ...pathTo(it.parent).map((x) => x.title || 'Untitled')].join(' › ');
   info.replaceChildren(...INFO[it.kind](it).filter(Boolean), el('h3', {}, 'About'), facts([['In', where], ['Made', when(it.made)], ['Edited', when(it.edited)]]));
 }
 const RUNS = {
@@ -871,7 +875,7 @@ const INFO = {
       outs.length ? el('ul', { className: 'links' }, outs.map((name) => el('li', {}, el('button', { type: 'button', className: named(name) ? '' : 'new', title: named(name) ? '' : 'Not made yet: opening it makes it', onclick: () => openTitle(name) }, svg('link'), name))))
         : none('[[A note’s name]] links to it.'),
       el('h3', {}, 'Linked from'),
-      ins.length ? el('ul', { className: 'links' }, ins.map((x) => el('li', {}, el('a', { href: hashOf(x) }, svg(KINDS[x.kind].icon), x.title || 'Untitled')))) : none('Nothing links here yet.'),
+      ins.length ? el('ul', { className: 'links' }, ins.map((x) => el('li', {}, el('a', { href: linkTo(x) }, svg(KINDS[x.kind].icon), x.title || 'Untitled')))) : none('Nothing links here yet.'),
       el('h3', {}, 'Size'),
       facts([['Words', wordCount(it.text).toLocaleString('en-US')], ['Characters', it.text.length.toLocaleString('en-US')]]),
     ];
@@ -884,7 +888,7 @@ const INFO = {
       el('h3', {}, 'Link'),
       /^https?:\/\//.test(it.link) ? el('ul', { className: 'links' }, el('li', {}, el('a', { href: it.link, target: '_blank', rel: 'noopener' }, svg('external'), new URL(it.link).hostname))) : none('No link yet.'),
       ins.length ? el('h3', {}, 'Linked from') : null,
-      ins.length ? el('ul', { className: 'links' }, ins.map((x) => el('li', {}, el('a', { href: hashOf(x) }, svg(KINDS[x.kind].icon), x.title || 'Untitled')))) : null,
+      ins.length ? el('ul', { className: 'links' }, ins.map((x) => el('li', {}, el('a', { href: linkTo(x) }, svg(KINDS[x.kind].icon), x.title || 'Untitled')))) : null,
     ];
   },
   table(it) {
@@ -993,7 +997,7 @@ async function importTable(file, parent) {
   if (!rows.length) return tell(`${file.name} has nothing in it to make a sheet from.`);
   const it = sheetFrom(file.name.replace(/\.(csv|tsv|txt)$/i, ''), rows, parent);
   save(true);
-  history.pushState(null, '', hashOf(it));
+  history.pushState(null, '', linkTo(it));
   open(it, true);
 }
 function download(name, text, type) {

@@ -1,4 +1,4 @@
-// The Code tab's languages: which one a file is (from the end of its name), a first version of a new file in each, the
+// Code's languages: which one a file is (from the end of its name), a first version of a new file in each, the
 // colors its words get as you type, and what runs here. JavaScript runs in a worker of its own, and Python in one too,
 // with Pyodide (Python built to run in a browser), which comes from jsdelivr the first time a Python file runs. An HTML
 // page shows in a sandboxed frame with the CSS and JavaScript files it names, and so does a CSS or JavaScript file, on

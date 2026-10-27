@@ -60,27 +60,32 @@ window.FLUENTIO_SETTINGS = {
   animations: true,        // false turns every animation off (devices set to reduce motion never get them)
   speed: 1,                // 1 is normal, 2 is twice as fast, 0.5 is half as fast
   floatingColors: true,    // the soft colors drifting behind the pages
-  // the Workspace's tabs, each on its own: false turns that tab's animations off
-  workspaceAnimations: { notes: true, database: true, code: true },
+  // Data, Code and Notes, each on its own: false turns that one's animations off
+  animationsIn: { data: true, code: true, notes: true },
 
   // the keys (Settings can record new ones): Ctrl, Alt, Shift or Meta (⌘ on a Mac) with a key, like 'Ctrl+K', and ''
   // turns one off. On Windows and Linux the browser keeps Ctrl with a number for its tabs, so there Ctrl+1 works as Alt+1
-  keys: { search: 'Ctrl+K', home: 'Ctrl+1', study: 'Ctrl+2', workspace: 'Ctrl+3' },
+  keys: { search: 'Ctrl+K', home: 'Ctrl+1', study: 'Ctrl+2', data: 'Ctrl+3', code: 'Ctrl+4', notes: 'Ctrl+5' },
 
-  // the home page's tiles, in this order (take one out to hide it): 'workspace', 'study', 'data' and 'quick'
+  // the home page's tiles, in this order (take one out to hide it): 'workspace' (what you worked on last), 'study',
+  // 'data' and 'quick'
   home: ['workspace', 'study', 'data', 'quick'],
   // the buttons on the Quick tile (a link can also be a whole web address)
   quick: [
-    { title: 'New note', link: 'workspace/#new/note' },
-    { title: 'New sheet', link: 'workspace/#new/table' },
+    { title: 'New note', link: 'notes/#new/note' },
+    { title: 'New sheet', link: 'data/#new/table' },
     { title: 'Start AMC test', link: 'math/#amc10/test' },
   ],
 
-  // the Workspace: Notes, a Database of docs and sheets, and Code, kept in your browser (Settings can back them up)
-  workspaceTitle: 'Workspace',
+  // the names of Data (databases of docs and sheets), Code and Notes in the bar, kept in your browser (Settings can
+  // back them up)
+  dataTitle: 'Data',
+  codeTitle: 'Code',
+  notesTitle: 'Notes',
 
-  // the Study page: its title, the line under it, and its subjects in this order (color is the subject's own color)
-  studyTitle: 'Study',
+  // Modules (the study/ page): its title, the line under it, and its subjects in this order (color is the subject's
+  // own color)
+  studyTitle: 'Modules',
   studyIntro: 'Pick a subject. Take a test, learn it one topic at a time, or practise any question.',
   study: [
     { emoji: '🌍', title: 'Geography', text: 'Find countries and capitals on the world map, or one continent at a time.', link: 'geography/', color: '#1f9d74' },
