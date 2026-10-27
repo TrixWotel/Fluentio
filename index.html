@@ -4,12 +4,33 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Physics Tests · Fluentio</title>
-  <meta name="description" content="Kinematics questions with motion graphs, hundreds of variants and a worked solution for each.">
+  <meta name="description" content="Kinematics with motion graphs, motion in a straight line, vectors and projectile motion: hundreds of variants of each, with a worked solution for every one.">
   <script src="../settings.js"></script>
   <script src="../kit/look.js"></script>
   <script src="../kit/bar.js"></script>
   <link rel="stylesheet" href="../kit/site.css">
   <link rel="stylesheet" href="../kit/tests.css">
+  <style>
+    /* the drawings from draw.js: vectors as arrows (the line draws itself in, then its head appears), lengths marked
+       along the edges, and the rock, water and tanks of a projectile's scene */
+    .graph .vec { stroke: var(--accent); stroke-width: 2.8; stroke-linecap: round; stroke-dasharray: 1 0; animation: draw calc(.55s / var(--speed)) var(--ease) backwards; animation-delay: calc(var(--d, 0ms) / var(--speed)); }
+    .graph .vec1 { stroke: var(--plot2); }
+    .graph .vec2 { stroke: var(--good); }
+    .graph .vec.dash { stroke-width: 2; stroke-dasharray: .05 .035; animation: fade-in var(--t3) var(--ease) backwards; animation-delay: calc(var(--d, 0ms) / var(--speed)); }
+    .graph .head { fill: var(--accent); animation: fade-in var(--t2) var(--ease) backwards; animation-delay: calc((var(--d, 0ms) + 380ms) / var(--speed)); }
+    .graph .head1 { fill: var(--plot2); }
+    .graph .head2 { fill: var(--good); }
+    .graph .vl { fill: var(--accent); font-size: 13px; font-weight: 700; paint-order: stroke; stroke: var(--card); stroke-width: 4px; stroke-linejoin: round; animation: fade-in var(--t3) var(--ease) backwards; animation-delay: calc(400ms / var(--speed)); }
+    .graph .vl1 { fill: var(--plot2); }
+    .graph .vl2 { fill: var(--good); }
+    .graph .solid { fill: color-mix(in srgb, var(--muted) 28%, var(--card)); stroke: color-mix(in srgb, var(--muted) 65%, transparent); stroke-width: 1.2; }
+    .graph .water { fill: color-mix(in srgb, var(--accent) 22%, transparent); }
+    .graph .tank { fill: color-mix(in srgb, var(--muted) 75%, var(--card)); }
+    .graph .dim { stroke: var(--muted); stroke-width: 1.2; fill: none; }
+    .graph .dl { fill: var(--muted); font-size: 12px; font-weight: 600; paint-order: stroke; stroke: var(--card); stroke-width: 3px; stroke-linejoin: round; }
+    .graph .nt { fill: var(--muted); font-size: 12px; }
+    @media (max-width: 560px) { .graph .vl, .graph .dl { font-size: 16px; } }
+  </style>
 </head>
 <body data-title="Physics Tests">
   <script>window.fluentio?.bar?.()</script>
@@ -17,7 +38,7 @@
     <header id="top">
       <a class="back" href="../study/">← <span data-fill="studyTitle">Study</span></a>
       <h1>🚀 Physics Tests</h1>
-      <p class="lead">Kinematics with motion graphs. Every question comes in hundreds of variants, each with its own graph and a worked solution.</p>
+      <p class="lead">Kinematics with motion graphs, motion in a straight line, vectors and projectile motion. Every question comes in hundreds of variants, each with a worked solution, and most with a graph or a drawing to scale.</p>
     </header>
     <div id="app"><noscript>These tests need JavaScript.</noscript></div>
   </main>
@@ -26,32 +47,87 @@
     import { testsPage } from '../kit/tests.js';
     import { kinematics } from './kinematics.js';
     import { kinematicsLearning } from './kinematics-lessons.js';
+    import { motionBank } from './motion.js';
+    import { motionLearning } from './motion-lessons.js';
+    import { vectorBank } from './vectors.js';
+    import { vectorsLearning } from './vectors-lessons.js';
+    import { projectileBank } from './projectiles.js';
+    import { projectilesLearning } from './projectiles-lessons.js';
 
-    const formulas = () => {
-      const box = document.createElement('div');
-      box.className = 'cols';
-      box.innerHTML = `<ul>
-          <li>Position–time (x–t) graph: the <b>slope</b> is the velocity.</li>
-          <li>Velocity–time (v–t) graph: the <b>slope</b> is the acceleration and the <b>area</b> under it is the displacement (area below the axis counts as negative; for distance, count it all as positive).</li>
-          <li>Acceleration–time (a–t) graph: the <b>area</b> is the change in velocity.</li>
-          <li>Average velocity = displacement ÷ time.</li>
-        </ul>
-        <ul>
+    const box = (html) => () => {
+      const el = document.createElement('div');
+      el.className = 'cols';
+      el.innerHTML = html;
+      return el;
+    };
+    const constant = `<ul>
           <li><span class="f">v = u + at</span></li>
           <li><span class="f">s = ut + ½at²</span></li>
           <li><span class="f">v² = u² + 2as</span></li>
           <li><span class="f">s = ½(u + v)t</span></li>
           <li>Falling (no air resistance): <span class="f">g = 9.8 m/s²</span>, downward.</li>
         </ul>`;
-      return box;
-    };
+    const kinematicsFormulas = box(`<ul>
+          <li>Position–time (x–t) graph: the <b>slope</b> is the velocity.</li>
+          <li>Velocity–time (v–t) graph: the <b>slope</b> is the acceleration and the <b>area</b> under it is the displacement (area below the axis counts as negative; for distance, count it all as positive).</li>
+          <li>Acceleration–time (a–t) graph: the <b>area</b> is the change in velocity.</li>
+          <li>Average velocity = displacement ÷ time.</li>
+        </ul>
+        ${constant}`);
+    const motionFormulas = box(`${constant}
+        <ul>
+          <li>Pick a positive direction and keep to it: thrown up with up positive, g is −9.8 m/s².</li>
+          <li>At the highest point, <span class="f">v = 0</span>.</li>
+          <li>Thrown up and coming back to the same height: the same time up as down, and the same speed.</li>
+          <li>From rest: <span class="f">a = 2s/t²</span>. In equal times t, distances differ by <span class="f">at²</span>.</li>
+          <li>v–t graph: distance is all the area, displacement subtracts the area below the axis.</li>
+        </ul>`);
+    const vectorFormulas = box(`<ul>
+          <li>Components of a vector of size A at θ from the +x axis: <span class="f">A<sub>x</sub> = A cos θ</span>, <span class="f">A<sub>y</sub> = A sin θ</span> (cos for the side next to the angle).</li>
+          <li>Size: <span class="f">|A| = √(A<sub>x</sub>² + A<sub>y</sub>²)</span>. Direction: <span class="f">θ = tan⁻¹(A<sub>y</sub> ÷ A<sub>x</sub>)</span>, plus 180° if A<sub>x</sub> is negative.</li>
+          <li>Adding: add the x parts and the y parts separately. Subtracting: A − B = A + (−B).</li>
+        </ul>
+        <ul>
+          <li>Change in velocity: <span class="f">Δv = v<sub>after</sub> − v<sub>before</sub></span>, as vectors.</li>
+          <li>Relative velocity: velocity over the ground = velocity through the water (or air) + the current (or wind).</li>
+          <li>Balancing force: the same size as the others' resultant, the opposite way.</li>
+          <li>Distance adds every leg. Displacement is start to finish.</li>
+        </ul>`);
+    const projectileFormulas = box(`<ul>
+          <li>Across: no acceleration, <span class="f">x = v cos θ · t</span>.</li>
+          <li>Up: <span class="f">y = v sin θ · t − ½gt²</span> and <span class="f">v<sub>y</sub> = v sin θ − gt</span>, with g = 9.8 m/s².</li>
+          <li>Launched sideways from height h: <span class="f">t = √(2h/g)</span>, landing <span class="f">v<sub>y</sub> = √(2gh)</span>.</li>
+        </ul>
+        <ul>
+          <li>Level ground: time of flight <span class="f">2v sin θ / g</span>, highest point <span class="f">(v sin θ)² / 2g</span>, range <span class="f">v² sin 2θ / g</span> (farthest at 45°).</li>
+          <li>On level ground it lands at the speed and angle it left with.</li>
+          <li>At 45° the path is <span class="f">y = x − gx²/v²</span>.</li>
+        </ul>`);
 
     testsPage({ tests: [
       {
         bank: kinematics, name: 'Kinematics', length: 10, learn: kinematicsLearning,
         blurb: 'Read x–t, v–t and a–t graphs, plus braking, free fall and throwing things up. Every variant has its own graph.',
         about: 'Slopes and areas of motion graphs, and the equations of constant acceleration. Answers within 2% are right, so round as you like.',
-        asideName: 'Formulas', aside: formulas,
+        asideName: 'Formulas', aside: kinematicsFormulas,
+      },
+      {
+        bank: motionBank, name: 'Motion in a Straight Line', length: 10, learn: motionLearning,
+        blurb: 'Constant acceleration problems: speeding up and braking, trips in stages, throwing things up and down, bounces and v–t graphs.',
+        about: 'The equations of constant acceleration in every kind of problem, from a skier on a slope to a ball thrown up from a balcony. Use g = 9.8 m/s². Answers within 2% are right.',
+        asideName: 'Formulas', aside: motionFormulas,
+      },
+      {
+        bank: vectorBank, name: 'Vectors', length: 10, learn: vectorsLearning,
+        blurb: 'Components, sizes and directions, adding and subtracting, river crossings and crosswinds. Most variants draw their vectors to scale.',
+        about: 'What a vector is, splitting one into parts, putting them back together, and relative velocity. Angles are in degrees. Answers within 2% are right.',
+        asideName: 'Formulas', aside: vectorFormulas,
+      },
+      {
+        bank: projectileBank, name: 'Projectile Motion', length: 10, learn: projectilesLearning,
+        blurb: 'Things launched sideways and at angles: time in the air, how far, how high, how they land, cliffs, ledges, walls and tanks.',
+        about: 'Across and up as two separate motions that share the time. Use g = 9.8 m/s² and ignore air resistance. Answers within 2% are right.',
+        asideName: 'Formulas', aside: projectileFormulas,
       },
     ] });
     document.getElementById('year').textContent = new Date().getFullYear();
