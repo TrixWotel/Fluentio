@@ -18,6 +18,16 @@ body { --sky-scale: .5; height: 100dvh; min-height: 0; overflow: hidden; }
 .crumbs .i { width: 17px; height: 17px; color: var(--k); }
 .crumbs .sep { opacity: .55; }
 .ws-tools { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+/* how saving to GitHub went, when it's connected (it opens Settings → GitHub) */
+.sync {
+  display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; color: var(--muted); font-size: .83rem;
+  text-decoration: none; white-space: nowrap; transition: color var(--t1), background var(--t1);
+}
+.sync:hover { color: var(--text); background: color-mix(in srgb, var(--text) 7%, transparent); }
+.sync .i { width: 17px; height: 17px; }
+.sync.synced .i { color: var(--good); }
+.sync.syncing .i { animation: bob calc(1.1s / var(--speed)) ease-in-out infinite; }
+.sync.error { color: var(--bad); }
 .filter { width: 230px; }
 .menu-wrap { position: relative; }
 .icon-btn.on { color: var(--text); border-color: var(--line); background: var(--bg); }

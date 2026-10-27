@@ -2,6 +2,8 @@
 // browser (look.js keeps it as fluentio.look, over settings.js), and "Copy as settings.js" turns all of it into a new
 // settings.js to paste on GitHub for every device. Also here: the keys, and a backup of everything Fluentio keeps in
 // this browser (your data, code and notes, these settings, learning progress and best scores).
+import * as github from '../workspace/sync.js?v=3';
+
 const f = window.fluentio;
 const { el, svg } = f;
 const $ = (id) => document.getElementById(id);
@@ -295,14 +297,14 @@ function data() {
     try { backup = JSON.parse(await chosen.text()); } catch {}
     if (!backup || backup.app !== 'Fluentio' || !backup.data || typeof backup.data !== 'object') { toast('That isn’t a Fluentio backup'); return; }
     const made = backup.made ? new Date(backup.made).toLocaleString() : 'earlier';
-    confirmIn(panel, `Restore the backup from ${made}? It replaces your data, code, notes, settings and progress in this browser.`, 'Restore', () => {
+    confirmIn(panel, `Restore the backup from ${made}? It replaces your data, code, notes, settings and progress in this browser${github.connected() ? `, and in ${github.repo()} on GitHub` : ''}.`, 'Restore', () => {
       for (const k of ours()) localStorage.removeItem(k);
       for (const [k, v] of Object.entries(backup.data)) if (k.startsWith('fluentio.')) f.write(k, v);
       location.reload();
     });
   } });
   const panel = el('section', { className: 'panel', id: 'data' }, el('h2', {}, 'Your data'),
-    el('p', {}, `In this browser only: ${plural(count('note'), 'note')}, ${plural(count('doc'), 'doc')}, ${plural(count('table'), 'sheet')} and ${plural(count('code'), 'code file')}${kept ? ` in ${kept}` : ''}, these settings, and your learning progress. Clearing the browser’s site data deletes them, so download a backup now and then.`),
+    el('p', {}, `${github.connected() ? `In this browser and in ${github.repo()} on GitHub` : 'In this browser only'}: ${plural(count('note'), 'note')}, ${plural(count('doc'), 'doc')}, ${plural(count('table'), 'sheet')} and ${plural(count('code'), 'code file')}${kept ? ` in ${kept}` : ''}, these settings, and your learning progress. Clearing the browser’s site data deletes them, so download a backup now and then.`),
     el('div', { className: 'set' }, el('div', { className: 'row' },
       el('button', { type: 'button', className: 'btn primary', onclick: () => {
         const all = Object.fromEntries(ours().map((k) => [k, f.read(k)]));
@@ -310,13 +312,72 @@ function data() {
         toast('Backup downloaded');
       } }, svg('download'), 'Download a backup'),
       el('button', { type: 'button', className: 'btn', onclick: () => file.click() }, svg('upload'), 'Restore a backup'),
-      el('button', { type: 'button', className: 'btn', onclick: () => confirmIn(panel, `Delete everything in ${s.dataTitle}, ${s.codeTitle} and ${s.notesTitle}? Download a backup first if you might want it back.`, 'Delete it all', () => {
+      el('button', { type: 'button', className: 'btn', onclick: () => confirmIn(panel, `Delete everything in ${s.dataTitle}, ${s.codeTitle} and ${s.notesTitle}?${github.connected() ? ` It goes from ${github.repo()} on GitHub too (the repo’s history keeps it).` : ''} Download a backup first if you might want it back.`, 'Delete it all', () => {
         f.workspace.save([]);
         f.write('fluentio.workspace.folders', null);
         toast(`${s.dataTitle}, ${s.codeTitle} and ${s.notesTitle} are empty`);
+        github.run();
         draw();
       }) }, svg('trash'), `Empty ${s.dataTitle}, ${s.codeTitle} and ${s.notesTitle}`),
       file)));
+  return panel;
+}
+
+// Data, Code and Notes saved to a private GitHub repo too (workspace/sync.js does the saving): connecting it (the repo, a
+// token that can only reach that repo, and how to make both), how the last sync went, and Sync now, Open and Disconnect
+const syncLine = () => {
+  const st = github.status();
+  if (st.status === 'syncing') return 'Saving…';
+  if (st.status === 'error') return `Not saved: ${st.error}`;
+  return st.at ? `Saved ${new Date(st.at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}.` : 'Not saved yet.';
+};
+github.listen(() => { const n = $('github-status'); if (n) { n.textContent = syncLine(); n.classList.toggle('bad', github.status().status === 'error'); } });
+function gitHub() {
+  const panel = el('section', { className: 'panel', id: 'github' }, el('h2', {}, 'GitHub'));
+  const spaces = `${s.dataTitle}, ${s.codeTitle} and ${s.notesTitle}`;
+  if (github.connected()) {
+    const st = github.status();
+    panel.append(el('p', {}, `${spaces} save to ${github.repo()} on GitHub too: a few seconds after each change, and whenever one of them opens.`),
+      el('div', { className: 'set' }, el('div', { className: 'what' }, el('b', {}, github.repo()), el('small', { id: 'github-status', className: st.status === 'error' ? 'bad' : '' }, syncLine())),
+        el('div', { className: 'row' },
+          el('button', { type: 'button', className: 'btn primary', onclick: () => github.run() }, svg('cloud'), 'Sync now'),
+          el('a', { className: 'btn', href: `https://github.com/${github.repo()}`, target: '_blank', rel: 'noopener' }, svg('external'), 'Open on GitHub'),
+          el('button', { type: 'button', className: 'btn', onclick: () => confirmIn(panel, `Stop saving to ${github.repo()}? This browser forgets the token. Your things stay here and on GitHub.`, 'Disconnect', () => {
+            github.disconnect();
+            toast('Disconnected from GitHub');
+            draw();
+          }) }, 'Disconnect'))));
+    return panel;
+  }
+  const name = el('input', { className: 'input text-in', value: `TrixWotel/Database`, spellcheck: false, autocomplete: 'off', 'aria-label': 'Repository', placeholder: 'owner/name' });
+  const token = el('input', { className: 'input text-in', type: 'password', spellcheck: false, autocomplete: 'off', 'aria-label': 'Token', placeholder: 'github_pat_…' });
+  const said = el('p', { className: 'hint', role: 'status' });
+  const go = el('button', { type: 'button', className: 'btn primary', onclick: async () => {
+    go.disabled = true;
+    said.className = 'hint';
+    said.textContent = 'Connecting…';
+    try {
+      await github.connect(name.value, token.value, window.FLUENTIO_GITHUB_API);
+      toast(`Connected to ${github.repo()}`);
+      draw();
+    } catch (e) {
+      said.className = 'hint bad';
+      said.textContent = e.message;
+      go.disabled = false;
+    }
+  } }, svg('cloud'), 'Connect');
+  const link = (href, text) => el('a', { href, target: '_blank', rel: 'noopener' }, text);
+  panel.append(el('p', {}, `Keep ${spaces} in a private GitHub repo too, as files you can open there, and see the same things in every browser and Fluent workspace you connect to it.`),
+    set('Repository', 'A private repo, written as owner/name.', name),
+    set('Token', 'A fine-grained token that can only read and write that repo.', token),
+    el('details', { className: 'more' }, el('summary', {}, 'How to make the repo and the token'),
+      el('ol', { className: 'steps' },
+        el('li', {}, link('https://github.com/new', 'Make a new repository'), ' named Database, and set it to Private.'),
+        el('li', {}, link('https://github.com/settings/personal-access-tokens/new', 'Make a fine-grained token'), '. Under Repository access, pick Only select repositories, then Database.'),
+        el('li', {}, 'Under Permissions, set Contents to Read and write.'),
+        el('li', {}, 'Press Generate token, copy it, and paste it above.'))),
+    el('div', { className: 'set' }, el('div', { className: 'what' }, el('small', {}, 'The token stays in this browser, never in a backup. Your other sites on trixwotel.github.io can read this browser’s storage too, so give the token only that one repo.')), go),
+    said);
   return panel;
 }
 
@@ -374,7 +435,7 @@ function everywhere() {
 // ---------- drawing it all (again after a change that moves things about, keeping your place) ----------
 function draw() {
   const y = scrollY;
-  panels.replaceChildren(look(), colors(), motion(), home(), names(), keys(), data(), everywhere());
+  panels.replaceChildren(look(), colors(), motion(), home(), names(), keys(), data(), gitHub(), everywhere());
   scrollTo(0, y);
 }
 draw();

@@ -9,7 +9,8 @@
 // Each space's animations can be turned off on their own, in its View menu or in Settings → Motion.
 // Links: #folder/<id> opens a folder, #note/<id> (or doc, table, code) a thing, and #new/note (or doc, table, code)
 // makes one at the top of its space. A link to something in another space goes on to that space's page.
-import { LANGS, langOf, indent, start, PAGE_SCRIPT, SAMPLE, paint, runJs, runPython, stopPython, pythonRunning, pageFrom, preview } from './code.js?v=2';
+import { LANGS, langOf, indent, start, PAGE_SCRIPT, SAMPLE, paint, runJs, runPython, stopPython, pythonRunning, pageFrom, preview } from './code.js?v=3';
+import * as github from './sync.js?v=3';
 
 const f = window.fluentio;
 const { el, svg } = f;
@@ -38,10 +39,12 @@ const ws = document.getElementById('ws');
 const where = el('nav', { className: 'crumbs', 'aria-label': 'Where you are' });
 const filterBox = el('input', { className: 'input filter', type: 'search', autocomplete: 'off' });
 const viewBtn = el('button', { type: 'button', className: 'icon-btn', title: 'View', 'aria-label': 'View', 'aria-expanded': 'false', 'aria-controls': 'view-menu' }, svg('settings'));
+// (how saving to GitHub went, when it's connected: Settings → GitHub)
+const synced = el('a', { className: 'sync', href: f.link('settings/#github'), hidden: true }, svg('cloud'), el('span'));
 const menu = el('div', { className: 'menu', id: 'view-menu', role: 'dialog', 'aria-label': 'View', hidden: true });
 const main = el('section', { className: 'main' });
 const info = el('aside', { className: 'info', 'aria-label': 'Details' });
-ws.replaceChildren(el('div', { className: 'ws-head' }, where, el('div', { className: 'ws-tools' }, filterBox, el('div', { className: 'menu-wrap' }, viewBtn, menu))),
+ws.replaceChildren(el('div', { className: 'ws-head' }, where, el('div', { className: 'ws-tools' }, synced, filterBox, el('div', { className: 'menu-wrap' }, viewBtn, menu))),
   el('div', { className: 'ws-body' }, main, info));
 ws.style.setProperty('--k', TABS[tab].color);
 
@@ -118,6 +121,7 @@ function save(now) {
   const go = () => {
     dirty = false;
     const ok = [f.workspace.save(items), writeFolders(folders)].every(Boolean);
+    if (ok) github.soon();
     saved.textContent = ok ? 'Saved' : "Couldn't save: this browser's storage is full or turned off";
     saved.className = 'saved show' + (ok ? '' : ' bad');
     clearTimeout(saved.hide);
@@ -137,16 +141,16 @@ function touch(x) {
   save();
   if (!pending) pending = requestAnimationFrame(() => { pending = 0; drawWhere(); drawInfo(); });
 }
-// another tab changed them: take its version, but keep the one you're typing in
-addEventListener('storage', (e) => {
-  if (e.key !== 'fluentio.workspace' && e.key !== FOLDERS) return;
+// another tab (or a sync with GitHub) changed them: take that version, but keep the one you're typing in
+function reload() {
   const typing = main.contains(document.activeElement) && document.activeElement.matches('input, textarea');
   const mine = typing ? (current ? byId(current) : folderById(at)) : null;
   folders = cleanFolders(readFolders()).map((x) => (mine && !mine.kind && x.id === mine.id ? mine : x));
   items = cleanItems(f.workspace.items(), folders).map((x) => (mine?.kind && x.id === mine.id ? mine : x));
   if (mine && (mine.kind ? byId(mine.id) : folderById(mine.id))) { drawWhere(); drawInfo(); return; }
   route(false);
-});
+}
+addEventListener('storage', (e) => { if (e.key === 'fluentio.workspace' || e.key === FOLDERS) reload(); });
 
 // ---------- going places, and making things ----------
 function route(fresh = true) {
@@ -1008,5 +1012,23 @@ function download(name, text, type) {
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
+// ---------- saving to GitHub, when it's connected ----------
+// a sync when the page opens, a few seconds after each change (save() asks), when you come back to the page after a
+// while, and as you leave it; and how it went, beside Find
+function showSync(st = github.status()) {
+  synced.hidden = !github.connected();
+  if (synced.hidden) return;
+  synced.className = `sync ${st.status}`;
+  synced.lastChild.textContent = st.status === 'syncing' ? 'Saving' : st.status === 'error' ? 'Not saved' : 'Saved';
+  synced.title = st.status === 'error' ? `Not saved to GitHub: ${st.error}` : st.status === 'syncing' ? `Saving to ${github.repo()} on GitHub` : `Saved to ${github.repo()} on GitHub${st.at ? `, ${ago(st.at)}` : ''}`;
+}
+github.listen((what, st) => { if (what === 'changed') reload(); showSync(st); });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { flush(); github.run(); }
+  else if (Date.now() - (github.status().at || 0) > 60000) github.run();
+});
+
 // ---------- start ----------
 route();
+showSync();
+github.run();

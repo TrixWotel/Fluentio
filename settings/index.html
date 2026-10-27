@@ -32,6 +32,10 @@
     .what small { display: block; color: var(--muted); font-size: .86rem; line-height: 1.45; }
     .muted { color: var(--muted); }
     .hint { margin: 6px 0 0; color: var(--muted); font-size: .88rem; }
+    .hint.bad, .what small.bad { color: var(--bad); }
+    /* the steps for a GitHub repo and token */
+    .steps { margin: 10px 0 4px; padding-left: 1.4em; color: var(--muted); font-size: .92rem; line-height: 1.65; }
+    .steps a { color: var(--accent); }
     .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
     .panel .btn { padding: 6px 12px; font-size: .92rem; }
     .panel .btn .i { width: 16px; height: 16px; }
@@ -128,12 +132,12 @@
       <h1>Settings</h1>
       <p class="lead">Each change shows straight away and stays in this browser. To use them on every device, copy them as settings.js at the end.</p>
       <nav class="jump" aria-label="Sections">
-        <a href="#look">Look</a><a href="#colors">Colors</a><a href="#motion">Motion</a><a href="#home">Home</a><a href="#names">Names</a><a href="#keys">Keys</a><a href="#data">Your data</a><a href="#everywhere">Every device</a>
+        <a href="#look">Look</a><a href="#colors">Colors</a><a href="#motion">Motion</a><a href="#home">Home</a><a href="#names">Names</a><a href="#keys">Keys</a><a href="#data">Your data</a><a href="#github">GitHub</a><a href="#everywhere">Every device</a>
       </nav>
     </header>
     <div id="panels"><noscript><p class="muted">Settings needs JavaScript.</p></noscript></div>
   </main>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.js?v=2"></script>
 </body>
 </html>
