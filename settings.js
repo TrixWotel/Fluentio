@@ -84,7 +84,7 @@ window.FLUENTIO_SETTINGS = {
   studyIntro: 'Pick a subject. Take a test, learn it one topic at a time, or practise any question.',
   study: [
     { emoji: '🌍', title: 'Geography', text: 'Find countries and capitals on the world map, or one continent at a time.', link: 'geography/', color: '#1f9d74' },
-    { emoji: '📐', title: 'Math', text: 'Triangle angles, and AMC 10 practice in 87 topics, each asked several ways.', link: 'math/', color: '#2f6fed' },
+    { emoji: '📐', title: 'Math', text: 'Triangle angles, and AMC 10 practice in 117 topics, from the first problems of a test to the hardest.', link: 'math/', color: '#2f6fed' },
     { emoji: '🧪', title: 'Science', text: 'Heat capacity with Q = mcΔT: warming, cooling, mixing and heaters.', link: 'science/', color: '#8b5cf6' },
     { emoji: '🚀', title: 'Physics', text: 'Kinematics, motion in a straight line, vectors and projectiles, with worked solutions.', link: 'physics/', color: '#e8743b' },
     { emoji: '🇪🇸', title: 'Spanish', text: '1,100 words in 25 themes, and the preterite and the imperfect.', link: 'spanish/', color: '#e5484d' },

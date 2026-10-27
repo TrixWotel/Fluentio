@@ -1,9 +1,9 @@
 // Fluentio's test runner, shared by the Math, Science, Physics and Spanish pages: a card for each test, a test of random variants
 // with a score (your best is kept in this browser), learning a topic at a time with hints, and practice by variant
 // number with worked solutions.
-// Links: #triangles opens a test's page, #triangles/test starts a test (#triangles/test/40 one of 40 questions),
-// #triangles/learn shows the learning path (#triangles/learn/3 its 4th topic, #triangles/learn/all mixed practice),
-// and #triangles/137 shows variant 137.
+// Links: #triangles opens a test's page, #triangles/test starts a test (#triangles/test/40 one of 40 questions; an AMC
+// test can end in /contest, /hard or /mixed, its shape), #triangles/learn shows the learning path (#triangles/learn/3
+// its 4th topic, #triangles/learn/all mixed practice), and #triangles/137 shows variant 137.
 const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); for (const k of kids.flat()) if (k != null && k !== false) n.append(k.nodeType ? k : document.createTextNode(k)); return n; };
 const html = (tag, cls, markup) => { const n = el(tag, { className: cls }); n.innerHTML = markup; return n; };   // markup here is always the banks' own, never typed by anyone
 const LETTERS = ['A', 'B', 'C', 'D', 'E'];
@@ -15,6 +15,16 @@ const pick = (list) => list[Math.floor(Math.random() * list.length)];
 const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const standard = (t) => (t.amc ? 25 : t.length);   // a test's usual number of questions
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+// an AMC test's shape: easier problems first like the real contest (from rank 1 to 25), only the harder end, or every
+// level in a random order. Other tests are always mixed.
+const SHAPES = {
+  contest: { name: 'Like the real AMC 10', from: 1, to: 25, about: 'Easier problems first, like the real contest: question 1 is about as hard as problem 1 of an AMC 10, and the last as hard as problem 25.' },
+  hard: { name: 'Harder problems', from: 16, to: 25, about: 'Only problems like numbers 16 to 25 of a real AMC 10, getting harder as you go.' },
+  mixed: { name: 'Mixed', about: 'Problems from every topic and every level, in a random order.' },
+};
+const shapeOf = (t, asked) => (!t.amc || !t.order ? 'mixed' : SHAPES[asked] ? asked : SHAPES[store.get(t.bank.id + '.shape')] ? store.get(t.bank.id + '.shape') : 'contest');
+const testLink = (t, length, shape) => `#${t.bank.id}/test${length === standard(t) ? '' : '/' + length}${t.amc && t.order ? '/' + shape : ''}`;
+const bestKey = (t, shape) => t.bank.id + (shape === 'hard' || (shape === 'mixed' && t.amc && t.order) ? `.best-${shape}` : '.best');
 
 // what someone typed → a number (takes 4.5, −2.5, 1,250, 3/4, 45°, 12 m/s, x = 7)
 export function readNumber(text) {
@@ -65,9 +75,11 @@ const shown = (answer) => (answer.kind === 'choice' ? `(${LETTERS[answer.correct
 
 // the page: tests = [{ bank, name, blurb, about, length, amc, order(n), learn, aside(), asideName, asideOpen }]
 // order(n), if given, is how hard variant n is: without a path, learning lists the easier topics first.
-// learn, if given, is { path: [{ unit, topics: [names] }], lessons: { name: { idea, how: [steps], watch: [traps], tip } }, goal,
-// example }: the order to learn the topics in, a short lesson for each, how many right in a row learn a topic (3 if not
-// given), and example: false to skip the worked example (for a word list, say, where it would add nothing).
+// learn, if given, is { path: [{ unit, topics: [names] }], lessons: { name: { spot, idea, how: [steps], facts, watch: [traps],
+// tip } }, goal, example }: the order to learn the topics in, a short lesson for each, how many right in a row learn a topic
+// (3 if not given), and example: false to skip the worked example (for a word list, say, where it would add nothing). A
+// lesson's spot (how to tell a problem is this kind) and facts (worth knowing by heart) are optional; its tip is shown
+// after a wrong answer, and is the first hint.
 // An answer is { kind: 'choice', choices, correct }, { kind: 'number', value, unit, tol }, or { kind: 'text', accept: [the
 // right answers], keys: [letters to offer as buttons], lang }
 export function testsPage({ tests }) {
@@ -88,12 +100,15 @@ export function testsPage({ tests }) {
     el('button', { className: 'btn primary', onclick: onYes }, yes), el('button', { className: 'btn', onclick: onNo }, no));
   function route() {
     clearInterval(clock);
-    const [id, part, sub] = location.hash.slice(1).split('/');
+    const [id, part, sub, ...rest] = location.hash.slice(1).split('/');
     const t = byId[id];
     window.scrollTo(0, 0);
     top.hidden = !!t;
     if (!t) return home();
-    if (part === 'test') return startTest(t, /^\d+$/.test(sub ?? '') ? Math.min(Math.max(1, +sub), t.bank.count) : Math.min(standard(t), t.bank.count));
+    if (part === 'test') {
+      const words = [sub, ...rest], size = words.find((w) => /^\d+$/.test(w ?? ''));
+      return startTest(t, size ? Math.min(Math.max(1, +size), t.bank.count) : Math.min(standard(t), t.bank.count), shapeOf(t, words.find((w) => SHAPES[w])));
+    }
     if (part === 'learn') return sub ? learn(t, sub) : learnHome(t);
     if (part && /^\d+$/.test(part)) return practice(t, Math.min(Math.max(1, +part), t.bank.count));
     return testHome(t);
@@ -101,16 +116,16 @@ export function testsPage({ tests }) {
   const extra = (t, open) => (t.aside ? el('details', { className: 'aside', open: open || !!t.asideOpen }, el('summary', {}, t.asideName || 'Formulas'), t.aside()) : null);
   function kindsOf(t) {
     if (!topics.has(t)) {
-      const byTopic = new Map(), hard = new Map();
+      const byTopic = new Map(), hard = new Map(), topicOf = [], rankOf = [];
       for (let n = 1; n <= t.bank.count; n++) {
-        const name = t.bank.make(n).topic;
+        const name = topicOf[n] = t.bank.make(n).topic;
         if (!byTopic.has(name)) byTopic.set(name, []);
         byTopic.get(name).push(n);
-        if (t.order) hard.set(name, (hard.get(name) || 0) + t.order(n));
+        if (t.order) hard.set(name, (hard.get(name) || 0) + (rankOf[n] = t.order(n)));
       }
       const names = [...byTopic.keys()], level = (name) => hard.get(name) / byTopic.get(name).length;
       if (t.order) names.sort((a, b) => level(a) - level(b));
-      topics.set(t, { names, byTopic });
+      topics.set(t, { names, byTopic, topicOf, rankOf });
     }
     return topics.get(t);
   }
@@ -154,24 +169,37 @@ export function testsPage({ tests }) {
     const { names } = kindsOf(t), p = progressOf(t), learned = learnedIn(p), next = upNext(t, p);
     const howMany = el('input', { type: 'number', min: 1, max: t.bank.count, value: Math.min(standard(t), t.bank.count), className: 'num' });
     howMany.setAttribute('aria-label', 'Number of questions');
-    const begin = () => { const len = Math.min(Math.max(1, Math.round(+howMany.value) || standard(t)), t.bank.count); go(`#${t.bank.id}/test${len === standard(t) ? '' : '/' + len}`); };
+    let shape = shapeOf(t);
+    const begin = () => { const len = Math.min(Math.max(1, Math.round(+howMany.value) || standard(t)), t.bank.count); go(testLink(t, len, shape)); };
     howMany.addEventListener('keydown', (e) => { if (e.key === 'Enter') begin(); });
+    // an AMC test's shape (remembered for next time), what it means, and its own best score
+    const shaped = t.amc && t.order, shapes = shaped ? el('div', { className: 'tabs shapes' }) : null;
+    shapes?.setAttribute('aria-label', 'Kind of test');
+    const note = el('p', { className: 'muted note' }), bestLine = el('p', { className: 'muted best-line' });
+    const paintShape = () => {
+      shapes?.replaceChildren(...Object.entries(SHAPES).map(([key, s]) => el('button', { className: 'tab' + (key === shape ? ' on' : ''),
+        onclick: () => { shape = key; store.set(t.bank.id + '.shape', key); paintShape(); } }, s.name)));
+      note.textContent = t.amc
+        ? `${shaped ? SHAPES[shape].about : 'Random problems in a random order every time.'} Scored like the AMC 10: 6 points for right, 1.5 for blank, 0 for wrong (150 for 25 questions), with 3 minutes a question.`
+        : `Random variants out of ${t.bank.count} in a random order every time, checked as you go.`;
+      const best = store.get(bestKey(t, shape));
+      bestLine.textContent = best ? `Your best${shaped ? ` (${SHAPES[shape].name.toLowerCase()})` : ''}: ${best.text}` : '';
+      bestLine.hidden = !best;
+    };
+    paintShape();
     const pickN = el('input', { type: 'number', min: 1, max: t.bank.count, value: 1, className: 'num' });
     pickN.setAttribute('aria-label', 'Variant number');
     const open = () => go(`#${t.bank.id}/${Math.min(Math.max(1, Math.round(+pickN.value) || 1), t.bank.count)}`);
     pickN.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); });
-    const best = store.get(t.bank.id + '.best');
     show(
       el('a', { className: 'back', href: '#' }, '← All tests'),
       el('h2', { className: 'tname' }, t.name),
       el('p', { className: 'lead small' }, t.about),
+      shapes,
       el('div', { className: 'start' },
         el('button', { className: 'btn primary big', onclick: begin }, 'Start a test'),
         el('label', { className: 'muted' }, howMany, ' questions')),
-      el('p', { className: 'muted note' }, t.amc
-        ? 'Random problems in a random order every time. Scored like the AMC 10: 6 points for right, 1.5 for blank, 0 for wrong (150 for 25 questions), with 3 minutes a question.'
-        : `Random variants out of ${t.bank.count} in a random order every time, checked as you go.`),
-      best ? el('p', { className: 'muted best-line' }, `Your best: ${best.text}`) : null,
+      note, bestLine,
       el('h3', {}, 'Learn'),
       el('div', { className: 'start' },
         next >= 0 ? el('a', { className: 'btn', href: `#${t.bank.id}/learn/${next}` }, Object.keys(p).length ? `Continue: ${sequence(t)[next]}` : 'Start learning') : null,
@@ -215,25 +243,36 @@ export function testsPage({ tests }) {
       if (feedback) reveal(ok, value);
       onAnswer(value, ok);
     };
-    // learning: the working comes out a sentence at a time (each new one fades in), and all of it once the answer is right
-    const parts = steps(q.solution), sol = el('div', { className: 'sol', hidden: true });
+    // learning: hints come one at a time. With a lesson, the first is its tip (the way in, not the answer), the same one a
+    // wrong answer shows; then the working comes out a sentence at a time (each new one fades in), and all of it once the
+    // answer is right
+    const parts = steps(q.solution), sol = el('div', { className: 'sol', hidden: true }), total = (nudge ? 1 : 0) + parts.length;
     let out = 0;
+    const tip = el('p', { className: 'nudge', hidden: true });
+    const label = () => {
+      const used = (nudge && !tip.hidden ? 1 : 0) + out;
+      hint.textContent = used === total - 1 ? 'Last hint' : `Hint ${used + 1} of ${total}`;
+    };
+    const showTip = () => { tip.innerHTML = `<b>Tip:</b> ${nudge}`; tip.hidden = false; label(); };
     const more = (k) => {
       if (!answered) onHelp();
       const from = out;
       out = Math.min(parts.length, out + k);
       if (out > from) sol.insertAdjacentHTML('beforeend', `${from ? ' ' : ''}<span class="fresh">${parts.slice(from, out).join(' ')}</span>`);
       sol.hidden = false;
-      hint.textContent = out === parts.length - 1 ? 'Last hint' : `Hint ${out + 1} of ${parts.length}`;
+      label();
       if (out === parts.length) { hints.hidden = true; if (!answered) onReveal(); }
     };
-    const hint = el('button', { className: 'btn', hidden: parts.length < 2, onclick: () => more(1) }, `Hint 1 of ${parts.length}`);
+    const hint = el('button', { className: 'btn', hidden: total < 2, onclick: () => {
+      if (!nudge || !tip.hidden || out) return more(1);
+      if (!answered) onHelp();
+      showTip();
+    } }, `Hint 1 of ${total}`);
     const hints = el('div', { className: 'hints' }, hint, el('button', { className: 'btn', onclick: () => more(parts.length) }, 'Show the working'));
-    const tip = el('p', { className: 'nudge', hidden: true });
     const tryAgain = (value) => {
       mark('bad');
       result.textContent = nearly(q.answer, value) ? 'Almost: check the accents, then try again.' : nudge ? 'Not quite. Try again.' : 'Not quite. Try again, or take a hint.';
-      if (nudge) { tip.innerHTML = `<b>Tip:</b> ${nudge}`; tip.hidden = false; }
+      if (nudge) showTip();
       onWrong();
     };
     const gotIt = (value) => { answered = true; tip.hidden = true; mark('good'); result.textContent = '✓ Right.'; more(parts.length); onAnswer(value, true); };
@@ -392,8 +431,10 @@ export function testsPage({ tests }) {
     function lessonView() {
       const l = lesson(topic);
       return el('div', { className: 'lesson' },
+        l.spot ? html('p', 'spot', `<b>Spot it:</b> ${l.spot}`) : null,
         html('div', 'idea', l.idea),
         el('h4', {}, 'How to do it'), el('ol', {}, ...l.how.map((s) => html('li', '', s))),
+        l.facts?.length ? [el('h4', {}, 'Key facts'), el('ul', { className: 'facts' }, ...l.facts.map((s) => html('li', '', s)))] : null,
         el('h4', {}, 'Watch out for'), el('ul', {}, ...l.watch.map((s) => html('li', '', s))),
         el('div', { className: 'start' }, stages.includes('example')
           ? el('button', { className: 'btn primary', onclick: () => goTo('example') }, 'See a worked example ›')
@@ -472,15 +513,38 @@ export function testsPage({ tests }) {
   }
 
   // ---------- a test ----------
-  function startTest(t, length) {
+  function startTest(t, length, shape) {
     titled(`${t.name} test`);
-    // a test is spread over every kind of question (each kind once before any kind twice), in a random order
+    run = { t, list: shape === 'mixed' ? mixedList(t, length) : gradedList(t, length, SHAPES[shape]), shape, i: 0, given: [], started: Date.now() };
+    showQuestion();
+  }
+  // mixed: spread over every kind of question (each kind once before any kind twice), in a random order
+  function mixedList(t, length) {
     const { kinds, count } = t.bank;
     const pool = Array.from({ length: kinds }, (_, k) => shuffle(Array.from({ length: Math.ceil((count - k) / kinds) }, (_, j) => k + 1 + j * kinds)));
     const list = [];
     while (list.length < length) for (const k of shuffle([...pool.keys()])) if (list.length < length && pool[k].length) list.push(pool[k].pop());
-    run = { t, list: shuffle(list), i: 0, given: [], started: Date.now() };
-    showQuestion();
+    return shuffle(list);
+  }
+  // graded: question i is about as hard as its place in a real contest, running from rank `from` to rank `to`: a random
+  // variant within a rank of the nearest, from a topic the test hasn't had yet (until every topic has had a turn), and
+  // never easier than `from` (while the bank has enough)
+  function gradedList(t, length, { from, to }) {
+    const { topicOf, rankOf } = kindsOf(t), used = new Set(), had = new Set(), list = [];
+    let floor = from;
+    for (let i = 0; i < length; i++) {
+      const want = length === 1 ? (from + to) / 2 : from + ((to - from) * i) / (length - 1);
+      const open = (n) => !used.has(n) && rankOf[n] >= floor;
+      const cost = (n) => Math.abs(rankOf[n] - want) + (had.has(topicOf[n]) ? 100 : 0);
+      let best = Infinity;
+      for (let n = 1; n <= t.bank.count; n++) if (open(n)) best = Math.min(best, cost(n));
+      if (best === Infinity) { if (floor === 1) break; floor = 1; i--; continue; }   // nothing left that hard: take what there is
+      const near = [];
+      for (let n = 1; n <= t.bank.count; n++) if (open(n) && cost(n) <= best + 1) near.push(n);
+      const n = pick(near);
+      used.add(n); had.add(topicOf[n]); list.push(n);
+    }
+    return list.sort((a, b) => rankOf[a] - rankOf[b]);
   }
   function startClock(timer, limit) {
     clearInterval(clock);
@@ -524,27 +588,39 @@ export function testsPage({ tests }) {
   }
   function results() {
     clearInterval(clock);
-    const { t, list, given, started } = run;
+    const { t, list, given, started, shape } = run;
     const qs = list.map((n) => t.bank.make(n));
     const right = qs.map((q, i) => isRight(q.answer, given[i]));
     const correct = right.filter(Boolean).length, blank = list.filter((_, i) => given[i] == null).length;
     const score = t.amc ? correct * 6 + blank * 1.5 : correct, of = t.amc ? list.length * 6 : list.length;
     const text = t.amc ? `${fmt(score)} / ${of} (${correct} right, ${blank} blank)` : `${correct} / ${list.length}`;
-    // a best score is for a full test: one of the usual length or longer
-    const full = list.length >= Math.min(standard(t), t.bank.count), best = store.get(t.bank.id + '.best');
+    // a best score is for a full test: one of the usual length or longer (an AMC test's shapes each keep their own)
+    const full = list.length >= Math.min(standard(t), t.bank.count), key = bestKey(t, shape), best = store.get(key);
     const isBest = full && (!best || score / of > best.score / best.of);
-    if (isBest) store.set(t.bank.id + '.best', { score, of, text, when: Date.now() });
+    if (isBest) store.set(key, { score, of, text, when: Date.now() });
     const mins = Math.max(1, Math.round((Date.now() - started) / 60000));
-    const again = `#${t.bank.id}/test${list.length === standard(t) ? '' : '/' + list.length}`;
+    const again = testLink(t, list.length, shape);
+    // what to work on: the topics missed or left blank, in the learning path's order, each a link to its lesson; and with
+    // units, how each one went
+    const order = t.learn ? sequence(t) : [], lessonLink = (name) => `#${t.bank.id}/learn/${order.indexOf(name)}`;
+    const missed = [...new Set(qs.filter((_, i) => !right[i]).map((q) => q.topic))].filter((n) => order.includes(n)).sort((a, b) => order.indexOf(a) - order.indexOf(b));
+    const tally = (t.learn?.path ? pathOf(t) : []).map((u) => {
+      const mine = qs.map((q, i) => i).filter((i) => u.topics.includes(qs[i].topic));
+      return mine.length ? `${u.unit} ${mine.filter((i) => right[i]).length} of ${mine.length}` : null;
+    }).filter(Boolean);
     run = null;
     window.scrollTo(0, 0);
     show(
       el('a', { className: 'back', href: '#' + t.bank.id }, '← ' + t.name),
       el('h2', { className: 'tname' }, 'Your score'),
       el('p', { className: 'score' }, text),
-      el('p', { className: 'muted' }, (isBest ? 'A new best! ' : best ? `Your best: ${best.text}. ` : '')
+      el('p', { className: 'muted' }, (t.amc && t.order ? `${SHAPES[shape].name}. ` : '') + (isBest ? 'A new best! ' : best ? `Your best: ${best.text}. ` : '')
         + (full ? '' : `Only tests of ${standard(t)} or more questions count for your best. `) + `It took about ${plural(mins, 'minute')}.`),
+      tally.length > 1 ? el('p', { className: 'muted tally' }, `Right by unit: ${tally.join(' · ')}`) : null,
       el('div', { className: 'start' }, el('button', { className: 'btn primary', onclick: () => go(again) }, 'Take another test'), el('a', { className: 'btn', href: `#${t.bank.id}/learn` }, 'Learn'), el('a', { className: 'btn', href: '#' }, 'All tests')),
+      missed.length ? el('div', { className: 'work-on' }, el('h3', {}, 'What to work on'),
+        el('p', { className: 'muted' }, `The ${missed.length === 1 ? 'topic' : 'topics'} you missed or left blank. Each opens its lesson, a worked example and practice.`),
+        el('ul', { className: 'kinds' }, ...missed.map((n) => el('li', {}, el('a', { href: lessonLink(n) }, n))))) : null,
       el('h3', {}, 'Review'),
       el('div', { className: 'review stagger' }, ...qs.map((q, i) => {
         const g = given[i];
@@ -554,6 +630,7 @@ export function testsPage({ tests }) {
         d.append(html('p', 'qtext', q.text));
         if (q.figure) d.append(html('div', 'fig', q.figure));
         d.append(html('p', 'answer-line', `Answer: <b>${shown(q.answer)}</b>`), html('div', 'sol', q.solution));
+        if (!right[i] && order.includes(q.topic)) d.append(el('p', { className: 'learn-link' }, el('a', { href: lessonLink(q.topic) }, `Learn ${q.topic} ›`)));
         return d;
       })));
   }

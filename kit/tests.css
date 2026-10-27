@@ -63,6 +63,16 @@ h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: 
 .lesson ol, .lesson ul { margin: 0; padding-left: 22px; }
 .lesson li { margin: 4px 0; }
 .lesson ul li::marker { color: var(--bad); }
+/* how to spot the kind of problem, and the facts worth knowing by heart */
+.lesson .spot { margin: 0 0 14px; padding: 10px 14px; border-left: 3px solid var(--accent); background: var(--soft); border-radius: 0 calc(var(--radius) * .72) calc(var(--radius) * .72) 0; }
+.lesson ul.facts { padding: 10px 14px 10px 34px; background: var(--soft); border-radius: calc(var(--radius) * .72); }
+.lesson ul.facts li::marker { color: var(--accent); }
+/* after a test: how each unit went, what to work on, and a lesson for each one missed */
+.tally { margin-top: -4px; }
+.work-on .kinds a { color: var(--accent); text-decoration: none; }
+.work-on .kinds a:hover { text-decoration: underline; }
+.learn-link { margin: 10px 0 2px; }
+.learn-link a { color: var(--accent); font-weight: 600; text-decoration: none; }
 .worked { margin: 14px 0 0; padding: 12px 14px 12px 36px; background: var(--soft); border-radius: calc(var(--radius) * .72); }
 .worked:empty { display: none; }
 .worked li { margin: 4px 0; animation: rise var(--t2) var(--ease) backwards; }
