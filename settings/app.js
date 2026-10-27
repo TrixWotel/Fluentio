@@ -100,8 +100,13 @@ const PRESETS = [
 ];
 // whole looks at once: the colors for light and dark, the style, the corners, and the drifting colors on or off
 const THEMES = [
-  { name: 'Fluentio', note: 'Soft glows, gradients and drifting colors', look: () => ({ style: 'glow', corners: f.DEFAULTS.corners, floatingColors: true, colors: clone(f.DEFAULTS.colors) }) },
-  { name: 'GitHub', note: 'Flat, with borders and GitHub’s own colors', look: () => ({ style: 'flat', corners: 10, floatingColors: false, colors: {
+  { name: 'Fluentio', note: 'Soft glows, gradients and drifting colors', look: () => ({ style: 'glow', corners: f.DEFAULTS.corners, textSize: 16, bar: 'top', font: 'system', floatingColors: true, colors: clone(f.DEFAULTS.colors) }) },
+  // (Fluent's own Pure Black and Light themes, from its style.css and themes.js)
+  { name: 'Fluent', note: 'Your browser’s look: pure black, grays and white, and the sidebar', look: () => ({ style: 'flat', corners: 8, textSize: 14, bar: 'side', font: 'system', floatingColors: false, colors: {
+    light: { accent: '#1d1d1f', accent2: '#515154', background: '#e9e9eb', card: '#ffffff', text: '#1d1d1f', muted: '#6e6e73', line: '#d7d7db', right: '#248a3d', wrong: '#d70015', second: '#b25000' },
+    dark: { accent: '#e8e8e8', accent2: '#a9a9a9', background: '#000000', card: '#0b0b0b', text: '#cccccc', muted: '#8b8b8b', line: '#1f1f1f', right: '#30d158', wrong: '#f48771', second: '#cca700' },
+  } }) },
+  { name: 'GitHub', note: 'Flat, with borders and GitHub’s own colors', look: () => ({ style: 'flat', corners: 10, textSize: 16, bar: 'top', font: 'system', floatingColors: false, colors: {
     light: { accent: '#0969da', accent2: '#0550ae', background: '#f6f8fa', card: '#ffffff', text: '#1f2328', muted: '#59636e', line: '#d1d9e0', right: '#1a7f37', wrong: '#d1242f', second: '#9a6700' },
     dark: { accent: '#4493f8', accent2: '#1f6feb', background: '#0d1117', card: '#151b23', text: '#f0f6fc', muted: '#9198a1', line: '#3d444d', right: '#3fb950', wrong: '#f85149', second: '#d29922' },
   } }) },
@@ -129,7 +134,7 @@ function look() {
     set('Themes', 'A whole look at once: the colors for light and dark, the style, the corners and the drifting colors.',
       el('div', { className: 'themes' }, THEMES.map((t) => {
         const look = t.look(), c = look.colors[palette], on = Object.keys(look).every((k) => same(s[k], look[k]));
-        const b = el('button', { type: 'button', className: `theme${on ? ' on' : ''}${look.style === 'flat' ? ' flat' : ''}`, 'aria-pressed': String(on), onclick: () => { Object.assign(s, look); save(); draw(); } },
+        const b = el('button', { type: 'button', className: `theme${on ? ' on' : ''}${look.style === 'flat' ? ' flat' : ''}${look.bar === 'side' ? ' sided' : ''}`, 'aria-pressed': String(on), onclick: () => { Object.assign(s, look); save(); draw(); } },
           el('span', { className: 'preview', 'aria-hidden': 'true' }, el('span', { className: 'p-side' }, el('i'), el('i'), el('i')), el('span', { className: 'p-card' }, el('i'), el('i'), el('b'))),
           el('span', { className: 'theme-name' }, t.name), el('small', {}, t.note));
         const show = { bg: c.background, card: c.card, line: c.line, text: c.text, muted: c.muted, accent: c.accent, accent2: c.accent2, r: `${Math.round(look.corners * 0.6)}px` };
@@ -140,6 +145,8 @@ function look() {
       seg([['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']], s.theme, (v) => { s.theme = v; palette = shown(); save(); draw(); }, 'Light or dark')),
     set('Style', 'Glow has soft shadows, glowing edges and gradients. Flat has borders and solid colors, like GitHub.',
       seg([['glow', 'Glow'], ['flat', 'Flat']], s.style === 'flat' ? 'flat' : 'glow', (v) => { s.style = v; save(); draw(); }, 'Style')),
+    set('Bar', 'Top has the spaces across the top. Side puts them in a sidebar on the left, like Fluent’s (on a wide enough screen).',
+      seg([['top', 'Top'], ['side', 'Side']], s.bar === 'side' ? 'side' : 'top', (v) => { s.bar = v; save(); draw(); }, 'Bar')),
     set('Accent colors', 'A ready-made accent and second color, for light and dark.',
       el('div', { className: 'swatches' }, PRESETS.map(([name, light, dark]) => {
         const on = s.colors.light.accent === light[0] && s.colors.light.accent2 === light[1] && s.colors.dark.accent === dark[0] && s.colors.dark.accent2 === dark[1];
@@ -160,6 +167,11 @@ function look() {
       const value = el('span', { className: 'value' }, `${s.corners} px`);
       return set('Corners', 'How round cards and buttons are (0 is square).',
         el('input', { type: 'range', min: 0, max: 28, step: 1, value: s.corners, 'aria-label': 'Corners', oninput: (e) => { s.corners = +e.target.value; value.textContent = `${s.corners} px`; save(); } }), value);
+    })(),
+    (() => {
+      const value = el('span', { className: 'value' }, `${s.textSize} px`);
+      return set('Text size', 'How big the words are (16 is the usual size).',
+        el('input', { type: 'range', min: 12, max: 20, step: 1, value: s.textSize, 'aria-label': 'Text size', oninput: (e) => { s.textSize = +e.target.value; value.textContent = `${s.textSize} px`; save(); } }), value);
     })());
 }
 

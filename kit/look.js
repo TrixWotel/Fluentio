@@ -17,7 +17,7 @@
       light: { ocean: '#d6e6f5', land: '#e4e1da', country: '#fbf8f1', border: '#9aa4b1', late: '#d4a72c' },
       dark: { ocean: '#0c1828', land: '#23272e', country: '#4d5768', border: '#151920', late: '#d29922' },
     },
-    font: 'system', corners: 14, style: 'glow', animations: true, speed: 1, floatingColors: true,
+    font: 'system', corners: 14, style: 'glow', textSize: 16, bar: 'top', animations: true, speed: 1, floatingColors: true,
     keys: { search: 'Ctrl+K', home: 'Ctrl+1', study: 'Ctrl+2', workspace: 'Ctrl+3' },
     home: ['workspace', 'study', 'data', 'quick'],
     quick: [
@@ -72,6 +72,17 @@
   const mine = () => merge(site, read('fluentio.look') || {});    // and this browser's own, from the Settings page
   let s = mine();
   const color = (v, fallback) => (typeof v === 'string' && window.CSS && CSS.supports('color', v) ? v : fallback);
+  // whether a color is light (so words on it should be black): its luminance, read back from a canvas as #rrggbb
+  const paint = document.createElement('canvas').getContext('2d');
+  const light = (c) => {
+    if (!paint) return false;
+    paint.fillStyle = '#000000';
+    paint.fillStyle = c;
+    const m = /^#(..)(..)(..)$/.exec(paint.fillStyle);
+    if (!m) return false;
+    const [r, g, b] = m.slice(1).map((h) => parseInt(h, 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.45;
+  };
   const clamp = (v, lo, hi, fallback) => (Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : fallback);
 
   // the custom properties every page's styles use
@@ -79,7 +90,7 @@
     const c = s.colors[mode] || {}, d = DEFAULTS.colors[mode], m = s.map[mode] || {}, dm = DEFAULTS.map[mode];
     const pick = (k) => color(c[k], d[k]), mp = (k) => color(m[k], dm[k]);
     return [
-      `color-scheme: ${mode}`, `--accent: ${pick('accent')}`, `--accent-2: ${pick('accent2')}`, `--bg: ${pick('background')}`,
+      `color-scheme: ${mode}`, `--accent: ${pick('accent')}`, `--on-accent: ${light(pick('accent')) ? '#000' : '#fff'}`, `--accent-2: ${pick('accent2')}`, `--bg: ${pick('background')}`,
       `--card: ${pick('card')}`, `--text: ${pick('text')}`, `--muted: ${pick('muted')}`, `--line: ${pick('line')}`,
       `--good: ${pick('right')}`, `--bad: ${pick('wrong')}`, `--plot2: ${pick('second')}`, `--sky: ${mode === 'dark' ? 0.34 : 0.5}`,
       `--ocean: ${mp('ocean')}`, `--land: ${mp('land')}`, `--country: ${mp('country')}`, `--border: ${mp('border')}`, `--late: ${mp('late')}`,
@@ -87,7 +98,7 @@
   };
   const css = () => {
     const font = typeof s.font === 'string' && s.font.trim() ? FONTS[s.font.trim()] || s.font : FONTS.system;
-    const look = `--font: ${font.replace(/[;{}]/g, '')}; --radius: ${clamp(s.corners, 0, 40, 14)}px; --speed: ${clamp(s.speed, 0.25, 4, 1)}`;
+    const look = `--font: ${font.replace(/[;{}]/g, '')}; --radius: ${clamp(s.corners, 0, 40, 14)}px; --speed: ${clamp(s.speed, 0.25, 4, 1)}; --text-size: ${clamp(s.textSize, 12, 20, 16)}px`;
     return [
       s.theme === 'dark' ? `html:root { ${palette('dark')}; ${look} }`
         : s.theme === 'light' ? `html:root { ${palette('light')}; ${look} }`
@@ -103,6 +114,7 @@
     style.textContent = css();
     document.documentElement.classList.toggle('no-motion', s.animations === false);
     document.documentElement.classList.toggle('flat', s.style === 'flat');
+    document.documentElement.classList.toggle('side', s.bar === 'side');
   };
   apply();
   // (each page's <title>, which comes before this script, ends with the built-in name)

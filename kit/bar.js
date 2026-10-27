@@ -41,8 +41,53 @@
     const gear = el('a', { className: 'gear' + (where() === 'settings' ? ' on' : ''), href: f.link('settings/'), title: 'Settings', 'aria-label': 'Settings' }, svg('settings'));
     document.body.prepend(el('header', { className: 'topbar' }, brand, nav, el('div', { className: 'tools' }, find, gear)));
     document.documentElement.classList.add('has-bar');
+    sync();
   };
-  addEventListener('fluentio:settings', () => nav && drawNav());
+  addEventListener('fluentio:settings', () => { if (nav) { drawNav(); sync(); } });
+
+  // ---------- the bar at the side (bar: 'side'), like Fluent's: the subjects as tiles, then the spaces and your latest
+  // things as rows, and Settings at the bottom (site.css shows it on a wide screen, and the top bar on a narrow one) ----------
+  let side = null, frame = null;
+  const ICON = { note: 'note', doc: 'doc', table: 'table', code: 'code' };
+  function drawSide() {
+    const s = f.settings, here = where();
+    // (the space you're in has the mark that slides between pages, and the thing open in the Workspace a plain one)
+    const row = (href, icon, title, { on, here: open, key } = {}) => el('a', { className: `side-row${open ? ' here' : ''}`, href, 'aria-current': on || open ? 'page' : null },
+      on ? el('span', { className: 'pill', 'aria-hidden': 'true' }) : null, svg(icon), el('span', {}, title), key ? el('kbd', {}, key) : null);
+    const tile = (x) => {
+      const href = f.link(x.link), on = location.pathname.startsWith(new URL(href).pathname);
+      return el('a', { className: 'side-tile' + (on ? ' on' : ''), href, title: x.title || '', 'aria-label': x.title || '', 'aria-current': on ? 'page' : null }, x.emoji || '📘');
+    };
+    const latest = f.workspace.items().sort((a, b) => (b.edited || 0) - (a.edited || 0)).slice(0, 8);
+    side.replaceChildren(
+      el('div', { className: 'side-head' },
+        el('a', { className: 'side-name', href: f.link('./'), 'data-fill': 'name' }, s.name),
+        el('button', { type: 'button', className: 'side-icon', title: keyFor('search') ? `Search (${keyFor('search')})` : 'Search', 'aria-label': 'Search', onclick: () => openFind() }, svg('search'))),
+      el('nav', { className: 'side-tiles', 'aria-label': s.studyTitle }, s.study.map(tile)),
+      el('div', { className: 'side-rule' }),
+      ...spaces().map((x) => row(x.href, x.icon, x.title, { on: x.id === here, key: x.key })),
+      el('div', { className: 'side-label' }, s.workspaceTitle),
+      row(f.link('workspace/#new/note'), 'plus', 'New note'),
+      ...latest.map((it) => row(f.link(`workspace/#${it.kind}/${it.id}`), ICON[it.kind] || 'note', it.title || 'Untitled', { here: here === 'workspace' && location.hash === `#${it.kind}/${it.id}` })),
+      el('div', { className: 'side-foot' }, row(f.link('settings/'), 'settings', 'Settings', { on: here === 'settings' })));
+  }
+  // the sidebar when the settings ask for it: made, drawn again, or taken away
+  function sync() {
+    if (!document.body || !nav) return;
+    const want = f.settings.bar === 'side';
+    if (want && !side) {
+      side = el('aside', { className: 'sidebar', 'aria-label': f.settings.name });
+      frame = el('div', { className: 'frame', 'aria-hidden': 'true' });
+      document.body.prepend(side, frame);
+    } else if (!want && side) {
+      side.remove();
+      frame.remove();
+      side = frame = null;
+    }
+    if (side) drawSide();
+  }
+  addEventListener('fluentio:workspace', () => side && drawSide());
+  addEventListener('hashchange', () => side && drawSide());
 
   // ---------- Search ----------
   const KINDS = { note: 'Note', doc: 'Doc', table: 'Table', code: 'Code' };

@@ -55,7 +55,7 @@ h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: 
 .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
 .tab { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); font-size: .9rem; transition: border-color var(--t1), transform var(--t2) var(--spring); }
 .tab:hover { border-color: var(--accent); transform: translateY(-1px); }
-.tab.on { background: var(--fill); border-color: transparent; color: #fff; animation: bump var(--t2) var(--spring); }
+.tab.on { background: var(--fill); border-color: transparent; color: var(--on-accent, #fff); animation: bump var(--t2) var(--spring); }
 .lesson { background: var(--card); border: 1px solid var(--line); border-radius: calc(var(--radius) + 2px); padding: 20px 22px; box-shadow: var(--shadow); animation: rise var(--t3) var(--ease) backwards; }
 .lesson .idea { font-size: 1.08rem; }
 .lesson .idea p { margin: 0 0 10px; }

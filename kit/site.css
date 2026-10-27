@@ -8,7 +8,14 @@
   --sky: .5;
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --radius: 14px; --speed: 1;
-  --bar-h: 58px;
+  --bar-h: 58px; --side-w: 260px; --text-size: 16px;
+  /* the sidebar's own grays (bar: 'side'): rows, tiles and the lines around the cards, made from the text color */
+  --frame: color-mix(in srgb, var(--text) 13%, transparent);
+  --row-hover: color-mix(in srgb, var(--text) 7%, transparent);
+  --row-on: color-mix(in srgb, var(--text) 12%, transparent);
+  --tile: color-mix(in srgb, var(--text) 8%, var(--bg));
+  --tile-hover: color-mix(in srgb, var(--text) 12%, var(--bg));
+  --tile-on: color-mix(in srgb, var(--text) 18%, var(--bg));
   /* made from the colors above, so changing those changes these */
   --soft: color-mix(in srgb, var(--accent) 9%, var(--card));
   --glow: color-mix(in srgb, var(--accent) 28%, transparent);
@@ -31,7 +38,8 @@
   }
 }
 * { box-sizing: border-box; }
-body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; font: 16px/1.6 var(--font); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+html { font-size: var(--text-size); background: var(--bg); }
+body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; font: 1rem/1.6 var(--font); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
 ::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 [hidden] { display: none !important; }
@@ -52,7 +60,7 @@ footer a { color: inherit; }
 .btn:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--shadow); }
 .btn:active:not(:disabled) { transform: scale(.97); transition-duration: var(--t1); }
 .btn:disabled { opacity: .45; cursor: default; }
-.btn.primary { background: var(--fill); border-color: transparent; color: #fff; }
+.btn.primary { background: var(--fill); border-color: transparent; color: var(--on-accent, #fff); }
 .btn.primary:hover:not(:disabled) { border-color: transparent; box-shadow: var(--shadow-up); filter: brightness(1.06); }
 .btn.big { padding: 11px 18px; font-weight: 600; }
 .confirm {
@@ -75,7 +83,7 @@ footer a { color: inherit; }
   box-shadow: 0 1px 3px rgb(0 0 0 / .3); transition: transform var(--t2) var(--spring);
 }
 .switch:checked { background: var(--accent); }
-.switch:checked::after { transform: translateX(18px); }
+.switch:checked::after { transform: translateX(18px); background: var(--on-accent, #fff); }
 .seg { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border-radius: calc(var(--radius) * .75); background: var(--bg); border: 1px solid var(--line); }
 .seg button {
   padding: 5px 12px; border: 0; border-radius: calc(var(--radius) * .55); background: none; color: var(--muted);
@@ -114,6 +122,53 @@ html.has-bar body { padding-top: var(--bar-h); }
 .gear:hover .i { transform: rotate(90deg); }
 @media (max-width: 680px) { .find span, .find kbd { display: none; } .find { width: 34px; padding: 0; justify-content: center; } .spaces a { padding: 5px 10px; } }
 @media (max-width: 500px) { .topbar { grid-template-columns: 1fr auto; padding: 0 10px; } .topbar .brand { display: none; } .spaces { justify-self: start; } }
+
+/* the bar at the side (settings.js bar: 'side'), like Fluent's: on the window's own background, a rounded card on the
+   left with the subjects as tiles and the spaces and your latest things as rows, and the page in a rounded card beside
+   it (an outline whose shadow, in the background color, hides whatever scrolls past its corners). On a narrow screen
+   the bar goes back to the top */
+.sidebar, .frame { display: none; }
+@media (min-width: 900px) {
+  html.side.has-bar body { padding: 6px 6px 6px calc(var(--side-w) + 12px); }
+  html.side .topbar { display: none; }
+  html.side .sidebar {
+    position: fixed; z-index: 40; top: 6px; bottom: 6px; left: 6px; width: var(--side-w); display: flex; flex-direction: column; gap: 1px;
+    padding: 10px 8px 8px; overflow: auto; border-radius: 12px; border: 1px solid var(--frame); background: var(--bg); font-size: 13px; line-height: 1.4;
+    view-transition-name: topbar; animation: fade-in var(--t2) var(--ease);
+  }
+  html.side .frame {
+    display: block; position: fixed; z-index: 30; top: 6px; right: 6px; bottom: 6px; left: calc(var(--side-w) + 12px); pointer-events: none;
+    border-radius: 12px; border: 1px solid var(--frame); box-shadow: 0 0 0 100vmax var(--bg);
+  }
+}
+.side-head { display: flex; align-items: center; gap: 4px; padding: 0 2px 8px 8px; }
+.side-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.side-name:hover { color: var(--text); }
+.side-icon { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 7px; background: none; color: var(--muted); transition: background var(--t1), color var(--t1); }
+.side-icon:hover { background: var(--row-hover); color: var(--text); }
+.side-icon .i { width: 16px; height: 16px; }
+.side-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 0 2px 8px; }
+.side-tile {
+  display: grid; place-items: center; height: 42px; border-radius: 10px; background: var(--tile); font-size: 18px; text-decoration: none;
+  transition: background var(--t1), transform var(--t2) var(--spring);
+}
+.side-tile:hover { background: var(--tile-hover); }
+.side-tile:active { transform: scale(.95); }
+.side-tile.on { background: var(--tile-on); }
+.side-rule { flex: none; height: 1px; margin: 2px 8px 6px; background: var(--frame); }
+.side-row {
+  position: relative; isolation: isolate; flex: none; display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 8px; border-radius: 8px;
+  color: var(--text); text-decoration: none; white-space: nowrap; transition: background var(--t1);
+}
+.side-row:hover { background: var(--row-hover); }
+.side-row .i { width: 16px; height: 16px; color: var(--muted); }
+.side-row span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.side-row kbd { font: 11px var(--font); color: var(--muted); }
+.side-row .pill { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--row-on); view-transition-name: space-pill; }
+.side-row.on .i, .side-row.here .i { color: var(--text); }
+.side-row.here { background: var(--row-on); }
+.side-label { padding: 12px 8px 4px; color: var(--muted); font-size: 11px; }
+.side-foot { margin-top: auto; padding-top: 8px; }
 
 /* Search (⌃K): over the page, everything there is to find, and arrows and Enter to open one */
 .finder {
