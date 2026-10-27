@@ -384,6 +384,7 @@ export const algebra = {
     (d, ctx) => {
       const [a] = combo(ctx, [[2, 3, 4, 5, -1, -2, -3, -4]]);
       const vals = [ratio(a, 1), ratio(1, 1 - a), ratio(a - 1, a)], N = d.int(100, 2500), ans = vals[(N - 1) % 3], b = (i) => sub('b', i);
+      const after = (v) => (v[0] < 0 ? `(${showFrac(v)})` : showFrac(v));   // what follows "1 −": a negative one in brackets
       return {
         topic: 'Recursive functions', rank: 14,
         text: `A sequence has ${b(1)} = ${num(a)} and ${b('n+1')} = <span class="fr"><span>1</span><span>1 − ${b('n')}</span></span> for every n ≥ 1. What is ${b(N)}?`,
@@ -395,7 +396,7 @@ export const algebra = {
           const G = (x, y) => (y ? G(y, x % y) : x < 0n ? -x : x), g = G(p, q);
           return Number(p / g) === ans[0] && Number(q / g) === ans[1] ? '' : `${b(N)} is ${p}/${q}`;
         },
-        solution: `${b(2)} = 1/(1 − ${a < 0 ? `(${num(a)})` : num(a)}) = ${showFrac(vals[1])}, ${b(3)} = 1/(1 − ${showFrac(vals[1])}) = ${showFrac(vals[2])}, and ${b(4)} = 1/(1 − ${showFrac(vals[2])}) = ${num(a)} again. So the terms repeat every 3. ${N} = 3 · ${Math.floor((N - 1) / 3)} + ${((N - 1) % 3) + 1}, so ${b(N)} = ${b(((N - 1) % 3) + 1)} = <b>${showFrac(ans)}</b>.`,
+        solution: `${b(2)} = 1/(1 − ${a < 0 ? `(${num(a)})` : num(a)}) = ${showFrac(vals[1])}, ${b(3)} = 1/(1 − ${after(vals[1])}) = ${showFrac(vals[2])}, and ${b(4)} = 1/(1 − ${after(vals[2])}) = ${num(a)} again. So the terms repeat every 3. ${N} = 3 · ${Math.floor((N - 1) / 3)} + ${((N - 1) % 3) + 1}, so ${b(N)} = ${b(((N - 1) % 3) + 1)} = <b>${showFrac(ans)}</b>.`,
       };
     },
     // f(n) = f(n − 1) + an + b: the steps add up (telescoping)

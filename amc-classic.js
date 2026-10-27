@@ -45,7 +45,7 @@ export const classic = named({
         text: `In an arithmetic sequence, the ${ord(i)} term is ${num(t(i))} and the ${ord(j)} term is ${num(t(j))}. What is the ${ord(n)} term?`,
         answer: choices(d, t(n), [t(n) + dd, t(n) - dd, t(i) + (n - i + 1) * dd, t(n) + 2 * dd]),
         check: () => { let v = t(i); const step = (t(j) - t(i)) / (j - i); for (let k = i; k < n; k++) v += step; return v === t(n) ? '' : `walked to ${v}`; },
-        solution: `The common difference is (${num(t(j))} − ${num(t(i))}) / (${j} − ${i}) = ${num(dd)}. Then the ${ord(n)} term is the ${ord(i)} term plus ${n - i} steps: ${num(t(i))} + ${n - i}·(${num(dd)}) = <b>${num(t(n))}</b>.`,
+        solution: `The common difference is (${num(t(j))} − ${t(i) < 0 ? `(${num(t(i))})` : num(t(i))}) / (${j} − ${i}) = ${num(dd)}. Then the ${ord(n)} term is the ${ord(i)} term plus ${n - i} steps: ${num(t(i))} + ${n - i}·(${num(dd)}) = <b>${num(t(n))}</b>.`,
       };
     },
     // how many terms in a list

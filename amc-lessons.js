@@ -1,12 +1,14 @@
-// Learning AMC 10 Practice: the path (five units, each in an order where a topic builds on the ones before) and a
-// short lesson for every topic: the idea, how to do it, what to watch out for, and a tip after a wrong answer.
+// Learning AMC 10 Practice: the path (five units, each in an order where a topic builds on the ones before, the harder
+// topics last) and a short lesson for every topic: how to spot it in a test, the idea, how to do it, the facts worth
+// knowing by heart, what to watch out for, and a tip (shown after a wrong answer, and as the first hint).
 export const amcLearning = {
   path: [
     { unit: 'Arithmetic and algebra', topics: [
       'Percent change', 'Percent of what is left', 'Saying and meaning', 'Averages', 'Working together',
       'Arithmetic sequences', 'Triangular numbers', 'Geometric series', 'Fibonacci remainders',
       'Recursive functions', 'Reciprocal sequences', 'Perpendicular lines', 'Parabolas and triangles',
-      'Symmetric sums', 'Least value of a product', 'Ratios of big powers', 'Age multiples'
+      'Symmetric sums', 'Least value of a product', 'Ratios of big powers', 'Age multiples', 'Repeating patterns',
+      'Polynomial remainders', 'Telescoping sums', 'Floors and square roots', 'Roots without solving'
     ] },
     { unit: 'Number theory', topics: [
       'Changing a digit', 'Units digits', 'Remainders of powers', 'Sums of powers mod m',
@@ -14,36 +16,48 @@ export const amcLearning = {
       'Odd and even divisor sums', 'Square and cube divisors', 'Powers of a fraction', 'Squares from factorials',
       'Sums dividing factorials', 'Repeating decimals', 'Diagonal through tiles', 'Difference of squares',
       'Factoring an equation', 'Laps and common multiples', 'Digit sums', 'Divisibility in other bases',
-      'Bases without letters', 'Repeating digits in base k'
+      'Bases without letters', 'Repeating digits in base k', 'Chinese remainders', 'Whole-number fractions',
+      'Divisibility by 11', 'Fractions in lowest terms', 'GCD of expressions', 'Numbering a grid two ways'
     ] },
     { unit: 'Counting', topics: [
       'Digit rules', 'Handshakes', 'Counting committees', 'Forming teams', 'Multiples in blocks',
       'Inclusion and exclusion', 'Separated neighbors', 'Making postage', 'Rising and falling digits',
       'Races with ties', 'Coloring a map', 'Knights, knaves and jokers', 'Number snakes in a grid', 'Crossing lines',
       'Lattice squares', 'Sum-free sets', 'Sets with no multiples', 'Round robin', 'Pairing friends',
-      'Seating with rules', 'Colorings up to symmetry', 'Paths on a cube'
+      'Seating with rules', 'Colorings up to symmetry', 'Paths on a cube', 'Pigeonhole', 'Stars and bars',
+      'Binomial coefficients', 'Lattice points in a diamond', 'Counting with recursion', 'Coloring a ring'
     ] },
     { unit: 'Probability', topics: [
       'Probability with dice', 'Many dice', 'Prime chances', 'Choices in common', 'Running totals', 'At least once',
-      'Taking turns', 'Expected value', 'Random divisors', 'Remainders by chance', 'Units digits by chance',
-      'Geometric probability'
+      'Taking turns', 'Expected value', 'Guess or leave blank', 'Random divisors', 'Remainders by chance',
+      'Units digits by chance', 'Geometric probability', 'Round table chances', 'Derangements and matching',
+      'Random walks and states', 'Expected maximum'
     ] },
     { unit: 'Geometry', topics: [
       'Right triangles', 'Coordinate geometry', 'Altitudes of a triangle', 'Segments to the hypotenuse',
       'Perpendicular to a diagonal', 'Squares in a right triangle', 'Lines making an equilateral triangle',
       'Extending the sides', 'Cutting a segment in a rectangle', 'Circles inside a circle',
-      'Cookies from a sheet of dough', 'Points near a segment', 'Pyramid in a box', 'Octahedron in a box'
+      'Cookies from a sheet of dough', 'Points near a segment', 'Pyramid in a box', 'Octahedron in a box',
+      'Angles in circles', 'Angle bisectors', 'Power of a point', 'Areas cut by a line', 'Cutting a cone',
+      'Reflections and shortest paths', 'Tangent circles on a line', 'Semicircles in a square'
     ] },
   ],
   lessons: {
     // ---------- arithmetic and algebra ----------
     'Percent change': {
+      spot: 'Two or more percent changes in a row, a price "before the discount", or "by what percent did it change": turn each change into a multiplier (up 20% is × 1.2), and divide by it to go back.',
       idea: 'A percent change is a multiplication: up p% is × (1 + p/100), down p% is × (1 − p/100), and two changes in a row multiply. Every percent is a percent of something: of the price before the change. So to undo a discount, divide by the multiplier (don’t add the percent back), and to find a percent increase, divide the change by the old value. For example, up 25% makes 100 into 125, and getting back needs a drop of 25 out of 125: 20%, not 25%.',
       how: [
         'Turn each change into a multiplier: up 20% is × 1.2, down 20% is × 0.8.',
         'Two changes: multiply the multipliers and compare with 1.',
         'The price before a change: divide the new price by the multiplier.',
         'The percent change from A to B: (B − A)/A × 100%.',
+      ],
+      facts: [
+        'Changes in a row multiply, so their order doesn’t matter: up 10% then down 20% is × 1.1 × 0.8 = × 0.88 either way.',
+        'Up p% then down p% always ends below the start: (1 + p/100)(1 − p/100) = 1 − (p/100)², a loss of p²/100 percent.',
+        'Undoing a rise of p% takes a drop of 100p/(100 + p) percent: up 25% is undone by down 20%.',
+        'The percent change from A to B is (B − A)/A × 100%: divide by the old value.',
       ],
       watch: [
         'Adding or subtracting percents that are taken of different amounts.',
@@ -53,12 +67,19 @@ export const amcLearning = {
       tip: 'Ask what the percent is a percent of, then write the change as a multiplier.',
     },
     'Percent of what is left': {
+      spot: 'A second percent taken "of what is left" (or "of the rest"), or two prices that each depend on what the other would leave: multiply the parts that are kept, or write one equation for each price.',
       idea: 'A percent of "what is left" is a percent of a smaller amount, so it multiplies instead of subtracting: spending 30% and then 20% of the rest keeps 0.7 × 0.8 = 0.56, or 56%, not 50%. Working backward, divide by that same factor. When two prices each depend on what the other leaves, write one equation per price and solve them together; calling the allowance A = 100 makes every price a percent of A straight away.',
       how: [
         'For one purchase after another, turn each into the part it keeps (1 − p) and multiply the parts.',
         'To find the starting amount, divide what is left by that product.',
         'When each price is a percent of "A minus the other price", write t = (P/100)(A − s) and s = (Q/100)(A − t).',
         'Substitute one equation into the other, solve, add the two prices, and round only at the end.',
+      ],
+      facts: [
+        'Spending P% and then Q% of the rest keeps (1 − P/100)(1 − Q/100) of the whole: 30% then 20% keeps 0.7 × 0.8 = 56%.',
+        'So the two together take P + Q − PQ/100 percent, less than P + Q: 30% then 20% takes 44%, not 50%.',
+        'Working backward, the start is what is left divided by the product of the kept parts.',
+        'If t = p(A − s) and s = q(A − t), with p and q as fractions, then t + s = A(p + q − 2pq)/(1 − pq).',
       ],
       watch: [
         'Subtracting the percents (100 − P − Q) when the second percent is of what was left.',
@@ -68,12 +89,18 @@ export const amcLearning = {
       tip: 'Each percent here is of what is left, not of the whole: turn the steps into multipliers, or write one equation per price.',
     },
     'Saying and meaning': {
+      spot: 'Some people say the opposite of what they really think, and the question asks "of those who say X, what fraction really…" or "what percent say X": sort the crowd into four boxes, likes it or not and says yes or no.',
       idea: 'Picture a real crowd and sort it into four boxes: likes it and says so, likes it but says not, dislikes it and says so, dislikes it but claims to like it. Every question is about some of those boxes. "What fraction of those who say no really like it" looks only at the two "say no" boxes; "what percent say yes" adds the two "say yes" boxes. Working backward, call the true percent L and write the "say yes" total in terms of L. For example, with 1,000 people, 60% liking, 20% of likers saying no and 90% of non-likers saying no: 120 + 360 = 480 say no, and 120/480 = 1/4 of them like it.',
       how: [
         'Pick a convenient crowd size, like 10,000 (or 100 for percents), so every box is a whole number.',
         'Split the likers into "say yes" and "say no", and the non-likers the same way.',
         'For "what part of those who answer X", divide the right box by everyone who answered X.',
         'If the true share is unknown, call it L, write the total of one answer in terms of L, and solve.',
+      ],
+      facts: [
+        'With L the share who like it, Y the share of likers who say so and N the share of non-likers who say so, the share who say yes is L·Y + (1 − L)(1 − N).',
+        'The share who say no is L(1 − Y) + (1 − L)N; the two answers add up to everyone.',
+        'Of those who say yes, the part who mean it is L·Y ÷ (L·Y + (1 − L)(1 − N)): one "yes" box over both.',
       ],
       watch: [
         'Dividing by the whole crowd instead of only the people who gave that answer.',
@@ -83,12 +110,19 @@ export const amcLearning = {
       tip: 'Sort everyone into four boxes (likes or not, says yes or no), then use only the boxes the question asks about.',
     },
     'Averages': {
+      spot: 'An average that changes when one score is added or taken away, two groups with their own averages put together, or "the average of n consecutive numbers": turn every average into a total.',
       idea: 'An average hides a total: total = average × how many. So compare totals, not averages. When a score is added or removed, the change in the total is that score. When two groups merge, add their totals and divide by everyone (an average of averages only works if the groups are the same size). For evenly spaced numbers such as consecutive integers, the average is the middle of the list. For example, 4 scores averaging 70 total 280; if a fifth makes the average 72, the total is 360, so the fifth score is 80.',
       how: [
         'Turn each average into a total: average × count.',
         'One score added or taken away: it is the difference of the two totals.',
         'Two groups: (total of the first + total of the second) ÷ (everyone).',
         'Consecutive numbers: the average is the middle, so the largest is the average plus half the spread.',
+      ],
+      facts: [
+        'Total = average × how many.',
+        'A new score that moves the average of n scores from m to m′ is (n + 1)m′ − nm, which is m′ + n(m′ − m).',
+        'Two groups of a and b with averages x and y: the combined average is (ax + by)/(a + b), nearer the bigger group’s average.',
+        'For evenly spaced numbers the average is the middle: n consecutive integers averaging m end at m + (n − 1)/2, and n consecutive even (or odd) numbers at m + (n − 1).',
       ],
       watch: [
         'Averaging two group averages when the groups are different sizes.',
@@ -98,12 +132,19 @@ export const amcLearning = {
       tip: 'Turn every average into a total (average × how many) and work with the totals.',
     },
     'Working together': {
+      spot: 'Pumps, printers or painters with a time for the whole job, a drain working against a faucet, or "how long working together": turn each time into a rate (1/time), then add or subtract the rates.',
       idea: 'Work with rates, not times: something that takes 4 hours does 1/4 of the job per hour. Rates of things working together add; something working against you (a drain) has its rate subtracted; and the time is the work left divided by the combined rate. To find one worker’s time from the time together, subtract rates: 1/(alone) = 1/(together) − 1/(the other). For example, pumps taking 3 and 6 hours fill 1/3 + 1/6 = 1/2 tank per hour, so together they take 2 hours.',
       how: [
         'Write each rate as a fraction of the job per hour (or minute): 1/time.',
         'Add the rates of things working together; subtract a rate that works against them.',
         'Time = (work to do) ÷ (combined rate); if someone has already done part of the job, the work to do is what is left.',
         'Working backward: subtract the known rate from the combined rate and flip.',
+      ],
+      facts: [
+        'Two together: 1/T = 1/a + 1/b, so T = ab/(a + b).',
+        'One alone, from the time together: 1/b = 1/T − 1/a, so b = aT/(a − T).',
+        'A faucet that fills in a and a drain that empties in b (b > a) fill the tub in ab/(b − a).',
+        'Work done = rate × time: after h hours alone at 1/a of the job per hour, 1 − h/a of the job is left.',
       ],
       watch: [
         'Averaging or adding the times instead of the rates.',
@@ -113,12 +154,19 @@ export const amcLearning = {
       tip: 'Turn every time into a rate (fraction of the job per hour), combine the rates, then divide the work left by the combined rate.',
     },
     'Arithmetic sequences': {
+      spot: 'Numbers that go up or down by the same step, a list like 3, 7, 11, …, 203, or "which term is…": count steps of the common difference.',
       idea: 'In an arithmetic sequence every step adds the same common difference d, so everything comes down to counting steps. The n-th term is the first plus n − 1 steps: a₁ + (n − 1)d. Turned around, a value v is term (v − a₁)/d + 1, and a list from a to b has (b − a)/d + 1 numbers. The sum of n terms is n times the average of the first and last, because the terms pair up from the two ends. For example, 2, 5, 8, …, 29 has 27/3 + 1 = 10 numbers, and they add up to 10·(2 + 29)/2 = 155.',
       how: [
         'Find d: the change in value divided by the number of steps (j − i) between two known terms.',
         'A far term: start from a known term and add (number of steps)·d.',
         'Which term, or how many numbers in a list: count the steps, (value − first)/d, and add 1.',
         'A sum: find the last term, then multiply the number of terms by the average of the first and last.',
+      ],
+      facts: [
+        'The n-th term is a₁ + (n − 1)d, and the i-th and j-th terms differ by (j − i)d.',
+        'The list a, a + d, …, b has (b − a)/d + 1 numbers.',
+        'The sum of n terms is n × (first + last)/2.',
+        '1 + 2 + ⋯ + n = n(n + 1)/2, and 1 + 3 + 5 + ⋯ + (2n − 1) = n².',
       ],
       watch: [
         'Off by one: the n-th term is a₁ + (n − 1)d, and a list with k steps has k + 1 numbers.',
@@ -128,12 +176,19 @@ export const amcLearning = {
       tip: 'Count steps of the common difference, then remember that k steps join k + 1 terms.',
     },
     'Triangular numbers': {
+      spot: 'Objects in rows of 1, 2, 3, …, each row one longer than the one before, or a total like 1 + 2 + ⋯ + N: use N(N + 1)/2, and to go backward, double the total and find two whole numbers in a row that multiply to it.',
       idea: 'Rows of 1, 2, 3, …, N objects hold 1 + 2 + ⋯ + N = N(N + 1)/2 in all. (Pair the first row with the last, the second with the second-to-last, and so on: every pair holds N + 1.) Going backward, twice the total is N(N + 1), two whole numbers in a row, so N is just below the square root of twice the total. Rows a through b hold the first b rows minus the first a − 1 rows. For example, 55 objects: 2 × 55 = 110 = 10 × 11, so 10 rows; and rows 4 through 6 hold 21 − 6 = 15.',
       how: [
         'Total from rows: N(N + 1)/2.',
         'Rows from a total: double it, take the square root, and check that N × (N + 1) gives exactly twice the total.',
         'A band of rows a to b: (1 + ⋯ + b) − (1 + ⋯ + (a − 1)).',
         'Left over: find the most complete rows that fit, then subtract what they use.',
+      ],
+      facts: [
+        '1 + 2 + ⋯ + N = N(N + 1)/2.',
+        'The first ten are 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, and 1 + 2 + ⋯ + 100 = 5050.',
+        'T is triangular exactly when 8T + 1 is a perfect square, and then N = (√(8T + 1) − 1)/2.',
+        'Rows a through b hold (b − a + 1)(a + b)/2: the number of rows times the average row.',
       ],
       watch: [
         'Being off by one row: check by multiplying N by N + 1.',
@@ -143,12 +198,19 @@ export const amcLearning = {
       tip: 'Use 1 + 2 + ⋯ + N = N(N + 1)/2, and for a band of rows subtract the rows above it.',
     },
     'Geometric series': {
+      spot: 'An infinite sum where each term is the one before times the same ratio, a ball that bounces back to a fraction of its height forever, or the terms in the odd positions: use S = a/(1 − r).',
       idea: 'An infinite geometric series a + ar + ar² + ⋯ with r between −1 and 1 adds up to S = a/(1 − r). That one formula answers a lot: knowing a and S gives r; the odd-position terms are their own series with ratio r², adding to a/(1 − r²); and a bouncing ball travels the first drop plus twice every bounce height. Fixing one term ties a to r, so the least possible sum comes from making the bottom of a formula in r as large as possible: r(1 − r) is at most 1/4 (at r = 1/2), and r²(1 − r) is at most 4/27 (at r = 2/3).',
       how: [
         'Write what you know with a and r, and use S = a/(1 − r).',
         'For odd and even positions, note the even ones are the odd ones times r, so S = S<sub>odd</sub>(1 + r).',
         'For a bouncing ball, add the falls H/(1 − r) and the rises (the same minus the first drop).',
         'For the least sum with a fixed term, make the expression in r as large as possible for r between 0 and 1 (AM–GM).',
+      ],
+      facts: [
+        'a + ar + ar² + ⋯ = a/(1 − r), for r between −1 and 1.',
+        'The odd-position terms add up to a/(1 − r²), and S = S<sub>odd</sub>·(1 + r).',
+        'A ball dropped from H that bounces back to r times each height travels H(1 + r)/(1 − r) in all.',
+        'For r between 0 and 1, r(1 − r) is at most 1/4 (at r = 1/2) and r²(1 − r) at most 4/27 (at r = 2/3).',
       ],
       watch: [
         'Counting a bounce only once: the ball goes up and comes back down.',
@@ -158,12 +220,19 @@ export const amcLearning = {
       tip: 'Start from S = a/(1 − r) and write everything you are given in terms of a and r.',
     },
     'Fibonacci remainders': {
+      spot: 'A sequence where each term is the remainder of the sum of the two before it, with a far-off term, a long sum, or "how many are 0": write out the remainders until 0, 1 comes back, and use the cycle.',
       idea: 'Each term depends only on the two before it, and there are only so many possible pairs of remainders, so the sequence must start repeating, and it returns to 0, 1. Once you know the cycle, everything is about where a term falls in it: a far term is the term at its position mod the cycle length; a long sum is full cycles plus a part of one; and a block exactly one cycle long always adds up to one cycle. The 0s come at regular spacing (every multiple of the first place a 0 appears after the start). For example, mod 3 the remainders run 0, 1, 1, 2, 0, 2, 2, 1, then repeat: a cycle of 8 that adds up to 9, with 0s every 4 terms.',
       how: [
         'Write out the remainders until the pair 0, 1 appears again; the terms before it are one cycle.',
         'Note the cycle\'s length P and its sum.',
         'For one far term, divide its index by P and use the remainder.',
         'For a long sum, count the full cycles and add the leftover terms; for 0s, count the multiples of their spacing.',
+      ],
+      facts: [
+        'The remainders always repeat, starting over at 0, 1: mod 2 to 9 the cycles are 3, 8, 6, 20, 24, 16, 12 and 24 long (and 60 mod 10, for the last digits).',
+        'Term N leaves the same remainder as term (N mod P), where P is the cycle’s length.',
+        'Any P terms in a row add up to the same as one whole cycle.',
+        'The 0s come exactly at the multiples of the first place a 0 appears after the start (every 4th term mod 3).',
       ],
       watch: [
         'Stopping at the first 0: the cycle only ends when 0 is followed by 1.',
@@ -172,12 +241,19 @@ export const amcLearning = {
       tip: 'Write out the remainders until 0, 1 comes back, then use where each term falls in that cycle.',
     },
     'Recursive functions': {
+      spot: 'A rule that builds each term from the ones before it, and a question about a far-off term like f(2025): write out the first several terms and look for a short cycle or a running total.',
       idea: 'Many rules settle into a pattern you can see by writing a few terms. g(n) = g(n − 1) − g(n − 2) repeats every 6 terms: from a, b it goes b − a, −a, −b, a − b, then a, b again. b(n + 1) = 1/(1 − b(n)) comes back after 3 steps. A rule that adds something each step, f(n) = f(n − 1) + (an + b), just adds up those steps. And if a rule has an extra + cn, first find a simple sequence that obeys it, like c(n + 1), and subtract it: what is left obeys the plain rule.',
       how: [
         'Write out the first several terms and look for a repeat or a running total.',
         'For a repeating rule, find the cycle length and use the remainder of N.',
         'For f(n) = f(n − 1) + (an + b), add the steps for n = 2 to N to f(1).',
         'With an extra + cn term, subtract c(n + 1) first; the rest repeats every 6.',
+      ],
+      facts: [
+        'a<sub>n</sub> = a<sub>n−1</sub> − a<sub>n−2</sub> repeats every 6 terms (a, b, b − a, −a, −b, a − b), and any 6 terms in a row add up to 0.',
+        'b<sub>n+1</sub> = 1/(1 − b<sub>n</sub>) repeats every 3 terms: x, 1/(1 − x), (x − 1)/x.',
+        'f(n) = f(n − 1) + g(n) adds up its steps: f(N) = f(1) + g(2) + g(3) + ⋯ + g(N).',
+        'If f(n) = f(n − 1) − f(n − 2) + cn, then f(n) − c(n + 1) repeats every 6 terms.',
       ],
       watch: [
         'Matching remainders to the cycle off by one: a remainder of 0 means the last term of the cycle.',
@@ -187,12 +263,19 @@ export const amcLearning = {
       tip: 'Write out several terms: they either repeat in a short cycle or add up step by step.',
     },
     'Reciprocal sequences': {
+      spot: 'A rule with the term on the top and the bottom of a fraction, like a<sub>n</sub>/(1 + k·a<sub>n</sub>), or terms that are all 1 over something: flip every term over and see how the reciprocals change from one term to the next.',
       idea: 'Some messy-looking rules become simple when you flip every term over. a<sub>n+1</sub> = a<sub>n</sub>/(1 + k·a<sub>n</sub>) flips to 1/a<sub>n+1</sub> = 1/a<sub>n</sub> + k, so the reciprocals go up by k each time; with k·n instead of k, they go up by k, 2k, 3k, …, so they add a triangular number. And a<sub>n</sub> = a<sub>n−2</sub>a<sub>n−1</sub>/(2a<sub>n−2</sub> − a<sub>n−1</sub>) flips to 1/a<sub>n</sub> = 2/a<sub>n−1</sub> − 1/a<sub>n−2</sub>, which says the reciprocals form an arithmetic sequence. Then 1/a<sub>N</sub> = 1/a<sub>1</sub> + (N − 1)d.',
       how: [
         'Flip both sides of the rule and simplify the fraction.',
         'Read off how the reciprocal changes from one term to the next.',
         'If it changes by the same step d, use 1/a<sub>N</sub> = 1/a<sub>1</sub> + (N − 1)d (or the step from two known terms).',
         'If the step grows with n, add up the steps; then flip back and reduce before adding p + q.',
+      ],
+      facts: [
+        'a<sub>n+1</sub> = a<sub>n</sub>/(1 + k·a<sub>n</sub>) flips to 1/a<sub>n+1</sub> = 1/a<sub>n</sub> + k.',
+        'a<sub>n</sub> = a<sub>n−2</sub>a<sub>n−1</sub>/(2a<sub>n−2</sub> − a<sub>n−1</sub>) flips to 1/a<sub>n</sub> = 2/a<sub>n−1</sub> − 1/a<sub>n−2</sub>: the reciprocals are arithmetic.',
+        'Reciprocals going up by d: 1/a<sub>N</sub> = 1/a<sub>1</sub> + (N − 1)d.',
+        'Steps of k, 2k, 3k, …: 1/a<sub>N</sub> = 1/a<sub>1</sub> + k·N(N − 1)/2.',
       ],
       watch: [
         'Taking N steps from the first term instead of N − 1.',
@@ -201,12 +284,19 @@ export const amcLearning = {
       tip: 'Flip every term over and look at how the reciprocals change from one term to the next.',
     },
     'Perpendicular lines': {
+      spot: '"Perpendicular", "meet at a right angle", or "the point of the line closest to" a given point: use slopes that multiply to −1, or pp′ + qq′ = 0 for lines px + qy = r and p′x + q′y = r′.',
       idea: 'For a line written px + qy = r, the slope is −p/q. Two lines are perpendicular when their slopes multiply to −1, which for lines in this form is the same as pp′ + qq′ = 0. So a perpendicular line through a point has the negative reciprocal slope, and the point of a line closest to a given point is where the perpendicular from that point meets the line. With unknown coefficients, the perpendicular condition plus "the point is on both lines" gives the equations you need.',
       how: [
         'Find each line\'s slope (−p/q for px + qy = r), or use pp′ + qq′ = 0 directly.',
         'For a perpendicular through a point, use the negative reciprocal slope in y − y<sub>1</sub> = m(x − x<sub>1</sub>).',
         'For the closest point, intersect the line with the perpendicular through the given point.',
         'For unknown coefficients, solve the perpendicular condition together with the point on each line.',
+      ],
+      facts: [
+        'px + qy = r has slope −p/q.',
+        'Perpendicular slopes multiply to −1 (m and −1/m); for px + qy = r and p′x + q′y = r′ that is pp′ + qq′ = 0.',
+        'The perpendicular to px + qy = r through (x₀, y₀) is qx − py = qx₀ − py₀.',
+        'The point of a line closest to P is the foot of the perpendicular from P.',
       ],
       watch: [
         'Using the same slope (that makes the lines parallel) or the opposite slope instead of the negative reciprocal.',
@@ -216,12 +306,19 @@ export const amcLearning = {
       tip: 'Perpendicular slopes multiply to −1: for px + qy = r and p′x + q′y = r′, that is pp′ + qq′ = 0.',
     },
     'Parabolas and triangles': {
+      spot: 'A triangle with one corner at the vertex of y = kx² and the other two on the parabola at the same height (a side parallel to the x-axis): put those two at (−t, kt²) and (t, kt²).',
       idea: 'A level chord of y = kx² is symmetric about the y-axis, so its ends are (−t, kt²) and (t, kt²). With the third corner at the origin, the triangle has base 2t and height kt², so its area is ½ · 2t · kt² = kt³. Extra conditions fix t: a right angle at the origin means the two slanted sides are perpendicular, (−t)(t) + (kt²)(kt²) = 0, so t = 1/k; an equilateral triangle needs the height kt² to equal √3 · t, so t = √3/k. For example, on y = 4x² an area of 32 gives 4t³ = 32, t = 2, and a level side of 4.',
       how: [
         'Name the ends of the level side (−t, kt²) and (t, kt²).',
         'The base is 2t and the height, from the origin up to that side, is kt²; the area is kt³.',
         'Turn the condition you are given (an area, a side, a right angle, equal sides) into an equation in t.',
         'Solve for t, then answer what is asked: the side 2t or the area kt³.',
+      ],
+      facts: [
+        'With corners (0, 0), (−t, kt²) and (t, kt²): base 2t, height kt², area kt³.',
+        'A right angle at the origin means t = 1/k: the level side is 2/k and the area 1/k².',
+        'Equilateral means kt² = √3·t: t = √3/k, and each side is 2√3/k.',
+        'An equilateral triangle with side s has height (√3/2)s and area (√3/4)s².',
       ],
       watch: [
         'Answering t instead of 2t.',
@@ -231,12 +328,19 @@ export const amcLearning = {
       tip: 'Put the ends of the level side at (−t, kt²) and (t, kt²), turn the condition into an equation in t, and solve.',
     },
     'Symmetric sums': {
+      spot: 'You know two of x + y, xy, x − y and x² + y² (or x + 1/x) and want x² + y², x³ + y³ or a power plus its reciprocal: don’t solve for x and y; square or cube what you know.',
       idea: 'You rarely need x and y themselves (they may not even be real). Everything follows from expanding: (x + y)² = x² + y² + 2xy, (x − y)² = x² + y² − 2xy, and (x + y)³ = x³ + y³ + 3xy(x + y). So any one of x + y, xy and x² + y² follows from the other two, and x³ + y³ = (x + y)³ − 3xy(x + y). The same trick works for x + 1/x, since x·(1/x) = 1: (x + 1/x)² = x² + 2 + 1/x². For example, if x + y = 5 and x² + y² = 13, then 25 = 13 + 2xy, so xy = 6.',
       how: [
         'Write down the identity that links what you know to what you want.',
         'From x + y and x² + y²: xy = ((x + y)² − (x² + y²))/2.',
         'From x − y and xy: x² + y² = (x − y)² + 2xy, and (x + y)² = (x − y)² + 4xy.',
         'For x + 1/x = s: x² + 1/x² = s² − 2 and x³ + 1/x³ = s³ − 3s.',
+      ],
+      facts: [
+        'x² + y² = (x + y)² − 2xy = (x − y)² + 2xy.',
+        'x³ + y³ = (x + y)³ − 3xy(x + y).',
+        '(x + y)² = (x − y)² + 4xy.',
+        'If x + 1/x = s, then x² + 1/x² = s² − 2 and x³ + 1/x³ = s³ − 3s.',
       ],
       watch: [
         'Forgetting the 2 in 2xy, or adding it instead of subtracting.',
@@ -246,12 +350,19 @@ export const amcLearning = {
       tip: 'Square (or cube) the sum or difference you know and solve for the piece you want; you never need x and y themselves.',
     },
     'Least value of a product': {
+      spot: '"The smallest value as x ranges over all real numbers" of a product of linear factors or a sum of squares: pair the factors so they share the same x² + bx part and complete the square, or go to the middle.',
       idea: 'A product is easiest to minimize as a single square. Two factors (x − a)(x − b) make a parabola lowest halfway between a and b. Four factors pair up so both pairs share the same x² + (something)x part: call one product u, the other is u + D, and u(u + D) = (u + D/2)² − D²/4, so the least value is the constant minus D²/4 (when u can reach −D/2). A sum of squares (x − a)² + (x − b)² + (x − c)² is lowest at the average of a, b and c. For example, x(x + 1)(x + 2)(x + 3) = u(u + 2) with u = x² + 3x, which is (u + 1)² − 1, so it is never below −1.',
       how: [
         'Two factors: go halfway between the roots and multiply the two factors there.',
         'Four factors: pair them so each pair has the same x-term (the outer pair and the inner pair), call one u.',
         'Complete the square in u; a square is never negative.',
         'A sum of squares: put x at the average of the numbers and add up the squares.',
+      ],
+      facts: [
+        '(x − a)(x − b) is least halfway between a and b, where it equals −((a − b)/2)².',
+        'u(u + D) = (u + D/2)² − D²/4, so it is never below −D²/4.',
+        'Four evenly spaced factors with step d, like x(x + d)(x + 2d)(x + 3d), are never below −d<sup>4</sup>, and reach it.',
+        '(x − a)² + (x − b)² + (x − c)² is least at the average, x = (a + b + c)/3.',
       ],
       watch: [
         'Answering the added constant itself and forgetting what the square takes away.',
@@ -261,12 +372,19 @@ export const amcLearning = {
       tip: 'Turn the expression into a square plus a constant: pair the factors so they share the same x-term, or go to the middle.',
     },
     'Ratios of big powers': {
+      spot: 'A fraction made of sums of huge powers, "the greatest integer that does not exceed" it, or "which of these powers is the largest": factor out the biggest (or smallest) power, or give every power the same exponent.',
       idea: 'When one base is bigger, its powers swamp the other\'s, so a ratio of sums is close to the bigger base raised to the gap in exponents. Pulling that power out of the top shows exactly how far off it is: with plus signs the ratio is a little below the power, with minus signs a little above. With a single base, take the smallest power out of the top and the bottom and it cancels. To compare big powers, rewrite them with the same exponent and compare the bases. For example, (3¹⁰ + 2¹⁰)/(3⁸ + 2⁸) ≈ 9 − 0.19, so its floor is 8, and 2³⁰⁰ = 8¹⁰⁰ is less than 3²⁰⁰ = 9¹⁰⁰.',
       how: [
         'Find the gap between the exponents and the bigger base to that power.',
         'Rewrite the top as that power times the bottom, plus or minus a leftover, and check the leftover part is less than 1.',
         'With one base, factor out its smallest power from the top and the bottom.',
         'To compare powers, write each with the largest common exponent and compare what is being raised.',
+      ],
+      facts: [
+        'For a > b > 0 and N > m, (a<sup>N</sup> + b<sup>N</sup>)/(a<sup>m</sup> + b<sup>m</sup>) is less than a<sup>N−m</sup>, and (a<sup>N</sup> − b<sup>N</sup>)/(a<sup>m</sup> − b<sup>m</sup>) is more.',
+        'The gap from a<sup>N−m</sup> is exactly b<sup>m</sup>(a<sup>N−m</sup> − b<sup>N−m</sup>) divided by the bottom, a<sup>m</sup> + b<sup>m</sup> or a<sup>m</sup> − b<sup>m</sup>.',
+        'With one base, the smallest power cancels: (b<sup>n+p</sup> + b<sup>n</sup>)/(b<sup>n+q</sup> − b<sup>n</sup>) = (b<sup>p</sup> + 1)/(b<sup>q</sup> − 1).',
+        'To compare powers, give them the same exponent: 2<sup>300</sup> = 8<sup>100</sup> is less than 9<sup>100</sup> = 3<sup>200</sup>.',
       ],
       watch: [
         'Forgetting that the minus-sign version lands just above the whole number, not just below.',
@@ -276,12 +394,19 @@ export const amcLearning = {
       tip: 'Factor the biggest common power out (or give the powers the same exponent), and see what is left.',
     },
     'Age multiples': {
+      spot: '"On how many birthdays is the parent’s age a multiple of the child’s", "the next time that happens", or "in how many years will one be m times as old": the age gap never changes, so use the divisors of the gap, or solve P + y = m(C + y).',
       idea: 'If a parent is G years older than the child, then when the child is z the parent is z + G, and z + G is a multiple of z exactly when z divides G. So "how many birthdays when the parent\'s age is a multiple" means "how many divisors G has", and "the next time" means "the next divisor of the gap". When a set multiple is asked for, like "twice as old", the gap stays the same while both ages grow, so write the two ages in y years and solve. For example, with a gap of 12 it happens when the child is 1, 2, 3, 4, 6 and 12: six birthdays.',
       how: [
         'Turn each parent\'s age into an age gap with the child (the child is 1 today, so the gap is the parent\'s age minus 1).',
         'Count divisors of the gap for "how many times", or use the count to find which gap in the range fits.',
         'For the next time, find the smallest divisor of the gap above 1: the parent is then the gap plus that age.',
         'For "m times as old in y years", solve P + y = m(C + y).',
+      ],
+      facts: [
+        'With a gap of G years, the older age is a multiple of the younger exactly when the younger age divides G.',
+        'So it happens on as many birthdays as G has divisors, the first when the child turns 1.',
+        'P + y = m(C + y) gives y = (P − mC)/(m − 1).',
+        'A number has an odd number of divisors exactly when it is a perfect square.',
       ],
       watch: [
         'Using the parent\'s age instead of the age gap.',
@@ -290,8 +415,118 @@ export const amcLearning = {
       ],
       tip: 'The gap between two ages never changes: a parent\'s age is a multiple of the child\'s exactly when the child\'s age divides that gap.',
     },
+    // harder: problems 15 to 25
+    'Roots without solving': {
+      spot: 'When a question asks for something built from a polynomial’s roots (their squares, their reciprocals, a mean, a new polynomial with related roots), or for the coefficients that make the roots whole numbers: the roots are ugly or not needed, and Vieta’s formulas give the answer straight from the coefficients.',
+      idea: 'A polynomial with leading coefficient a and roots r, s, t is a(x − r)(x − s)(x − t). Multiplying that out and matching coefficients gives Vieta’s formulas: for ax<sup>2</sup> + bx + c, r + s = −b/a and rs = c/a; for ax<sup>3</sup> + bx<sup>2</sup> + cx + d, r + s + t = −b/a, rs + st + tr = c/a and rst = −d/a. Anything symmetric in the roots can be rewritten in these three. For example, the roots of 2x<sup>2</sup> − 6x + 1 = 0 have r + s = 3 and rs = 1/2, so 1/r + 1/s = (r + s)/(rs) = 6, without ever finding r or s. A polynomial with the roots moved works the same way: the one with roots r + k, s + k, t + k is P(x − k).',
+      how: [
+        'Write down the sum, the sum of the products in pairs, and the product of the roots, with their signs, from the coefficients.',
+        'Rewrite what is asked in terms of those: put fractions over a common denominator, and use (sum)<sup>2</sup> − 2·(pairs) for a sum of squares.',
+        'For a new polynomial, work out the sum, pairs and product of its roots from the old ones, or put a number into P: if P has leading coefficient 1, (k − r)(k − s)(k − t) = P(k).',
+        'For whole-number roots with an unknown coefficient, get rid of it between the two Vieta equations and factor: rs = k(r + s) becomes (r − k)(s − k) = k<sup>2</sup>, and each factor pair gives one answer.',
+      ],
+      facts: [
+        'ax<sup>2</sup> + bx + c: r + s = −b/a and rs = c/a.',
+        'ax<sup>3</sup> + bx<sup>2</sup> + cx + d: r + s + t = −b/a, rs + st + tr = c/a and rst = −d/a.',
+        'r<sup>2</sup> + s<sup>2</sup> + t<sup>2</sup> = (r + s + t)<sup>2</sup> − 2(rs + st + tr), and (r + s)(s + t)(t + r) = (r + s + t)(rs + st + tr) − rst.',
+        'If P has leading coefficient 1 and roots r, s, t, then P(k) = (k − r)(k − s)(k − t) for any number k.',
+      ],
+      watch: [
+        'Sign slips: the sum of the roots is −b/a, and the product of a cubic’s roots is −d/a.',
+        'Forgetting to divide by the leading coefficient when it isn’t 1.',
+        'Squaring a sum without the cross terms: (r + s)<sup>2</sup> is r<sup>2</sup> + s<sup>2</sup> + 2rs.',
+        'Using only positive factor pairs: two negative numbers multiply to the same product and give roots too.',
+      ],
+      tip: 'Write down what Vieta’s formulas give (the sum, the products in pairs, the product) and turn the question into those instead of solving for the roots.',
+    },
+    'Polynomial remainders': {
+      spot: 'When a problem asks for a remainder on dividing by a product like (x − 1)(x + 2) or by something like x<sup>2</sup> + x + 1, gives a polynomial’s values at a few points, or asks for a sum of some of its coefficients: plug in well-chosen numbers instead of dividing.',
+      idea: 'Division gives P(x) = D(x)·Q(x) + R(x), where R has smaller degree than D. Wherever D(x) = 0 the first part vanishes, so P and R agree there; dividing by x − a leaves exactly P(a) (the remainder theorem). With D = (x − a)(x − b) the remainder is mx + n, fixed by R(a) = P(a) and R(b) = P(b). If D divides x<sup>k</sup> − 1 (x<sup>2</sup> + x + 1 divides x<sup>3</sup> − 1), then x<sup>k</sup> leaves remainder 1, so a huge power shrinks to a small one. Putting in x = 1 adds up the coefficients, and x = −1 adds the even-power ones and subtracts the odd-power ones. And if P(k) follows a simple rule L(k) for k = 1, …, n, then P(x) − L(x) has roots 1, …, n, so it is c(x − 1)⋯(x − n).',
+      how: [
+        'Write P(x) = D(x)·Q(x) + R(x), with R of lower degree than D.',
+        'Put in the roots of D: there P(x) = R(x), which gives equations for the coefficients of R.',
+        'For huge powers, find a power of x that leaves 1 (or −1), reduce each exponent by it, then reduce what is left.',
+        'For sums of coefficients use P(1), P(−1) and P(0); for values that follow a pattern at 1, 2, …, n, subtract the pattern and factor what is left.',
+      ],
+      facts: [
+        'Dividing P(x) by x − a leaves P(a).',
+        'x<sup>2</sup> + x + 1 divides x<sup>3</sup> − 1, x<sup>2</sup> − x + 1 divides x<sup>3</sup> + 1, and x<sup>2</sup> + 1 divides x<sup>4</sup> − 1.',
+        'The even-power coefficients add up to (P(1) + P(−1))/2 and the odd-power ones to (P(1) − P(−1))/2.',
+      ],
+      watch: [
+        'The wrong root: dividing by x + 2 means putting in x = −2.',
+        'Leaving a power as high as the divisor in the remainder: on dividing by a quadratic, x<sup>2</sup> still has to be reduced.',
+        'Forgetting the number c in P(x) − L(x) = c(x − 1)⋯(x − n) when the leading coefficient isn’t given as 1.',
+      ],
+      tip: 'Put in the roots of the divisor: there the polynomial and its remainder are equal.',
+    },
+    'Telescoping sums': {
+      spot: 'When a long sum or product has terms with a pattern in k, like 1/(k(k + 2)), 1/(√k + √(k + 1)) or 1 − 1/k<sup>2</sup>, and wants an exact answer: try to write each term as a difference (or a ratio) of neighbouring pieces, so that almost everything cancels.',
+      idea: 'If every term is f(k) − f(k + 1), then the sum for k = 1 to N collapses to f(1) − f(N + 1), because each piece in the middle comes once with a plus and once with a minus. Partial fractions find the pieces: 1/(k(k + 2)) = ½(1/k − 1/(k + 2)), since those two fractions differ by 2/(k(k + 2)). For square roots, rationalizing does it: 1/(√k + √(k + 1)) = √(k + 1) − √k. Products work the same way with ratios: 1 − 1/k<sup>2</sup> = (k − 1)/k · (k + 1)/k, and the fractions cancel along a chain. For example, 1/(1·2) + 1/(2·3) + ⋯ + 1/(9·10) = 1 − 1/10 = 9/10.',
+      how: [
+        'Take one general term and find two simpler pieces whose difference (or ratio) it is; check by putting them back together.',
+        'Write out the first few and the last few terms to see what cancels and what is left.',
+        'When the pieces are two steps apart, like 1/k − 1/(k + 2), two pieces are left at each end.',
+        'Add up what is left and simplify, keeping any factor like ½ that came with the split.',
+      ],
+      facts: [
+        '1/(k(k + d)) = (1/d)(1/k − 1/(k + d)).',
+        '1/(√k + √(k + 1)) = √(k + 1) − √k.',
+        'k<sup>4</sup> + k<sup>2</sup> + 1 = (k<sup>2</sup> − k + 1)(k<sup>2</sup> + k + 1), and k<sup>2</sup> + k + 1 is what k<sup>2</sup> − k + 1 becomes at k + 1.',
+        'k/(k + 1)! = 1/k! − 1/(k + 1)!.',
+      ],
+      watch: [
+        'Losing the ½ (or 1/d) that comes with the split.',
+        'Keeping one piece at each end when the pieces are two apart and two are left.',
+        'Being off by one at the far end: the last term, k = N, leaves a piece with N + 1 (or N + 2) in it.',
+      ],
+      tip: 'Write one term as a difference of two neighbouring pieces, then list the first and last few terms to see what is left.',
+    },
+    'Floors and square roots': {
+      spot: 'When a problem adds up or counts something involving ⌊√k⌋ (or ⌈√k⌉, ⌊∛k⌋) for many k, or has an equation with both x and ⌊x⌋: the floor stays the same over long blocks of numbers, so group the numbers by its value.',
+      idea: '⌊√k⌋ = m exactly for the 2m + 1 numbers from m<sup>2</sup> to m<sup>2</sup> + 2m, the block just before (m + 1)<sup>2</sup>. So a sum or a count for k = 1 to N is a sum over complete blocks plus one partial block at the end. Inside a block the floor is a fixed m, which makes questions about it easy: the multiples of m in m<sup>2</sup>, …, m<sup>2</sup> + 2m are m<sup>2</sup>, m<sup>2</sup> + m and m<sup>2</sup> + 2m. For an equation with ⌊x⌋, call n = ⌊x⌋, solve for x in terms of n, and keep only the n with n ≤ x &lt; n + 1. For example, ⌊√1⌋ + ⌊√2⌋ + ⋯ + ⌊√8⌋ = 1·3 + 2·5 = 13.',
+      how: [
+        'Find the blocks: where the floor equals m, and how many numbers that is (2m + 1 for square roots, 3m<sup>2</sup> + 3m + 1 for cube roots).',
+        'Deal with all the complete blocks at once, with a short sum or a formula.',
+        'Treat the last block on its own, counting only up to N.',
+        'For an equation, write n = ⌊x⌋, solve for x, and check n ≤ x &lt; n + 1 for each n.',
+      ],
+      facts: [
+        '⌊√k⌋ = m for m<sup>2</sup> ≤ k ≤ m<sup>2</sup> + 2m (2m + 1 numbers), and ⌈√k⌉ = m for (m − 1)<sup>2</sup> &lt; k ≤ m<sup>2</sup> (2m − 1 numbers).',
+        '⌊∛k⌋ = m for the 3m<sup>2</sup> + 3m + 1 numbers from m<sup>3</sup> to m<sup>3</sup> + 3m<sup>2</sup> + 3m.',
+        'n = ⌊x⌋ means n ≤ x &lt; n + 1.',
+      ],
+      watch: [
+        'Counting the last block as complete when N stops partway through it.',
+        'A block length off by one: m<sup>2</sup> up to (m + 1)<sup>2</sup> − 1 is 2m + 1 numbers, not 2m.',
+        'In an equation, keeping an n without checking that the x it gives really has floor n.',
+      ],
+      tip: 'Group the numbers by the value of the floor: it stays the same from m<sup>2</sup> up to just before (m + 1)<sup>2</sup>.',
+    },
+    'Repeating patterns': {
+      spot: 'When a sequence or a function applied over and over asks about something far away (the 2026th term, the sum of the first 1000 terms, f applied 500 times) and the rule is simple: work out the first several terms and look for a repeat.',
+      idea: 'When each term depends only on the one before (or the two before), the sequence repeats as soon as a value (or a pair of values) comes back, and from then on it goes round a cycle. Once you know the cycle length P, the N-th term is the one at position N mod P, and a long sum or product is (the number of full cycles) × (one cycle’s total) plus the leftover terms. For example, a<sub>n+2</sub> = a<sub>n+1</sub> − a<sub>n</sub> from x, y gives x, y, y − x, −x, −y, x − y and then repeats, and those six add up to 0, so the sum of the first N terms depends only on N mod 6. Growing blocks like 1, 2, 2, 3, 3, 3, … are patterns too: the block of n’s ends at position n(n + 1)/2.',
+      how: [
+        'Write out terms until a value (or a pair) repeats; note the cycle length and how many steps come before the cycle starts.',
+        'Divide N (less any steps before the cycle) by the cycle length: the quotient counts full cycles and the remainder says where you stop.',
+        'For a sum or product, multiply one cycle’s total (often 0, 1 or −1) by the number of cycles, then add or multiply in the leftover terms.',
+        'For growing blocks, find the block N falls in with the triangular numbers n(n + 1)/2.',
+      ],
+      facts: [
+        'a<sub>n+1</sub> = 1/(1 − a<sub>n</sub>) repeats every 3 terms, and a<sub>n+1</sub> = (1 + a<sub>n</sub>)/(1 − a<sub>n</sub>) every 4.',
+        'a<sub>n+2</sub> = a<sub>n+1</sub> − a<sub>n</sub> repeats every 6 terms, and any 6 terms in a row add up to 0.',
+        '1 + 2 + ⋯ + n = n(n + 1)/2, and 1<sup>2</sup> + 2<sup>2</sup> + ⋯ + n<sup>2</sup> = n(n + 1)(2n + 1)/6.',
+      ],
+      watch: [
+        'Off by one with remainders: a remainder of 0 means the last term of a cycle, not the first.',
+        'Forgetting the steps before the cycle starts when the starting value isn’t on the cycle.',
+        'Dropping the leftover terms after the full cycles, or the sign of a cycle that multiplies to −1.',
+      ],
+      tip: 'Write out terms until something repeats, then use the remainder of N on division by the length of the cycle.',
+    },
     // ---------- number theory ----------
     'Changing a digit': {
+      spot: 'The whole numbers from 1 to N written out, with "how many times is the digit 7 written", "the sum of all the digits", a digit copied wrong, or how many digits the page numbers take: count place by place.',
       idea: 'Count digit by digit, place by place. A digit in the units place is worth 1 and in the tens place 10, so changing x into y lowers a number by (x − y) times the place value. From 1 to N, a digit appears in the units place once in every 10 numbers and in the tens place 10 times in a row each hundred, which also counts how often it is written. Digit sums add the same way: each full run 0 to 9 in the units place adds 45. And page numbers use 9 digits for pages 1 to 9 and 180 for pages 10 to 99, then 3 a page. Example: writing 1 to 20 uses the digit 1 twelve times.',
       how: [
         'Split the count by place: the units place and the tens place (and the hundreds if N goes that high).',
@@ -299,6 +534,12 @@ export const amcLearning = {
         'For a changed digit, multiply each count by its place value and by the difference of the digits.',
         'For a digit sum, add the units digits run by run (45 per full run) and the tens digits block by block.',
         'For page numbers, take off 9 digits for pages 1 to 9 and 180 for 10 to 99, then divide what is left by 3.',
+      ],
+      facts: [
+        'From 1 to 99 each digit 1 to 9 is written 20 times (10 in the units place, 10 in the tens); from 1 to 999, 300 times.',
+        'The digits of 1 to 99 add up to 900, and those of 1 to 999 to 13,500.',
+        'Page numbers 1 to 9 take 9 digits, 1 to 99 take 189, and 1 to 999 take 2,889.',
+        'Writing y instead of x in a place worth p lowers the number by (x − y)·p.',
       ],
       watch: [
         'Treating every appearance as worth the same: a tens digit is worth 10 times a units digit.',
@@ -308,6 +549,7 @@ export const amcLearning = {
       tip: 'Count the units place and the tens place separately, then combine them.',
     },
     'Units digits': {
+      spot: '"The units digit" or "the last two digits" of a huge power, or of a sum or product of huge powers: keep only the last digit (or two) and follow its cycle.',
       idea: 'The units digit of a sum or product depends only on the units digits of the numbers, so a huge base can be swapped for its last digit. The last digits of the powers of any digit repeat in a cycle of length 1, 2 or 4 (powers of 7 end in 7, 9, 3, 1, 7, …), so the exponent’s remainder when divided by the cycle length picks the digit. The same idea works for the last two digits: 7<sup>4</sup> ends in 01, so powers of 7 repeat their last two digits every 4 steps. Example: 3<sup>10</sup> ends like 3<sup>2</sup>, in 9, because 10 = 4 · 2 + 2.',
       how: [
         'Keep only the last digit of each base (the last two digits if the question asks for two).',
@@ -315,6 +557,12 @@ export const amcLearning = {
         'Divide the exponent by the cycle length: remainder r means the r-th entry, remainder 0 the last one.',
         'Add or multiply the digits you found and keep only the last digit.',
         'To count how often a<sup>1</sup>, a<sup>2</sup>, …, a<sup>N</sup> end in a digit, count the exponents with the right remainder.',
+      ],
+      facts: [
+        'The last digits of powers repeat in cycles of 1, 2 or 4: 2, 4, 8, 6; 3, 9, 7, 1; 7, 9, 3, 1; 8, 4, 2, 6; 4, 6; 9, 1; and 0, 1, 5, 6 never change.',
+        'So d<sup>n</sup> and d<sup>n+4</sup> always end in the same digit (n ≥ 1).',
+        'The last digit of a sum or product depends only on the last digits of the numbers.',
+        '7<sup>4</sup>, 43<sup>4</sup>, 57<sup>4</sup> and 93<sup>4</sup> all end in 01, so the last two digits of their powers repeat every 4.',
       ],
       watch: [
         'Giving the units digit of just one of the two powers instead of the sum or product.',
@@ -324,6 +572,7 @@ export const amcLearning = {
       tip: 'Replace each base by its last digit, find the repeating cycle of its powers, and use the exponent’s remainder to pick the spot.',
     },
     'Remainders of powers': {
+      spot: '"The remainder when b<sup>k</sup> is divided by m" with a big k, "for how many k is b<sup>k</sup> − 1 a multiple of m", or the smallest k that leaves 1: list the remainders of b, b², b³, … until one comes back to 1.',
       idea: 'Only remainders matter along the way: the remainder of b<sup>k+1</sup> is the remainder of (remainder of b<sup>k</sup>) × b. So the remainders of b, b², b³, … must repeat, and when b shares no factor with m they come back to 1 and start over. The first k with remainder 1 is the cycle length L. Then b<sup>k</sup> leaves the same remainder as b<sup>r</sup>, where r is k mod L; b<sup>k</sup> − 1 is a multiple of m exactly when L divides k; and remainders of a sum add up. Example, mod 7: powers of 3 leave 3, 2, 6, 4, 5, 1, so L = 6 and 3<sup>20</sup> leaves the same as 3² = 9: 2.',
       how: [
         'List the remainders of b, b², b³, … mod m, multiplying the last remainder by b each time.',
@@ -332,14 +581,21 @@ export const amcLearning = {
         'For "how many k make b<sup>k</sup> − 1 a multiple of m": count the multiples of L.',
         'For a sum of powers: find each remainder, add them, and reduce mod m.',
       ],
+      facts: [
+        'If b<sup>L</sup> leaves remainder 1, then b<sup>k</sup> leaves the same remainder as b<sup>r</sup>, where r is k mod L.',
+        'Fermat: for a prime p that doesn’t divide b, b<sup>p−1</sup> leaves remainder 1, so the cycle length divides p − 1.',
+        'm divides b<sup>k</sup> − 1 exactly when the cycle length L divides k: ⌊N/L⌋ values of k from 1 to N.',
+        'Remainders multiply: xy leaves the same remainder as (remainder of x) × (remainder of y).',
+      ],
       watch: [
-        'Reducing the exponent with m (or m − 1) instead of the actual cycle length L.',
+        'Reducing the exponent by m, or by m − 1 when m isn’t prime (Fermat needs a prime), instead of the cycle length L. For "the smallest k" only L itself will do.',
         'Being one place off when you count along the cycle.',
         'Leaving a sum of remainders unreduced: it must end up between 0 and m − 1.',
       ],
       tip: 'List the remainders of b, b², b³, … until one comes back to 1; that cycle length tells you everything else.',
     },
     'Sums of powers mod m': {
+      spot: 'A remainder of several powers added together, a base one more or one less than the divisor (like 13<sup>k</sup> divided by 12 or 14), or 1 + b + b² + ⋯ + b<sup>n</sup>: factor out the smallest power, or swap the base for 1 or −1.',
       idea: 'Consecutive powers share a factor: b<sup>k</sup> + b<sup>k+1</sup> + b<sup>k+2</sup> = b<sup>k</sup> · (1 + b + b<sup>2</sup>), and remainders multiply. A base one less than the divisor acts like −1 (its powers leave 1 or m − 1), and one more acts like 1. For a long sum 1 + b + ⋯ + b<sup>n</sup>, the remainders of the powers repeat in a cycle, and often a full cycle adds up to a multiple of m, so only the leftover terms count. Example: mod 5, powers of 2 leave 1, 2, 4, 3, which add to 10; so 1 + 2 + ⋯ + 2<sup>5</sup> leaves the same remainder as its last two terms, 1 + 2 = 3.',
       how: [
         'For consecutive powers, factor out the smallest one and work out the small sum in the bracket.',
@@ -347,6 +603,12 @@ export const amcLearning = {
         'Otherwise list the remainders of b, b<sup>2</sup>, … until they repeat, and use the exponent’s remainder to find b<sup>k</sup>.',
         'For a long sum, count the full cycles it holds and, when a full cycle adds to a multiple of m, add up only the leftover remainders.',
         'Multiply (or add) the remainders and take the remainder once more.',
+      ],
+      facts: [
+        'b<sup>k</sup> + b<sup>k+1</sup> + b<sup>k+2</sup> = b<sup>k</sup>(1 + b + b²).',
+        'Divided by m, a base of m + 1 acts like 1 and m − 1 like −1: (m − 1)<sup>k</sup> leaves 1 for even k and m − 1 for odd k.',
+        'If b<sup>L</sup> leaves 1, the remainders of 1, b, b², … repeat every L terms; when a full cycle adds up to a multiple of m, only the leftover terms count.',
+        'Remainders add and multiply, so reduce after every step.',
       ],
       watch: [
         'Stopping at the remainder of the bracket alone, or of b<sup>k</sup> alone.',
@@ -356,12 +618,19 @@ export const amcLearning = {
       tip: 'Work only with remainders: factor out the smallest power, or swap a base like m − 1 for −1.',
     },
     'Primes in a digit pattern': {
+      spot: 'A list of numbers built from a digit pattern (1s and 0s, or a prime written over and over) and "how many of them are prime": find one factorization that fits every number in the list.',
       idea: 'A pattern in the digits usually means a pattern in the factors, so you can count primes without testing big numbers. k ones, a 0 and k more ones is (k ones) × (10<sup>k+1</sup> + 1). A two-digit prime written over and over is that prime times 101, 10101, …. And 10<sup>k</sup> + 1 has the factor 10<sup>k/m</sup> + 1 whenever k has an odd factor m > 1, because x<sup>m</sup> + 1 is divisible by x + 1 when m is odd. For multiples of 11, use 10 = 11 − 1: an even power of 10 is 1 more than a multiple of 11, an odd power 1 less.',
       how: [
         'Write the first few numbers of the list as products, and look for one factorization that fits them all.',
         'Use the patterns: (block of ones) × (10<sup>k+1</sup> + 1), a repeated prime p × 1010…1, and x<sup>m</sup> + 1 = (x + 1)(…) for odd m.',
         'For multiples of 11, swap each power of 10 for −1 (odd power) or +1 (even power) and add up.',
         'Check the leftover small cases by hand, and answer what was asked: primes or composites.',
+      ],
+      facts: [
+        'x<sup>m</sup> + 1 is divisible by x + 1 when m is odd, so 10<sup>k</sup> + 1 is composite whenever k has an odd factor bigger than 1.',
+        'k ones, a 0 and k more ones is (k ones) × (10<sup>k+1</sup> + 1): 11011 = 11 × 1001.',
+        'A two-digit number written n times is that number × 1010…1 (n ones): 1313 = 13 × 101, 131313 = 13 × 10101.',
+        '10 = 11 − 1, so 10<sup>k</sup> + 1 is a multiple of 11 exactly when k is odd.',
       ],
       watch: [
         'Counting the first number of the list as composite: it may be the one prime.',
@@ -371,6 +640,7 @@ export const amcLearning = {
       tip: 'Look for one factorization that fits every number in the list before testing anything for being prime.',
     },
     'LCM and GCD': {
+      spot: 'A gcd and an lcm given together, "how many ordered pairs have this gcd and lcm", or "leaves remainder r when divided by a, b and c": factor into prime powers, or take the lcm and add r.',
       idea: 'Think in prime powers: the lcm takes the larger power of each prime and the gcd the smaller, so gcd × lcm is the product of the two numbers, which gives a missing number straight away. For pairs with gcd g and lcm L, write them as gx and gy: x and y share no factor and xy = L/g, so each prime power of L/g goes whole to x or to y, 2 choices per prime. A number that leaves remainder 1 when divided by several numbers is 1 more than a common multiple of them. Example: lcm(n, 6) = 60 with gcd(n, 45) = 5 forces n = 20.',
       how: [
         'Factor everything into primes and compare the powers prime by prime.',
@@ -378,6 +648,12 @@ export const amcLearning = {
         'For the other number of a pair, divide gcd × lcm by the one you know.',
         'To count pairs, factor L/g: each prime goes whole to one number, so there are 2<sup>(number of primes)</sup> ordered pairs.',
         'For the same remainder from several divisors, take their lcm and add the remainder.',
+      ],
+      facts: [
+        'gcd(a, b) × lcm(a, b) = a × b.',
+        'Prime by prime, the gcd takes the smaller power and the lcm the larger.',
+        'Ordered pairs with gcd G and lcm L: 2<sup>k</sup>, where k is the number of different primes in L/G.',
+        'The numbers that leave remainder r when divided by a, b and c are r more than the multiples of lcm(a, b, c).',
       ],
       watch: [
         'Stopping after the lcm condition, which usually allows several values of n.',
@@ -387,12 +663,18 @@ export const amcLearning = {
       tip: 'Factor into primes: the lcm takes the larger power of each prime, the gcd the smaller, and gcd × lcm is the product.',
     },
     'Product and least sum': {
+      spot: 'Three integers with a given product and "the smallest possible sum" (or the product and the sum both given): first check whether negatives are allowed, then keep positive factors close together, or make two of them negative.',
       idea: 'With negatives allowed, the sum can get much smaller. The product is positive, so there are no negatives or exactly two, and with −x, −y and z the sum is z − x − y: you want z just above x + y. With only positive numbers it goes the other way: for a fixed product the sum is smallest when the three numbers are as close together as possible, near the cube root of the product. When both the product and the sum are given, list the ways to split the product into three factors and add each up. Example: positive numbers with product 30 can be 1 · 5 · 6 (sum 12) or 2 · 3 · 5 (sum 10), the closest.',
       how: [
         'Read the question: may the integers be negative, or are they positive?',
         'If negatives are allowed, make two of them negative, −x and −y, so the sum is z − x − y, and look for z just above x + y.',
         'If all are positive, try splittings with the three numbers near the cube root of the product.',
         'If the sum is given too, go through the splittings until one adds up to it, then answer what is asked.',
+      ],
+      facts: [
+        'For positive numbers with a fixed product P, the sum is smallest when they are as close together as possible, and it is never below 3 times the cube root of P.',
+        'A positive product of three integers has no negative factors or exactly two.',
+        'With two negatives, −x, −y and z, the sum is z − x − y: look for z just above x + y.',
       ],
       watch: [
         'Only trying positive integers when negatives are allowed, which gives a much larger sum.',
@@ -402,12 +684,19 @@ export const amcLearning = {
       tip: 'Decide first whether negatives are allowed: with two negatives the sum is the positive one minus the other two; with none, keep the three numbers close together.',
     },
     'Counting divisors': {
-      idea: 'A divisor of N is built by choosing how many copies of each prime of N to use, from 0 up to its exponent, so N = p<sup>a</sup>q<sup>b</sup>… has (a + 1)(b + 1)… divisors. Conditions just limit the choices: an odd divisor uses no 2s at all; a multiple of M must use at least as many of each prime as M does; a perfect square uses even powers only. Turned around, to make a number with D divisors, write D as a product of (exponent + 1)s and put the biggest exponents on the smallest primes. For 72 = 2³·3²: 4·3 = 12 divisors, 3 of them odd, and 2·2 = 4 of them multiples of 6.',
+      spot: '"How many positive divisors", how many of them are odd, even or multiples of M, or "the smallest number with exactly D divisors": factor into primes and count the choices for each exponent.',
+      idea: 'A divisor of N is built by choosing how many copies of each prime of N to use, from 0 up to its exponent, so N = p<sup>a</sup>q<sup>b</sup>… has (a + 1)(b + 1)… divisors. Conditions just limit the choices: an odd divisor uses no 2s at all; a multiple of M must use at least as many of each prime as M does; a perfect square uses even powers only. Turned around, to make a number with D divisors, write D as a product of (exponent + 1)s and put the biggest exponents on the smallest primes. For 72 = 2³·3²: 4·3 = 12 divisors, 3 of them odd, and 3·2 = 6 of them multiples of 6.',
       how: [
         'Factor N into primes with exponents.',
         'For each prime, count the powers a divisor may use: 0 to the exponent, or fewer if the question restricts it.',
         'Multiply those counts.',
         'For the smallest number with D divisors: try every way of writing D as a product, turn each factor into an exponent (factor − 1), put big exponents on 2, 3, 5, …, and compare.',
+      ],
+      facts: [
+        'p<sup>a</sup>q<sup>b</sup>r<sup>c</sup>⋯ has (a + 1)(b + 1)(c + 1)⋯ divisors.',
+        'Odd divisors: drop the 2s and count; even divisors: all of them minus the odd ones.',
+        'The divisors of N that are multiples of M (M a divisor of N) are M times the divisors of N/M, so there are as many as N/M has.',
+        'For the smallest number with D divisors, put the biggest exponents on the smallest primes and compare: for 30 divisors, 2<sup>4</sup>·3²·5 = 720 beats 2<sup>5</sup>·3<sup>4</sup> = 2592 and 2<sup>29</sup>.',
       ],
       watch: [
         'Multiplying the exponents themselves, without adding 1 to each.',
@@ -417,12 +706,19 @@ export const amcLearning = {
       tip: 'Factor N into primes and count, prime by prime, which powers a divisor is allowed to use.',
     },
     'Odd and even divisor sums': {
+      spot: 'The sum of the odd (or the even) divisors, the ratio of those two sums, or what fraction of the divisors are even: split N into 2<sup>a</sup> times an odd number.',
       idea: 'Write N = 2<sup>a</sup> × m with m odd. The odd divisors of N are exactly the divisors of m; call their sum s. Every even divisor is an odd divisor times 2, 4, …, or 2<sup>a</sup>, so the even divisors add up to (2 + 4 + ⋯ + 2<sup>a</sup>) · s = (2<sup>a+1</sup> − 2) · s, and the two totals are in the ratio 1 : (2<sup>a+1</sup> − 2). Counting works the same way: a divisor’s power of 2 is one of a + 1 choices, and all but one are even, so a/(a + 1) of the divisors are even. Example: 12 = 2<sup>2</sup> · 3 has odd divisors 1, 3 (sum 4) and even ones 2, 4, 6, 12 (sum 24 = 6 · 4).',
       how: [
         'Split N into 2<sup>a</sup> times an odd number m (add up the powers of 2 if N is given as a product).',
         'The odd divisors are the divisors of m, so their sum s is the sum of the divisors of m.',
         'The even divisors add up to (2 + 4 + ⋯ + 2<sup>a</sup>) · s = (2<sup>a+1</sup> − 2) · s.',
         'For the share of divisors that are even, count the choices for the power of 2: a of the a + 1 are even.',
+      ],
+      facts: [
+        'The divisors of p<sup>a</sup>q<sup>b</sup>⋯ add up to (1 + p + ⋯ + p<sup>a</sup>)(1 + q + ⋯ + q<sup>b</sup>)⋯.',
+        'For N = 2<sup>a</sup> × m with m odd, the odd divisors are the divisors of m, and the even ones add up to (2<sup>a+1</sup> − 2) times as much.',
+        'So odd total : even total = 1 : (2<sup>a+1</sup> − 2), and a/(a + 1) of the divisors are even.',
+        '1 + 2 + 4 + ⋯ + 2<sup>a</sup> = 2<sup>a+1</sup> − 1.',
       ],
       watch: [
         'Using 1 + 2 + ⋯ + 2<sup>a</sup>, which also counts the odd divisors, instead of 2 + ⋯ + 2<sup>a</sup>.',
@@ -432,12 +728,19 @@ export const amcLearning = {
       tip: 'Split N into a power of 2 times an odd number; every even divisor is an odd divisor times a power of 2.',
     },
     'Square and cube divisors': {
+      spot: '"How many divisors are perfect squares" (or cubes, or both, or cubes but not squares): count, prime by prime, the exponents that are allowed, and multiply.',
       idea: 'A divisor of p<sup>a</sup>q<sup>b</sup>⋯ is p<sup>i</sup>q<sup>j</sup>⋯ with each exponent from 0 up to its limit. It is a perfect square when every exponent is even, a cube when every one is a multiple of 3, and both when every one is a multiple of 6. So count the allowed exponents for each prime and multiply; then combine with inclusion and exclusion: squares or cubes = squares + cubes − both, and cubes that aren’t squares = cubes − both. Example: 6<sup>4</sup> has 3 · 3 = 9 square divisors and 2 · 2 = 4 cube divisors, 1 of them both: 12.',
       how: [
         'Factor the number into prime powers.',
         'For each prime, count the allowed exponents: even ones for squares, multiples of 3 for cubes, multiples of 6 for both.',
         'Multiply those counts across the primes.',
         'Combine: squares + cubes − both, or cubes − both for cubes that aren’t squares.',
+      ],
+      facts: [
+        'For p<sup>a</sup>, a square divisor uses an even exponent (⌊a/2⌋ + 1 choices), a cube a multiple of 3 (⌊a/3⌋ + 1), and one that is both a multiple of 6 (⌊a/6⌋ + 1).',
+        'Multiply the choices over the primes: 2<sup>4</sup>·3<sup>5</sup> has 3·3 = 9 square divisors.',
+        'Squares or cubes = squares + cubes − sixth powers; cubes but not squares = cubes − sixth powers.',
+        '1 counts as a square, a cube and a sixth power (every exponent 0).',
       ],
       watch: [
         'Forgetting to subtract the divisors that are both squares and cubes.',
@@ -447,6 +750,7 @@ export const amcLearning = {
       tip: 'Count the allowed exponents for each prime separately, then take away the divisors counted twice.',
     },
     'Powers of a fraction': {
+      spot: 'A whole number times (p/q)<sup>n</sup>, with n allowed to be negative, and "for how many n is it an integer", the smallest number that works, or the largest value: count the powers of p and of q that divide the number.',
       idea: 'For n ≥ 0, A · (p/q)<sup>n</sup> = A · p<sup>n</sup>/q<sup>n</sup>, which is whole exactly when q<sup>n</sup> divides A; for negative n the fraction flips and p<sup>|n|</sup> must divide A. So if A has p to the power x and q to the power y, n runs from −x up to y: x + y + 1 values. Turned around, the smallest A that works for a range of n needs q to the largest positive n and p to the largest |n|. And each step up in n multiplies by p/q, so the value is biggest at one end of the range. Example: 12 · (2/3)<sup>n</sup> is whole for n = −2, −1, 0 and 1.',
       how: [
         'Factor A and find its powers of p and q.',
@@ -454,6 +758,12 @@ export const amcLearning = {
         'Count every allowed n, including 0.',
         'For the smallest A, multiply q to the largest positive n by p to the largest negative |n|.',
         'For the largest value, go to the end of the range where the fraction keeps multiplying it up.',
+      ],
+      facts: [
+        'With p/q in lowest terms, A·(p/q)<sup>n</sup> is an integer for n ≥ 0 when q<sup>n</sup> divides A, and for n &lt; 0 when p<sup>|n|</sup> divides A.',
+        'If p<sup>x</sup> and q<sup>y</sup> are the highest powers of p and q dividing A, the integer values come at n = −x, …, y: x + y + 1 of them.',
+        'The smallest A that works for every n from −x to y is p<sup>x</sup>·q<sup>y</sup>.',
+        'Each step up in n multiplies by p/q, so the largest value is at n = y if p > q, and at n = −x if p &lt; q.',
       ],
       watch: [
         'Forgetting the negative values of n, where the fraction turns upside down.',
@@ -463,6 +773,7 @@ export const amcLearning = {
       tip: 'Positive n puts powers of the denominator under A, and negative n puts powers of the numerator there.',
     },
     'Squares from factorials': {
+      spot: '"The smallest m that makes m·n! a perfect square", the same for a product of factorials, or which factorial to remove to leave a square: count each prime’s power and fix the odd ones.',
       idea: 'A number is a perfect square when every prime has an even power, so find the prime powers and fix the odd ones. In n! the power of p is ⌊n/p⌋ + ⌊n/p<sup>2</sup>⌋ + ⋯. For a product of factorials, pair each odd one with the next: (2j − 1)! · (2j)! = ((2j − 1)!)<sup>2</sup> · 2j, so the product is a square times 2 · 4 ⋯ n = 2<sup>n/2</sup> · (n/2)!. That leftover tells you what m must supply, or which single factorial to remove. Example: 6! = 2<sup>4</sup> · 3<sup>2</sup> · 5, so 5 · 6! is a perfect square.',
       how: [
         'For one factorial, find the power of each prime with ⌊n/p⌋ + ⌊n/p<sup>2</sup>⌋ + ⋯.',
@@ -470,6 +781,12 @@ export const amcLearning = {
         'Multiply the leftovers, 2 · 4 · 6 ⋯ n = 2<sup>n/2</sup> · (n/2)!, and find its prime powers.',
         'm is the product of the primes with an odd power; a removed factor must be exactly the part that isn’t a square.',
         'For the power of 2 in the whole product, add up the power of 2 in each factorial.',
+      ],
+      facts: [
+        'The power of p in n! is ⌊n/p⌋ + ⌊n/p²⌋ + ⌊n/p³⌋ + ⋯.',
+        'A number is a perfect square exactly when every prime in it has an even power.',
+        '(2j − 1)!·(2j)! = ((2j − 1)!)²·2j, so for even n, 1!·2!⋯n! is a square times 2·4⋯n = 2<sup>n/2</sup>·(n/2)!.',
+        'A prime above n/2 (and at most n) appears exactly once in n!, so m must contain it.',
       ],
       watch: [
         'Working with the whole product instead of the small leftover, where the numbers get huge.',
@@ -479,13 +796,20 @@ export const amcLearning = {
       tip: 'Make every prime’s power even: count the primes in each factorial, or pair the factorials (2j − 1)! · (2j)! first.',
     },
     'Sums dividing factorials': {
-      idea: 'T = 1 + 2 + ⋯ + n = n(n + 1)/2, so n!/T = 2 · (n − 1)!/(n + 1). When n + 1 is composite (and n ≥ 3), it splits into factors that can all be found among 2, 3, …, n − 1 (for 9 = 3 · 3, use 3 and 6), so the division works. When n + 1 is an odd prime, nothing in 2 · (n − 1)! can cancel it. So every question here is about primes: the greatest n is one less than the largest prime in reach, the number of n that fail is the number of odd primes up to N + 1, and the one that fails is the n with n + 1 prime. Example: n = 4 gives T = 10, which does not divide 24.',
+      spot: '"Is n! a multiple of 1 + 2 + ⋯ + n?", the greatest n for which it isn’t, or how many n fail: simplify to 2·(n − 1)!/(n + 1) and ask whether n + 1 is prime.',
+      idea: 'T = 1 + 2 + ⋯ + n = n(n + 1)/2, so n!/T = 2 · (n − 1)!/(n + 1). When n + 1 is composite, the division works: from n = 5 on, its factors can all be found among 2, 3, …, n − 1 (for 9 = 3 · 3, use 3 and 6), and for n = 3 the extra 2 does it (4 divides 2 · 2!). When n + 1 is an odd prime, nothing in 2 · (n − 1)! can cancel it. So every question here is about primes: the greatest n is one less than the largest prime in reach, the number of n that fail is the number of odd primes up to N + 1, and the one that fails is the n with n + 1 prime. Example: n = 4 gives T = 10, which does not divide 24.',
       how: [
         'Write T = n(n + 1)/2 and simplify n!/T to 2 · (n − 1)!/(n + 1).',
         'It fails to be whole exactly when n + 1 is an odd prime.',
         'For the greatest n, find the largest prime p with p − 1 in range; the answer is p − 1.',
         'To count the n that fail, count the odd primes from 3 up to N + 1.',
         'To spot the one that fails, add 1 to each choice and look for the prime.',
+      ],
+      facts: [
+        '1 + 2 + ⋯ + n = n(n + 1)/2, so n! ÷ (1 + 2 + ⋯ + n) = 2·(n − 1)!/(n + 1).',
+        'That is a whole number exactly when n + 1 is not an odd prime.',
+        'A prime p divides k! only when k ≥ p, while a composite number c > 4 always divides (c − 2)!.',
+        'There are 25 primes below 100 and 168 below 1000.',
       ],
       watch: [
         'Answering with the prime itself instead of one less than it.',
@@ -495,12 +819,19 @@ export const amcLearning = {
       tip: 'Simplify n! divided by n(n + 1)/2, and ask when n + 1 can fail to divide what is left.',
     },
     'Repeating decimals': {
+      spot: 'A decimal whose digits repeat forever, a repeating decimal used as if it stopped, or "the 100th digit after the decimal point" of a fraction: put the repeating block over 9s, and use the block’s length for far digits.',
       idea: 'A block of digits repeating forever sits over 9s: 0.ababab… = ab/99, while cut off after two digits it is ab/100. So using w.ab instead of w.ababab… loses M · ab/9900 when multiplied by M. When a digit comes first and then a block repeats, shift twice and subtract: for x = 0.a(bc)(bc)…, 1000x − 10x = abc − a, so x = (abc − a)/990. A fraction’s decimal repeats a fixed block, so its n-th digit after the point comes from n’s remainder when divided by the block’s length. Example: 1/7 = 0.142857…, so its 9th digit is the 3rd of the block, 2.',
       how: [
         'For a repeating block, call the number x, multiply by 10 to the block’s length and subtract x, so the repeating part cancels.',
         'If a digit comes before the block, multiply by 10 as well and subtract those two shifted numbers instead.',
         'Reduce the fraction to lowest terms before adding its numerator and denominator.',
         'For a far digit, find the repeating block, divide the position by its length and use the remainder (0 means the last digit of the block).',
+      ],
+      facts: [
+        '0.ddd… = d/9 and 0.ababab… = ab/99; a block of three repeating digits goes over 999.',
+        'One digit, then a repeating pair: 0.abcbcbc… = (abc − a)/990.',
+        'w.ababab… − w.ab = ab/9900.',
+        '1/7 repeats 142857 and 1/13 repeats 076923: blocks of 6 digits.',
       ],
       watch: [
         'Swapping the two digits: the answer is ab, not ba.',
@@ -510,12 +841,19 @@ export const amcLearning = {
       tip: 'Multiply by a power of 10 that lines the repeating part up with itself, then subtract so it cancels.',
     },
     'Diagonal through tiles': {
+      spot: 'A straight line from corner to corner across a floor of square tiles or through a box of unit cubes, or "how many points with integer coordinates" on a segment: use the gcd of the side lengths.',
       idea: 'Follow the line. On an m × n floor it crosses m − 1 grid lines one way and n − 1 the other, entering a new tile each time, except at the gcd(m, n) − 1 grid points where it crosses two lines at once: m + n − gcd(m, n) tiles. The same gcd counts lattice points: a segment going a across and b up splits into gcd(a, b) equal steps, so it has gcd(a, b) + 1 lattice points counting both ends. In three dimensions, inclusion and exclusion gives a + b + c − gcd(a, b) − gcd(b, c) − gcd(a, c) + gcd(a, b, c) cubes. Example: a 4 × 6 floor gives 4 + 6 − 2 = 8 tiles.',
       how: [
         'Find the gcd of the side lengths (or of the steps across and up).',
         'Tiles crossed: m + n − gcd(m, n).',
         'Lattice points on a segment: the gcd of the two steps, plus 1 for the starting point.',
         'Cubes in a box: add the three sides, subtract the three pairwise gcds, and add back the gcd of all three.',
+      ],
+      facts: [
+        'The diagonal of an m × n grid crosses m + n − gcd(m, n) squares.',
+        'The segment from (x₁, y₁) to (x₂, y₂) holds gcd(|x₂ − x₁|, |y₂ − y₁|) + 1 lattice points, both ends included.',
+        'Through an a × b × c box: a + b + c − gcd(a, b) − gcd(b, c) − gcd(a, c) + gcd(a, b, c) cubes.',
+        'When m and n share no factor, the diagonal meets no grid point on its way, so it crosses m + n − 1 squares.',
       ],
       watch: [
         'Using m + n or m + n − 1, which ignores the grid points on the diagonal.',
@@ -525,6 +863,7 @@ export const amcLearning = {
       tip: 'Count the grid lines crossed, and remember that at a grid point two crossings happen at once.',
     },
     'Difference of squares': {
+      spot: 'x² − y², two squares that differ by a given number, a square root that has to come out whole, or a subtraction like 1003² − 997²: factor as (x − y)(x + y).',
       idea: 'Everything here comes from x<sup>2</sup> − y<sup>2</sup> = (x − y)(x + y). The two factors differ by 2y, so they are both odd or both even. That is why the differences of two squares are exactly the odd numbers and the multiples of 4, never 2, 6, 10, …. The same factoring finds whole-number solutions from factor pairs of the right parity, finds two numbers from their difference and the difference of their squares, and turns a big subtraction of squares into one easy product. Example: 53<sup>2</sup> − 47<sup>2</sup> = 6 · 100 = 600.',
       how: [
         'Rewrite the difference of squares as (x − y)(x + y).',
@@ -532,6 +871,12 @@ export const amcLearning = {
         'Each such pair u · v gives x = (u + v)/2 and y = (v − u)/2; a square root is never negative, but the other number can be.',
         'To count which numbers work, leave out the ones that are 2 more than a multiple of 4.',
         'To compute a<sup>2</sup> − b<sup>2</sup>, multiply (a − b) by (a + b).',
+      ],
+      facts: [
+        'x² − y² = (x − y)(x + y), and the two factors are both odd or both even.',
+        'A whole number is a difference of two squares exactly when it is odd or a multiple of 4: never 2, 6, 10, ….',
+        '2n + 1 = (n + 1)² − n², and 4n = (n + 1)² − (n − 1)².',
+        'If x − y = g and x² − y² = D, then x + y = D/g, so x = (D/g + g)/2.',
       ],
       watch: [
         'Keeping factor pairs of different parity, which give fractions.',
@@ -541,6 +886,7 @@ export const amcLearning = {
       tip: 'Factor x² − y² as (x − y)(x + y), and remember the two factors are both odd or both even.',
     },
     'Factoring an equation': {
+      spot: 'An equation with an mn term next to m and n terms, like mn = 3m + 5n or 1/m + 1/n = 1/k, and "how many integer pairs": add a constant to both sides so it factors (Simon’s favorite factoring trick).',
       idea: 'Simon’s favorite factoring trick: mn − am − bn = 0 doesn’t factor as it stands, but adding ab to both sides gives (m − b)(n − a) = ab. Each divisor of ab, positive or negative, then gives exactly one ordered pair. The equation 1/m + 1/n = 1/k becomes (m − k)(n − k) = k<sup>2</sup>; there the pair making m = 0 is not allowed, and for positive m and n both factors must be positive. Since m + n = (m − k) + (n − k) + 2k, the largest sum puts the two factors as far apart as they go: 1 and k<sup>2</sup>.',
       how: [
         'Rearrange to mn − am − bn = 0; for 1/m + 1/n = 1/k, multiply through by kmn first.',
@@ -548,6 +894,12 @@ export const amcLearning = {
         'Count the divisors of the right side: positive and negative ones for integer solutions, only positive ones when m and n must be positive.',
         'Throw out any pair the problem forbids, such as m = 0 when m is in a denominator.',
         'For the largest m + n, use the factor pair 1 and the whole right side.',
+      ],
+      facts: [
+        'mn = am + bn is the same as (m − b)(n − a) = ab.',
+        '1/m + 1/n = 1/k (m and n not 0) is the same as (m − k)(n − k) = k².',
+        'Each divisor e of the right side, positive or negative, gives one ordered pair; for 1/m + 1/n = 1/k leave out e = −k, which makes m = 0.',
+        'For positive m and n both factors must be positive, and 1/m + 1/n = 1/k gives the largest m + n, (k + 1)², from 1 × k².',
       ],
       watch: [
         'Counting only the positive divisors when negative ones are allowed, or the negative ones when they can’t happen.',
@@ -557,12 +909,19 @@ export const amcLearning = {
       tip: 'Add a constant to both sides so the left side factors as (m − something)(n − something).',
     },
     'Laps and common multiples': {
+      spot: 'Runners, karts or lights that repeat on fixed cycles, with "when are they all together again" or "how many times do they line up": use the lcm of their times.',
       idea: 'Something that repeats every k minutes is back at the start exactly at the multiples of k. So all of them meet again at the lcm of their times, and two things that repeat every a and b seconds line up every lcm(a, b) seconds, ⌊T/lcm⌋ times in T seconds. When only some of them need to meet, try small times in order and count how many lap times divide each: numbers with many small divisors, like 12, 24 or 60, win. Example: lap times of 4 and 6 minutes meet every 12 minutes, 5 times in the first hour.',
       how: [
         'Each runner, kart or light is back at the multiples of its period.',
         'For all of them together, take the lcm: the highest power of each prime in any of the periods.',
         'To count meetings in a time T, divide T by the lcm and round down.',
         'For "at least j of them", try T = 1, 2, 3, … and count how many periods divide each T.',
+      ],
+      facts: [
+        'Things that repeat every a and every b line up every lcm(a, b).',
+        'lcm(a, b) = ab/gcd(a, b); for several numbers, take the highest power of each prime.',
+        'In a time T, not counting the start, they line up ⌊T/lcm⌋ times.',
+        'lcm(1, 2, …, 6) = 60, lcm(1, …, 8) = 840 and lcm(1, …, 10) = 2520.',
       ],
       watch: [
         'Multiplying the periods together instead of taking their lcm.',
@@ -572,12 +931,19 @@ export const amcLearning = {
       tip: 'A runner is back at the start at the multiples of their lap time; look for common multiples, starting with the smallest.',
     },
     'Digit sums': {
+      spot: 'S(n), "the sum of the digits", the smallest number with a given digit sum, or a power of 10 minus a small number: think about what carrying does, and use as many 9s as you can.',
       idea: 'Adding 1 raises the digit sum by 1, unless n ends in t nines: each becomes 0 and the digit before them goes up, so S(n + 1) = S(n) + 1 − 9t. For the smallest number with digit sum s, use as few digits as possible, all 9s except the first, which takes what is left. Two digits can add up to t in t + 1 ways when t ≤ 9 and 19 − t ways when 10 ≤ t ≤ 18, which counts three-digit numbers with a given digit sum. And 10<sup>k</sup> − c is a string of 9s followed by the last few digits. Example: 10<sup>5</sup> − 7 = 99,993.',
       how: [
         'For S(n + 1), compare remainders on division by 9: it leaves the same remainder as S(n) + 1 and is at most S(n) + 1.',
         'For the smallest number with a digit sum, put as many 9s as possible at the end and the leftover first.',
         'For three-digit numbers with a digit sum, fix the first digit and count how two digits can make the rest.',
         'For 10<sup>k</sup> − c, split it into a string of 9s and the last few digits, and add them up.',
+      ],
+      facts: [
+        'If n ends in t nines, S(n + 1) = S(n) + 1 − 9t: never more than S(n) + 1, and always the same remainder mod 9.',
+        'The smallest number with digit sum s is the leftover s mod 9 (if it isn’t 0) followed by ⌊s/9⌋ nines: digit sum 13 gives 49.',
+        'Two digits add up to t in t + 1 ways for t ≤ 9, and in 19 − t ways for 10 ≤ t ≤ 18.',
+        '10<sup>k</sup> − m, for m with j digits, is k − j nines followed by 10<sup>j</sup> − m written with j digits: 10<sup>6</sup> − 25 = 999,975.',
       ],
       watch: [
         'Picking S(n) + 10: it has the right remainder, but a digit sum can’t go up by more than 1.',
@@ -587,6 +953,7 @@ export const amcLearning = {
       tip: 'Think about what carrying does to the digit sum, and use 9s wherever a digit can be as big as possible.',
     },
     'Divisibility in other bases': {
+      spot: 'A numeral with a base b written below it and a question about divisibility, a perfect square, or an equation that holds "in base b": write the numeral as a polynomial in b.',
       idea: 'A base-b numeral is a polynomial in b: 1234<sub>b</sub> = b<sup>3</sup> + 2b<sup>2</sup> + 3b + 4. Its remainder on division by q depends only on b’s remainder, so test each remainder once and count the bases that have a good one. A numeral equation like 12<sub>b</sub> × 3<sub>b</sub> = 40<sub>b</sub> becomes an ordinary equation in b: 3(b + 2) = 4b, so b = 6. Some numerals are squares in every base: 121<sub>b</sub> = (b + 1)<sup>2</sup>. And since b leaves remainder 1 when divided by b − 1, a numeral leaves the same remainder as its digit sum. A base-b numeral uses only digits less than b.',
       how: [
         'Write the numeral as a polynomial in b.',
@@ -594,6 +961,12 @@ export const amcLearning = {
         'For an equation between numerals, turn each into its polynomial and solve for b (or test the choices).',
         'For the remainder on division by b − 1, add up the digits.',
         'Check that every digit is less than b.',
+      ],
+      facts: [
+        '1234<sub>b</sub> = b³ + 2b² + 3b + 4, and every digit must be less than b.',
+        'Divided by b − 1, a numeral leaves the same remainder as its digit sum; divided by b + 1, the same as its digits added with alternating signs from the right.',
+        '121<sub>b</sub> = (b + 1)², 144<sub>b</sub> = (b + 2)² and 12321<sub>b</sub> = (b² + b + 1)²: squares in every base that allows their digits.',
+        'Divided by q, a numeral’s remainder depends only on b’s remainder, so the pattern repeats every q bases.',
       ],
       watch: [
         'Treating q as a base-b number: it is an ordinary base-ten number.',
@@ -603,6 +976,7 @@ export const amcLearning = {
       tip: 'Write the numeral as a polynomial in b; then work with b’s remainder, or solve the equation for b.',
     },
     'Bases without letters': {
+      spot: 'A base above 10 whose extra digits are letters (A for ten, B for eleven, …), and "how many use no letters", "contain at least one letter" or "end in a letter": count place by place with only 0 to 9 allowed, or use the remainder on division by the base.',
       idea: 'In a base B above 10, the digits ten, eleven, … are written as letters. A number avoids letters when every one of its base-B digits is 0 to 9, so count digit strings place by place, the way you would count numbers below N in base ten with some digits banned. "At least one letter" is easiest as all the numerals minus the letter-free ones. A numeral with letters converts like any other: each letter’s value times its place value. And the last base-B digit is the remainder on division by B, so it is a letter exactly when that remainder is 10 or more. Example: 1B in base 12 is 12 + 11 = 23.',
       how: [
         'Write N in base B by dividing by B<sup>2</sup>, then by B.',
@@ -610,6 +984,12 @@ export const amcLearning = {
         'For "at least one letter", count all the numerals and subtract the letter-free ones.',
         'To read a numeral, replace each letter by its value (A = 10, B = 11, …) and multiply by the place values.',
         'For the last digit, use the remainder on division by B.',
+      ],
+      facts: [
+        'A = 10, B = 11, C = 12, …: a letter is worth its value times its place, like any digit.',
+        'The numbers 0 to B<sup>k</sup> − 1 are the base-B numerals with at most k digits, and 10<sup>k</sup> of them (counting 0) use no letters.',
+        'There are (B − 1)·B² three-digit base-B numerals, and 9·10·10 = 900 of them use no letters.',
+        'The last base-B digit of N is N mod B, a letter when that remainder is 10 or more: B − 10 of every B numbers in a row.',
       ],
       watch: [
         'Forgetting to remove 0, which isn’t in the list 1, 2, 3, ….',
@@ -619,12 +999,18 @@ export const amcLearning = {
       tip: 'Write N in the new base, then count place by place the numbers whose digits are all 0 to 9.',
     },
     'Repeating digits in base k': {
+      spot: 'A fraction written as 0.ababab… or 0.ddd… in some base k, or "for how many bases does 1/q end": shift by k or k² and subtract, and compare the prime factors of q with the base.',
       idea: 'In base k, shifting one place multiplies by k. So 0.ddd…<sub>k</sub> = d/(k − 1), and 0.ababab…<sub>k</sub> = (ak + b)/(k<sup>2</sup> − 1), where ab<sub>k</sub> means a · k + b. To find k, test the choices against the given fraction (k must be bigger than both digits). A fraction 1/n ends instead of repeating in base b exactly when some power of b is a multiple of n, that is, when every prime factor of n divides b. Example: 0.121212…<sub>3</sub> = (1 · 3 + 2)/(9 − 1) = 5/8.',
       how: [
         'Let x be the number and multiply by k (one repeating digit) or by k<sup>2</sup> (two).',
         'Subtract x so the repeating part cancels: x = d/(k − 1), or (ak + b)/(k<sup>2</sup> − 1).',
         'Reduce to lowest terms, or compare values when testing choices for k.',
         'For a fraction that ends, list n’s prime factors: b must be a multiple of every one of them.',
+      ],
+      facts: [
+        '0.ddd…<sub>k</sub> = d/(k − 1).',
+        '0.ababab…<sub>k</sub> = (ak + b)/(k² − 1), and k² − 1 = (k − 1)(k + 1).',
+        '1/q ends in base b exactly when every prime factor of q divides b.',
       ],
       watch: [
         'Reading ab<sub>k</sub> as the base-ten number ab instead of a · k + b.',
@@ -633,14 +1019,153 @@ export const amcLearning = {
       ],
       tip: 'Multiply by k or k² to shift the repeating block over, then subtract so it cancels.',
     },
+    // harder: problems 15 to 25
+    'Divisibility by 11': {
+      spot: 'Missing digits in a multiple of 11, 33, 66, 88 or 99, a count of numbers with some digit property that are multiples of 11, palindromes, or a block of digits written over and over. Whenever 11 meets digits, think of the alternating digit sum.',
+      idea: 'Since 10 = 11 − 1, the powers 1, 10, 100, 1000, … are alternately 1 more and 1 less than a multiple of 11. So a number leaves the same remainder as its alternating digit sum (units digit minus tens digit plus hundreds digit, and so on), and it is a multiple of 11 exactly when that sum is. For example, 9273 gives 3 − 7 + 2 − 9 = −11, so 9273 = 11 · 843. For 99, 88 or 66, use this test together with the one for 9, 8 or 6: the two factors share nothing, so passing both is the same as being a multiple of the product.',
+      how: [
+        'Write the alternating sum from the units digit, with letters for unknown digits; with only a few digits it can only be 0, 11 or −11 (or ±22 with more digits).',
+        'Split the divisor into factors that share nothing, like 99 = 9 · 11 or 88 = 8 · 11, and use the test for each one.',
+        'With two unknown digits, one test usually gives their sum and the other their difference, and a sum and a difference of the same two numbers are both even or both odd.',
+        'To count, split the digits into the plus group and the minus group: the two group sums add up to the digit sum and differ by a multiple of 11.',
+        'For a repeated block, see what one copy adds: with an even number of digits every copy adds the same amount, with an odd number the copies take turns adding it and taking it away.',
+      ],
+      facts: [
+        'A number is a multiple of 11 exactly when units − tens + hundreds − ⋯ is.',
+        'Every palindrome with an even number of digits is a multiple of 11; abba = 1001a + 110b = 11 · (91a + 10b).',
+        '1001 = 7 · 11 · 13, so 1000 is one less than a multiple of each of 7, 11 and 13.',
+        'Two digits add up to t in t + 1 ways when t ≤ 9, and in 19 − t ways when 10 ≤ t ≤ 18.',
+      ],
+      watch: [
+        'Forgetting that the alternating sum can be 11 or −11, not only 0.',
+        'Letting the first digit be 0 when the number must have exactly four or five digits.',
+        'Stopping after one test: 99 needs both 9 and 11, and 66 needs 2, 3 and 11.',
+        'Using the rule for a block with an even number of digits on a block with an odd number, or the other way round.',
+      ],
+      tip: 'Take the alternating digit sum from the units digit: for 11 only that sum matters, and any other factor gets its own test.',
+    },
+    'Chinese remainders': {
+      spot: 'A number described by its remainders for two or three different divisors: things put in rows, stacks or teams with some left over, or with the last group a few short.',
+      idea: 'Remainders for different divisors fit together in exactly one way in each stretch of lcm numbers. To find that one, sieve: list the numbers with the right remainder for the biggest divisor, stop at the first that also suits the next divisor, then step by the lcm of those two until the third fits. For example, remainder 2 when divided by 3 and remainder 3 when divided by 5: the list 3, 8, 13, … reaches 8 first, so the numbers are 8, 23, 38, …, one every 15. Being 2 short in rows of 7 is a remainder of 5, because 2 more would fill the row.',
+      how: [
+        'Turn every condition into a remainder: “the last row is 2 short” in rows of 7 means a remainder of 7 − 2 = 5.',
+        'List the numbers with the right remainder for the biggest divisor, and go along until one also fits the next divisor.',
+        'From there step by the lcm of the two divisors until the third condition fits too; that is the smallest answer N.',
+        'All the answers are N, N + L, N + 2L, … where L is the lcm of all the divisors; count them, add them up, or pick the one in the range given.',
+      ],
+      facts: [
+        'Divisors that share no factor have one answer in every run of (their product) consecutive numbers.',
+        'Divisors that share a factor repeat every lcm, which is smaller than their product.',
+        'If every remainder is the same amount short of its divisor, say 1 short, then N + 1 is a multiple of the lcm.',
+        'An evenly spaced list adds up to (how many terms) × (first + last)/2.',
+      ],
+      watch: [
+        'Stepping by the product of the divisors instead of their lcm when they share a factor.',
+        'Reading “3 short” as a remainder of 3.',
+        'Counting the terms below a bound one wrong: N + kL &lt; B for k = 0, 1, 2, …, and k = 0 counts too.',
+      ],
+      tip: 'Start from the remainders for the biggest divisor and go along until the next condition fits, then step by the lcm.',
+    },
+    'Fractions in lowest terms': {
+      spot: 'Fractions k/n that are, or are not, in lowest terms; the sum of such fractions; how many different values a/b can take; or how many k have gcd(k, n) equal to a given number.',
+      idea: 'k/n is in lowest terms exactly when k and n share no prime factor, and the count of such k from 1 to n is Euler’s φ(n) = n(1 − 1/p)(1 − 1/q)⋯, taken over the different primes p, q, … of n. That formula is inclusion and exclusion done all at once: each prime keeps the fraction (1 − 1/p) of the numbers that are not its multiples. For 12 = 2<sup>2</sup> · 3, φ(12) = 12 · (1/2) · (2/3) = 4, the fractions 1/12, 5/12, 7/12 and 11/12. Two more ideas finish most problems: k/n and (n − k)/n are in lowest terms together and add up to 1, and gcd(k, n) = d means k = dj with j sharing no factor with n/d.',
+      how: [
+        'Factor n into primes, and use only the different primes in φ.',
+        'For “already in lowest terms” count φ(n); for “can be simplified” count (n − 1) − φ(n).',
+        'For a sum, pair k/n with (n − k)/n: the φ(n) fractions make φ(n)/2 pairs that each add up to 1.',
+        'For “how many different values”, count each value once, in lowest terms: add φ(b) over the denominators b allowed.',
+        'For gcd(k, n) = d, or a denominator n/d after reducing, write k = dj and count the j up to n/d sharing no factor with n/d: φ(n/d).',
+      ],
+      facts: [
+        'φ(n) = n(1 − 1/p)(1 − 1/q)⋯ over the different primes of n; for a prime p, φ(p) = p − 1.',
+        'For n ≥ 3, φ(n) is even, and the fractions k/n in lowest terms between 0 and 1 add up to φ(n)/2.',
+        'φ(2) + φ(3) + ⋯ + φ(N) is the number of fractions between 0 and 1 in lowest terms with denominator at most N.',
+      ],
+      watch: [
+        'Using the prime powers, or leaving out a prime, when working out φ.',
+        'Counting every fraction a/b, so that 1/2 and 2/4 are counted as two values.',
+        'Counting all n/d multiples of d instead of the k whose gcd with n is exactly d.',
+      ],
+      tip: 'Ask which numerators share no factor with the denominator; that count is φ, found from the different primes of the denominator.',
+    },
+    'GCD of expressions': {
+      spot: 'A gcd of two expressions in n, like gcd(n<sup>2</sup> + 7, n + 2) or gcd(3n + 1, 5n + 4): its largest value, all the values it can take, or how many n make it bigger than 1.',
+      idea: 'The Euclidean algorithm works on expressions too: gcd(A, B) = gcd(A − kB, B), because a number divides A and B exactly when it divides A − kB and B. So take away multiples of one expression from the other until n disappears. Dividing n<sup>2</sup> + 7 by n + 2 leaves 11 (the value at n = −2), so gcd(n<sup>2</sup> + 7, n + 2) = gcd(11, n + 2), which is 11 when n + 2 is a multiple of 11 and 1 otherwise. For two linear expressions a combination like 5(3n + 1) − 3(5n + 4) = −7 cancels n, so their gcd always divides 7. Then check which divisors really happen: 4n + 1 is always odd, for instance, so a gcd with it is never even.',
+      how: [
+        'Cancel n: for a divisor n + b the remainder is the value at n = −b; for an + b and cn + d, take c(an + b) − a(cn + d), after dividing c and a by any factor they share.',
+        'The gcd is a divisor of the number left over, so that number is the most it can be, and you check that some n reaches it.',
+        'To list the possible values, rule out any prime that divides the coefficient of n in one expression but not its constant (that expression is never a multiple of it), then find an n for each divisor that is left.',
+        'To count the n that make the gcd bigger than 1, count the n for which n + b shares a prime with the leftover number, with inclusion and exclusion.',
+      ],
+      facts: [
+        'gcd(A, B) = gcd(A − kB, B) for every whole number k.',
+        'P(n) − P(−b) is a multiple of n + b for any polynomial P, so gcd(P(n), n + b) = gcd(P(−b), n + b).',
+        'For consecutive terms of n<sup>2</sup> + k the gcd divides 2n + 1, and then 4k + 1.',
+      ],
+      watch: [
+        'Putting in n = b instead of n = −b for the divisor n + b.',
+        'Adding up every divisor of the leftover number when some of them can never happen.',
+        'Leaving out 1, which is one of the possible values.',
+      ],
+      tip: 'Take away multiples of one expression from the other until n disappears; the number left over is what the gcd must divide.',
+    },
+    'Whole-number fractions': {
+      spot: 'A fraction with n in both the top and the bottom, like (n<sup>2</sup> + 3n + 5)/(n + 4) or (6n + 31)/(2n + 1), and the question asks for which n, or how many n, it is an integer; or n + k dividing n<sup>3</sup> + m.',
+      idea: 'Divide first, so that n is left only in the bottom of a small fraction. For example, n<sup>2</sup> + 3n + 5 = (n + 4)(n − 1) + 9, so the fraction (n<sup>2</sup> + 3n + 5)/(n + 4) is n − 1 + 9/(n + 4), an integer exactly when n + 4 divides 9: n + 4 = ±1, ±3 or ±9, six values of n. The remainder is the value of the top at n = −4, which is the quick way to find it, and the same idea shows that n + k divides n<sup>3</sup> + m exactly when it divides m − k<sup>3</sup>. A divisor of a fixed number can’t be bigger than it, so only a few n are possible.',
+      how: [
+        'Divide the top by the bottom, or put n = −c into the top, to get a whole part plus remainder/(bottom).',
+        'The fraction is an integer exactly when the bottom divides the remainder, so list the divisors of the remainder, negative ones too when n can be negative.',
+        'Turn each divisor back into n, keeping only the n the question allows: positive n, and for a bottom like 2n + 3 only the odd divisors that are at least 5.',
+        'For the sum of all the n, pair each divisor e with −e: their two values of n always add up to the same number.',
+      ],
+      facts: [
+        'P(n) − P(−c) is a multiple of n + c, so n + c divides P(n) exactly when it divides P(−c).',
+        'n<sup>3</sup> + k<sup>3</sup> = (n + k)(n<sup>2</sup> − kn + k<sup>2</sup>).',
+        'A number p<sup>a</sup>q<sup>b</sup>⋯ (p, q, … different primes) has (a + 1)(b + 1)⋯ positive divisors.',
+      ],
+      watch: [
+        'Forgetting the negative divisors when n can be any integer.',
+        'Getting the remainder wrong by putting in n = c instead of n = −c.',
+        'Using every divisor for a bottom like 3n + 2, which can only be a divisor that is at least 5 and leaves remainder 2 when divided by 3.',
+      ],
+      tip: 'Divide first so that n is left only in the bottom of a small fraction; then the bottom must divide a fixed number.',
+    },
+    'Numbering a grid two ways': {
+      spot: 'A grid whose squares are numbered twice, say row by row and column by column, and a question about the squares where the two numbers agree: how many there are, their sum, or which grid sizes give a certain number of them.',
+      idea: 'Give each square coordinates and write both numbers as formulas. With rows i = 0 to r − 1 and columns j = 0 to c − 1, row by row gives ci + j + 1 and column by column gives rj + i + 1, so they agree exactly when (c − 1)i = (r − 1)j. Dividing by g = gcd(r − 1, c − 1) leaves two numbers that share no factor, so i is a multiple of (r − 1)/g and the matches are evenly spaced along the diagonal: g + 1 of them, from the first square to the last. In a grid with 4 rows and 7 columns, g = gcd(3, 6) = 3, so 4 squares match, holding 1, 10, 19 and 28.',
+      how: [
+        'Number the rows and columns from 0, and write each square’s number both ways as a formula in i and j.',
+        'Set the two formulas equal, with the i terms on one side and the j terms on the other.',
+        'Divide by the gcd of the two coefficients: then i is a whole number t times one reduced coefficient and j is t times the other.',
+        'Find which t keep i and j inside the grid; for a sum, use that the matching numbers go up in equal steps.',
+      ],
+      facts: [
+        'Row by row against column by column, gcd(r − 1, c − 1) + 1 squares match, and their numbers add up to (g + 1)(rc + 1)/2.',
+        'If ai = bj and a and b share no factor, then i is a multiple of b and j is the same multiple of a.',
+        'Numbers going up in equal steps add up to (how many) × (first + last)/2.',
+      ],
+      watch: [
+        'Using gcd(r, c) instead of gcd(r − 1, c − 1).',
+        'Leaving out the first square, where t = 0: there are g + 1 matches, not g.',
+        'Reusing g + 1 when one numbering runs the other way: the equation changes, so work it out again.',
+      ],
+      tip: 'Write each square’s two numbers as formulas in its row and column, set them equal, and divide out the gcd.',
+    },
     // ---------- counting ----------
     'Digit rules': {
+      spot: '“How many k-digit numbers” with a rule about their digits (all different, at least one 7, only odd digits, a palindrome) or a divisibility rule: fill the places one at a time, the most restricted first, and multiply the choices.',
       idea: 'Fill the number place by place and multiply the choices, deciding the most restricted place first: the last digit or two when a divisibility rule applies, and always remembering that the first digit can\'t be 0. “At least one” is easier as everything minus “none”, and a palindrome is fixed by its first half, since the rest mirrors it. For example, 3-digit numbers with at least one 5: 900 − 8·9·9 = 900 − 648 = 252.',
       how: [
         'Divisibility: a multiple of 5 ends in 0 or 5; for a multiple of 4, the last two digits make a multiple of 4. Decide the ending first.',
         'All digits different: 9 choices for the first digit (not 0), then 9, 8, 7, … for the places after it.',
         'At least one copy of a digit d (1 to 9): all k-digit numbers, 9·10<sup>k − 1</sup>, minus those with no d, 8·9<sup>k − 1</sup> (the first digit is neither 0 nor d).',
         'Palindromes with k digits: choose the first ⌈k/2⌉ digits (the first not 0); the rest are their mirror image.',
+      ],
+      facts: [
+        'There are 9·10<sup>k−1</sup> k-digit numbers, and 9·9·8·7⋯ (k factors) with all digits different.',
+        'At least one d (d from 1 to 9): 9·10<sup>k−1</sup> − 8·9<sup>k−1</sup>.',
+        'k-digit palindromes: 9·10<sup>⌈k/2⌉−1</sup>.',
+        'Divisibility by 2, 5 or 10 depends on the last digit, by 4 or 25 on the last two, and by 8 on the last three.',
       ],
       watch: [
         'The first digit can never be 0: with only even digits it has 4 choices (2, 4, 6, 8), not 5.',
@@ -650,6 +1175,7 @@ export const amcLearning = {
       tip: 'Decide the most restricted digit first, multiply the choices, and count “at least one” as everything minus none.',
     },
     'Handshakes': {
+      spot: 'Everyone shaking hands once with everyone else, two groups shaking hands across, or "how many people were there if there were h handshakes": a handshake is a pair, so count pairs.',
       idea: 'A handshake is a pair of people, so counting handshakes means counting pairs. When everyone shakes hands with everyone, n people make C(n, 2) = n(n − 1)/2 handshakes: each shakes n − 1 hands, and every handshake has two people in it. When only some pairs shake, split the pairs into kinds and count each: two separate groups shaking across make a·b handshakes, with no halving. With 3 friends and 2 strangers, where only pairs that include a stranger shake: 3·2 + C(2, 2) = 7. Worked backward, h handshakes among everyone means n(n − 1) = 2h, two whole numbers in a row: 45 handshakes give n(n − 1) = 90 = 10·9, so 10 people.',
       how: [
         'Decide which pairs of people shake hands.',
@@ -657,6 +1183,12 @@ export const amcLearning = {
         'Two groups shaking across: (size of one)·(size of the other).',
         'A mix: split the pairs into kinds (stranger–friend and stranger–stranger, or team–team and referee–player) and add the counts.',
         'Given the number of handshakes: double it and find two whole numbers in a row with that product.',
+      ],
+      facts: [
+        'n people, everyone with everyone: C(n, 2) = n(n − 1)/2 handshakes.',
+        'Two separate groups of a and b shaking hands across: a·b, with no halving.',
+        'If a of the n people know each other and don’t shake hands, there are C(n, 2) − C(a, 2).',
+        'Working backward from h handshakes: n(n − 1) = 2h, so n is √(2h) rounded up.',
       ],
       watch: [
         'n(n − 1) without halving counts each handshake twice.',
@@ -667,12 +1199,19 @@ export const amcLearning = {
       tip: 'A handshake is a pair of people: count the pairs, splitting them by kind when only some pairs shake.',
     },
     'Counting committees': {
+      spot: '"How many committees" with someone forced in or out, two people who won’t serve together, "at least one girl", or a chair to name: choose the remaining seats from the remaining people, or count all and subtract the bad ones.',
       idea: 'C(n, k) counts the ways to pick k people from n when order doesn’t matter. Conditions are easiest by forcing people in or out: if a person must be on, put them in and choose the rest from everyone else; if they are out, choose from the others. When the condition is "at least one" or "not both", count everything and subtract the bad committees. Jobs inside a committee (a chair) multiply: pick the committee, then the chair. For example, from 6 people a committee of 3 with neither of two given people: C(4, 3) = 4.',
       how: [
         'Decide who is forced in or out, and choose the remaining seats from the remaining people: C(people left, seats left).',
         '"Exactly one of two": pick which one (2 ways), then the rest from the other n − 2.',
         '"At least one" or "not both together": all committees minus the bad ones.',
         'A chair or other job: multiply by the number of ways to give it out.',
+      ],
+      facts: [
+        'C(n, k) = n!/(k!·(n − k)!) = C(n, n − k).',
+        'With two given people: both on it C(n − 2, k − 2), exactly one 2·C(n − 2, k − 1), neither C(n − 2, k).',
+        'Not both together: C(n, k) − C(n − 2, k − 2); at least one girl: C(everyone, k) − C(boys, k).',
+        'A committee of k with a chair: k·C(n, k) = n·C(n − 1, k − 1).',
       ],
       watch: [
         'Counting "at least one girl" as (one girl) × (anyone): it counts teams with two girls more than once.',
@@ -682,12 +1221,19 @@ export const amcLearning = {
       tip: 'Force the named people in or out first, then choose the remaining seats from the remaining people (or count all and subtract the bad ones).',
     },
     'Forming teams': {
+      spot: 'People split into groups or teams that have no names (“only who is with whom matters”), maybe with a set mix in each: count as if the groups had names, then divide by the orders of the groups.',
       idea: 'Count as if the groups had names, then divide by the orders of groups that are really interchangeable: 6 people into 3 unnamed pairs is 6!/((2!)<sup>3</sup>·3!) = 15. With two kinds of members per team, split the first kind into unnamed groups, then deal the second kind to those groups, which are now different from one another, with no more dividing. “At least one girl” is all committees minus the all-boy ones, and a team with a captain is the team times its choice of captain. For 2 coaches and 4 players making 2 teams of 1 coach and 2 players: the coaches split 1 way, then the players are dealt 4!/(2!·2!) = 6 ways, so 6.',
       how: [
         'Equal groups with no names: n!/((s!)<sup>g</sup>·g!) for g groups of s.',
         'Two kinds per team: split the first kind into g unnamed groups, J!/((a!)<sup>g</sup>·g!), then deal the second kind out, S!/(b!)<sup>g</sup>, and multiply.',
         'At least one girl: C(everyone, k) − C(boys, k).',
         'A team with a captain: C(n, k)·k, which is also n·C(n − 1, k − 1).',
+      ],
+      facts: [
+        'n = g·s people into g unnamed groups of s: n!/((s!)<sup>g</sup>·g!).',
+        '2m people into pairs: (2m − 1)·(2m − 3)⋯3·1, the same as (2m)!/(2<sup>m</sup>·m!).',
+        'Groups that already differ (each with its own coach, say) count as named: deal the rest out with no more dividing.',
+        'At least one girl: C(everyone, k) − C(boys, k); a team of k with a captain: k·C(n, k).',
       ],
       watch: [
         'Divide by g! exactly once: forgetting it counts named teams, and dividing again when dealing the second kind undercounts.',
@@ -697,12 +1243,19 @@ export const amcLearning = {
       tip: 'Name the groups to count, then divide by the orders of groups that have no names; count “at least one” as all minus none.',
     },
     'Multiples in blocks': {
+      spot: '"How many multiples of k" between two numbers, how many numbers leave remainder r, or numbers dealt in order into piles or rows: count with ⌊N/k⌋, and compare the size of a block with k.',
       idea: 'Up to N there are ⌊N/k⌋ multiples of k, and everything else follows from that. From A to B there are ⌊B/k⌋ − ⌊(A − 1)/k⌋. Numbers leaving remainder r are r, r + k, r + 2k, …, so from 1 to N there are ⌊(N − r)/k⌋ + 1. For blocks of consecutive numbers, compare the block size B with k: when k &lt; B &lt; 2k every block holds one or two multiples, so the multiples beyond one per block are the blocks with two; when B &lt; k every block holds at most one, so the blocks with none are the blocks minus the multiples. For 1 to 30 in 3 piles of 10, there are 4 multiples of 7, so exactly 4 − 3 = 1 pile has two.',
       how: [
         'Multiples of k from A to B: ⌊B/k⌋ − ⌊(A − 1)/k⌋.',
         'Remainder r (with 1 ≤ r &lt; k) from 1 to N: ⌊(N − r)/k⌋ + 1.',
         'Blocks of size B with k &lt; B &lt; 2k: piles with two = ⌊N/k⌋ − (number of piles); piles with exactly one = the rest.',
         'Blocks of size B &lt; k: blocks with none = (number of blocks) − ⌊N/k⌋.',
+      ],
+      facts: [
+        'Multiples of k from 1 to N: ⌊N/k⌋; from A to B: ⌊B/k⌋ − ⌊(A − 1)/k⌋.',
+        'Numbers from 1 to N that leave remainder r (1 ≤ r &lt; k): ⌊(N − r)/k⌋ + 1.',
+        'Any k numbers in a row hold exactly one multiple of k.',
+        'A block of B numbers in a row holds ⌊B/k⌋ or ⌈B/k⌉ multiples of k.',
       ],
       watch: [
         'From A to B, subtract the multiples up to A − 1, not up to A, or A itself gets lost.',
@@ -712,12 +1265,19 @@ export const amcLearning = {
       tip: 'Count multiples with ⌊N/k⌋, and compare the block size with k to see how many each block can hold.',
     },
     'Inclusion and exclusion': {
+      spot: '"Divisible by a or b", "by neither", "by at least one of" three numbers, or a class where some students do both activities: add the groups, subtract the overlaps, and add back the overlap of all three.',
       idea: 'When you add two groups, everyone in both is counted twice, so subtract them once: |A or B| = |A| + |B| − |A and B|. With three groups, add the three, subtract the three overlaps of two, and add back the overlap of all three. In word problems, "neither" is the total minus "at least one"; for divisibility, the numbers divisible by both a and b are the multiples of lcm(a, b). For example, in a class of 30 where 12 swim, 15 run and 8 do neither, 22 do at least one, so 12 + 15 − 22 = 5 do both.',
       how: [
         'Count each group: for multiples of a up to N, ⌊N/a⌋.',
         'Count the overlap: the multiples of lcm(a, b), or "both" from a word problem.',
         'At least one = sum of groups − overlaps (+ the triple overlap, with three groups).',
         '"Neither" = total − at least one; "a but not b" = (multiples of a) − (multiples of both).',
+      ],
+      facts: [
+        '|A or B| = |A| + |B| − |A and B|, and neither = total − |A or B|.',
+        'Three groups: add the three, subtract the three overlaps of two, and add back the overlap of all three.',
+        'Up to N, the numbers divisible by both a and b are the ⌊N/lcm(a, b)⌋ multiples of lcm(a, b).',
+        'Divisible by a but not b: ⌊N/a⌋ − ⌊N/lcm(a, b)⌋.',
       ],
       watch: [
         'Using a·b for the overlap when a and b share a factor: for 4 and 6 it is the multiples of 12.',
@@ -727,12 +1287,19 @@ export const amcLearning = {
       tip: 'Add the groups, subtract what was counted twice (the overlap), and remember the ones in neither.',
     },
     'Separated neighbors': {
+      spot: '"Side by side", "next to each other", or "no two … may stand together" in a line: glue a pair that must touch into one block, and for a pair that must not, subtract the glued orders from all of them.',
       idea: 'To keep two people together, glue them into one block: n people with one glued pair line up in 2·(n − 1)! ways, since the block can face either way. To keep them apart, count all n! orders and subtract the together ones. With several pairs, use inclusion–exclusion: subtract the orders with each pair together, then add back the orders with two pairs together, which were subtracted twice. Pairs that share a letter, like the alphabet neighbors AB and BC, glue into one block ABC that can only read forward or backward. For A, B, C, D with no alphabet neighbors side by side: 24 − 36 + 16 − 2 = 2 orders (BDAC and CADB).',
       how: [
         'Together: 2·(n − 1)!. Apart: n! − 2·(n − 1)!.',
         'Two pairs both apart: n! − 2·2·(n − 1)! + 2·2·(n − 2)!.',
         'One pair together and another apart: glue the first pair, 2·(n − 1)!, then subtract the orders where the second pair is glued too, 2·2·(n − 2)!.',
         'Many pairs: for each set of k glued pairs there are (n − k)! orders times 2 for every run of glued letters; add for even k, subtract for odd k.',
+      ],
+      facts: [
+        'n people in a row with two given people side by side: 2·(n − 1)!.',
+        'The two not side by side: n! − 2·(n − 1)! = (n − 2)·(n − 1)!.',
+        'Two separate pairs, both kept apart: n! − 4·(n − 1)! + 4·(n − 2)!.',
+        'Glued pairs that share a person, like AB and BC, make one block ABC that can face only 2 ways.',
       ],
       watch: [
         'Forgetting the 2 ways a glued pair can face.',
@@ -742,12 +1309,19 @@ export const amcLearning = {
       tip: 'Glue pairs that must touch into blocks; for pairs that must not touch, subtract the glued orders, with inclusion–exclusion when there are several.',
     },
     'Making postage': {
+      spot: 'Two stamp (or coin) values and "the largest amount that can’t be made", "how many amounts can’t be made", "in how many ways", or "the fewest stamps": fix the number of one kind and let the other follow, and remember ab − a − b.',
       idea: 'Once you decide how many stamps of one kind to use, the other kind is forced, if it works at all, and the good choices form an arithmetic sequence you can count. For two stamp values a and b with no common factor, the amounts that can\'t be made run out: the largest is ab − a − b, and exactly (a − 1)(b − 1)/2 amounts can\'t be made. With 3- and 5-cent stamps, 1, 2, 4 and 7 can\'t be made: 4 amounts, the largest 7. For the fewest stamps, use as many of the larger stamp as you can.',
       how: [
         'Ways to make N: let y be the number of b-cent stamps; the y that leave a multiple of a form y, y + a, y + 2a, … up to b·y ≤ N. Count them: (last − first)/a + 1.',
         'Largest amount that can\'t be made: ab − a − b (a and b sharing no factor).',
         'How many amounts can\'t be made: (a − 1)(b − 1)/2.',
         'Fewest stamps: start with ⌊N/b⌋ stamps of b cents and count down until the rest is a multiple of a.',
+      ],
+      facts: [
+        'For values a and b with no common factor, the largest amount that can’t be made is ab − a − b.',
+        'Exactly (a − 1)(b − 1)/2 amounts can’t be made.',
+        'If a and b share a factor g > 1, only multiples of g can be made at all.',
+        'When a and b share no factor, the numbers of b-cent stamps that work go up in steps of a.',
       ],
       watch: [
         'Off by one when counting the list: include both the first and the last value.',
@@ -757,12 +1331,19 @@ export const amcLearning = {
       tip: 'Fix the number of stamps of one kind and let the other follow; for what can\'t be made, remember ab − a − b and (a − 1)(b − 1)/2.',
     },
     'Rising and falling digits': {
+      spot: 'Numbers whose digits strictly rise or fall ("climbers", "sliders"), or never go down: such a number is just its set of digits, so count sets with C(9, k) or C(10, k), or with stars and bars when digits may repeat.',
       idea: 'A number with strictly increasing digits is decided by which digits it uses: pick the set, and there is exactly one way to write it in increasing order. The same goes for decreasing digits, except that 0 can end a decreasing number but never appear in an increasing one. When repeats are allowed (digits that never decrease), the number is decided by how many of each digit it uses, which is stars and bars. Two-digit examples: C(9, 2) = 36 rising, C(10, 2) = 45 falling, and C(2 + 8, 8) = 45 never decreasing.',
       how: [
         'Strictly rising, j digits: C(9, j). Strictly falling: C(10, j). Their difference, C(9, j − 1), counts the falling numbers ending in 0.',
         'Rising and starting with a, k digits: choose the other k − 1 from the 9 − a digits above a: C(9 − a, k − 1).',
         'Rising and ending in d: any nonempty set of the digits below d in front: 2<sup>d − 1</sup> − 1.',
         'Never decreasing, k digits: C(k + 8, 8) (no 0). Never increasing: C(k + 9, 9) − 1 (0 allowed, but not all zeros).',
+      ],
+      facts: [
+        'k digits strictly rising: C(9, k) (0 can’t be used); strictly falling: C(10, k) (0 only at the end).',
+        'Falling minus rising, k digits: C(10, k) − C(9, k) = C(9, k − 1), the falling ones that end in 0.',
+        'k digits that never decrease: C(k + 8, 8); that never increase: C(k + 9, 9) − 1.',
+        'Rising and starting with a: C(9 − a, k − 1); rising and ending in d: 2<sup>d−1</sup> − 1 (with at least two digits).',
       ],
       watch: [
         'Letting a rising number use 0: it would have to be the first digit.',
@@ -772,12 +1353,19 @@ export const amcLearning = {
       tip: 'Think of each number as the set (or, with repeats, the multiset) of its digits, and ask whether 0 can be one of them.',
     },
     'Races with ties': {
+      spot: 'Finishing orders where ties can happen ("a tie can involve any number of cars"), "A finishes ahead of B", or medals for the top three: group the tied racers, count the groupings, then order the groups.',
       idea: 'Handle one tie by gluing: if exactly k racers tie, choose which k, then treat them as one racer sharing a place, leaving n − k + 1 to put in order. With ties allowed anywhere, sort the results by the number of different places j: split the racers into j tied groups (S(n, j) ways, the Stirling numbers) and order the groups (j!); 3 horses give 1 + 6 + 6 = 13. Without ties, symmetry helps: A beats B in exactly half of the n! orders. Medals are an ordered choice: n(n − 1)(n − 2).',
       how: [
         'At most one tie: n! + the sum of C(n, k)·(n − k + 1)! for k = 2 to n; exactly one tie: leave out the n!.',
         'Ties anywhere: add j!·S(n, j) for j = 1 to n, where S(n, 1) = S(n, n) = 1, S(n, 2) = 2<sup>n − 1</sup> − 1 and S(n, n − 1) = C(n, 2).',
         'A ahead of B, no ties: n!/2.',
         'Gold, silver and bronze: n(n − 1)(n − 2).',
+      ],
+      facts: [
+        'Exactly one tie, of k racers, and no other: C(n, k)·(n − k + 1)!.',
+        'Splitting n racers into j tied groups: 1 way for j = 1 or j = n, 2<sup>n−1</sup> − 1 ways for j = 2, and C(n, 2) for j = n − 1; the groups then finish in j! orders.',
+        'With no ties, A finishes ahead of B in exactly half of the n! orders.',
+        'Gold, silver and bronze among n: n(n − 1)(n − 2).',
       ],
       watch: [
         'Include n! only when a race with no tie counts.',
@@ -787,12 +1375,19 @@ export const amcLearning = {
       tip: 'Group the tied racers, count the ways to form the groups, then order the groups.',
     },
     'Coloring a map': {
+      spot: 'Regions, stripes, wedges or panes painted so that touching ones get different colors: paint them in an order where each touches ones already painted and multiply the choices; a ring needs its own formula.',
       idea: 'Paint the regions one at a time, each touching regions already painted, and multiply the choices: a region has k minus the number of different colors its painted neighbors use. A row of n stripes gives k·(k − 1)<sup>n − 1</sup>. A ring is harder because the last region touches the first: a ring of n regions with k colors has (k − 1)<sup>n</sup> + (−1)<sup>n</sup>(k − 1) paintings; for 4 regions and 3 colors, 16 + 2 = 18. A region that touches all the others, like the middle of a wheel, goes first, and the ring then has only k − 1 colors.',
       how: [
         'Stripes in a row: k for the first, k − 1 for each later one.',
         'Two rows of regions: after the first column, each new region touches two painted regions that touch each other: k − 2 choices.',
         'Ring of n (pie wedges): (k − 1)<sup>n</sup> + (−1)<sup>n</sup>(k − 1).',
         'Wheel: k choices for the middle, times the ring painted with k − 1 colors.',
+      ],
+      facts: [
+        'A row of n stripes with k colors: k·(k − 1)<sup>n−1</sup>.',
+        'A ring of n regions: (k − 1)<sup>n</sup> + (−1)<sup>n</sup>(k − 1).',
+        'A middle piece touching a ring of n: k times the ring painted with k − 1 colors, k·((k − 2)<sup>n</sup> + (−1)<sup>n</sup>(k − 2)).',
+        'A region touching two painted regions that touch each other has k − 2 choices.',
       ],
       watch: [
         'In a ring, the last region touches the first: k·(k − 1)<sup>n − 1</sup> is too many.',
@@ -802,12 +1397,19 @@ export const amcLearning = {
       tip: 'Paint in an order where each region touches painted ones, and for a ring, correct for the last region touching the first.',
     },
     'Knights, knaves and jokers': {
+      spot: 'People who always tell the truth, always lie, or switch with every answer, with statements about how many liars there are or counts of “yes” answers: work out what each type would say, then look for statements that can’t be true together.',
       idea: 'Work out what each kind of person would say, then let the statements check each other. Two knights can never make different claims about the same fact, so if everyone names a different exact number of knaves, at most one person is a knight. When person i says “at least i of us are knaves”, with K knaves the true statements are exactly those of persons 1 to K, so there are K knights and K knaves. On the quiz show, tabulate the three answers of a Knight, a Knave and the two kinds of Joker, and compare the yes counts.',
       how: [
         'Quiz show: Knight yes, no, no; Knave yes, yes, no; truth-first Joker no, no, no; lie-first Joker yes, yes, yes. Write each yes count as a sum of types and subtract.',
         '“At least i are knaves”: persons 1 to K tell the truth, so K knights and K knaves: K = n/2.',
         '“Exactly i are knaves”: at most one knight; if there were none, person n would be telling the truth, so there is exactly one knight, the one who says n − 1.',
         'Answer what is asked: a number of people, a number of tokens, or which person.',
+      ],
+      facts: [
+        'Asked “Are you a Knight?”, Knights and Knaves both say yes; asked “Are you a Knave?”, both say no.',
+        'Two truth-tellers never contradict each other: if everyone names a different number, at most one of them is a knight.',
+        'If person i says “at least i of us are knaves”, with K knaves exactly persons 1 to K tell the truth, so there are K knights and K knaves.',
+        'On the quiz show, “Knight?” gets yes from Knights, Knaves and lie-first Jokers, “Joker?” from Knaves and lie-first Jokers, and “Knave?” from lie-first Jokers only.',
       ],
       watch: [
         'A Knave asked “Are you a Knave?” says no, because the true answer is yes.',
@@ -817,12 +1419,18 @@ export const amcLearning = {
       tip: 'Ask which statements can be true at the same time, and let the number of knaves decide who is telling the truth.',
     },
     'Number snakes in a grid': {
+      spot: 'The numbers 1 to 9 in a 3 × 3 grid with consecutive numbers in squares that share a side, and a question about the corners, the center, or where a number can go: color the grid like a checkerboard.',
       idea: 'Color the 3 × 3 grid like a checkerboard. Squares that share a side have different colors, so walking 1, 2, 3, …, 9 the colors alternate. The color with 5 squares (the four corners and the center) must hold the five numbers in the odd positions of the walk, 1, 3, 5, 7 and 9, which add up to 25, and the even numbers go on the four edge squares. So the center and the corners always add up to 25, and an even number can only be on an edge square.',
       how: [
         'Color the grid like a checkerboard: the corners and the center one color, the four edge squares the other.',
         'Consecutive numbers share a side, so their colors alternate along 1, 2, …, 9.',
         'The corners and center hold 1, 3, 5, 7, 9 (sum 25); the edge squares hold 2, 4, 6, 8.',
         'Given the corners, the center is 25 minus their sum; given the center, the corners add up to 25 minus it.',
+      ],
+      facts: [
+        'Squares that share a side have different colors, so 1, 2, …, 9 alternate colors along the path.',
+        'The color with 5 squares (the four corners and the center) holds 1, 3, 5, 7 and 9, which add up to 25.',
+        'So the center and corners add up to 25, and 2, 4, 6 and 8 (sum 20) sit on the edge squares.',
       ],
       watch: [
         'Trying arrangements by hand is slow and easy to get wrong; the coloring argument is quick and certain.',
@@ -832,12 +1440,19 @@ export const amcLearning = {
       tip: 'Color the squares like a checkerboard and ask which numbers must land on the corners and the center.',
     },
     'Crossing lines': {
+      spot: 'Several straight lines in a plane and “how many points lie on two of them”, with some lines parallel or some through one point, or every value that number can take: start from C(n, 2) and subtract what each special arrangement costs.',
       idea: 'Two lines cross at most once, so n lines have at most C(n, 2) crossing points, reached when no two are parallel and no three meet at one point. Every special arrangement costs points: k parallel lines lose the C(k, 2) pairs that never meet, and m lines through one point merge C(m, 2) crossings into a single point. For 6 lines with exactly 3 parallel: 15 − 3 = 12 points. To find every possible number of points for a few lines, start from the extremes (all parallel: 0; all through one point: 1; general: C(n, 2)) and test the small values in between one at a time, since some are impossible.',
       how: [
         'Most points: C(n, 2), with no parallels and no three lines through one point.',
         'A family of k parallel lines: subtract C(k, 2).',
         'm lines through one common point: subtract C(m, 2) and add back 1 for the shared point.',
         'All possible values: list the extremes, build the middle values by mixing parallel families and shared points, and prove which small values can\'t happen.',
+      ],
+      facts: [
+        'n lines cross in at most C(n, 2) points: when no two are parallel and no three meet at a point.',
+        'k parallel lines lose the C(k, 2) crossings they would have had.',
+        'm lines through one point make 1 point there instead of C(m, 2).',
+        '4 lines can make 0, 1, 3, 4, 5 or 6 crossing points, but never 2.',
       ],
       watch: [
         'Lines through a common point still make one point there: add 1 back.',
@@ -847,12 +1462,19 @@ export const amcLearning = {
       tip: 'Start from C(n, 2) crossings and take away what each parallel family or shared point costs.',
     },
     'Lattice squares': {
+      spot: '"How many squares" on graph paper, or with all four corners at lattice points inside a region, or how many lattice points lie under a line: count one size (or one column) at a time.',
       idea: 'Count squares one size at a time. In a grid n squares wide and m tall, a square of side s has n − s + 1 places across and m − s + 1 up, so add (n − s + 1)(m − s + 1) over every s: a 3 × 2 grid has 6 + 2 = 8 squares. Inside a slanted boundary, describe each square by its bottom-left corner and side, and check only the corner closest to the line: the top-left one under a rising line y = x√k, the top-right one under x + y = a. Lattice points under a line are counted the same way, column by column.',
       how: [
         'Grid rectangle n by m: add (n − s + 1)(m − s + 1) for s = 1 up to the shorter side.',
         'Triangle x, y ≥ 0, x + y ≤ a: a square of side s fits with its bottom-left corner at (x, y) when x + y ≤ a − 2s, and there are (t + 1)(t + 2)/2 lattice points with x, y ≥ 0 and x + y ≤ t.',
         'Under y = x√k: a square with bottom-left corner (a, b) and side s fits when b + s ≤ ⌊a√k⌋, giving ⌊a√k⌋ − s + 1 heights (or none).',
         'Lattice points (x, y) with 0 ≤ y &lt; x√k (k not a perfect square): ⌊x√k⌋ + 1 in each column x.',
+      ],
+      facts: [
+        'An n × n grid holds 1² + 2² + ⋯ + n² = n(n + 1)(2n + 1)/6 squares.',
+        'An n × m grid holds (n − s + 1)(m − s + 1) squares of side s.',
+        'There are (t + 1)(t + 2)/2 lattice points with x, y ≥ 0 and x + y ≤ t.',
+        'If k is not a perfect square, x√k is never whole (x ≥ 1), so column x holds ⌊x√k⌋ + 1 lattice points with 0 ≤ y &lt; x√k.',
       ],
       watch: [
         'Counting only the unit squares; bigger squares count too.',
@@ -862,12 +1484,19 @@ export const amcLearning = {
       tip: 'Count by square size, and for each size count where its corner nearest the boundary can go.',
     },
     'Sum-free sets': {
+      spot: '"The largest number of numbers that can be chosen" so that no two add up to T, no chosen number is the sum of two others, or none is twice another: group the numbers that clash, take as many as each group allows, and show a set that reaches it.',
       idea: 'Group the numbers that clash and take as many from each group as the rule allows. For no two chosen numbers adding up to T, the clashing pairs are (1, T − 1), (2, T − 2), …; take one from each pair, plus every number that is in no pair. For no chosen number being the sum of two chosen ones, look at the largest chosen number m and pair x with m − x. For no number being twice another, the clashes form doubling chains like 3, 6, 12, and a chain of L numbers allows ⌈L/2⌉ (every other one). Counting pairs with a small sum is simpler still: sort them by their sum s, which comes from ⌊(s − 1)/2⌋ pairs of different numbers.',
       how: [
         'No two different numbers adding to T: one from each pair x, T − x, plus the numbers in no pair (including T/2 and everything from T up).',
         'No number the sum of two chosen ones: pair up below the largest chosen m; then show a set reaching the limit, such as the top half or all the odd numbers.',
         'No number twice another: split into chains o, 2o, 4o, … and take ⌈L/2⌉ from a chain of length L.',
         'Pairs of different numbers with sum at most N: add ⌊(s − 1)/2⌋ for s = 3 to N.',
+      ],
+      facts: [
+        'No chosen number the sum of two chosen ones: at most ⌈N/2⌉ (the odd numbers, or those above N/2); if the two must be different, ⌊N/2⌋ + 1 (from ⌈N/2⌉ up to N).',
+        'No two adding up to T: at most one from each pair x, T − x, plus every number in no pair.',
+        'No number twice another: a chain o, 2o, 4o, … of length L allows ⌈L/2⌉.',
+        'Pairs of different numbers with sum s: ⌊(s − 1)/2⌋, from (1, s − 1) up to the pair just below s/2.',
       ],
       watch: [
         'Whether a number may be added to itself decides whether m/2 is allowed.',
@@ -877,12 +1506,19 @@ export const amcLearning = {
       tip: 'Group the numbers into clashing pairs or chains and take as many as each group allows.',
     },
     'Sets with no multiples': {
+      spot: '"No chosen number is a multiple of another", or "any k numbers must include one that divides another": write every number as an odd number times a power of 2, and use the chains this makes.',
       idea: 'Write every number as an odd number times a power of 2. The numbers with the same odd part form a chain, like 3, 6, 12, and in a chain the smaller number always divides the larger. From 1 to N there are ⌈N/2⌉ odd numbers, so ⌈N/2⌉ chains: a set with no multiples has at most one number per chain, and any ⌈N/2⌉ + 1 numbers must put two in one chain (pigeonhole). The numbers above N/2 reach ⌈N/2⌉, since twice any of them is bigger than N. For 1 to 10: chains 1, 2, 4, 8; 3, 6; 5, 10; 7; 9, so at most 5 numbers, and 6, 7, 8, 9, 10 works.',
       how: [
         'Split 1 to N into chains: an odd number o, then 2o, 4o, 8o, …',
         'Largest set with no multiples: one per chain, ⌈N/2⌉, reached by the numbers above N/2.',
         'Fewest picks that force a multiple: one more than that, ⌈N/2⌉ + 1.',
         'Smallest number in a largest set: the set takes exactly one number from every chain, and along odd parts like 1, 3, 9 the powers of 2 in the picks must go strictly down; that rules out the small numbers. Then show a whole set that uses your answer.',
+      ],
+      facts: [
+        'Every number is an odd number times a power of 2 in just one way, and of two numbers with the same odd part, the smaller divides the larger.',
+        'From 1 to N there are ⌈N/2⌉ odd numbers, so a set with no multiples has at most ⌈N/2⌉ numbers; the numbers above N/2 reach that.',
+        'Any ⌈N/2⌉ + 1 numbers from 1 to N include one that divides another (pigeonhole).',
+        'A largest set takes one number from every chain, and along the odd parts 1, 3, 9, … its powers of 2 must go strictly down.',
       ],
       watch: [
         'Pigeonhole needs one more pick than the largest safe set.',
@@ -892,12 +1528,19 @@ export const amcLearning = {
       tip: 'Write each number as an odd number times a power of 2: the chains this makes give the largest set, and pigeonhole forces a multiple one pick later.',
     },
     'Round robin': {
+      spot: 'Every player (or team) playing every other once or twice, everyone winning the same number of games, or wins compared between two groups of players: a game is a pair, and the wins add up to the number of games.',
       idea: 'Every game is a pair of players, so a round robin of n players has C(n, 2) games, and a home-and-away league has n(n − 1), one for every ordered pair. Every game has exactly one winner, so the wins add up to the number of games: if all n players win equally, each wins (n − 1)/2. The same fact drives the left- and right-handers puzzle: the share of the wins fixes what fraction of the games each side won, and the games among the right-handers, which they must win, limit the number of players.',
       how: [
         'Single round robin: C(n, 2) = n(n − 1)/2 games. Home and away: n(n − 1).',
         'Equal wins: C(n, 2) wins shared by n players, (n − 1)/2 each (so n is odd).',
         'Left- and right-handers: with L left-handers and r·L right-handers, write the games and the right-handers\' share of them in terms of L.',
         'The right-handers win at least the C(rL, 2) games among themselves; that caps L, and among the allowed L keep the one that makes every number of wins whole.',
+      ],
+      facts: [
+        'n players, each pair once: C(n, 2) = n(n − 1)/2 games; home and away: n(n − 1).',
+        'Every game has one winner, so all the wins add up to the number of games.',
+        'If all n players win equally, each wins (n − 1)/2 games, so n is odd.',
+        'Two groups of a and b players: C(a, 2) games inside one, C(b, 2) inside the other, and a·b between them.',
       ],
       watch: [
         'n(n − 1) counts every single-round-robin game twice.',
@@ -907,12 +1550,19 @@ export const amcLearning = {
       tip: 'A game is a pair of players with one winner: count pairs for games, and add up wins to get the number of games.',
     },
     'Pairing friends': {
+      spot: '"Split into pairs" where only who is with whom matters, maybe with rules about who may pair: pair off the first unpaired person each time, and with rules, look at how the person at one end can pair.',
       idea: 'To split 2m people into pairs, take any unpaired person and choose their partner, then repeat: (2m − 1)·(2m − 3)·…·1 ways, 105 for 8 people. When only some pairs are allowed, look at how one person at the end can pair: in two rows of students, the left column pairs front-to-back, or the two left students in each row pair sideways, so T(m) = T(m − 1) + T(m − 2), the Fibonacci numbers. To keep couples apart, use inclusion–exclusion over the couples kept together. Around a table with neighbors and opposite guests as friends, pairs across the table must leave arcs with an even number of guests.',
       how: [
         'Any pairs: (2m − 1)·(2m − 3)·…·3·1.',
         'Two rows, side by side or one behind the other: T(m) = T(m − 1) + T(m − 2), with T(1) = 1 and T(2) = 2.',
         'Couples kept apart: add (−1)<sup>j</sup>·C(m, j)·(pairings of the other 2m − 2j people) for j = 0 to m.',
         'Round table: 2 pairings use only neighbors; otherwise choose the across pairs so that every arc between them has an even number of guests.',
+      ],
+      facts: [
+        '2m people into pairs: (2m − 1)·(2m − 3)⋯3·1, the same as (2m)!/(2<sup>m</sup>·m!).',
+        'Two rows of m desks: T(m) = T(m − 1) + T(m − 2), with T(1) = 1 and T(2) = 2, so the counts are Fibonacci numbers.',
+        'Couples kept apart: add (−1)<sup>j</sup>·C(m, j)·(pairings of the other 2m − 2j people) for j = 0 to m.',
+        'Around a round table of 6 or more, exactly 2 pairings use only neighbors.',
       ],
       watch: [
         'C(2m, 2)·C(2m − 2, 2)·… puts the pairs in order; divide by m!, or use the odd-number product.',
@@ -922,12 +1572,19 @@ export const amcLearning = {
       tip: 'Pair off the first unpaired person each time; with rules, look at how the end person can pair and build a recursion.',
     },
     'Seating with rules': {
+      spot: 'People in a row or around a table with rules like "must sit together", "refuse to sit next to each other", or "boys and girls alternate": glue a pair into a block, subtract the seatings that break a rule, or seat one person first at a round table.',
       idea: 'Most seating rules come down to three tools. Glue people who must sit together into a block (it can face 2 ways). Count everything and subtract the seatings that break a rule, using inclusion–exclusion when two rules can both be broken. At a round table where turning doesn\'t matter, seat one person first to fix the table, so n people sit in (n − 1)! ways. For 5 people at a round table with two of them side by side: seat one, the other takes one of the 2 seats beside them, and the last 3 sit in 3! ways: 2·6 = 12.',
       how: [
         'Row, two people apart: n! − 2·(n − 1)!.',
         'Round table: seat one person to fix the table; the others fill the rest in (n − 1)! ways, and that person\'s neighbors are 2 particular seats.',
         'Boys and girls alternating: the row starts with either group if the numbers are equal (2 patterns) or with the bigger group (1 pattern); then order each group in its places.',
         'Twins kept apart in rows of seats: count the close pairs of seats, then all − (first twins close) − (second twins close) + (both close), using only close pairs that share no seat in the last count.',
+      ],
+      facts: [
+        'n people around a round table, turns not counting: (n − 1)!.',
+        'Round table, two given people side by side: 2·(n − 2)!; apart: (n − 3)·(n − 2)!.',
+        'In a row, two given people side by side: 2·(n − 1)!; apart: (n − 2)·(n − 1)!.',
+        'b boys and g girls alternating in a row: 2·b!·g! if b = g, b!·g! if the numbers differ by 1, and none otherwise.',
       ],
       watch: [
         'At a round table, n! counts each seating n times, once for every turn.',
@@ -937,12 +1594,19 @@ export const amcLearning = {
       tip: 'Glue, subtract, or fix one person at a round table: pick the tool that makes the rule easy.',
     },
     'Colorings up to symmetry': {
+      spot: '"Two paintings count as the same if turning (or flipping) carries one onto the other": use Burnside’s lemma, averaging over the symmetries the number of paintings each one leaves unchanged.',
       idea: 'When paintings that turn or flip into each other count as the same, use Burnside\'s lemma: the number of different paintings is the average, over all the symmetries, of how many paintings each symmetry leaves exactly unchanged. A symmetry moves the positions around in cycles, and a painting stays the same only when every cycle is one color. With k colors free, a symmetry with c cycles keeps k<sup>c</sup> paintings. Four beads on a square with 2 colors, turns only: (16 + 2 + 4 + 2)/4 = 6.',
       how: [
         'List the symmetries: a triangle has 6 (doing nothing, 2 turns, 3 flips), a square 8 and a hexagon 12; use only the turns when flips don\'t count.',
         'For each symmetry, find the cycles it moves the positions in: on a square, a quarter turn is one cycle of 4 and a half turn two cycles of 2.',
         'Count the paintings it keeps: k<sup>(number of cycles)</sup> with k free colors, or the ways to fill whole cycles with the required number of each color.',
         'Add the counts over all the symmetries and divide by how many there are.',
+      ],
+      facts: [
+        'Different paintings = the average, over all the symmetries, of how many paintings each one leaves exactly as they were.',
+        'A symmetry that moves the positions in c cycles keeps k<sup>c</sup> paintings when k colors are free.',
+        'A triangle has 6 symmetries, a square 8 and a regular hexagon 12; half of them are turns (counting doing nothing).',
+        'On a square’s 4 corners, a quarter turn makes 1 cycle, a half turn 2, a flip through two corners 3, and a flip through two side midpoints 2.',
       ],
       watch: [
         'Dividing the held-still count by the number of symmetries only works when no painting is kept by any symmetry except doing nothing.',
@@ -952,12 +1616,19 @@ export const amcLearning = {
       tip: 'For each symmetry, count the paintings it leaves exactly as they were (every cycle one color), then average.',
     },
     'Paths on a cube': {
+      spot: 'A bug crawling along the edges of a cube, shortest routes through a box of little cubes, or segments joining a cube’s corners: use the symmetry, the two-coloring of the corners, and counting by distance from the start.',
       idea: 'Use the cube\'s symmetry and its two-coloring. Color the corners in two colors so that every edge joins different colors: a walk changes color at every step, so after an odd number of edges it can\'t be back at the start, and after 7 edges it is on a neighbor of the start or the far corner. For walks that may repeat, group the corners by distance from the start (1, 3, 3 and 1 corners at distances 0, 1, 2, 3) and track how many walks are at each distance after each step. Shortest routes in an a × b × c box are the orders of a + b + c steps: (a + b + c)!/(a!·b!·c!).',
       how: [
         'Walks through every corner once: fix the first two edges (3·2 = 6 equally good starts), list the finishes from there, and multiply.',
         'Walks of a given length: from distance 0 all 3 edges go to distance 1; from 1, 1 edge goes back and 2 go on; from 2, 2 go back and 1 goes on; from 3, all 3 go back. Update the counts step by step.',
         'Shortest routes in a box: (a + b + c)!/(a!·b!·c!).',
         'Segments joining corners: C(8, 2) = 28 = 12 edges + 12 face diagonals (2 on each of 6 faces) + 4 diagonals through the inside.',
+      ],
+      facts: [
+        'A cube has 8 corners, 12 edges and 6 faces; its 28 corner-to-corner segments are 12 edges, 12 face diagonals and 4 diagonals through the inside.',
+        'Shortest routes along the edges of an a × b × c box: (a + b + c)!/(a!·b!·c!).',
+        'Every edge joins corners of different colors, so a walk along an odd number of edges never ends where it started.',
+        'From any corner, 1, 3, 3 and 1 corners are 0, 1, 2 and 3 edges away.',
       ],
       watch: [
         'A walk through every corner exactly once never comes back to a corner.',
@@ -966,14 +1637,154 @@ export const amcLearning = {
       ],
       tip: 'Use symmetry to fix the start, sort the corners by distance, and remember that a walk changes color at every step.',
     },
+    // harder: problems 15 to 25
+    'Counting with recursion': {
+      spot: 'When you count strings, tilings, climbs or rows of length n with a rule about neighbours (no two in a row, never land on step 4, every bead next to one of its own color) and n is too big to list everything: the count for n is built from the counts for n − 1, n − 2, ….',
+      idea: 'Sort the objects of length n by how they end. Whatever comes before the ending is a smaller object of the same kind, so the count for n is a sum of counts for shorter lengths, and you fill in a table from the bottom up. Strings of 0s and 1s with no two 1s side by side end in 0 or in 01, so a(n) = a(n − 1) + a(n − 2), which gives 2, 3, 5, 8, 13, …. When the rule depends on the last letter, keep one count for each kind of ending (a state) and update all of them together, one letter at a time.',
+      how: [
+        'Look at the last piece (the last letter, the last tile, the last move) and list the ways it can look.',
+        'For each ending, ask what is left in front of it: a shorter good object, counted by a(n − 1), a(n − 2), ….',
+        'If what may come next depends on the last letter, keep a separate count for each kind of ending and write how each one grows from the counts before it.',
+        'Work out the first two or three values by listing, then fill in the table up to n.',
+        'For a circle, split on the first spot (empty or used), which turns the circle into rows you already know how to count.',
+      ],
+      facts: [
+        'No two 1s in a row: a(n) = a(n − 1) + a(n − 2), from a(1) = 2 and a(2) = 3 (the Fibonacci numbers).',
+        'No three 1s in a row: t(n) = t(n − 1) + t(n − 2) + t(n − 3), from 2, 4 and 7.',
+        'A 2 × n strip with dominoes and 2 × 2 squares: a(n) = a(n − 1) + 2a(n − 2); with dominoes only, the Fibonacci numbers again.',
+        'Climbing by 1, 2 or 3 steps: T(n) = T(n − 1) + T(n − 2) + T(n − 3), and a step you may not land on gets 0 in the table.',
+      ],
+      watch: [
+        'Wrong starting values: decide whether the empty string counts, and check a(1) and a(2) by listing them.',
+        'An index off by one: the answer for 10 lamps is a(10), not a(9) or a(11).',
+        'Counting two upright dominoes side by side again in the a(n − 2) term of a 2 × n tiling: they are already in a(n − 1).',
+        'In a circle the first and last spots are neighbours too, so the row count is too big.',
+      ],
+      tip: 'Sort the objects by how they end: what comes before the ending is a shorter object of the same kind.',
+    },
+    'Stars and bars': {
+      spot: 'When identical things are shared among different people or boxes, when you count whole-number solutions of x + y + z + ⋯ = n, or when only how many of each kind matters (the terms of a big power, scoops of ice cream, lists that never go down).',
+      idea: 'Line up the n identical things as stars and put k − 1 bars among them: the bars cut the row into k shares, read from left to right. Every sharing is exactly one row of n stars and k − 1 bars, so there are C(n + k − 1, k − 1) sharings. Rules are handled before counting: a smallest amount is handed out first, and a largest amount is handled by taking away the sharings that break it (and adding back those that break it twice). For example, 10 apples among 3 children with each getting at least 2: give 2 each, then share the other 4 freely, C(6, 2) = 15 ways.',
+      how: [
+        'Turn the question into whole-number solutions of a sum: the shares, the exponents of a term, how many scoops of each flavor, or the gaps between chosen numbers.',
+        'Lower limits: hand them out first (or shift each variable so it starts at 0) and share what is left.',
+        'Share m freely among k: C(m + k − 1, k − 1). With every share at least 1: C(m − 1, k − 1).',
+        'Upper limits: subtract the sharings where one share is over the limit (give it the limit + 1 first), then add back those where two shares are over.',
+      ],
+      facts: [
+        'n identical things in k boxes: C(n + k − 1, k − 1); with no box empty: C(n − 1, k − 1).',
+        'Terms of (a + b + c + d)<sup>n</sup>: C(n + 3, 3). Terms of (1 + x + y)<sup>n</sup>: C(n + 2, 2), since the 1 is like a third variable.',
+        'k numbers from 1 to N with no two consecutive: C(N − k + 1, k).',
+      ],
+      watch: [
+        'Mixing up the numbers: it is C(stars + bars, bars), with k − 1 bars for k boxes.',
+        'Forgetting to add back the sharings where two shares are over the limit.',
+        '“More than 5” means at least 6, so give that share 6 first, not 5.',
+        'Stars and bars is for identical things; n different things in k boxes is k<sup>n</sup>.',
+      ],
+      tip: 'Picture the things as stars and the dividers as bars, and deal with every rule before you count the rows.',
+    },
+    'Lattice points in a diamond': {
+      spot: 'When you count points with integer coordinates where |x| + |y| ≤ n (a square turned 45°), where |x| + |y| + |z| ≤ n or = n (an octahedron), or the places a walker can reach with moves along the grid.',
+      idea: 'Slice the region into rows or layers you can count. In the plane, the row y = t of |x| + |y| ≤ n holds 2(n − |t|) + 1 points, so the whole diamond holds 1 + 3 + ⋯ + (2n + 1) + ⋯ + 3 + 1 = 2n² + 2n + 1. In space, the layer z = t of |x| + |y| + |z| ≤ n is a flat diamond of size n − |t|, so add those up. The surface |x| + |y| + |z| = n is easier by absolute values and signs: positive values adding to n by stars and bars, then 2 signs for each coordinate that isn\'t 0. For n = 3 that is 6 points with two zeros, 24 with one zero and 8 with none, 38 in all, which is 4·3² + 2.',
+      how: [
+        'Decide how to slice: rows y = t for a flat region, layers z = t for a solid one.',
+        'Count one slice from the condition that is left (|x| ≤ n − 2|t|, or a flat diamond of size n − |t|).',
+        'Add the slices, using symmetry: every slice t other than 0 has a twin at −t.',
+        'For points exactly on |x| + |y| + |z| = n, sort by how many coordinates are 0, count the absolute values with stars and bars, and multiply by the sign choices.',
+        'After exactly n moves along the grid, a walker can be at any point within n moves whose |x| + |y| (+ |z|) has the same parity as n.',
+      ],
+      facts: [
+        '|x| + |y| ≤ n: 2n² + 2n + 1 points; |x| + |y| = n: 4n points.',
+        '|x| + |y| + |z| = n: 4n² + 2 points (for n ≥ 1); |x| + |y| + |z| ≤ n: add those shells, 1 + 6 + 18 + 38 + ⋯.',
+        'Exactly n moves on a square grid can end at (n + 1)² different points.',
+      ],
+      watch: [
+        'Forgetting that each layer other than t = 0 comes twice (t and −t), or counting t = 0 twice.',
+        'Giving 2 signs to a coordinate that is 0.',
+        'A walk of exactly n moves can\'t end where |x| + |y| has the wrong parity.',
+      ],
+      tip: 'Slice the region into rows or layers whose points you can count, and use symmetry to add them up.',
+    },
+    'Coloring a ring': {
+      spot: 'When regions around a circle (wedges of a cake, beads of a loop, panes of a window) are colored so that neighbours differ, especially with something extra: a middle piece that touches them all, a color that may be used only so often, or a row to compare with.',
+      idea: 'A row of n regions is easy: k choices for the first and k − 1 for each next one, k(k − 1)<sup>n − 1</sup>. A ring is a row whose two ends must also differ. The rows whose ends match become, after gluing the two ends into one region, exactly the rings of n − 1, and that leads to R(n) = (k − 1)<sup>n</sup> + (−1)<sup>n</sup>(k − 1) for a ring of n. For 3 colors and 4 wedges: 2<sup>4</sup> + 2 = 18. A piece that touches every region of the ring (a middle disk, an outer rim) takes its color away from the whole ring, so color it first and use R with fewer colors.',
+      how: [
+        'Color the pieces that touch everything first; when two of them don\'t touch each other, split into cases (same color or not).',
+        'Count the ring with the colors that are left: (c − 1)<sup>n</sup> + (−1)<sup>n</sup>(c − 1) for c colors.',
+        'A color allowed at most once: split on whether it is used; if it is, the rest of the ring is a row whose ends don\'t touch each other.',
+        'A color allowed only so often: count all colorings, take away the ones that use it too often, and add back any taken away twice.',
+      ],
+      facts: [
+        'Row of n with k colors: k(k − 1)<sup>n − 1</sup>. Ring of n: (k − 1)<sup>n</sup> + (−1)<sup>n</sup>(k − 1).',
+        'With 2 colors a ring of n has 2 colorings if n is even and none if n is odd.',
+        'Row of n minus ring of n = ring of n − 1 (the rows whose ends match).',
+      ],
+      watch: [
+        'Using the row count for a ring: the last region touches the first.',
+        'Forgetting that two pieces that don\'t touch (the middle and the rim) may share a color.',
+        'On a ring of n a color can fill at most every other region, so it fills n/2 regions in only 2 ways.',
+      ],
+      tip: 'Color whatever touches everything first, then count the ring with the colors that are left using (c − 1)<sup>n</sup> + (−1)<sup>n</sup>(c − 1).',
+    },
+    'Pigeonhole': {
+      spot: 'When a question asks how many you must take, choose or gather to be sure (to guarantee) that something happens: two socks match, two numbers add up to 50, three people share a birth month.',
+      idea: 'Find the worst luck: the biggest collection that still avoids what you want. The answer is one more than that. To find it, sort everything into boxes so that two things in the same box always give what you want; then the most you can have without it is one per box (or k − 1 per box when you want k in a box), and you check that this many really can avoid it. For example, with 12 months, 24 people can have 2 in each month and avoid 3 in one month, but any 25 people have 3 in some month.',
+      how: [
+        'Choose the boxes: colors, months, pairs of numbers with the right sum, remainders, small squares, patterns of odd and even.',
+        'Build the worst case: as many things as possible with no box getting too many, including things that fit in no pair.',
+        'Check that the worst case can really happen (find an example), and that one more always forces what you want.',
+        'Answer one more than the worst case; for “at least how many must share”, the answer is N/m rounded up.',
+      ],
+      facts: [
+        'N things in m boxes: some box has at least N/m things, rounded up.',
+        'To be sure of k things in one of m boxes, you need m(k − 1) + 1 things.',
+        'Two points with integer coordinates have an integer midpoint when their coordinates match in odd and even: 5 points in the plane, 9 in space make sure of it.',
+      ],
+      watch: [
+        'Answering with the worst case itself instead of one more.',
+        'Forgetting the loners: numbers with no partner, or a color with only a few socks, still go into the worst case.',
+        '“At most 40 apart” and “less than 40 apart” can differ by one when the even spacing comes out exact.',
+      ],
+      tip: 'Ask what the worst luck looks like, the most you can have without it, and then add one.',
+    },
+    'Binomial coefficients': {
+      spot: 'When a question asks for one coefficient or the constant term of a power like (2x − 3)<sup>7</sup>, for a sum of some of its coefficients, or for a sum like C(3, 3) + C(4, 3) + ⋯ + C(12, 3).',
+      idea: 'Multiplying out (A + B)<sup>n</sup>, each term picks A or B from every bracket, so the term with A from n − j brackets and B from j appears C(n, j) times: C(n, j)A<sup>n − j</sup>B<sup>j</sup>. For a constant term, work out the power of x in that term and set it to 0. For sums of coefficients, put in x = 1 (all of them) and x = −1 (even ones minus odd ones). A column of Pascal\'s triangle adds up to the entry below and right of its end, C(k, k) + ⋯ + C(n, k) = C(n + 1, k + 1), because choices of k + 1 numbers from 1 to n + 1 can be sorted by their largest number. For example, the x<sup>2</sup> coefficient of (2x − 1)<sup>4</sup> is C(4, 2)·2<sup>2</sup>·(−1)<sup>2</sup> = 24.',
+      how: [
+        'Write the general term C(n, j)·(first)<sup>n − j</sup>·(second)<sup>j</sup>, keeping each number with its sign.',
+        'Find j from the power of x you want; for a constant term, set the power of x to 0.',
+        'For sums of coefficients use P(1) and P(−1): the even powers give (P(1) + P(−1))/2 and the odd powers (P(1) − P(−1))/2.',
+        'For a sum down a column of Pascal\'s triangle use the hockey stick, and subtract the part of the column that is missing at the top.',
+      ],
+      facts: [
+        'Term of (A + B)<sup>n</sup>: C(n, j)A<sup>n − j</sup>B<sup>j</sup>, and the exponents add up to n.',
+        'Hockey stick: C(k, k) + C(k + 1, k) + ⋯ + C(n, k) = C(n + 1, k + 1).',
+        'm(m + 1) = 2·C(m + 1, 2) and m(m + 1)(m + 2) = 6·C(m + 2, 3).',
+        'C(n, k + 1)/C(n, k) = (n − k)/(k + 1).',
+      ],
+      watch: [
+        'Forgetting to raise the number in front of x to its power, or losing a minus sign.',
+        'Putting the powers on the wrong parts: A goes with n − j when B goes with j.',
+        'The hockey stick ends one row lower and one column to the right: C(n + 1, k + 1), not C(n, k + 1).',
+      ],
+      tip: 'Write the general term C(n, j)·(first)<sup>n − j</sup>·(second)<sup>j</sup> and choose j from the power of x you need.',
+    },
     // ---------- probability ----------
     'Probability with dice': {
+      spot: 'Two or three dice and a question about their sum, product, difference, or largest or smallest number: count the ordered outcomes (36 or 216) that work, or the ones that fail.',
       idea: 'Think of the dice as different colors, so two dice give 6 × 6 = 36 equally likely ordered outcomes and three give 216; a probability is (outcomes that work)/(all outcomes). Count sums, products and differences pair by pair, or count the outcomes that fail and subtract. For "the largest of three dice is exactly m", count "all three at most m" (m³) and take away "all three at most m − 1" ((m − 1)³). For example, two dice differ by exactly 2 in 4 ways each order: 8/36 = 2/9.',
       how: [
         'Treat the dice as different, so outcomes are ordered: 36 for two dice, 216 for three.',
         'Count the outcomes that work: list them, use 6 − |s − 7| ways for a sum of s, or count the ones that fail and subtract.',
         'For "largest (or smallest) is exactly m": all at most m minus all at most m − 1 (or the same from the top).',
         'Divide by the total number of outcomes and reduce.',
+      ],
+      facts: [
+        'Two dice make a sum of s in 6 − |s − 7| of the 36 ways; 7 is the most likely, with 6.',
+        'Two dice differ by d (d ≥ 1) in 2(6 − d) ways, and match in 6.',
+        'The largest of n dice is exactly m in m<sup>n</sup> − (m − 1)<sup>n</sup> of the 6<sup>n</sup> ways; the smallest is exactly m in (7 − m)<sup>n</sup> − (6 − m)<sup>n</sup>.',
+        'The product of two dice is odd only when both are odd: 9 of the 36 ways.',
       ],
       watch: [
         'Counting unordered pairs: (1, 3) and (3, 1) are different outcomes.',
@@ -983,12 +1794,19 @@ export const amcLearning = {
       tip: 'Picture the dice as different colors and count the ordered outcomes that work; when that is hard, count the ones that fail.',
     },
     'Many dice': {
+      spot: 'Several dice and "how many of the 6<sup>n</sup> outcomes total exactly s" (or "s or less"): give every die its 1, share the rest out with stars and bars, and turn a big total into a small one with 7 − x.',
       idea: 'Every die shows at least 1, so give each die its 1 first; then share the leftover e pips. If e is 5 or less, no die can pass 6, and stars and bars gives C(e + n − 1, n − 1) ways. A big total is a small one in disguise: turn every die over (x becomes 7 − x) and a total of s becomes 7n − s. For a total between, a die might pass 6: count with stars and bars, then take away the ways where one die gets 6 or more extra. And "or less" adds a spare box for unused pips: C(e + n, n). For example, 3 dice with total 10: C(9, 2) = 36, minus 3·C(3, 2) = 9 with a die over 6, gives 27.',
       how: [
         'Small total: subtract n, then share the e extra pips among n dice: C(e + n − 1, n − 1).',
         'Big total: use 7 − x on every die to turn the total s into 7n − s, and count that instead.',
         'Middle total: start with stars and bars, then subtract n × C(t − 7, n − 1) for a die that went past 6.',
         '"Total of s or less": give the unused pips a spare box, C(e + n, n), or add the exact counts.',
+      ],
+      facts: [
+        'n dice total s in C(s − 1, n − 1) ways when s ≤ n + 5 (no die can pass 6).',
+        'Totals s and 7n − s come up equally often.',
+        'Up to s = n + 11, take away the ways with a die over 6: C(s − 1, n − 1) − n·C(s − 7, n − 1).',
+        'n dice total s or less in C(s, n) ways when s ≤ n + 5.',
       ],
       watch: [
         'Off-by-one slips in stars and bars: C(s − 1, n) or C(s, n − 1) instead of C(s − 1, n − 1).',
@@ -998,12 +1816,19 @@ export const amcLearning = {
       tip: 'Give every die its 1 first, then count the ways to share the pips that are left, and check that no die passes 6.',
     },
     'Prime chances': {
+      spot: '"What is the probability that it is prime", for a random number, a sum or product of two dice, or a two-digit number built from spins or rolls: count every equally likely outcome, then test the candidates with 2, 3, 5 and 7.',
       idea: 'When every outcome is equally likely, the probability is (outcomes that give a prime)/(all outcomes), so count both carefully. To spot primes below 100, test division by 2, 3, 5 and 7 only (a composite number below 100 has a factor at most 9), and remember that 1 is not prime and 2 is. For two dice, list the ordered rolls: a sum is prime for the prime totals, each made in its own number of ways; a product is prime only when one die is 1 and the other is prime.',
       how: [
         'Count all the equally likely outcomes: numbers in the range, ordered rolls, or two-digit numbers made.',
         'List the candidates, and cross out anything divisible by 2, 3, 5 or 7 (other than those primes themselves).',
         'For a product of two numbers, only 1 × (a prime) works, in either order.',
         'Divide the number of primes by the number of outcomes, and reduce.',
+      ],
+      facts: [
+        'The 25 primes below 100 are 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89 and 97; the next are 101, 103, 107, 109 and 113.',
+        'A number from 2 to 120 is prime exactly when it is 2, 3, 5 or 7, or none of those four divides it.',
+        'A product of two whole numbers is prime only as 1 × (a prime), in either order.',
+        'Every prime above 3 is one more or one less than a multiple of 6.',
       ],
       watch: [
         'Dividing by the wrong total, like 99 instead of only the allowed numbers.',
@@ -1013,12 +1838,19 @@ export const amcLearning = {
       tip: 'Count every equally likely outcome first, then test each candidate for a factor of 2, 3, 5 or 7.',
     },
     'Choices in common': {
+      spot: 'Two people each choosing several items at random from the same list, and a question about how many items both chose: fix the first person’s choice, then count the second person’s.',
       idea: 'Fix the first person\'s choice: by symmetry it doesn\'t matter which one it is. Then count the second person\'s equally likely choices, C(n, k), and the ones that do what is asked. Exactly j in common: C(k, j)·C(n − k, k − j). At least one: use the opposite, no overlap at all, C(n − k, k). All inside the first list: C(m, k). And for the expected overlap, use linearity: each of the second person\'s b items is on the first list with probability a/n, so the expected overlap is ab/n. For example, with 6 films and lists of 2, sharing exactly 1 has probability C(2, 1)·C(4, 1)/C(6, 2) = 8/15.',
       how: [
         'Fix the first person\'s list.',
         'Count every possible second list: C(n, k).',
         'Count the good second lists: shared ones from inside, the rest from outside the first list; or use the opposite for "at least one".',
         'For an expected number in common, multiply the second list\'s size by the chance that one of its items is on the first list.',
+      ],
+      facts: [
+        'Lists of k from n with exactly j in common: C(k, j)·C(n − k, k − j)/C(n, k).',
+        'At least one in common: 1 − C(n − k, k)/C(n, k).',
+        'Lists of a and b items from n have ab/n items in common on average.',
+        'All k picks inside a fixed set of m: C(m, k)/C(n, k).',
       ],
       watch: [
         'Counting "at least j" when the question says "exactly j", or the other way round.',
@@ -1028,12 +1860,19 @@ export const amcLearning = {
       tip: 'Fix the first list, then count which second lists do what is asked, or use the opposite.',
     },
     'Running totals': {
+      spot: 'A token or frog moving forward by random steps, and "the probability that it ever lands on" (or stops on) a given square: build up the chances square by square from the squares that can reach it.',
       idea: 'The running total only goes up, so it can land on a given square at most once, and the different ways of landing there never overlap. With a few rolls, split by how many rolls it takes: m rolls add up to t in C(t − 1, m − 1) ways, each with probability (1/6)<sup>m</sup>. With no limit, work square by square: to land on k you must land on one of the squares just before it and then move exactly the gap, so P(k) = ⅙(P(k − 1) + ⋯ + P(k − 6)), with P(0) = 1. The same recursion works for any steps, like a frog that jumps 1 or 2: P(k) = ½P(k − 1) + ½P(k − 2).',
       how: [
         'With a turn limit: split by m, the number of rolls that reach the square exactly, and add C(t − 1, m − 1)·(1/6)<sup>m</sup>.',
         'With no limit: let P(k) be the chance of ever landing on k, with P(0) = 1 and P(k) = 0 below 0.',
         'Write P(k) from the squares that can jump to k, each times the chance of that jump.',
         'Work up from P(1) to the square you want.',
+      ],
+      facts: [
+        'With a die and no turn limit: P(k) = ⅙(P(k − 1) + ⋯ + P(k − 6)), with P(0) = 1 and P(k) = 0 below 0.',
+        'Far from the start, the chance of landing on a square settles near 1 ÷ (the average step): 2/7 for a die, 2/3 for steps of 1 or 2.',
+        'm rolls add up to t in C(t − 1, m − 1) of the 6<sup>m</sup> ways when t ≤ m + 5.',
+        'A frog jumping s<sub>1</sub> or s<sub>2</sub> on a fair coin: P(k) = ½P(k − s<sub>1</sub>) + ½P(k − s<sub>2</sub>).',
       ],
       watch: [
         'Only checking where the token is at the end: it counts if it stops on the square at any turn.',
@@ -1043,12 +1882,19 @@ export const amcLearning = {
       tip: 'Ask which squares could jump straight to this one, and build up the chances square by square.',
     },
     'At least once': {
+      spot: '"At least once" or "at least twice" over several tries, or "the fewest tries" for the chance to pass a target: count the opposite, missing every time.',
       idea: '"At least once" is easiest through its opposite: you fail only by missing every time, so the chance is 1 − q<sup>n</sup>, where q is the chance of missing once. That grows as n grows, so "how many tries" means the first n that beats the target. "At least twice" takes away two cases: never, q<sup>n</sup>, and exactly once, n·p·q<sup>n−1</sup>. And "both things at least once" uses inclusion and exclusion on the ways to miss: all outcomes, minus those with no X, minus those with no Y, plus those with neither. For example, a 1 and a 6 both in 2 rolls: 36 − 25 − 25 + 16 = 2 of 36.',
       how: [
         'Find q, the chance of missing on one try, and write "at least once" as 1 − q<sup>n</sup>.',
         'For the fewest tries, find the first n with q<sup>n</sup> below 1 − (target), and check one fewer does not work.',
         'For "at least twice", subtract the chance of none and of exactly one (n ways to choose which try).',
         'For two different things, count outcomes missing each, and add back those missing both.',
+      ],
+      facts: [
+        'P(at least once in n tries) = 1 − q<sup>n</sup>, where q is the chance of missing once.',
+        'P(at least twice) = 1 − q<sup>n</sup> − n·p·q<sup>n−1</sup>.',
+        'P(X and Y each at least once) = 1 − P(no X) − P(no Y) + P(neither).',
+        'Two dice miss a total of s in 30 + |s − 7| of their 36 ways: 30 for a 7, 35 for a 2 or a 12.',
       ],
       watch: [
         'Adding the chances (n × p): the tries can both hit, so adding overcounts.',
@@ -1058,12 +1904,19 @@ export const amcLearning = {
       tip: 'Count the opposite: the ways to miss every time.',
     },
     'Taking turns': {
+      spot: 'Players taking turns until someone first succeeds, maybe with a limit on the number of turns: compare the chances that each player wins a single round, since a round with no winner just starts the game over.',
       idea: 'Look at one round: each player gets one try, in order. The round ends with a win for the first player (probability a), a win for the second (probability (1 − a)·b, since the second only plays after a miss), or nobody, and then the game starts over exactly as before. A restart changes nothing, so only the endings matter: the first player wins with probability a/(a + (1 − a)b). The same picture answers the rest: a game is fair when the two endings are equally likely; three players have endings a, (1 − a)a and (1 − a)²a; and with a time limit you add the wins in rounds 1, 2, … to the last, each r times the one before (r: nobody wins a round).',
       how: [
         'Find the chance that each player wins a single round: the first a, the next (1 − a)·b, and so on, each only after everyone before has missed.',
         'With no limit, only these endings matter: a player wins with probability (their ending)/(sum of all endings).',
         'For a fair game, set the two endings equal and solve for the unknown chance.',
         'With a limit of n rounds, add (the player\'s ending) × (1 + r + r² + ⋯), stopping after n terms, where r is the chance a whole round has no winner.',
+      ],
+      facts: [
+        'The first player (chance a) beats the second (chance b) with probability a/(a + (1 − a)b), which is a/(1 − (1 − a)(1 − b)).',
+        'The game is fair when a = (1 − a)b, that is, b = a/(1 − a).',
+        'Three players with the same chance p win in the ratio 1 : (1 − p) : (1 − p)².',
+        '1 + r + r² + ⋯ + r<sup>n−1</sup> = (1 − r<sup>n</sup>)/(1 − r), and with no end, 1/(1 − r).',
       ],
       watch: [
         'Using b instead of (1 − a)·b: the second player only throws if the first one missed.',
@@ -1073,12 +1926,19 @@ export const amcLearning = {
       tip: 'Compare the chances that each player wins a single round; a restart changes nothing.',
     },
     'Expected value': {
+      spot: '"The expected number of" something you can count piece by piece (students who end with heads, different numbers that show, places with two heads in a row): add up the chance of each yes-or-no piece (linearity of expectation).',
       idea: 'Linearity of expectation: the expected value of a total is the sum of the expected values of its parts, even when the parts depend on each other. So break the count into yes-or-no pieces, one per person, per number on the dice, or per place in a row, and add up the chance that each piece happens. For example, the expected number of different numbers on 2 dice is 6 × (1 − (5/6)²) = 11/6, since each number shows unless both dice miss it. The same trick counts tries: the j-th try happens only if all the tries before it failed.',
       how: [
         'Decide what you are counting, and split it into yes-or-no pieces: one per person, per number, or per pair of neighbors.',
         'Find the chance that one piece happens: often 1 minus the chance that everything misses, like 1 − (1 − p)<sup>k</sup>.',
         'For the number of tries, add the chance that each try happens: 1 + (1 − p) + (1 − p)<sup>2</sup> + ⋯ up to the limit.',
         'Add up the pieces (or multiply one piece by how many there are). Overlaps between pieces do not matter.',
+      ],
+      facts: [
+        'The expected value of a sum is the sum of the expected values, even when the pieces depend on each other.',
+        'So an expected count is the sum of its pieces’ chances: n tosses of a coin with heads chance p have (n − 1)p² back-to-back pairs of heads on average.',
+        'Trying for a success (chance p) at most k times, with q = 1 − p: it comes with chance 1 − q<sup>k</sup>, and the expected number of tries is 1 + q + ⋯ + q<sup>k−1</sup> = (1 − q<sup>k</sup>)/p.',
+        'n dice with s sides show s·(1 − (1 − 1/s)<sup>n</sup>) different numbers on average.',
       ],
       watch: [
         'Using the wrong number of tries, one too few or one too many.',
@@ -1088,12 +1948,19 @@ export const amcLearning = {
       tip: 'Break the count into yes-or-no pieces and add up the chance of each one.',
     },
     'Random divisors': {
+      spot: '"A positive divisor of N is chosen at random", with a question about it being a square, a cube, or a multiple or divisor of something: factor N into prime powers, and count divisors as choices of exponents.',
       idea: 'Write the number as a product of prime powers. A divisor picks each exponent independently from 0 up to the one in the number, so with exponents e₁, e₂, … there are (e₁ + 1)(e₂ + 1)⋯ divisors, all equally likely. Then count the good ones the same way: perfect squares need every exponent even (⌊e/2⌋ + 1 choices each); multiples of m are m times a divisor of N/m; divisors of M (when M divides N) are just the divisors of M; and multiples of 10<sup>k</sup> need both exponents at least k. For example, 4! = 2³·3 has 8 divisors, and 2 of them are squares (1 and 4).',
       how: [
         'Factor the number into primes (for F!, the exponent of p is ⌊F/p⌋ + ⌊F/p²⌋ + ⋯).',
         'Count all divisors: multiply (e + 1) over the primes.',
         'Count the good divisors with the same idea: limit each exponent, or count the divisors of N/m or of M.',
         'Divide and reduce; if the question asks for a + b, add only after reducing.',
+      ],
+      facts: [
+        'p<sup>a</sup>q<sup>b</sup>⋯ has (a + 1)(b + 1)⋯ divisors, all equally likely to be chosen.',
+        'Square divisors: (⌊a/2⌋ + 1)(⌊b/2⌋ + 1)⋯; cube divisors: (⌊a/3⌋ + 1)(⌊b/3⌋ + 1)⋯.',
+        'The divisors of N that are multiples of m (m dividing N) are as many as the divisors of N/m.',
+        'The power of p in F! is ⌊F/p⌋ + ⌊F/p²⌋ + ⌊F/p³⌋ + ⋯.',
       ],
       watch: [
         'Forgetting the "+ 1" for exponent 0, which is always allowed.',
@@ -1103,12 +1970,18 @@ export const amcLearning = {
       tip: 'Write the number as prime powers; a divisor is a choice of exponents, so count the choices.',
     },
     'Remainders by chance': {
+      spot: 'A whole number chosen at random and "the probability that N<sup>e</sup> − 1 (or N² + k, or a product ab) is a multiple of m": only remainders matter, so test each remainder from 0 to m − 1.',
       idea: 'When the numbers run over a whole number of blocks of m, every remainder mod m is equally likely, and a question about remainders only depends on the remainder. So test each remainder r from 0 to m − 1 and count the ones that work. Shortcuts help: Fermat\'s little theorem says r<sup>p−1</sup> leaves remainder 1 mod a prime p (for r not 0), so exponents can be cut down mod p − 1; the powers of a base mod m go round a cycle that ends at 1; and for a product ab to be a multiple of m, each remainder x of a allows gcd(x, m) remainders for b. For example, N² + 1 is a multiple of 5 for N ≡ 2 or 3: 2/5.',
       how: [
         'Check that the range splits evenly into blocks of m, so every remainder is equally likely.',
         'Reduce the question to remainders: work with r instead of N (and r, s for two numbers).',
         'Test each remainder, using Fermat or the cycle of powers to keep the numbers small.',
         'Divide the number of good remainders (or pairs) by m (or m²).',
+      ],
+      facts: [
+        'Fermat: for a prime p that doesn’t divide N, N<sup>p−1</sup> leaves remainder 1, so exponents can be cut down mod p − 1.',
+        'Squares leave only 0 or 1 mod 3 and mod 4, and only 0, 1 or 4 mod 5 and mod 8.',
+        'ab is a multiple of m: for each remainder x of a, exactly gcd(x, m) remainders of b work (all m when x = 0).',
       ],
       watch: [
         'Dividing by m − 1: remainder 0 is one of the equally likely cases too.',
@@ -1118,12 +1991,19 @@ export const amcLearning = {
       tip: 'Only the remainders matter: test each one.',
     },
     'Units digits by chance': {
+      spot: 'A random number (or two) and "the probability that its power, square, sum or product ends in the digit t": only the units digits matter, and each digit 0 to 9 is equally likely.',
       idea: 'The units digit of a sum, product or power depends only on the units digits involved, and in a range like 1 to 100 every units digit turns up equally often. So work with the 10 digits (or the 100 pairs of digits) and count the ones that give the wanted ending. For powers, the units digits go round a cycle of length 1, 2 or 4: 2, 4, 8, 6 for 2; 3, 9, 7, 1 for 3; 4, 6 for 4; 7, 9, 3, 1 for 7; 8, 4, 2, 6 for 8; 9, 1 for 9; and 0, 1, 5, 6 never change. Squares end in 0, 1, 4, 5, 6 or 9 only.',
       how: [
         'Reduce every number to its units digit; check that each digit (or pair of digits) is equally likely.',
         'For a power with a random exponent, use the cycle of 4: the exponent mod 4 picks the entry (≡ 0 gives the last one).',
         'For a power of a random number, list the last digit of d<sup>e</sup> for d = 0 to 9.',
         'For two random numbers, count the pairs of digits that work, out of 100.',
+      ],
+      facts: [
+        'The last digits of powers repeat every 4 steps (or fewer): d<sup>n</sup> and d<sup>n+4</sup> end alike for n ≥ 1.',
+        'Squares end only in 0, 1, 4, 5, 6 or 9: 1 and 9 give 1, 2 and 8 give 4, 3 and 7 give 9, 4 and 6 give 6.',
+        'Fourth powers end only in 0, 1, 5 or 6.',
+        'A product ends in 0 exactly when one factor ends in 0, or one ends in 5 and the other is even.',
       ],
       watch: [
         'Lining the cycle up with the wrong remainder: the cycle starts at exponent 1, so an exponent ≡ 0 (mod 4) gives the last entry.',
@@ -1133,12 +2013,19 @@ export const amcLearning = {
       tip: 'Only the units digits matter, and each one is equally likely; count the digits (or pairs) that work.',
     },
     'Geometric probability': {
+      spot: 'A point chosen at random in a shape, or two random times or numbers ("each arrives at a random time"): turn the choice into a random point in a region, then compare areas.',
       idea: 'When a point lands at random in a region, the chance of landing in a part is (area of the part)/(area of the region). Two random times, or two random numbers, are one random point in a square or rectangle, so the question becomes an area. Useful shapes: |x| + |y| ≤ a is a square on its corner with area 2a²; c − w ≤ x² + y² ≤ c + w is a ring of area 2wπ; |x − y| ≤ w in a T-by-T square leaves out two corner triangles that make a (T − w)-by-(T − w) square; x + y ≤ c is a right triangle of area c²/2; and the points within r of the corners of a square are four quarter circles.',
       how: [
         'Turn the random choice into a random point: one number gives a segment, two give a rectangle.',
         'Find the area of the whole region.',
         'Sketch the good part and find its area, often as the whole minus simple shapes.',
         'Divide, and reduce (keep π if the answer has it).',
+      ],
+      facts: [
+        '|x| + |y| ≤ a is a square standing on a corner, with area 2a².',
+        'A ring between radii r and R has area π(R² − r²); quarter circles of radius r at the four corners of a square make πr² in all (r at most half the side).',
+        'Two people arriving at random within T minutes, the first waiting w: they meet with probability 1 − (1 − w/T)².',
+        'x + y ≤ c cuts a right triangle of area c²/2 from the corner of a rectangle, while c is at most both sides.',
       ],
       watch: [
         'Using only the outer circle of a ring, or counting four whole circles instead of four quarter circles.',
@@ -1147,14 +2034,130 @@ export const amcLearning = {
       ],
       tip: 'Turn the random choices into a random point in a shape, then compare areas.',
     },
+    // harder: problems 15 to 25
+    'Random walks and states': {
+      spot: 'When something moves step by step and only where it is now matters (a token on a strip, a coin waiting for a pattern, a frog on lily pads), and the question asks for the chance of finishing somewhere or the expected number of steps.',
+      idea: 'Give each state an unknown: the chance of winning from there, or the expected number of steps still to come. One step from a state leads to the next states with known chances, so each unknown is an average of the unknowns it can step to (plus 1 for the step, when counting steps). That gives a small system of equations, and the finished states fix the ends. For a fair coin flipped until HH, let a be the expected flips from scratch and b the expected flips right after an H: a = 1 + ½b + ½a and b = 1 + ½a, so a = 6. In a walk along a line there is a shortcut: the gaps between neighboring unknowns follow a pattern.',
+      how: [
+        'Choose the states: the positions, or how much of a pattern the latest flips already match (the longest end of the flips that starts a pattern).',
+        'Write one equation per state from its next step: value = (1 when counting steps) + the chance of each next state × its value. Finished states are worth 1 or 0 for a chance, and 0 for steps.',
+        'Look for the shortcut in a walk: P(j + 1) − P(j) is q/p times P(j) − P(j − 1), and with equal chances the drops in expected time go up by 2 at each step.',
+        'Solve by substituting from the simplest state back to the start, and check that a chance lies between 0 and 1.',
+      ],
+      facts: [
+        'A walk on 0 to n that steps right with chance p and left with chance q ends at n from k with chance (1 + r + ⋯ + r<sup>k−1</sup>)/(1 + r + ⋯ + r<sup>n−1</sup>), where r = q/p; with p = q this is k/n.',
+        'A fair walk on 0 to n from k takes k(n − k) steps on average; with a wall at 0 instead (always step back to 1), reaching n takes n² − k².',
+        'With heads chance p, the expected flips until m heads in a row are 1/p + 1/p² + ⋯ + 1/p<sup>m</sup>: 6 for HH and 14 for HHH with a fair coin.',
+      ],
+      watch: [
+        'Assuming two patterns of the same length are equally likely to come first: with a fair coin, TH comes before HH three times out of four.',
+        'Using the fair answer k/n for a walk whose steps are biased.',
+        'Forgetting the 1 for the step just taken when counting the expected number of steps.',
+      ],
+      tip: 'Give each state an unknown, write one equation from what the next step can do, and solve from the finished states back.',
+    },
+    'Round table chances': {
+      spot: 'When people sit in random order around a round table and the question asks for the chance that some of them are, or are not, side by side.',
+      idea: 'Turning the table changes nothing, so fix one person and look at where the others land: any given other person is equally likely to be in each of the n − 1 other seats. A chance is then good seats over possible seats, or good choices of seats over all of them. For example, two given people at a table of 9 sit side by side with chance 2/8 = 1/4, since the second is in one of the 2 seats beside the first, and that stays true with empty chairs, if 9 is the number of chairs. For harder rules, glue people who must be together into blocks, count gaps for people who must be apart, and use inclusion–exclusion when no couple may sit together.',
+      how: [
+        'Fix one person to remove the turns of the table; the others fill the remaining seats, all orders equally likely.',
+        'Look only at the people the question is about: count their good seats, or good sets of seats, and divide by all the equally likely ones.',
+        'For people who must not be side by side, fix someone else: the other seats form a row, and the people must go into different gaps.',
+        'For couples, glue each couple that must be together into a block that can face 2 ways; for "no couple together", use inclusion–exclusion over the couples that are glued.',
+      ],
+      facts: [
+        'n people around a table: (n − 1)! seatings, once turns of the table count as the same.',
+        'Two given people at a table with n chairs sit side by side with chance 2/(n − 1), however many chairs are filled.',
+        'Choosing k seats from a row of L with no two side by side can be done in C(L − k + 1, k) ways.',
+        'm boys and m girls alternate around a table with chance 1/C(2m − 1, m).',
+      ],
+      watch: [
+        'Using the number of people instead of the number of chairs when some chairs stay empty.',
+        'Adding the chances of "next to B" and "next to C": both can happen at once.',
+        'Forgetting that a glued couple can sit either way round, or mixing n! and (n − 1)! in one fraction.',
+      ],
+      tip: 'Fix one person, then count the good seats for the others out of all the equally likely seats.',
+    },
+    'Expected maximum': {
+      spot: 'When the question asks for the expected largest or smallest of several random numbers, or the expected number of things like empty boxes, records or peaks.',
+      idea: 'Two tools do most of the work. The tail-sum trick: a whole number X from 1 to s counts how many k from 1 to s have X ≥ k, so E(X) = P(X ≥ 1) + P(X ≥ 2) + ⋯ + P(X ≥ s), and the largest of several dice is below k only when every die is. Linearity: a count is a sum of yes-or-no pieces, so add up the chance of each piece, even when the pieces depend on each other. For example, the larger of two dice is less than k with chance ((k − 1)/6)², so its expected value is 6 − (1 + 4 + 9 + 16 + 25)/36 = 161/36. For numbers drawn without repeats, the drawn numbers cut the others into gaps that are all the same size on average.',
+      how: [
+        'For a largest or smallest, use tail sums: P(largest ≤ k) and P(smallest ≥ k) are products, since every die has to be on the right side of k.',
+        'For a count (empty boxes, records, peaks), find the chance that one piece happens and add over the pieces.',
+        'For k different numbers drawn from 1 to n, use the k + 1 gaps, each (n − k)/(k + 1) on average.',
+        'For the fullest box, list the possible load patterns and count the outcomes behind each one before averaging.',
+      ],
+      facts: [
+        'k numbers drawn from 1 to n: the smallest is (n + 1)/(k + 1) on average and the largest k(n + 1)/(k + 1).',
+        'In a random order of n different numbers, the j-th is a record (higher than all before it) with chance 1/j, so there are 1 + 1/2 + ⋯ + 1/n records on average.',
+        'b balls dropped at random into n boxes leave n((n − 1)/n)<sup>b</sup> boxes empty on average.',
+      ],
+      watch: [
+        'Using the no-repeats formula for dice: dice can tie, so the larger of two dice is not 2(s + 1)/3 on average.',
+        'Treating every load pattern as equally likely: 2 + 1 + 1 comes from many more outcomes than 4 + 0 + 0.',
+        'Mixing up P(X = k) and P(X ≥ k) in the sum.',
+      ],
+      tip: 'Write the expected value as P(X ≥ 1) + P(X ≥ 2) + ⋯, or split the count into yes-or-no pieces and add their chances.',
+    },
+    'Derangements and matching': {
+      spot: 'When n things are handed back to their n owners at random (coats, letters, names drawn in a gift swap) and the question is about who gets their own.',
+      idea: 'The number of ways nobody gets their own, D(n), comes from inclusion–exclusion: the ways where j particular people get their own number (n − j)!, and those j can be chosen in C(n, j) ways, so D(n) = n! − n!/1! + n!/2! − ⋯. For 4 people that is 24 − 24 + 12 − 4 + 1 = 9. The other questions build on it: exactly k right is C(n, k)·D(n − k), because the others must all be wrong, and "at least one" is everything but D(n). Linearity gives a surprise: each person gets their own with chance 1/n, so on average exactly 1 person does, whatever n is.',
+      how: [
+        'Count the ways nobody gets their own, D(n), by inclusion–exclusion (or D(n) = (n − 1)(D(n − 1) + D(n − 2))).',
+        'For exactly k right, choose the k, then make sure nobody else is right: C(n, k)·D(n − k).',
+        'For "at least one" take away D(n); for "at least two" also take away the n·D(n − 1) ways with exactly one.',
+        'When only the ways with nobody right count (names drawn again until that happens), all D(n) of them are equally likely: use symmetry, or follow who has whose item to see the loops.',
+      ],
+      facts: [
+        'D(2) = 1, D(3) = 2, D(4) = 9, D(5) = 44, D(6) = 265, D(7) = 1854.',
+        'D(n)/n! is about 1/e ≈ 0.37 once n is 4 or more.',
+        'The expected number of people who get their own is 1, for every n.',
+        'k people can be arranged in one loop in (k − 1)! ways.',
+      ],
+      watch: [
+        'Treating the matches as independent: (1 − 1/n)<sup>n</sup> is not the chance that nobody gets their own.',
+        'For exactly k right, using C(n, k)·(n − k)!: that lets others be right too.',
+        'Stopping inclusion–exclusion early, or getting the sign of the last term wrong.',
+      ],
+      tip: 'Count the ways nobody gets their own by inclusion–exclusion first, then build the question on that count.',
+    },
+    'Guess or leave blank': {
+      spot: 'When a contest gives points for right, blank and wrong answers, and the question asks whether guessing pays, what a plan of attack is worth, or which mixes of answers give a score.',
+      idea: 'A random guess among c choices is right with chance 1/c, so on the AMC 10 (6 for right, 1.5 for blank, 0 for wrong) it is worth 6/c points on average: 1.2 with nothing ruled out, 1.5 with one ruled out (the same as a blank), 2 with two and 3 with three. Expected points add up question by question, so a plan is worth the sum of its parts, and the best plan decides each question on its own. Scores can be read backwards too: 6r + 1.5b = S with r + b ≤ 25 gives b = 2S/3 − 4r, and only a few values of r fit.',
+      how: [
+        'Work out what one guess is worth: (points for right + (c − 1) × points for wrong)/c, with c choices left.',
+        'Compare it with a blank, and guess only where the guess is worth more.',
+        'For a plan, add the expected points of all the questions.',
+        'For a score, solve 6r + 1.5b = S for b, then use b ≥ 0 and r + b ≤ 25 to find the possible values of r.',
+        'For the chance that guessing beats leaving blank, find how many right answers that takes, and add the binomial chances.',
+      ],
+      facts: [
+        'On the AMC 10, a guess among c choices is worth 6/c on average, against 1.5 for a blank: guess once two or more choices are ruled out.',
+        'With w points lost for a wrong answer, a guess among c choices is worth (R − (c − 1)w)/c.',
+        'At a fixed score, each extra right answer replaces 4 blanks and adds 3 wrong answers.',
+      ],
+      watch: [
+        'Comparing a guess with 0 instead of with the 1.5 points of a blank.',
+        'Thinking that ruling out one choice makes guessing pay on the AMC 10: it only ties.',
+        'Forgetting that right, blank and wrong must add up to 25.',
+      ],
+      tip: 'Work out what one guess is worth on average, and compare it with the points for a blank.',
+    },
     // ---------- geometry ----------
     'Right triangles': {
+      spot: 'A right triangle with an altitude to the hypotenuse, a circle inside it, or two of its sides given: find all three sides first, then use the area two ways or the similar triangles.',
       idea: 'Most right-triangle facts come from the Pythagorean theorem, the area, and similar triangles. The area is ½·a·b with the legs, and also ½·c·h with the hypotenuse and its altitude, so h = ab/c. The altitude splits the hypotenuse into pieces p and q and makes two triangles similar to the big one: h² = pq, and each leg² = (its piece)·c. The circle inside touches the sides, and the two tangents from each corner are equal, which gives r = (a + b − c)/2. For legs 6 and 8: c = 10, h = 4.8, r = 2.',
       how: [
         'Find the third side with a² + b² = c² (look for scaled 3-4-5, 5-12-13, 8-15-17 triples).',
         'Area: ½ × leg × leg; the altitude to the hypotenuse is ab/c.',
         'Pieces of the hypotenuse: h = √(pq), and a leg = √(piece next to it × c).',
         'Inscribed circle: r = (a + b − c)/2.',
+      ],
+      facts: [
+        'Pythagorean triples: 3-4-5, 5-12-13, 8-15-17, 7-24-25, 20-21-29, and their multiples.',
+        'The altitude to the hypotenuse is ab/c.',
+        'If the altitude cuts the hypotenuse into p and q, then h² = pq, and each leg² = (its own piece) × c.',
+        'The circle inside has radius (a + b − c)/2; the circle around has radius c/2.',
       ],
       watch: [
         'Using the hypotenuse as if it were a leg in ½·a·b.',
@@ -1164,12 +2167,19 @@ export const amcLearning = {
       tip: 'Find all three sides first, then use the area two ways or the similar triangles the altitude makes.',
     },
     'Coordinate geometry': {
+      spot: 'Points given by coordinates, with "the area of the triangle", "how far apart", "all lie on one line", or "where it crosses the x-axis": work with the differences in x and in y.',
       idea: 'Slopes, distances and areas all come from differences of coordinates. The slope between two points is (change in y)/(change in x); points are on one line when the slope between each pair is the same; the line crosses the x-axis where y has dropped to 0 along that slope. The distance between points is the hypotenuse of the right triangle with legs |Δx| and |Δy|. A triangle’s area is ½·|(x₂ − x₁)(y₃ − y₁) − (x₃ − x₁)(y₂ − y₁)| (the shoelace formula). For (0, 0), (4, 1), (1, 3): ½·|4·3 − 1·1| = 11/2.',
       how: [
         'Distance: √((x₂ − x₁)² + (y₂ − y₁)²).',
         'Slope: (y₂ − y₁)/(x₂ − x₁); a third point on the line changes y by the slope times its change in x.',
         'Where a line meets the x-axis: from a point at height y₁, run y₁ ÷ (slope) to reach height 0 (watch the sign).',
         'Area of a triangle: the shoelace formula, or a box around it minus the corner triangles.',
+      ],
+      facts: [
+        'Distance: √((x₂ − x₁)² + (y₂ − y₁)²).',
+        'Slope: (y₂ − y₁)/(x₂ − x₁); three points are on one line when the slopes between them match.',
+        'Shoelace: area = ½·|x₁(y₂ − y₃) + x₂(y₃ − y₁) + x₃(y₁ − y₂)|.',
+        'The line through (x₁, y₁) with slope m crosses the x-axis at x = x₁ − y₁/m.',
       ],
       watch: [
         'Adding |Δx| + |Δy| instead of using the Pythagorean theorem.',
@@ -1179,12 +2189,19 @@ export const amcLearning = {
       tip: 'Work with the differences in x and in y between the points: they give the slope, the distance and the area.',
     },
     'Altitudes of a triangle': {
+      spot: '"The altitudes" of a triangle (their total, the shortest or longest, or the sum of their reciprocals) when its sides are known or a line cuts it off with the axes: find the area, then every altitude is 2·area/side.',
       idea: 'Every altitude comes from the area: the altitude to a side is 2·area/side, so the longest altitude goes to the shortest side. A line that crosses both axes cuts off a right triangle with its right angle at the origin, and two of its three altitudes are the legs themselves, since each leg is perpendicular to the other; the third, to the hypotenuse, is (leg × leg)/hypotenuse. When only the three sides are known, Heron\'s formula gives the area: with s half the perimeter, area = √(s(s − a)(s − b)(s − c)). The reciprocal of each altitude is side/(2·area), so the three reciprocals add up to perimeter/(2·area), which is s/area.',
       how: [
         'For a line and the axes: find the intercepts (set y = 0, then x = 0); those are the legs, and the hypotenuse is √(leg² + leg²).',
         'Two altitudes are the legs; the third is (leg × leg)/hypotenuse. Add all three.',
         'For a triangle given by its sides: find s, half the perimeter, and the area √(s(s − a)(s − b)(s − c)).',
         'Each altitude is 2·area/side, the longest on the shortest side; the reciprocals of all three add up to s/area.',
+      ],
+      facts: [
+        'The altitude to a side is 2·area/side, so the longest altitude goes to the shortest side; in a right triangle two altitudes are the legs.',
+        'Heron: area = √(s(s − a)(s − b)(s − c)), where s is half the perimeter.',
+        '1/h<sub>1</sub> + 1/h<sub>2</sub> + 1/h<sub>3</sub> = s/area = 1/r, where r is the radius of the circle inside.',
+        'The 13-14-15 triangle has area 84, and its altitude to the side 14 is 12.',
       ],
       watch: [
         'Adding the hypotenuse instead of the altitude to it.',
@@ -1195,12 +2212,19 @@ export const amcLearning = {
       tip: 'Every altitude is 2·area/side; in a right triangle, two of them are the legs.',
     },
     'Segments to the hypotenuse': {
+      spot: '"How many segments from a corner to the opposite side have a whole-number length": find the shortest one, the altitude, then count the whole numbers on each side of its foot.',
       idea: 'Slide a point along the hypotenuse from one end to the other and watch its distance from the right-angle corner: it starts at one leg\'s length, shrinks to the altitude h = (leg × leg)/hypotenuse at the foot of the altitude, then grows to the other leg\'s length. Lengths change smoothly, so on each side of the foot every length between h and that leg happens exactly once. Count the whole numbers in each range; if h is itself a whole number, that one segment sits on both sides, so count it once. If the question asks for different lengths rather than segments, a length that happens on both sides counts once, so just count the whole numbers from h up to the longer leg. In an isosceles triangle the shortest segment from the apex is its height, √(side² − (base/2)²), and both sides of its foot run up to the same length.',
       how: [
         'Find the shortest segment: the altitude h = ab/c in a right triangle, or the height √(side² − (base/2)²) from the apex of an isosceles one.',
         'On one side of its foot the lengths run from h up to the first side: count the whole numbers in that range.',
         'On the other side they run from h up to the second side: count again.',
         'Counting segments: add the two counts, and subtract 1 if h is a whole number. Counting different lengths: count the whole numbers from h up to the longer side, once.',
+      ],
+      facts: [
+        'The shortest segment from a point to a line is the perpendicular.',
+        'Along the side, the length falls from one side’s length to the altitude, then rises to the other side’s, taking every value in between once on each side of the foot.',
+        'The altitude to the hypotenuse is ab/c; the height of an isosceles triangle with equal sides s and base 2t is √(s² − t²).',
+        'From x to y (both included) there are ⌊y⌋ − ⌈x⌉ + 1 whole numbers.',
       ],
       watch: [
         'Counting only one side of the foot of the altitude.',
@@ -1211,6 +2235,7 @@ export const amcLearning = {
       tip: 'Find the shortest possible segment first, then count the whole-number lengths on each side of where it lands.',
     },
     'Perpendicular to a diagonal': {
+      spot: 'A rectangle with a perpendicular dropped from a corner onto a diagonal, and a question about its length, where its foot lands, or a triangle it cuts off: use the area two ways and the similar right triangles.',
       idea: 'Put the rectangle on axes with W = (0, 0), X = (a, 0), Y = (a, b) and Z = (0, b), and drop the perpendicular from X to the diagonal WY, meeting it at F. Its length comes from the area of triangle WXY worked out two ways: ½·a·b = ½·WY·XF, so XF = ab/WY. The right triangles WFX and WXY share the angle at W, so they are similar, which gives WF = a²/WY; in the same way FY = b²/WY, so F splits the diagonal in the ratio a² : b². Measured from the same corner, the feet of two perpendiculars are a difference of two such distances apart. For an area like triangle WFZ, the height is how far F is from the side the triangle stands on: WZ lies along the y-axis, so it is F\'s x-coordinate, WF·(a/WY) = a³/(a² + b²).',
       how: [
         'Find the diagonal: WY = √(a² + b²).',
@@ -1218,6 +2243,12 @@ export const amcLearning = {
         'Its foot is WF = a²/WY from W and FY = b²/WY from Y, so WF : FY = a² : b².',
         'A perpendicular from Z lands b²/WY from W, so the two feet are |a² − b²|/WY apart.',
         'For triangle WFZ, the height to WZ is F\'s x-coordinate a³/(a² + b²), so its area is ½·b·a³/(a² + b²).',
+      ],
+      facts: [
+        'In a right triangle with legs a and b and hypotenuse c, the altitude to the hypotenuse is ab/c.',
+        'Its foot splits the hypotenuse into a²/c and b²/c, in the ratio a² : b².',
+        'In an a × b rectangle, the perpendiculars to a diagonal from the other two corners land |a² − b²|/√(a² + b²) apart on it.',
+        'The foot of the perpendicular from (a, 0) to the line from (0, 0) to (a, b) is (a³/(a² + b²), a²b/(a² + b²)).',
       ],
       watch: [
         'Using WF as the height: the height to base WZ is F\'s horizontal distance from WZ.',
@@ -1228,12 +2259,19 @@ export const amcLearning = {
       tip: 'The area of the half-rectangle gives the perpendicular, and similar right triangles give where its foot lands: a leg squared over the hypotenuse.',
     },
     'Squares in a right triangle': {
+      spot: 'A square inside a right triangle, either in the right-angle corner or standing on the hypotenuse: use similar triangles (or the hypotenuse’s line x/a + y/b = 1) to find its side.',
       idea: 'The two squares sit differently, so find each one separately. With the legs on the axes, the hypotenuse is the line x/a + y/b = 1, and a square in the right-angle corner has its far corner (x, x) on that line, so x = ab/(a + b). For a square standing on the hypotenuse, use the altitude h = ab/c: cuts parallel to the hypotenuse shrink evenly from width c at the bottom to 0 at height h (similar triangles), so the width at height y is c(1 − y/h), and the square needs that width to equal y, which gives y = ch/(c + h). The corner square covers x² out of the triangle\'s ½ab, a fraction that simplifies to 2ab/(a + b)².',
       how: [
         'Square at the right angle: solve x/a + x/b = 1, so x = ab/(a + b).',
         'Square on the hypotenuse: find the altitude h = ab/c.',
         'At height y above the hypotenuse the triangle is c(1 − y/h) wide; set that equal to y to get y = ch/(c + h).',
         'For the ratio, divide x by y and simplify; for the part of the triangle the corner square covers, divide x² by ½ab.',
+      ],
+      facts: [
+        'The square in the right-angle corner has side ab/(a + b).',
+        'The square standing on the hypotenuse has side ch/(c + h), with h = ab/c; that is abc/(c² + ab).',
+        'The corner square is always the bigger of the two.',
+        'The corner square covers 2ab/(a + b)² of the triangle, at most ½ (when a = b).',
       ],
       watch: [
         'Assuming the two squares are the same size: they are close, but not equal.',
@@ -1243,12 +2281,19 @@ export const amcLearning = {
       tip: 'Handle the squares separately: one has a corner on the hypotenuse, the other stands on it, and similar triangles give each side.',
     },
     'Lines making an equilateral triangle': {
+      spot: 'Lines with slopes like √3, −√3 or √3/3, together with a vertical or horizontal line, enclosing a triangle: turn each slope into an angle, and when the angles are all 60°, use the equilateral triangle’s height and side.',
       idea: 'A slope is the tangent of the angle a line makes with the x-axis: tan 30° = √3/3 and tan 60° = √3. So y = b + (√3/3)x rises at 30°, while a vertical line stands at 90°. Those two meet at 60°, which is right for an equilateral triangle; the third side must make 60° with both, so it falls at 30°, and through the origin that is y = −(√3/3)x. Then one side of the triangle lies on the vertical line, between the points where the two sloping lines cross it. In the same way, y = √3·x + c rises at 60° and y = −√3·x + c falls at 60°, so together with any horizontal line they make an equilateral triangle. Its height h is the vertical gap between the point where they cross and the horizontal line, its side is 2h/√3, and its area is h²/√3.',
       how: [
         'Turn each slope into an angle: √3/3 is 30°, √3 is 60°, and a vertical line is 90°.',
         'For y = b + (√3/3)x with a vertical line, the third side through the origin is y = −(√3/3)x.',
         'Find where the two sloping lines cross the vertical line, and subtract the y-values: that is one side, and the perimeter is three times it. If the perimeter is given, solve for the unknown intercept.',
         'For y = ±√3·x + c with a horizontal line: find the height h, then side = 2h/√3 and area = h²/√3.',
+      ],
+      facts: [
+        'A slope is the tangent of the angle with the x-axis: √3/3 is 30°, 1 is 45° and √3 is 60°.',
+        'An equilateral triangle with side s has height (√3/2)s and area (√3/4)s².',
+        'With height h, the side is 2h/√3 = (2√3/3)h and the area h²/√3 = (√3/3)h².',
+        'y = √3·x + c and y = −√3·x + c each make 60° with every horizontal line, so with any other horizontal line they enclose an equilateral triangle.',
       ],
       watch: [
         'Giving one side instead of the perimeter.',
@@ -1258,6 +2303,7 @@ export const amcLearning = {
       tip: 'Turn each slope into an angle; every angle of an equilateral triangle is 60°.',
     },
     'Extending the sides': {
+      spot: 'Each side of a triangle (or square) extended past a corner by some multiple of itself, and the area of the bigger shape: compare each corner triangle with the original using ½·ab·sin C.',
       idea: 'Look at one of the three new corner triangles, say the one at Q. Its two sides at Q are the extension (m times PQ) and QR plus its own extension ((1 + m) times QR), and the angle between them is the supplement of angle Q. Supplementary angles have the same sine, so by area = ½·(side)·(side)·sin(angle) that corner triangle has m(1 + m) times the area of the original. The three corners are alike, so the big triangle has area T + 3·m(1 + m)·T. For example, extending each side by 3 times itself gives T + 3·3·4·T = 37T. Working backward, divide the big area by 1 + 3m(1 + m), or, knowing both areas, solve for m. A square works the same way, only more simply: each of its four corner triangles is right-angled, with legs m·s and (1 + m)·s.',
       how: [
         'Pick one corner triangle; its sides at the shared vertex are m × one side and (1 + m) × the next side.',
@@ -1265,6 +2311,12 @@ export const amcLearning = {
         'The big triangle is the original plus three corners: (1 + 3m(1 + m))·T.',
         'Given the big area, divide by 1 + 3m(1 + m); given both areas, set 1 + 3m(1 + m) equal to their ratio and solve for m (try small numbers).',
         'For a square of side s: the square plus four right-triangle corners, each ½·ms·(1 + m)s.',
+      ],
+      facts: [
+        'Area = ½·a·b·sin C, and supplementary angles have the same sine.',
+        'Extending each side of a triangle by m times itself multiplies the area by 1 + 3m(1 + m): by 7 when each side is extended by its own length.',
+        'For a square, extending each side by m times itself multiplies the area by 1 + 2m(1 + m): by 5 when each side is extended by its own length.',
+        'Triangles with the same height have areas in the ratio of their bases.',
       ],
       watch: [
         'Scaling both sides by the same amount (m² or (1 + m)²): one side grows by m, the other by 1 + m.',
@@ -1275,6 +2327,7 @@ export const amcLearning = {
       tip: 'Compare one corner triangle with the original using ½·ab·sin C; the angle at the shared vertex has the same sine.',
     },
     'Cutting a segment in a rectangle': {
+      spot: 'A segment across a rectangle crossed by diagonals or other segments, with "what fraction of the segment" lies between two crossings or "in what ratio is the diagonal cut": put the rectangle on axes and measure along the segment from 0 to 1, or look for similar triangles.',
       idea: 'Coordinates turn this into algebra. Put the rectangle on axes and write every point of SU as S + s·(U − S), where s runs from 0 at S to 1 at U. The value of s tells you what fraction of the way along SU a point is, so XY/SU is simply the difference between the s-values at X and at Y; no square roots are needed. Each s-value comes from solving the equation of SU together with the other line. When SU joins two opposite sides and crosses a diagonal at Y, the two triangles it makes with the diagonal, like KYS and MYU, are similar (vertical angles at Y, alternate angles at the ends). So KY : YM = KS : MU, and the heights of those triangles across the rectangle are in the same ratio and add up to the side between them, which gives their areas.',
       how: [
         'Place the rectangle with a corner at the origin and write down the coordinates of every named point.',
@@ -1282,6 +2335,12 @@ export const amcLearning = {
         'Solve for the s where SU meets each of the other two lines; XY/SU is the difference of those two s-values.',
         'For a ratio along the diagonal, use the similar triangles: KY : YM = KS : MU.',
         'For the area of KYS, split the side LM in the ratio KS : MU to get its height, then take ½·KS·height.',
+      ],
+      facts: [
+        'The points of SU are S + s·(U − S) for s from 0 to 1, and the piece between two of them is (the difference of their s-values) × SU.',
+        'Lines y = m₁x + c₁ and y = m₂x + c₂ meet at x = (c₂ − c₁)/(m₁ − m₂).',
+        'A segment between two opposite sides cuts a diagonal in the ratio of the pieces it leaves at the diagonal’s ends: KY : YM = KS : MU.',
+        'Similar triangles have their heights in the same ratio as their sides.',
       ],
       watch: [
         'Giving one of the s-values instead of the difference between them.',
@@ -1291,6 +2350,7 @@ export const amcLearning = {
       tip: 'Parametrize SU from 0 to 1 and subtract the two parameter values; for a ratio on a diagonal, look for similar triangles.',
     },
     'Circles inside a circle': {
+      spot: 'Small circles that touch each other and the inside of a big circle: join the centres, since the centres of two touching circles and their point of contact lie on one line.',
       idea: 'When a small circle touches a big one from the inside, the big centre O, the small centre and the point of contact all lie on one line, with the small centre R − r from O and the contact point R from O. So each contact point is its small centre pushed straight out from O by the factor R/(R − r). The two small centres are 2r apart (the small circles touch each other), so triangle OAB is triangle OPQ enlarged by R/(R − r), and AB = 2r·R/(R − r). For example, R = 3 and r = 1 give AB = 2·3/2 = 3. The point T where the small circles touch is the midpoint of PQ, and OT is perpendicular to PQ, so OT = √((R − r)² − r²). Three equal circles that touch each other have centres at the corners of an equilateral triangle of side 2r, centred at O, so each is 2r/√3 from O and R = r + 2r/√3.',
       how: [
         'Join the big centre O to each small centre P and Q; the contact points A and B lie on those lines.',
@@ -1298,6 +2358,12 @@ export const amcLearning = {
         'Triangle OAB is OPQ scaled by R/(R − r), so AB = 2r·R/(R − r); if AB is given, solve that for r.',
         'For the point T where the small circles touch: OT = √((R − r)² − r²), by Pythagoras in triangle OPT.',
         'For three equal circles: R = r + 2r/√3 = r + (2√3/3)·r.',
+      ],
+      facts: [
+        'Circles touching from inside have centres R − r apart; touching from outside, r₁ + r₂ apart.',
+        'Two equal circles of radius r that touch each other and the inside of a circle of radius R touch it at points 2rR/(R − r) apart.',
+        'Their own point of contact is √((R − r)² − r²) from the big centre.',
+        'Three equal circles of radius r inside a circle, all touching: R = r + 2r/√3 = r(3 + 2√3)/3.',
       ],
       watch: [
         'Answering 2r: the contact points are farther apart than the small centres.',
@@ -1308,12 +2374,19 @@ export const amcLearning = {
       tip: 'Draw lines from the big circle\'s centre through each small centre to the contact points, and use similar triangles or Pythagoras.',
     },
     'Cookies from a sheet of dough': {
+      spot: 'Round cookies cut from a sheet of dough, and one more cookie rolled out from the scraps: find the dough’s size in terms of the cookies, then compare areas (scraps = dough − cookies).',
       idea: 'Every version is the same bookkeeping: the dough\'s area minus the cookies\'. In the flower pattern the outer cookies touch the middle one, so their centres are 2r from the centre, and they reach r further to the edge of the dough: the dough\'s radius is 3r (or, the other way round, each cookie\'s radius is a third of the dough\'s). The scraps are π(3r)² − 7πr² = 2πr², and rolled out just as thick, the scrap cookie has that same area, so its radius is √(2r²) = r√2. Two cookies of radii p and q that touch each other and the edge fill a dough of radius p + q, and leave π((p + q)² − p² − q²) = 2πpq. In a square sheet of side a cut into n rows of n cookies, each cookie has diameter a/n, and together they cover π/4 of the square, whatever n is.',
       how: [
         'Relate the radii: in the flower the dough\'s radius is 3 times a cookie\'s; with two cookies side by side, the dough\'s diameter is the sum of their diameters.',
         'Leftover area = dough minus cookies: for the flower, π(3r)² − 7πr² = 2πr².',
         'A scrap cookie of that area has radius √(leftover/π): r√2 for the flower. Given the scrap cookie, work backward to r, then to the dough.',
         'For a square sheet of side a with n rows of n cookies: each radius is a/(2n), and the leftover is a² − πa²/4.',
+      ],
+      facts: [
+        'A round cookie made from an area A has radius √(A/π).',
+        'Six equal circles around a seventh, all touching, fit exactly in a circle of radius 3r and leave 2πr²: a scrap cookie of radius r√2.',
+        'Two touching circles of radii p and q inside a circle of radius p + q leave 2πpq.',
+        'Equal circles in a square grid cover π/4 of the square, however many rows there are.',
       ],
       watch: [
         'Taking the dough\'s radius as 2r: the outer cookies stick out a further r past their centres.',
@@ -1323,12 +2396,19 @@ export const amcLearning = {
       tip: 'Find the dough\'s size in terms of a cookie\'s, then compare areas: dough minus cookies.',
     },
     'Points near a segment': {
+      spot: '"All the points within r of a segment", in space or in a plane: picture a cylinder (or a rectangle) along the segment with half a ball (or half a disc) on each end.',
       idea: 'All the points within r of a segment make a capsule: around the middle of the segment they fill a cylinder of radius r, and around each end they fill half a ball of radius r. The two half balls make one whole ball, so the volume is πr²·L + (4/3)πr³. Knowing the volume, take away the ball and divide by πr² to get the length. The surface is the side of the cylinder, 2πr·L, plus the two half spheres, which make one whole sphere, 4πr². In a flat plane the same idea gives a rectangle 2r wide and L long with half a disc on each end: area 2rL + πr².',
       how: [
         'Picture the solid: a cylinder of radius r along the segment, with a half ball on each end.',
         'Volume = πr²·L + (4/3)πr³; given the volume, subtract the ball and divide by πr² to find L.',
         'Surface area = 2πr·L + 4πr²: the cylinder\'s side plus one whole sphere (the cylinder\'s flat ends are inside).',
         'In a plane: a 2r-by-L rectangle plus one whole disc, 2rL + πr².',
+      ],
+      facts: [
+        'Volume: πr²L + (4/3)πr³.',
+        'Surface area: 2πrL + 4πr².',
+        'In a plane: area 2rL + πr².',
+        'A ball has volume (4/3)πr³ and surface 4πr²; a cylinder has volume πr²h and side 2πrh.',
       ],
       watch: [
         'Leaving out the rounded ends, or counting two whole balls instead of two halves.',
@@ -1339,6 +2419,7 @@ export const amcLearning = {
       tip: 'Split the shape into a straight middle (a cylinder, or a rectangle in a plane) and round ends that together make one ball, sphere or disc.',
     },
     'Pyramid in a box': {
+      spot: 'A pyramid or tetrahedron whose corners are corners of a box (or a point on an edge), with its volume or a missing edge: slide the apex to an easier spot, or cut corner pieces off the box.',
       idea: 'The rectangle BCHE cuts through the box from edge BC to edge EH. Edge FG is parallel to that rectangle, so every point of FG is the same distance from it: the apex can slide along FG without changing the height, and the answer doesn\'t depend on where M is. Put the apex at F. In the face ABFE, the height from F to the diagonal BE is AB·BF/BE, while the base BCHE has sides BC and BE, so BE cancels and the volume is ⅓·AB·BC·CG: a third of the box. Corners work the same way: the plane through the three corners next to a corner cuts off a pyramid with a right-triangle base (half a face) and the third edge as its height, ⅙ of the box. The tetrahedron on four corners with no two on an edge, like ACFH, is the box with four such corners taken off: abc − 4·abc/6 = abc/3.',
       how: [
         'Notice that FG is parallel to the base BCHE, so moving M along FG keeps the same height; put M at F.',
@@ -1346,6 +2427,12 @@ export const amcLearning = {
         'Volume = ⅓·base·height; the BE cancels, leaving AB·BC·CG/3. Given the volume, solve for the missing edge.',
         'A corner sliced off through its three neighbours: ⅓·(½·edge·edge)·edge, the product of its three edges over 6.',
         'A tetrahedron like ACFH: take the four corner pyramids (each abc/6) away from the box, leaving abc/3.',
+      ],
+      facts: [
+        'A pyramid’s volume is ⅓ × base × height.',
+        'Moving the apex parallel to the base keeps the height, so it keeps the volume.',
+        'A corner of an a × b × c box sliced off through its three neighbouring corners has volume abc/6.',
+        'The tetrahedron on four corners of a box with no two on an edge has volume abc/3.',
       ],
       watch: [
         'Forgetting the ⅓ in a pyramid\'s volume, or the ½ in a triangular base.',
@@ -1355,6 +2442,7 @@ export const amcLearning = {
       tip: 'Slide the apex along its edge to a corner where the height is easier to see; for a tetrahedron, subtract the corner pieces from the box.',
     },
     'Octahedron in a box': {
+      spot: '"The centres of the six faces of a box (or cube)" as the corners of an octahedron: split it into two pyramids on a rhombus whose diagonals are as long as two of the box’s edges.',
       idea: 'The segments joining opposite face centres have lengths a, b and c, the box\'s dimensions, and they cross at right angles at the centre of the box. Two of them are the diagonals of a rhombus with area ½·a·b, and that rhombus cuts the octahedron into two pyramids, each of height c/2. So the volume is 2·⅓·(ab/2)·(c/2) = abc/6: one sixth of the box, whatever its shape. Two neighbouring face centres are a/2 and b/2 from the centre of the box along perpendicular lines, so by Pythagoras they are √((a/2)² + (b/2)²) apart. In a cube of edge e that distance, e/√2, is the edge of a regular octahedron, whose 8 faces are equilateral triangles of area (√3/4)·(edge)².',
       how: [
         'Join opposite face centres: three perpendicular segments of lengths a, b and c through the centre of the box.',
@@ -1363,6 +2451,12 @@ export const amcLearning = {
         'Two neighbouring face centres are √((a/2)² + (b/2)²) apart.',
         'In a cube of edge e the octahedron has edge e/√2, so its surface area is 8·(√3/4)·(e²/2) = √3·e².',
       ],
+      facts: [
+        'A rhombus with diagonals d₁ and d₂ has area ½·d₁·d₂.',
+        'The octahedron on the face centres of an a × b × c box has volume abc/6.',
+        'The centres of two faces that share an edge of length c are ½√(a² + b²) apart.',
+        'In a cube of edge e it is a regular octahedron with edge e/√2 and surface area √3·e².',
+      ],
       watch: [
         'Using a full a-by-b rectangle as the base instead of the rhombus inside it: that doubles the answer.',
         'Using the wrong pyramid fraction: a pyramid is ⅓ of base × height.',
@@ -1370,6 +2464,183 @@ export const amcLearning = {
         'Taking the cube\'s edge as the octahedron\'s edge: it is e/√2.',
       ],
       tip: 'Split the octahedron into two pyramids sharing a rhombus whose diagonals are two of the box\'s dimensions.',
+    },
+    // harder: problems 15 to 25
+    'Power of a point': {
+      spot: 'When two chords cross, or lines from one point outside a circle cut it (or touch it), and the problem gives some of the pieces: the pieces along each line are tied together by their product.',
+      idea: 'Every line through a point P that meets a circle is cut at the circle into two pieces, measured from P to each crossing point, and the two pieces always multiply to the same number, the power of P. Inside the circle that reads AE·EB = CE·ED for two crossing chords; outside it reads PA·PB = PC·PD for two secants, and PT² = PA·PB for a tangent PT. The reason is similar triangles: for crossing chords, triangles AEC and DEB have vertical angles at E and inscribed angles on the same arc, so their sides are in proportion. The line through the centre tells you what the number is: for P at distance d from the centre of a circle of radius r, the power is r² − d² inside and d² − r² outside. For example, chords crossing with pieces 4 and 9 give 36, so if the other chord is 15 long its pieces solve x(15 − x) = 36: they are 3 and 12.',
+      how: [
+        'Find the point that all the lines go through, and measure every piece from it, to both points where its line meets the circle.',
+        'Write the power two ways and set them equal: AE·EB = CE·ED, PA·PB = PC·PD, or PT² = PA·PB.',
+        'If a piece is unknown, call it x: the equation is a quadratic, so factor it and keep the positive root (for a chord with a known length, its two pieces are the two roots).',
+        'If the centre is involved, use the diameter through P: its pieces r − d and r + d (or d − r and d + r) give the power r² − d² (or d² − r²).',
+        'For perpendicular chords, put the crossing at the origin with the chords on the axes: the centre is straight above the middle of one chord and level with the middle of the other.',
+      ],
+      facts: [
+        'Crossing chords: AE·EB = CE·ED.',
+        'From an outside point: PA·PB = PC·PD = PT², with PT a tangent.',
+        'For a point d from the centre: the power is |r² − d²|, and the shortest chord through an inside point is 2√(r² − d²).',
+        'Perpendicular chords: 4r² = AE² + EB² + CE² + ED².',
+      ],
+      watch: [
+        'Using the chord AB instead of the whole secant PB: the power is PA·PB, from P to both points.',
+        'Taking the wrong root, or answering with the other piece: PB instead of PA, the longer piece instead of the shorter.',
+        'Stopping at the diameter, or at r², when the radius is asked.',
+      ],
+      tip: 'Measure every piece from the point the lines share, and set the two products equal.',
+    },
+    'Angle bisectors': {
+      spot: 'When a line cuts an angle of a triangle in half and you need a length along it, the pieces it makes on the far side, or where it crosses an altitude, a median or another bisector (the incentre).',
+      idea: 'The bisector from A cuts the far side BC in the ratio of the two sides next to A: BD : DC = AB : AC. (Triangles ABD and ADC have the same height from A, so their areas are in the ratio BD : DC; working the same areas out as ½·AB·AD and ½·AC·AD times the sine of the same half angle gives AB : AC.) That one fact does most of the work, and it keeps working inside smaller triangles: if H or M lies on a side of the angle, the same line still bisects the angle of triangle ABH or ABM, so it cuts AH or BM in the ratio of that triangle\'s sides. The bisector\'s own length comes from AD² = AB·AC − BD·DC. For example, with AB = 6, AC = 9 and BC = 10, BD = 4 and DC = 6, so AD² = 54 − 24 = 30. The incentre I is where the bisector from B crosses AD, so AI : ID = AB : BD, which works out to (AB + AC) : BC.',
+      how: [
+        'Write BD : DC = AB : AC, so BD = BC·AB/(AB + AC), and use whatever else is given (a perimeter, a difference) to find the scale.',
+        'For the bisector\'s length, find BD and DC first, then use AD² = AB·AC − BD·DC.',
+        'When the bisector meets another segment, find the smaller triangle in which it is still a bisector, and use the theorem there: AP : PH = AB : BH, or BP : PM = AB : AM.',
+        'For the incentre on AD, use the bisector from B in triangle ABD: AI : ID = AB : BD, so AI is AB/(AB + BD) of AD.',
+      ],
+      facts: [
+        'BD : DC = AB : AC.',
+        'AD² = AB·AC − BD·DC (Stewart\'s theorem for a bisector).',
+        'With I the incentre, AI : ID = (AB + AC) : BC.',
+      ],
+      watch: [
+        'Swapping the ratio: BD goes with AB, the side that touches B.',
+        'Splitting the whole perimeter in the ratio, instead of the perimeter minus BC.',
+        'Using a whole side where the smaller triangle only has part of it: AM is half of AC, and BH is only part of BC.',
+      ],
+      tip: 'Find a triangle in which the line bisects an angle: it cuts the far side in the ratio of the two sides next to that angle.',
+    },
+    'Angles in circles': {
+      spot: 'When points lie on a circle (the corners of an inscribed or regular polygon, a triangle with its circumcentre) and you need an angle: at a corner, between two crossing chords, at the centre, or where two lines meet outside the circle.',
+      idea: 'Measure everything by arcs. An inscribed angle is half the arc it looks across, and a central angle equals its arc, so ∠BOC = 2∠BAC. Two chords crossing inside make an angle of half the sum of the arc it cuts off and the arc its vertical angle cuts off; two secants, or a secant and a tangent, meeting outside make half the difference of the far arc and the near arc. Both come from a triangle\'s outside angle: if chords AC and BD cross at X, then ∠AXB = ∠XBC + ∠XCB = ½ arc CD + ½ arc AB. In a regular n-gon every side cuts off 360°/n, so arcs become a count of sides, and with the circumcentre the radii make isosceles triangles: ∠BOC = 2∠A gives ∠OBC = 90° − ∠A.',
+      how: [
+        'Turn everything into arcs: the circle is 360°, an inscribed angle doubles to its arc, and each side of a regular n-gon is 360°/n.',
+        'Look at where the angle\'s corner is: on the circle (half the arc), inside (half the sum of two arcs) or outside (half of far minus near).',
+        'Pick the arcs the angle opens onto, not the ones next to its corner; at a crossing, add the arc of the vertical angle.',
+        'With the centre O, use ∠BOC = 2∠A and the isosceles triangle BOC, whose base angles are each 90° − ∠A.',
+      ],
+      facts: [
+        'Inscribed angle = ½ its arc; central angle = its arc; opposite angles of a quadrilateral on a circle add to 180°.',
+        'Chords crossing inside: ½(arc + vertical arc). Lines meeting outside: ½(far arc − near arc).',
+        'In an acute triangle ABC with circumcentre O: ∠OBC = 90° − ∠A, and the angle between AO and the altitude from A is |∠B − ∠C|.',
+      ],
+      watch: [
+        'Using the sum where the difference belongs, or the other way round: sum inside, difference outside.',
+        'Forgetting to halve, or taking the arc next to the corner instead of the one it looks across.',
+        'Giving the wrong one of the two angles at a crossing: they add to 180°, so check which one is asked.',
+      ],
+      tip: 'Turn the angles into arcs, then look at where the corner is: on, inside or outside the circle.',
+    },
+    'Areas cut by a line': {
+      spot: 'When a line through a corner, a line parallel to a side, a vertical or horizontal line, or two crossing segments cut a figure, and the areas of the pieces are given or asked for.',
+      idea: 'Two facts do the work. Triangles with the same height have areas in the ratio of their bases: so a line from a corner cuts the far side in the same ratio as the two areas, and pieces made by segments that cross inside a triangle can be found one shared height at a time (mass points say how the crossing point cuts each segment). And similar figures have areas in the ratio of the squares of their lengths: so a line parallel to a side that cuts off the fraction f of a triangle\'s area leaves a small triangle with sides √f times as long. For example, cutting off half the area takes a line about 0.71 of the base long, not half of it. The squares also explain why the segment halving a trapezoid with parallel sides a and b is √((a² + b²)/2) long, and where a vertical line must go to halve a triangle: past the middle corner, the piece at the tip has an area that grows as the square of its width.',
+      how: [
+        'Line through a corner: the two pieces share a height, so the far side is cut in the ratio of the areas; find that point (part of the way from one end to the other) and then the slope.',
+        'Line parallel to a side: the piece at the tip is similar to the whole, so its lengths are the square root of its share of the area.',
+        'Vertical or horizontal line: the line through the middle corner splits the area in the ratio of the widths on each side, which shows which side the halving line is on; then the tip piece\'s area is its share times (its width over the full width on that side)², set equal to half.',
+        'Two segments crossing: mass points give how the crossing point cuts each one, shared heights give each triangle\'s area, and the last piece is what is left.',
+      ],
+      facts: [
+        'Same height: the areas are in the ratio of the bases.',
+        'Similar figures: area ratio = (length ratio)².',
+        'The segment parallel to a trapezoid\'s parallel sides a and b that halves its area is √((a² + b²)/2) long.',
+      ],
+      watch: [
+        'Forgetting the square root: cutting off a quarter of the area at the tip takes half the length, not a quarter.',
+        'Using the ratio of the two pieces instead of the share of the whole: pieces in the ratio 1 : 3 make a quarter, not a third.',
+        'Putting the halving line through the centroid or the middle of the base: neither halves the area in general.',
+      ],
+      tip: 'Ask whether the pieces share a height (areas in the ratio of the bases) or are similar (lengths as the square root of the area ratio).',
+    },
+    'Tangent circles on a line': {
+      spot: 'When circles rest on the same straight line (the ground, a floor, a side of a figure) and touch each other, or a circle is wedged into a gap or a corner beside them, look at where each one touches the line.',
+      idea: 'Two circles of radii p and q that rest on a line and touch each other have their centres at heights p and q, and p + q apart, so by Pythagoras the points where they touch the line are √((p + q)² − (p − q)²) = 2√(pq) apart. For radii 4 and 9 that is 2·6 = 12. Almost everything here is that fact used along the line, where the gaps between contact points add up. A small circle squeezed under two touching circles splits their gap in two, 2√(pq) = 2√(px) + 2√(qx), and dividing by 2√(pqx) turns this into 1/√x = 1/√p + 1/√q: radii 4 and 9 give 1/√x = 1/2 + 1/3, so x = 36/25. A circle wedged into a corner touches the floor its own radius away from the wall. And a straight ramp that touches two circles from above starts at the centre of an enlargement taking one circle to the other.',
+      how: [
+        'Mark where each circle touches the line, and write the gap between two touching neighbours as 2√(pq).',
+        'Measure the same stretch of the line two ways and set them equal: gaps that add up, a small circle splitting a gap, or a corner circle that touches the floor its radius away from the wall.',
+        'Solve for a square root first: divide through by 2√(product) to get 1/√x = 1/√p + 1/√q, or complete a square, as in D + R = (√x + √R)²; then square.',
+        'For a ramp touching both circles and starting at P on the ground: the enlargement from P with scale q/p takes one circle to the other, so PB = (q/p)·PA, and the next circle out has radius q²/p.',
+        'If in doubt, check with coordinates: the line is the x-axis and each centre is as high as its radius.',
+      ],
+      facts: [
+        'Touching circles of radii p and q resting on a line touch it 2√(pq) apart.',
+        'The circle in the gap under two touching circles: 1/√x = 1/√p + 1/√q.',
+        'The two tangents from a point to a circle are equally long.',
+      ],
+      watch: [
+        'Using p + q, the distance between the centres, for the distance between the contact points: the centres are at different heights.',
+        'Forgetting to square at the end: the reciprocal formula gives √x, not x.',
+        'Adding 1/p + 1/q instead of 1/√p + 1/√q.',
+        'In a corner, forgetting that the small circle touches the floor its own radius away from the wall, not at the corner.',
+      ],
+      tip: 'Look along the line: where does each circle touch it, and how far apart are those points? Touching circles touch the line 2√(pq) apart.',
+    },
+    'Semicircles in a square': {
+      spot: 'When a square or a straight line has semicircles or quarter circles drawn on it, and a circle or a square fits against some of them, put it on coordinates and turn every touch into a distance between centres.',
+      idea: 'Two circles touch from outside when their centres are the sum of the radii apart, and one touches the inside of another when the centres are the difference of the radii apart. So put a corner of the square at the origin, give the unknown circle a centre like (x, r) when it rests on a side, and write one Pythagoras equation for each arc it touches; the squared unknowns usually cancel and leave something easy. For example, in a square of side 16 with quarter circles of radius 16 about A and B, the circle inside both that rests on AB has centre (8, r), so 8² + r² = (16 − r)², which gives 64 = 256 − 32r and r = 6. A chord of a big semicircle that is parallel to the diameter and touches a smaller semicircle on the same diameter is r above it, so (chord/2)² = R² − r², and the region between the semicircles, ½π(R² − r²), depends only on the chord.',
+      how: [
+        'Put a corner of the square at (0, 0), and write down the centre and radius of every arc.',
+        'Give the unknown circle a centre: (x, r) if it rests on the bottom side, (r, y) if it touches the left side, and on the line of symmetry if there is one.',
+        'For each arc: outside it, distance between centres = sum of the radii; inside it, distance = difference. Square both sides.',
+        'Subtract or substitute so that the squared terms cancel, and solve. For a square, put its corners on the circle with x² + y² = R² and use the symmetry.',
+      ],
+      facts: [
+        'Touching from outside: centres R + r apart. Touching from inside: centres R − r apart.',
+        'A chord parallel to the diameter that touches a smaller semicircle on it: (chord/2)² = R² − r², so the region between them has area π·chord²/8.',
+        'A square standing on the diameter of a semicircle of radius R, with its top corners on the arc, has side 2R/√5.',
+      ],
+      watch: [
+        'Adding the radii for a circle that is inside an arc (subtract), or subtracting for one that is outside (add).',
+        'Using the side of the square as the radius of the semicircle drawn on it: the radius is half the side.',
+        'Forgetting the ½ in a semicircle\'s area.',
+        'Keeping the wrong root of a quadratic, such as the whole square instead of the smaller one.',
+      ],
+      tip: 'Put the square on coordinates and write "distance between centres = sum (or difference) of the radii" for each arc the circle touches.',
+    },
+    'Cutting a cone': {
+      spot: 'When a cone or a pyramid is cut by a plane parallel to its base, or holds water standing point up or point down, the piece at the tip is a smaller copy of the whole solid.',
+      idea: 'A cut parallel to the base leaves, at the apex, a solid similar to the whole one. If its height is k times the whole height, then every length is k times as long, every area k² times as big and its volume k³ times as big. Cutting a cone halfway up leaves a small cone with (1/2)³ = 1/8 of the volume, so the pieces are in the ratio 1 : 7. Water in a cone standing point down is such a small cone, so the depth that holds a fraction f of the cone is H·∛f, and filling at a steady rate, the time grows like the depth cubed. A frustum is the whole pyramid minus the small one at its tip, and when a closed cone of water is turned over, the air (or the water) at the tip is the small cone.',
+      how: [
+        'Find the piece that contains the apex: water in a cone standing point down, the air in a cone standing point up, or the top cut off a pyramid.',
+        'Find its scale k, its height divided by the whole height; it holds k³ of the volume.',
+        'Get every other piece by subtracting: the frustum, or a slice between two cuts, is the difference of two similar solids.',
+        'Going the other way, from a share of the volume to a height, take a cube root: k = ∛(share).',
+        'For a frustum\'s surface, find the slant height from a right triangle with the height and how far each side steps in.',
+      ],
+      facts: [
+        'Similar solids with scale k: lengths ×k, areas ×k², volumes ×k³.',
+        'A cone or a pyramid has volume ⅓·base·height.',
+        'A frustum of height h with end areas A and B has volume h(A + √(AB) + B)/3.',
+      ],
+      watch: [
+        'Using k or k² for a ratio of volumes instead of k³.',
+        'Giving small : whole when the question asks for small : rest.',
+        'After turning a cone over, measuring from the wrong end: point up, the empty part is the small cone at the top.',
+        'Using the frustum\'s height as the height of its slanted faces.',
+      ],
+      tip: 'Find the small copy at the apex and its scale k; it has k³ of the volume.',
+    },
+    'Reflections and shortest paths': {
+      spot: 'When a path has to touch a line on the way, bounces off walls or mirrors, or goes over the faces of a box, unfold it so that it becomes a straight line.',
+      idea: 'Reflecting part of a path in the line it touches doesn\'t change its length. So a walk that touches a river and then goes to B is as long as a walk to B\'s mirror image across the river, and the shortest one is the straight segment: from a point 3 m from the bank to the bank and on to a point 5 m from it, 6 m further along, the shortest walk is √(6² + 8²) = 10. A bouncing ball or a light ray works the same way: reflect the table or the mirrors instead of the path, and the ray goes straight on through the copies, one bounce for each line it crosses. On a box, unfold the faces a route crosses into a flat net; the route is a straight line on the net, and you compare the different nets.',
+      how: [
+        'Reflect the end point in each line the path must touch, or reflect the table or the mirrors instead of a bouncing path.',
+        'Draw the straight segment in the unfolded picture, and find its length with Pythagoras, or count the lines it crosses: each crossing is one bounce.',
+        'For a ball shot at 45° on an m-by-n table: it stops after going lcm(m, n) across and up, with (lcm/m − 1) + (lcm/n − 1) bounces, and whether lcm/m and lcm/n are odd or even tells you the corner.',
+        'For a box, list the ways to unfold the faces the route crosses, work out each straight line, and take the shortest that really stays on the faces.',
+      ],
+      facts: [
+        'From A to a line and on to B (on the same side): the shortest path is as long as the segment from A to the mirror image of B.',
+        'Between two mirrors meeting at θ°, the mirror copies sit at θ°, 2θ°, 3θ°, … around the corner, and a ray is reflected once for each copy it crosses.',
+        'From a corner of an a × b × c box to the opposite corner (c the longest edge), the shortest route is √((a + b)² + c²).',
+      ],
+      watch: [
+        'Measuring straight from A to B and forgetting the line the path must touch.',
+        'Counting the final corner pocket, or the start, as a bounce.',
+        'Using m·n instead of lcm(m, n) for the billiard table.',
+        'On a box, trying only one unfolding: the shortest route can cross more faces than you expect.',
+      ],
+      tip: 'Reflect instead of bouncing, and the shortest path becomes a straight line.',
     },
   },
 };

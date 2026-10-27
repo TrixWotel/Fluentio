@@ -7,9 +7,11 @@ export const range = (a, b, step = 1) => { const out = []; for (let v = a; v <= 
 export const digitSum = (n) => String(n).split('').reduce((s, c) => s + +c, 0);
 
 // five choices: the answer, then wrong ones (skipping repeats), topped up with near misses; sorted like the AMC.
-// values are numbers, or fractions as [p, q]
+// values are numbers, or fractions as [p, q]. An answer that isn't a number is a mistake in the question, so it stops
+// here (the near misses around it would never end).
 export function choices(d, correct, wrongs, show = (v) => num(v, 4)) {
   const val = (v) => (Array.isArray(v) ? v[0] / v[1] : v), same = (a, b) => Math.abs(val(a) - val(b)) < 1e-9;
+  if (!Number.isFinite(val(correct))) throw new Error(`choices: the answer is ${correct}, not a number`);
   const list = [correct];
   for (const w of wrongs) if (list.length < 5 && Number.isFinite(val(w)) && !list.some((v) => same(v, w)) && (val(correct) < 0 || val(w) >= 0)) list.push(w);
   const unit = Array.isArray(correct) ? null : Math.max(1, Math.round(Math.abs(correct) / 10));
