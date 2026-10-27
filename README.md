@@ -10,7 +10,7 @@ Every branch is one part of the site. A push to any of them puts the whole site 
 * **geography** is served at /geography: find countries or capitals on the world map, or one continent at a time.
 * **math** is served at /math: Triangle Angles (220 variants) and AMC 10 Practice (1,044 variants, 87 topics).
 * **science** is served at /science: Heat Capacity with Q = mcΔT (220 variants).
-* **physics** is served at /physics: Kinematics with motion graphs (280 variants).
+* **physics** is served at /physics: Kinematics with motion graphs (280 variants), Motion in a Straight Line (240), Vectors (240) and Projectile Motion (260).
 * **spanish** is served at /spanish: Vocabulary (1,100 words in 25 themes, 2,200 variants), the Preterite (270 variants) and the Imperfect (180 variants).
 
 There is no build step. The files are served as they are.
