@@ -77,6 +77,8 @@ function hidden() {
 const two = (t) => (t < 0 || t > 18 ? 0 : t <= 9 ? t + 1 : 19 - t);
 const lead = (t) => (t < 1 || t > 18 ? 0 : t <= 9 ? t : 19 - t);
 const from = (t, low) => `${Math.max(low, t - 9)} to ${Math.min(9, t)}`;
+// the values a digit v can take when it and another digit make t: "a from 2 to 9", or "b = 0" when there is only one
+const pick1 = (v, t, low) => (Math.max(low, t - 9) === Math.min(9, t) ? `${v} = ${Math.min(9, t)}` : `${v} from ${from(t, low)}`);
 const BLOCKS = ['47', '58', '29', '83', '16', '65', '37', '92', '74', '124', '357', '508', '263', '419', '736', '852', '617', '345', '281', '1203', '2716', '3485', '5021', '4127', '6034', '7310', '2468'];
 // four- and six-digit palindromes that are multiples of 11m, and why (each count is checked one palindrome at a time)
 const PAL = {
@@ -121,8 +123,11 @@ function sieve(ms, N) {
   const two = climb(x, L12, (v) => v % m3 === r3), N0 = two.at(-1);
   return {
     N0, x,
-    text: `Work from the biggest divisor down, going through the numbers that leave ${r1} when divided by ${m1} (${few(one, m1)} and so on) until one also leaves ${r2} when divided by ${m2}, which first happens at ${ints(x)}. ` +
-      `Numbers that pass both of those tests go up by lcm(${m1}, ${m2}) = ${L12}, so go through ${few(two, L12)} and so on until one also leaves ${r3} when divided by ${m3}, which first happens at ${ints(N0)}.`,
+    // (when the first number tried already passes the next test, say so, rather than "go through … until" it)
+    text: (one.length === 1 ? `Work from the biggest divisor down. The numbers that leave ${r1} when divided by ${m1} are ${few(one, m1)} and so on, and the first of them, ${ints(x)}, already leaves ${r2} when divided by ${m2}. `
+      : `Work from the biggest divisor down, going through the numbers that leave ${r1} when divided by ${m1} (${few(one, m1)} and so on) until one also leaves ${r2} when divided by ${m2}, which first happens at ${ints(x)}. `) +
+      (two.length === 1 ? `Numbers that pass both of those tests go up by lcm(${m1}, ${m2}) = ${L12}, and the first of them, ${ints(N0)}, already leaves ${r3} when divided by ${m3}.`
+        : `Numbers that pass both of those tests go up by lcm(${m1}, ${m2}) = ${L12}, so go through ${few(two, L12)} and so on until one also leaves ${r3} when divided by ${m3}, which first happens at ${ints(N0)}.`),
   };
 }
 const passes = (ms, rs) => (v) => ms.every((m, i) => v % m === rs[i]);
@@ -243,8 +248,8 @@ export const hardNumber = {
         wrongs = [0, p1, p2, 2 * two(X) * two(Y), count + two(X), lead(X) * two(X)];
         why = [
           `Here (a + c) + (b + d) = ${s} is odd, so the difference (a + c) − (b + d) is odd and can’t be 0; between −18 and 18 it must be 11 or −11.`,
-          `If it is 11, then a + c = ${X} and b + d = ${Y}, which happens in ${lead(X)} · ${two(Y)} = ${p1} ways.`,
-          `If it is −11, then a + c = ${Y} and b + d = ${X}, which happens in ${lead(Y)} · ${two(X)} = ${p2} ways${Y === 0 ? ' (a can’t be 0)' : ''}.`,
+          `If it is 11, then a + c = ${X} and b + d = ${Y}, which happens in ${lead(X)} · ${two(Y)} = ${p1} ways (${pick1('a', X, 1)}, and ${pick1('b', Y, 0)}).`,
+          `If it is −11, then a + c = ${Y} and b + d = ${X}, which happens in ${lead(Y)} · ${two(X)} = ${p2} ways${Y === 0 ? ' (a can’t be 0)' : ` (${pick1('a', Y, 1)}, and ${pick1('b', X, 0)})`}.`,
           `So there are ${p1} + ${p2} = <b>${count}</b> such numbers.`,
         ];
       } else {
@@ -331,7 +336,7 @@ export const hardNumber = {
         answer: choices(d, value, ask === 'least' ? [S.x, N0 + L, L - N0, total(rs), small] : [N4 - L, N4 + L, 1000 + N0, L * Math.ceil(1000 / L), N4 + ms[2]]),
         check: () => { const ok = passes(ms, rs), start = ask === 'least' ? 1 : 1000; for (let v = start; v < start + 2 * L; v++) if (ok(v)) return v === value ? '' : `the first is ${v}`; return 'none found'; },
         solution: `${S.text} So the numbers that work are ${ints(N0)}, ${ints(N0 + L)}, ${ints(N0 + 2 * L)}, …, one every lcm(${ms.join(', ')}) = ${L}. ` +
-          (ask === 'least' ? `The smallest is <b>${ints(N0)}</b>.` : `The first of them with four digits is ${ints(N0)} + ${(N4 - N0) / L} · ${L} = <b>${ints(N4)}</b>.`),
+          (ask === 'least' ? `The smallest is <b>${ints(N0)}</b>.` : `${ints(N4 - L)} is still below 1,000, so the first of them with four digits is ${ints(N0)} + ${(N4 - N0) / L} · ${L} = <b>${ints(N4)}</b>.`),
       };
     },
     // how many below a bound: one every lcm, which is less than the product when the divisors share factors
@@ -347,7 +352,7 @@ export const hardNumber = {
         answer: choices(d, c, [c - 1, c + 1, Math.floor(B / L) === c ? c + 2 : Math.floor(B / L), Math.floor((B - 1 - N0) / P) + 1, Math.floor(B / P)].filter((v) => v > 0)),
         check: () => { const ok = passes(ms, rs); let k = 0; for (let v = 1; v < B; v++) if (ok(v)) k++; return k === c ? '' : `counted ${k}`; },
         solution: `${S.text} So the numbers that work are ${ints(N0)}, ${ints(N0 + L)}, ${ints(N0 + 2 * L)}, …, one every lcm(${ms.join(', ')}) = ${L}; that is not ${ms.join(' · ')} = ${ints(P)}, because the divisors share factors. ` +
-          `The last one below ${ints(B)} is ${ints(N0)} + ${c - 1} · ${L} = ${ints(N0 + (c - 1) * L)}, so there are <b>${c}</b> of them.`,
+          `The last one below ${ints(B)} is ${ints(N0)} + ${c - 1} · ${L} = ${ints(N0 + (c - 1) * L)}, since the next would be ${ints(N0 + c * L)}. Counting ${ints(N0)} itself as ${ints(N0)} + 0 · ${L}, that makes ${c - 1} + 1 = <b>${c}</b> of them.`,
       };
     },
     // a story: some leftovers told as how short the last group is, and a range that holds just one answer
@@ -409,7 +414,7 @@ export const hardNumber = {
         solution: [
           `The fraction k/${ints(n)} is in lowest terms exactly when k shares no prime factor with ${ints(n)} = ${shown(n)}, that is, when k is a multiple of none of ${p}, ${q} and ${r}.`,
           `Counting from 1 to ${ints(n)} with inclusion and exclusion (take away the multiples of each prime, put back the multiples of each pair, take away the multiples of all three) leaves ${ie} = ${ints(f)}.`,
-          `That is Euler’s φ(${ints(n)}) = ${ints(n)} · ${oneMinus(n)}, and k = ${ints(n)} itself was never counted, being a multiple of all three.`,
+          `That is Euler’s φ(${ints(n)}) = ${ints(n)} · ${oneMinus(n)} = ${ints(f)}, and k = ${ints(n)} itself was never counted, being a multiple of all three.`,
           ask === 'lowest' ? `So <b>${ints(f)}</b> of the fractions are in lowest terms.` : `So ${ints(f)} of the ${ints(n - 1)} fractions are in lowest terms, and the other ${ints(n - 1)} − ${ints(f)} = <b>${ints(value)}</b> can be simplified.`,
         ].join(' '),
       };
@@ -704,7 +709,7 @@ export const hardNumber = {
         check: () => { let s = 0; for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) if (c * i + j + 1 === r * j + i + 1) s += c * i + j + 1; return s === sum ? '' : `added up to ${s}`; },
         solution: [
           `Number the rows 0 to ${r - 1} from the top and the columns 0 to ${c - 1} from the left, so that the square in row i and column j gets ${c}i + j + 1 from ${P} and ${r}j + i + 1 from ${Q}; these match when ${c - 1}i = ${r - 1}j.`,
-          `With gcd(${c - 1}, ${r - 1}) = ${g}, that means i = ${co(u, 't')} and j = ${co(v, 't')} for t = ${run(0, g)}, and the number there is ${c} · ${co(u, 't')} + ${co(v, 't')} + 1 = ${co(step, 't')} + 1.`,
+          `Dividing by gcd(${c - 1}, ${r - 1}) = ${g} gives ${co(v, 'i')} = ${co(u, 'j')}, so i = ${co(u, 't')} and j = ${co(v, 't')} for t = ${run(0, g)}, and the number there is ${c} · ${co(u, 't')} + ${co(v, 't')} + 1 = ${co(step, 't')} + 1.`,
           `These ${g + 1} numbers go up in equal steps of ${step} from 1 to ${ints(r * c)}, so their average is (1 + ${ints(r * c)})/2 = ${frac(r * c + 1, 2)}.`,
           `Their sum is ${g + 1} · ${frac(r * c + 1, 2)} = <b>${ints(sum)}</b>.`,
         ].join(' '),
@@ -728,12 +733,12 @@ export const hardNumber = {
         solution: (up ? [
           `Number the rows 0 to ${r - 1} from the top and the columns 0 to ${c - 1} from the left, so that the square in row i and column j gets ${c}i + j + 1 from ${P}; ${Q}’s column j starts with ${r}j + 1 in the bottom row, so the square gets ${r}j + (${r - 1} − i) + 1 from ${Q}.`,
           `These are equal exactly when ${c}i + j = ${r}j + ${r - 1} − i, that is, ${c + 1}i = ${r - 1}(j + 1).`,
-          `With gcd(${c + 1}, ${r - 1}) = ${g}, that means i = ${co(u, 't')} and j + 1 = ${co(v, 't')} for a whole number t.`,
+          `Dividing by gcd(${c + 1}, ${r - 1}) = ${g} gives ${co(v, 'i')} = ${u === 1 ? 'j + 1' : `${u}(j + 1)`}, so i = ${co(u, 't')} and j + 1 = ${co(v, 't')} for a whole number t.`,
           `Since j + 1 is between 1 and ${c}, t is at least 1, and t = ${g} would already make j + 1 = ${c + 1}, too big; so t can only be ${run(1, g - 1)}, and that is <b>${g - 1}</b> squares.`,
         ] : [
           `Number the rows 0 to ${r - 1} from the top and the columns 0 to ${c - 1} from the left, so that the square in row i and column j gets ${c}i + j + 1 from ${P}; ${Q} starts at the right, so column j is ${Q}’s column ${c - 1} − j counting from 0, and the square gets ${r}(${c - 1} − j) + i + 1 from ${Q}.`,
           `These are equal exactly when ${c}i + j = ${r}(${c - 1} − j) + i, that is, ${r + 1}j = ${c - 1}(${r} − i).`,
-          `With gcd(${r + 1}, ${c - 1}) = ${g}, that means j = ${co(v, 't')} and ${r} − i = ${co(u, 't')} for a whole number t.`,
+          `Dividing by gcd(${r + 1}, ${c - 1}) = ${g} gives ${co(u, 'j')} = ${v === 1 ? `${r} − i` : `${v}(${r} − i)`}, so j = ${co(v, 't')} and ${r} − i = ${co(u, 't')} for a whole number t.`,
           `Since ${r} − i is between 1 and ${r}, t is at least 1, and t = ${g} would already make ${r} − i = ${r + 1}, too big; so t can only be ${run(1, g - 1)}, and that is <b>${g - 1}</b> squares.`,
         ]).join(' '),
       };

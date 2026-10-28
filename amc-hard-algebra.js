@@ -130,7 +130,7 @@ const roots = [
         }[ask];
         return near(got, ans[0] / ans[1], ask);
       },
-      solution: `By Vieta's formulas, r + s = ${fr(S)} and rs = ${fr(Pr)}, so the roots themselves are never needed. ` + {
+      solution: `By Vieta’s formulas, r + s = ${fr(S)} and rs = ${fr(Pr)}, so the roots themselves are never needed. ` + {
         ratio: `Over a common denominator, ${over('r', 's')} + ${over('s', 'r')} = (r<sup>2</sup> + s<sup>2</sup>)/(rs), and ${r2s2}. So the value is ${fr(sq)} ÷ ${pP} = <b>${fr(ans)}</b>.`,
         gap: `Expanding, (r − s)<sup>2</sup> = r<sup>2</sup> − 2rs + s<sup>2</sup> = (r + s)<sup>2</sup> − 4rs. That is ${sP}<sup>2</sup> − 4·${pP} = <b>${fr(ans)}</b>.`,
         recip: `Over a common denominator, ${over(1, sup('r', 2))} + ${over(1, sup('s', 2))} = (r<sup>2</sup> + s<sup>2</sup>)/(rs)<sup>2</sup>, and ${r2s2}. So the value is ${fr(sq)} ÷ ${pP}<sup>2</sup> = <b>${fr(ans)}</b>.`,
@@ -175,10 +175,10 @@ const roots = [
         return near(got, ans[0] / ans[1], ask);
       },
       solution: {
-        mean: `Over a common denominator, ${over(1, 'r')} + ${over(1, 's')} + ${over(1, 't')} = (st + tr + rs)/(rst). By Vieta's formulas, rs + st + tr = ${fr(e2)} and rst = ${fr(e3)}, so the reciprocals add up to ${fr(e2)} ÷ ${pf(e3)} = ${fr(x1)}. The harmonic mean is 3 ÷ ${pf(x1)} = <b>${fr(ans)}</b>.`,
-        squares: `By Vieta's formulas, r + s + t = ${fr(e1)} and rs + st + tr = ${fr(e2)}. Squaring the sum gives each square once and each product twice: (r + s + t)<sup>2</sup> = r<sup>2</sup> + s<sup>2</sup> + t<sup>2</sup> + 2(rs + st + tr). So r<sup>2</sup> + s<sup>2</sup> + t<sup>2</sup> = ${pf(e1)}<sup>2</sup> − 2·${pf(e2)} = <b>${fr(ans)}</b>.`,
-        recip: `By Vieta's formulas, r + s + t = ${fr(e1)}, rs + st + tr = ${fr(e2)} and rst = ${fr(e3)}. So the reciprocals 1/r, 1/s, 1/t add up to (rs + st + tr)/(rst) = ${fr(x1)}, and their products in pairs add up to (r + s + t)/(rst) = ${fr(x2)}. As for any three numbers, the sum of their squares is (their sum)<sup>2</sup> − 2·(their products in pairs) = ${pf(x1)}<sup>2</sup> − 2·${pf(x2)} = <b>${fr(ans)}</b>.`,
-        pairs: `Multiplying out, (r + s)(s + t)(t + r) = (r + s + t)(rs + st + tr) − rst. By Vieta's formulas, r + s + t = ${fr(e1)}, rs + st + tr = ${fr(e2)} and rst = ${fr(e3)}. So the product is ${pf(e1)}·${pf(e2)} − ${pf(e3)} = <b>${fr(ans)}</b>.`,
+        mean: `Over a common denominator, ${over(1, 'r')} + ${over(1, 's')} + ${over(1, 't')} = (st + tr + rs)/(rst). By Vieta’s formulas, rs + st + tr = ${fr(e2)} and rst = ${fr(e3)}, so the reciprocals add up to ${fr(e2)} ÷ ${pf(e3)} = ${fr(x1)}. The harmonic mean is 3 ÷ ${pf(x1)} = <b>${fr(ans)}</b>.`,
+        squares: `By Vieta’s formulas, r + s + t = ${fr(e1)} and rs + st + tr = ${fr(e2)}. Squaring the sum gives each square once and each product twice: (r + s + t)<sup>2</sup> = r<sup>2</sup> + s<sup>2</sup> + t<sup>2</sup> + 2(rs + st + tr). So r<sup>2</sup> + s<sup>2</sup> + t<sup>2</sup> = ${pf(e1)}<sup>2</sup> − 2·${pf(e2)} = <b>${fr(ans)}</b>.`,
+        recip: `By Vieta’s formulas, r + s + t = ${fr(e1)}, rs + st + tr = ${fr(e2)} and rst = ${fr(e3)}. So the reciprocals 1/r, 1/s, 1/t add up to (rs + st + tr)/(rst) = ${fr(x1)}, and their products in pairs add up to (r + s + t)/(rst) = ${fr(x2)}. As for any three numbers, the sum of their squares is (their sum)<sup>2</sup> − 2·(their products in pairs) = ${pf(x1)}<sup>2</sup> − 2·${pf(x2)} = <b>${fr(ans)}</b>.`,
+        pairs: `Multiplying out, (r + s)(s + t)(t + r) = (r + s + t)(rs + st + tr) − rst. By Vieta’s formulas, r + s + t = ${fr(e1)}, rs + st + tr = ${fr(e2)} and rst = ${fr(e3)}. So the product is ${pf(e1)}·${pf(e2)} − ${pf(e3)} = <b>${fr(ans)}</b>.`,
       }[ask],
     };
   },
@@ -201,6 +201,7 @@ const roots = [
     const kk = k > 0 ? `+ ${k}` : `− ${-k}`;
     return {
       topic: 'Roots without solving', rank: { shift: 17, sums: 19, products: 19, squares: 20 }[ask],
+      tip: 'Write the new roots in terms of r, s and t, then use P(x) = (x − r)(x − s)(x − t) or Vieta’s formulas instead of finding the roots.',
       text: `Let r, s and t be the roots of P(x) = ${poly([e, c, b, 1])}. The polynomial Q(x) = ${sup('x', 3)} + ⋯, with leading coefficient 1, has roots ${{
         shift: `r ${kk}, s ${kk} and t ${kk}`, sums: 'r + s, s + t and t + r', products: 'rs, st and tr', squares: `${sup('r', 2)}, ${sup('s', 2)} and ${sup('t', 2)}`,
       }[ask]}. ${{ shift: 'What is the constant term of Q(x)?', sums: 'What is the constant term of Q(x)?', products: 'What is the coefficient of x in Q(x)?', squares: 'What is the sum of the coefficients of Q(x)?' }[ask]}`,
@@ -217,8 +218,8 @@ const roots = [
       },
       solution: {
         shift: `Q(x) = P(${minus(k)}), because that has leading coefficient 1 and ${minus(k)} is r, s or t exactly when x is r ${kk}, s ${kk} or t ${kk}. So the constant term of Q is Q(0) = P(${num(-k)}), with no need to find the roots. That is ${plusList([(-k) ** 3, b * k * k, -c * k, e])} = <b>${num(ans)}</b>.`,
-        sums: `By Vieta's formulas, r + s + t = ${num(s1)}, so the new roots are ${num(s1)} − t, ${num(s1)} − r and ${num(s1)} − s. Since P(x) = (x − r)(x − s)(x − t), their product is P(${num(s1)}) = ${plusList([s1 ** 3, b * s1 * s1, c * s1, e])} = ${num(P(s1))}. A cubic with leading coefficient 1 has constant term −(the product of its roots), so the answer is <b>${num(ans)}</b>.`,
-        products: `In a cubic with leading coefficient 1, the coefficient of x is the sum of the products of the roots in pairs. For Q that is (rs)(st) + (st)(tr) + (tr)(rs) = rst(s + t + r). By Vieta's formulas for P, r + s + t = ${num(s1)} and rst = ${num(s3)}, so the coefficient is ${paren(s3)}·${paren(s1)} = <b>${num(ans)}</b>.`,
+        sums: `By Vieta’s formulas, r + s + t = ${num(s1)}, so the new roots are ${num(s1)} − t, ${num(s1)} − r and ${num(s1)} − s. Since P(x) = (x − r)(x − s)(x − t), their product is P(${num(s1)}) = ${plusList([s1 ** 3, b * s1 * s1, c * s1, e])} = ${num(P(s1))}. A cubic with leading coefficient 1 has constant term −(the product of its roots), so the answer is <b>${num(ans)}</b>.`,
+        products: `In a cubic with leading coefficient 1, the coefficient of x is the sum of the products of the roots in pairs. For Q that is (rs)(st) + (st)(tr) + (tr)(rs) = rst(s + t + r). By Vieta’s formulas for P, r + s + t = ${num(s1)} and rst = ${num(s3)}, so the coefficient is ${paren(s3)}·${paren(s1)} = <b>${num(ans)}</b>.`,
         squares: `The sum of the coefficients of Q is Q(1) = (1 − ${sup('r', 2)})(1 − ${sup('s', 2)})(1 − ${sup('t', 2)}), and each factor splits like 1 − ${sup('r', 2)} = (1 − r)(1 + r). Now (1 − r)(1 − s)(1 − t) = P(1) = ${num(P(1))}, and (1 + r)(1 + s)(1 + t) = −P(−1) = ${num(-P(-1))}, because P(−1) = (−1 − r)(−1 − s)(−1 − t). So Q(1) = ${paren(P(1))}·${paren(-P(-1))} = <b>${num(ans)}</b>.`,
       }[ask],
     };
@@ -240,14 +241,14 @@ const roots = [
     const eq = form === 'given' ? `${sup('x', 2)} + bx ${n < 0 ? '−' : '+'} ${N} = 0` : form === 'times' ? `${sup('x', 2)} ${sg} ax + ${n}a = 0` : `${sup('x', 2)} + ax + (a + ${n}) = 0`;
     const pairs = listing(pos.map(([x, y]) => `${x}·${y}`));
     let solution;
-    if (form === 'given' && n > 0) solution = `If the roots are r and s, Vieta's formulas give rs = ${N} and r + s = −b, so every b comes from a way of writing ${N} as a product of two integers. Since the product is positive, r and s have the same sign. The ways with two different positive numbers are ${pairs}${isSq(N) ? ` (${isqrt(N)}·${isqrt(N)} would give a double root)` : ''}, ${pos.length} in all. Each also works with both numbers negative, and each gives its own b = ±(r + s), so there are 2·${pos.length} = <b>${count}</b> values of b.`;
-    else if (form === 'given') solution = `If the roots are r and s, Vieta's formulas give rs = −${N} and r + s = −b. So one root is positive and the other negative (they are always different). Say r = p and s = −q with pq = ${N}, so that b = q − p. Different choices of p give different values of b, since p and q can be found again from q − p and pq. There is one choice for each of the ${tau} divisors p of ${N}, so there are <b>${count}</b> values of b.`;
+    if (form === 'given' && n > 0) solution = `If the roots are r and s, Vieta’s formulas give rs = ${N} and r + s = −b, so every b comes from a way of writing ${N} as a product of two integers. Since the product is positive, r and s have the same sign. The ways with two different positive numbers are ${pairs}${isSq(N) ? ` (${isqrt(N)}·${isqrt(N)} would give a double root)` : ''}, ${pos.length} in all. Each also works with both numbers negative, and each gives its own b = ±(r + s), so there are 2·${pos.length} = <b>${count}</b> values of b.`;
+    else if (form === 'given') solution = `If the roots are r and s, Vieta’s formulas give rs = −${N} and r + s = −b. So one root is positive and the other negative (they are always different). Say r = p and s = −q with pq = ${N}, so that b = q − p. Different choices of p give different values of b, since p and q can be found again from q − p and pq. There is one choice for each of the ${tau} divisors p of ${N}, so there are <b>${count}</b> values of b.`;
     else {
       const t = form === 'times', sh = t ? (sg === '−' ? `r − ${n}` : `r + ${n}`) : 'r + 1', shs = sh.replace('r', 's');
       const aIs = t ? (sg === '−' ? `u + v + ${2 * n}` : `${2 * n} − u − v`) : '2 − u − v';
       solution = (t
-        ? `If the roots are r and s, Vieta's formulas give r + s = ${sg === '−' ? '' : '−'}a and rs = ${n}a, so rs = ${sg === '−' ? '' : '−'}${n}(r + s). Then rs ${sg} ${n}r ${sg} ${n}s + ${n * n} = ${n * n}, which factors as (${sh})(${shs}) = ${n * n}.`
-        : `If the roots are r and s, Vieta's formulas give r + s = −a and rs = a + ${n}, and adding them gets rid of a, leaving rs + r + s = ${n}. Then rs + r + s + 1 = ${N}, which factors as (r + 1)(s + 1) = ${N}.`)
+        ? `If the roots are r and s, Vieta’s formulas give r + s = ${sg === '−' ? '' : '−'}a and rs = ${n}a, so rs = ${sg === '−' ? '' : '−'}${n}(r + s). Then rs ${sg} ${n}r ${sg} ${n}s + ${n * n} = ${n * n}, which factors as (${sh})(${shs}) = ${n * n}.`
+        : `If the roots are r and s, Vieta’s formulas give r + s = −a and rs = a + ${n}, and adding them gets rid of a, leaving rs + r + s = ${n}. Then rs + r + s + 1 = ${N}, which factors as (r + 1)(s + 1) = ${N}.`)
         + ` So u = ${sh} and v = ${shs} are integers with product ${N}, both positive or both negative. The positive pairs are ${pairs}, and with the negative ones that makes ${count} pairs (swapping u and v changes nothing).`
         + ` Each pair gives a = ${aIs}, and different pairs give different values.`
         + (ask === 'count' ? ` So there are <b>${count}</b> values of a.`
@@ -320,7 +321,7 @@ const remainders = [
     const e = d.pick([3, 4, 5]), c2 = d.int(-3, 3), c0 = d.int(-5, 5);
     let c1 = d.int(-3, 3);
     const Pv = (x) => x ** e + c2 * x * x + c1 * x + c0;
-    if (ask !== 'three' && Pv(xs[1]) === Pv(xs[0])) c1 += 1;             // so the remainder isn't just a number
+    if (ask !== 'three' && Pv(xs[1]) === Pv(xs[0])) c1 += 1;             // so the remainder isn’t just a number
     const us = xs.map(Pv), [x1, x2, x3] = xs, [u1, u2, u3] = us, f12 = (u2 - u1) / (x2 - x1);
     // the answer from the remainders alone: the line (or parabola) through the points (x, P(x)), by divided differences
     let R;
@@ -339,7 +340,7 @@ const remainders = [
         text: `A polynomial P(x) leaves remainder ${num(u1)} when divided by ${minus(x1)}, remainder ${num(u2)} when divided by ${minus(x2)}, and remainder ${num(u3)} when divided by ${minus(x3)}. Let R(x) be the remainder when P(x) is divided by ${factors(xs)}. What is R(${num(t)})?`,
         answer: choices(d, ans, [line, u1 + u2 + u3, -ans, R[0] - R[1] * t + R[2] * t * t, R[0]].filter(Number.isInteger)),
         check: () => check() || (ans === R[0] + R[1] * t + R[2] * t * t ? '' : 'R(t) wrong'),
-        solution: `Dividing by a cubic leaves a remainder of degree at most 2, and since P(x) = ${factors(xs)}·S(x) + R(x), R agrees with P wherever the cubic is 0. By the remainder theorem that means R(${num(x1)}) = ${num(u1)}, R(${num(x2)}) = ${num(u2)} and R(${num(x3)}) = ${num(u3)}. Writing R(x) = px<sup>2</sup> + qx + r, these say ${listing(xs.map((x, j) => `${expr([x * x, 'p'], [x, 'q'], [1, 'r'])} = ${num(us[j])}`))}. Subtracting them in pairs to get rid of r and solving, R(x) = ${poly(R)}. So R(${num(t)}) = <b>${num(ans)}</b>.`,
+        solution: `Dividing by a cubic leaves a remainder of degree at most 2, and since P(x) = ${factors(xs)}·S(x) + R(x), R agrees with P wherever the cubic is 0. By the remainder theorem that means R(${num(x1)}) = ${num(u1)}, R(${num(x2)}) = ${num(u2)} and R(${num(x3)}) = ${num(u3)}. Writing R(x) = px<sup>2</sup> + qx + r, these say ${listing(xs.map((x, j) => `${expr([x * x, 'p'], [x, 'q'], [1, 'r'])} = ${num(us[j])}`))}. Subtracting them in pairs to get rid of r and solving, R(x) = ${poly(R)}, so R(${num(t)}) = <b>${num(ans)}</b>.`,
       };
     }
     const [a, b] = xs, [u, v] = us, [n, m] = R;
@@ -366,13 +367,14 @@ const remainders = [
       rem.map((x, j) => (j === 0 ? x - c0 : x)), rem.map((x, j) => (j === 0 ? x + 1 : x)), rem.map((x, j) => (j === 1 ? x + 1 : x))];
     return {
       topic: 'Polynomial remainders', rank,
+      tip: 'Find a power of x that leaves remainder 1 (or −1); then the huge powers go round in a short cycle.',
       text: `What is the remainder when ${termsText([...list, [c0, 0]])} is divided by ${poly(cs)}?`,
       answer: labelled(correct, wrongs.map(polyChoice)),
       check: () => {
         const r = pmod(terms([...list, [c0, 0]]), cs.map(BigInt)).map(Number);
         return r.every((x, j) => x === rem[j]) ? '' : `long division leaves ${poly(r)}`;
       },
-      solution: `${why} Here ${list.map(([c, e]) => `${termsText([[c, e]])} leaves ${poly(table[e % table.length].map((x) => c * x))}`).join(', ')}, and ${num(c0)} stays as it is. Adding these up, the remainder is <b>${correct[1]}</b>.`,
+      solution: `${why} Here ${list.map(([c, e]) => `${termsText([[c, e]])} leaves ${poly(table[e % table.length].map((x) => c * x))} (${e} = ${table.length}·${Math.floor(e / table.length)} + ${e % table.length})`).join(', ')}, and ${num(c0)} stays as it is. Adding these up, the remainder is <b>${correct[1]}</b>.`,
     };
   },
   // sums of some of the coefficients of a product, from P(1), P(−1) and P(0)
@@ -387,6 +389,7 @@ const remainders = [
     const ones = `Write P(x) for the product. Putting x = 1 adds up all of its coefficients, and putting x = −1 adds the coefficients of the even powers and subtracts those of the odd powers. Here P(1) = ${shownAt(1)} = ${num(P1)} and P(−1) = ${shownAt(-1)} = ${num(Pm)}.`;
     return {
       topic: 'Polynomial remainders', rank: { even: 15, odd: 15, noconst: 14, evenx: 16 }[ask],
+      tip: 'Put in x = 1, x = −1 or x = 0: they add up all the coefficients, add and subtract them in turn, or give the constant term.',
       text: `When ${factorText(fs)} is multiplied out, what is the sum of ${{
         even: 'the coefficients of the even powers of x (x<sup>0</sup>, x<sup>2</sup>, x<sup>4</sup>, …), counting the constant term', odd: 'the coefficients of the odd powers of x (x, x<sup>3</sup>, x<sup>5</sup>, …)',
         noconst: 'all of its coefficients except the constant term', evenx: 'the coefficients of x<sup>2</sup>, x<sup>4</sup>, x<sup>6</sup>, …',
@@ -417,10 +420,11 @@ const remainders = [
       const N = n, m = [N + 1, N + 2, -1][w], f = prod(0, N), c = cut(-1, f), ans = cut(f - prod(m, N), f * m), cp = cut(-prod(m, N), f);
       return {
         topic: 'Polynomial remainders', rank: 19,
+        tip: 'Find a simple polynomial that is 0 at all the given points, such as xP(x) − 1, and write it as c times (x − 1)(x − 2)⋯.',
         text: `A polynomial P(x) of degree ${N - 1} has ${listing(range(1, N).map((k) => `P(${k}) = ${frac(1, k)}`))}. What is P(${num(m)})?`,
         answer: fchoices(d, ans, [cut(1, m), cut(f + prod(m, N), f * m), cut(-prod(m, N), f * m), [0, 1], cut(f - prod(m, N), f)]),
         check: () => said(lagrange(range(1, N), range(1, N).map((k) => Q(1, k)), m), ans),
-        solution: `The values 1/k are awkward, but D(x) = xP(x) − 1 is 0 at x = ${listing(range(1, N))}, and it has degree ${N}. So D(x) = c${roots(N)} for some number c. At x = 0, D(0) = −1, while the product is ${prodText(0, N)} = ${num(f)}, so c = ${fr(c)}. Then ${paren(m)}·P(${num(m)}) − 1 = ${pf(c)}·${prodText(m, N)} = ${fr(cp)}, so P(${num(m)}) = <b>${fr(ans)}</b>.`,
+        solution: `The values 1/k are awkward, but D(x) = xP(x) − 1 is 0 at x = ${listing(range(1, N))}, and it has degree ${N}. So D(x) = c${roots(N)} for some number c. At x = 0, D(0) = −1, while the product is ${prodText(0, N)} = ${num(f)}, so c = ${fr(c)}. Then ${paren(m)}·P(${num(m)}) − 1 = ${pf(c)}·${prodText(m, N)} = ${fr(cp)}, so ${paren(m)}·P(${num(m)}) = ${fr(cut(cp[0] + cp[1], cp[1]))} and P(${num(m)}) = <b>${fr(ans)}</b>.`,
       };
     }
     const Lp = LINES[j], L = Lp === 'sq' ? (x) => x * x : (x) => Lp[0] * x + Lp[1], Ltext = Lp === 'sq' ? sup('x', 2) : poly([Lp[1], Lp[0]]);
@@ -429,6 +433,7 @@ const remainders = [
     const D = `D(x) = P(x) − ${Lp === 'sq' || Lp[1] === 0 ? Ltext : `(${Ltext})`}`;
     return {
       topic: 'Polynomial remainders', rank: ask === 'monic' ? 16 : 17,
+      tip: 'Take away the simple polynomial that has the given values; what is left is 0 at those points, so it is a multiple of (x − 1)(x − 2)⋯.',
       text: ask === 'monic' ? `A polynomial P(x) of degree ${n} with leading coefficient 1 has ${listing(values)}. What is P(${num(m)})?`
         : `A polynomial P(x) of degree ${n} has ${listing([...values, `P(0) = ${num(P0)}`])}. What is P(${num(m)})?`,
       answer: choices(d, ans, ask === 'monic' ? [L(m), L(m) - prod(m), prod(m), L(m) + range(0, n - 1).reduce((s, k) => s * (m - k), 1), L(m) + prod(m) / 2]
@@ -440,8 +445,8 @@ const remainders = [
         return said(got, [ans, 1]);
       },
       solution: ask === 'monic'
-        ? `The values are those of ${Ltext} at x = ${listing(range(1, n))}, so ${D} is 0 at each of them. Taking away ${Ltext} doesn't change the top term, so D(x) still has degree ${n} and leading coefficient 1, and D(x) = ${roots()}. So P(${num(m)}) = ${num(L(m))} + ${prodText(m)} = ${num(L(m))} + ${paren(prod(m))} = <b>${num(ans)}</b>.`
-        : `The values are those of ${Ltext} at x = ${listing(range(1, n))}, so ${D} is 0 at each of them, and D has degree ${n}. So D(x) = c${roots()} for some number c. At x = 0, D(0) = ${num(P0)} − ${paren(L(0))} = ${num(P0 - L(0))}, while the product is ${prodText(0)} = ${num(prod(0))}, so c = ${num(C)}. Then P(${num(m)}) = ${num(L(m))} + ${paren(C)}·${prodText(m)} = <b>${num(ans)}</b>.`,
+        ? `The values are those of ${Ltext} at x = ${listing(range(1, n))}, so ${D} is 0 at each of them. Taking away ${Ltext} doesn’t change the top term, so D(x) still has degree ${n} and leading coefficient 1, and D(x) = ${roots()}. So P(${num(m)}) = ${num(L(m))} + ${prodText(m)} = ${num(L(m))} + ${paren(prod(m))} = <b>${num(ans)}</b>.`
+        : `The values are those of ${Ltext} at x = ${listing(range(1, n))}, so ${D} is 0 at each of them, and D has degree ${n}. So D(x) = c${roots()} for some number c. At x = 0, D(0) = ${num(P0)} − ${paren(L(0))} = ${num(P0 - L(0))}, while the product is ${prodText(0)} = ${num(prod(0))}, so c = ${num(C)}. Then P(${num(m)}) = ${num(L(m))} + ${paren(C)}·${prodText(m)} = ${num(L(m))} + ${paren(C * prod(m))} = <b>${num(ans)}</b>.`,
     };
   },
 ];
@@ -494,11 +499,12 @@ const telescoping = [
     }[ask];
     return {
       topic: 'Telescoping sums', rank: { squares: 15, pairs: 17, cubes: 18, plus: 16 }[ask],
+      tip: 'Factor each term into two fractions, and watch each one cancel against a piece of a neighbouring term.',
       text: `What is ${ask === 'cubes' ? `${[2, 3, 4].map(shown).join(' · ')} · ⋯ · ${shown(N)}` : `${[from, from + 1, from + 2].map(shown).join('')}⋯${shown(N)}`}?`,
       answer: fchoices(d, ans, wrong),
       check: () => { let p = Q(1); for (let k = from; k <= N; k++) p = qmul(p, Q(...term(k))); return said(p, ans); },
       solution: {
-        squares: `Factor each term: 1 − ${over(1, sup('k', 2))} = ${over('(k − 1)(k + 1)', sup('k', 2))} = ${over('k − 1', 'k')} · ${over('k + 1', 'k')}. The parts ${over('k − 1', 'k')} are ${frac(1, 2)} · ${frac(2, 3)} ⋯ ${over(N - 1, N)}, which cancel down to ${frac(1, N)}, and the parts ${over('k + 1', 'k')} are ${over(3, 2)} · ${over(4, 3)} ⋯ ${over(A, N)}, which cancel down to ${frac(A, 2)}. So the product is ${frac(1, N)} · ${frac(A, 2)} = <b>${fr(ans)}</b>.`,
+        squares: `Each term factors as 1 − ${over(1, sup('k', 2))} = ${over('(k − 1)(k + 1)', sup('k', 2))} = ${over('k − 1', 'k')} · ${over('k + 1', 'k')}. The parts ${over('k − 1', 'k')} are ${frac(1, 2)} · ${frac(2, 3)} ⋯ ${over(N - 1, N)}, which cancel down to ${frac(1, N)}, and the parts ${over('k + 1', 'k')} are ${over(3, 2)} · ${over(4, 3)} ⋯ ${over(A, N)}, which cancel down to ${frac(A, 2)}. So the product is ${frac(1, N)} · ${frac(A, 2)} = <b>${fr(ans)}</b>.`,
         pairs: `Each term is ${over('k(k + 1) − 2', 'k(k + 1)')} = ${over('(k − 1)(k + 2)', 'k(k + 1)')} = ${over('k − 1', 'k')} · ${over('k + 2', 'k + 1')}. The parts ${over('k − 1', 'k')} cancel down to ${frac(1, N)}, and the parts ${over('k + 2', 'k + 1')} are ${over(4, 3)} · ${over(5, 4)} ⋯ ${over(B, A)}, which cancel down to ${frac(B, 3)}. So the product is ${frac(1, N)} · ${frac(B, 3)} = <b>${fr(ans)}</b>.`,
         cubes: `Factor: k<sup>3</sup> − 1 = (k − 1)(k<sup>2</sup> + k + 1) and k<sup>3</sup> + 1 = (k + 1)(k<sup>2</sup> − k + 1). The parts ${over('k − 1', 'k + 1')} are ${over(1, 3)} · ${over(2, 4)} · ${over(3, 5)} ⋯ ${over(N - 1, A)}, which cancel down to ${over('1·2', `${N}·${A}`)} = ${frac(2, N * A)}. The parts ${over(`${sup('k', 2)} + k + 1`, `${sup('k', 2)} − k + 1`)} cancel too, because k<sup>2</sup> + k + 1 is what k<sup>2</sup> − k + 1 becomes at k + 1: they are ${over(7, 3)} · ${over(13, 7)} ⋯ ${over(M, N * N - N + 1)}, which cancel down to ${frac(M, 3)}. So the product is ${frac(2, N * A)} · ${frac(M, 3)} = <b>${fr(ans)}</b>.`,
         plus: `Each term is ${over('k(k + 2) + 1', 'k(k + 2)')} = ${over(`(k + 1)<sup>2</sup>`, 'k(k + 2)')} = ${over('k + 1', 'k')} · ${over('k + 1', 'k + 2')}. The parts ${over('k + 1', 'k')} are ${over(2, 1)} · ${over(3, 2)} ⋯ ${over(A, N)}, which cancel down to ${A}, and the parts ${over('k + 1', 'k + 2')} are ${over(2, 3)} · ${over(3, 4)} ⋯ ${over(A, B)}, which cancel down to ${frac(2, B)}. So the product is ${A} · ${frac(2, B)} = <b>${fr(ans)}</b>.`,
@@ -552,7 +558,7 @@ const telescoping = [
       text: `For a positive integer n, the sum ${t(1, '√1', '√2')} + ${t(1, '√2', '√3')} + ${t(1, '√3', '√4')} + ⋯ + ${t(1, '√n', '√(n + 1)')} is equal to ${S}. What is n?`,
       answer: choices(d, n, [(S + 1) ** 2, S * S - 1, S * S, n - 1, (S + 2) ** 2 - 1]),
       check: () => { let sum = 0; for (let k = 1; k <= n; k++) sum += 1 / (Math.sqrt(k) + Math.sqrt(k + 1)); return near([sum, 0], S, 'sum'); },
-      solution: `Rationalize each term: (√(k + 1) + √k)(√(k + 1) − √k) = (k + 1) − k = 1, so ${t(1, '√k', '√(k + 1)')} = √(k + 1) − √k. So the sum telescopes to √(n + 1) − √1 = √(n + 1) − 1. Setting that equal to ${S} gives √(n + 1) = ${S + 1}, so n + 1 = ${(S + 1) ** 2} and n = <b>${num(n)}</b>.`,
+      solution: `Rationalize each term, using (√(k + 1) + √k)(√(k + 1) − √k) = (k + 1) − k = 1, so ${t(1, '√k', '√(k + 1)')} = √(k + 1) − √k. So the sum telescopes to √(n + 1) − √1 = √(n + 1) − 1. Setting that equal to ${S} gives √(n + 1) = ${S + 1}, so n + 1 = ${(S + 1) ** 2} and n = <b>${num(n)}</b>.`,
     };
   },
   // terms that are secretly a difference of neighbours: (2k + 1)/(k²(k + 1)²), k/(k + 1)!, k/(k⁴ + k² + 1), (3k² + 3k + 1)/(k³(k + 1)³)
@@ -586,7 +592,7 @@ const telescoping = [
       solution: {
         squares: `The top is the gap between the two squares below it: (k + 1)<sup>2</sup> − k<sup>2</sup> = 2k + 1. So each term is ${over(`(k + 1)<sup>2</sup> − ${sup('k', 2)}`, `${sup('k', 2)}(k + 1)<sup>2</sup>`)} = ${over(1, sup('k', 2))} − ${over(1, '(k + 1)<sup>2</sup>')}. Adding these for k = 1 to ${N}, everything cancels except 1 − ${over(1, sup(A, 2))} = <b>${fr(ans)}</b>.`,
         factorial: `Write the top as k = (k + 1) − 1. Then ${over('k', '(k + 1)!')} = ${over('k + 1', '(k + 1)!')} − ${over(1, '(k + 1)!')} = ${over(1, 'k!')} − ${over(1, '(k + 1)!')}. Adding these for k = 1 to ${N}, everything cancels except ${over(1, '1!')} − ${over(1, `${A}!`)} = 1 − ${frac(1, F)} = <b>${fr(ans)}</b>.`,
-        quartic: `The bottom factors: k<sup>4</sup> + k<sup>2</sup> + 1 = (k<sup>2</sup> + 1)<sup>2</sup> − k<sup>2</sup> = (k<sup>2</sup> − k + 1)(k<sup>2</sup> + k + 1). Those two factors differ by 2k, so each term is ${half}(${over(1, `${sup('k', 2)} − k + 1`)} − ${over(1, `${sup('k', 2)} + k + 1`)}). And k<sup>2</sup> + k + 1 is what k<sup>2</sup> − k + 1 becomes at k + 1, so adding these for k = 1 to ${N} leaves only ${half}(1 − ${frac(1, M)}) = <b>${fr(ans)}</b>.`,
+        quartic: `The bottom factors as k<sup>4</sup> + k<sup>2</sup> + 1 = (k<sup>2</sup> + 1)<sup>2</sup> − k<sup>2</sup> = (k<sup>2</sup> − k + 1)(k<sup>2</sup> + k + 1). Those two factors differ by 2k, so each term is ${half}(${over(1, `${sup('k', 2)} − k + 1`)} − ${over(1, `${sup('k', 2)} + k + 1`)}). And k<sup>2</sup> + k + 1 is what k<sup>2</sup> − k + 1 becomes at k + 1, so adding these for k = 1 to ${N} leaves only ${half}(1 − ${frac(1, M)}) = <b>${fr(ans)}</b>.`,
         cubes: `The top is the gap between the two cubes below it: (k + 1)<sup>3</sup> − k<sup>3</sup> = 3k<sup>2</sup> + 3k + 1. So each term is ${over(1, sup('k', 3))} − ${over(1, '(k + 1)<sup>3</sup>')}. Adding these for k = 1 to ${N}, everything cancels except 1 − ${over(1, sup(A, 3))} = <b>${fr(ans)}</b>.`,
       }[ask],
     };
@@ -626,7 +632,7 @@ const floors = [
         floor: '⌊√k⌋ = m exactly when m<sup>2</sup> ≤ k &lt; (m + 1)<sup>2</sup>, which happens for the 2m + 1 numbers from m<sup>2</sup> to m<sup>2</sup> + 2m.',
         ceil: '⌈√k⌉ = m exactly when (m − 1)<sup>2</sup> &lt; k ≤ m<sup>2</sup>, which happens for the 2m − 1 numbers from (m − 1)<sup>2</sup> + 1 to m<sup>2</sup>.',
         cube: '⌊∛k⌋ = m exactly when m<sup>3</sup> ≤ k &lt; (m + 1)<sup>3</sup>, which happens for the (m + 1)<sup>3</sup> − m<sup>3</sup> = 3m<sup>2</sup> + 3m + 1 numbers from m<sup>3</sup> to m<sup>3</sup> + 3m<sup>2</sup> + 3m.',
-      }[ask]} So 1 appears ${times(len(1))}, 2 appears ${times(len(2))}, and so on up to ${M - 1}, which appears ${times(len(M - 1))}; then ${M} appears from ${start} to ${N}, ${times(cnt)}. The complete groups add up to ${brief(range(1, M - 1).map((m) => `${m}·${len(m)}`))} = ${num(full)}, and the last one gives ${M}·${cnt} = ${num(M * cnt)}. So the sum is ${num(full)} + ${num(M * cnt)} = <b>${num(ans)}</b>.`,
+      }[ask]} So 1 appears ${times(len(1))}, 2 appears ${times(len(2))}, and so on up to ${M - 1}, which appears ${times(len(M - 1))}; then ${M} appears from ${start} to ${N}, ${times(cnt)}. ${ask !== 'cube' && M > 6 ? 'Using 1<sup>2</sup> + 2<sup>2</sup> + ⋯ + n<sup>2</sup> = n(n + 1)(2n + 1)/6, the' : 'The'} complete groups add up to ${brief(range(1, M - 1).map((m) => `${m}·${len(m)}`))}${ask !== 'cube' && M > 6 ? ` = 2(1<sup>2</sup> + ⋯ + ${M - 1}<sup>2</sup>) ${ask === 'floor' ? '+' : '−'} (1 + ⋯ + ${M - 1}) = 2·${num(((M - 1) * M * (2 * M - 1)) / 6)} ${ask === 'floor' ? '+' : '−'} ${num(((M - 1) * M) / 2)}` : ''} = ${num(full)}, and the last one gives ${M}·${cnt} = ${num(M * cnt)}. So the sum is ${num(full)} + ${num(M * cnt)} = <b>${num(ans)}</b>.`,
     };
   },
   // how many n up to N have ⌊√n⌋ (or ⌊√n⌋ + 1, or ⌊∛n⌋) dividing n: the same few in every complete group
@@ -705,6 +711,7 @@ const floors = [
     const ans = ask === 'count' ? good.length : total;
     return {
       topic: 'Floors and square roots', rank: ask === 'count' ? 17 : 18,
+      tip: 'Call n = ⌊x⌋, solve for x in terms of n, then keep only the n for which n ≤ x < n + 1.',
       text: ask === 'count' ? `How many real numbers x satisfy x<sup>2</sup> + ${b} = ${a}⌊x⌋? ${FLOOR}` : `What is the sum of the squares of all the real numbers x with x<sup>2</sup> + ${b} = ${a}⌊x⌋? ${FLOOR}`,
       answer: choices(d, ans, ask === 'count' ? [cand.length, 2 * good.length, 2 * cand.length, good.length + 1, good.length - 1]
         : [cand.reduce((x, n) => x + a * n - b, 0), good.reduce((x, n) => x + n * n, 0), total + good.length, total - good.length]),
@@ -767,9 +774,9 @@ const repeating = [
         for (let n = 1; n <= N; n++) { acc = ask === 'product' ? qmul(acc, a) : qadd(acc, a); a = rule === 'three' ? qdiv(Q(1), qsub(Q(1), a)) : qdiv(qadd(Q(1), a), qsub(Q(1), a)); }
         return said(acc, ans);
       },
-      solution: `Work out a few terms: ${o.map((v, i) => `${an(i + 1)} = ${fr(v)}`).join(', ')}, and then ${an(P + 1)} = ${fr(x0)} again, so the terms repeat every ${P}. Each block of ${P} terms in a row ${ask === 'product' ? `multiplies to ${o.map(pf).join('·')} = ${fr(cycleP)}` : `adds up to ${o.map(pf).join(' + ')} = ${fr(cycleS)}`}. ${N} = ${P}·${q} + ${r}, so the first ${N} terms are ${q} full blocks and then ${r === 1 ? `one more term, ${fr(first[0])}` : `${r} more terms, ${listing(first.map(fr))}, which ${ask === 'product' ? `multiply to ${fr(partP)}` : `add up to ${fr(partS)}`}`}. So the ${ask} is ${ask === 'product'
+      solution: `The first few terms are ${o.map((v, i) => `${an(i + 1)} = ${fr(v)}`).join(', ')}, and then ${an(P + 1)} = ${fr(x0)} again, so the terms repeat every ${P}. Each block of ${P} terms in a row ${ask === 'product' ? `multiplies to ${o.map(pf).join('·')} = ${fr(cycleP)}` : `adds up to ${o.map(pf).join(' + ')} = ${fr(cycleS)}`}. ${N} = ${P}·${q} + ${r}, so the first ${N} terms are ${q} full blocks and then ${r === 1 ? `one more term, ${fr(first[0])}` : `${r} more terms, ${listing(first.map(fr))}, which ${ask === 'product' ? `multiply to ${fr(partP)}` : `add up to ${fr(partS)}`}`}. So the ${ask} is ${ask === 'product'
         ? `${cycleP[0] < 0 ? `(−1)<sup>${q}</sup>` : `1<sup>${q}</sup>`}·${pf(partP)}`
-        : `${q}·${pf(cycleS)} + ${pf(partS)}`} = <b>${fr(ans)}</b>.`,
+        : `${q}·${pf(cycleS)} + ${pf(partS)} = ${fr(fmul(cycleS, [q, 1]))} + ${pf(partS)}`} = <b>${fr(ans)}</b>.`,
     };
   },
   // a(n+2) = a(n+1) − a(n) repeats every 6, and any 6 terms in a row add up to 0: sums of the first N terms
@@ -784,7 +791,7 @@ const repeating = [
         text: `A sequence has ${an(1)} = ${num(x)}, ${an(2)} = ${num(y)}, and ${an('n+2')} = ${an('n+1')} − ${an('n')} for every n ≥ 1. What is ${an(1)} + ${an(2)} + ${an(3)} + ⋯ + ${an(N)}?`,
         answer: choices(d, ans, [S((r + 1) % 6), S((r + 5) % 6), T(r % 6), 0, x + y]),
         check: () => { let [p, q] = [x, y], sum = 0; for (let n = 1; n <= N; n++) { sum += p; [p, q] = [q, q - p]; } return sum === ans ? '' : `added up to ${sum}`; },
-        solution: `Write out the terms: ${num(x)}, ${num(y)}, ${num(y - x)}, ${num(-x)}, ${num(-y)}, ${num(x - y)}, and then ${num(x)}, ${num(y)} again, since each term depends only on the two before it. So the terms repeat every 6, and each block of 6 adds up to 0. ${N} = 6·${(N - r) / 6} + ${r}, so the sum is just ${r === 1 ? `the first term, <b>${num(ans)}</b>` : `that of the first ${r} terms, ${plusList([x, y, y - x, -x, -y].slice(0, r))} = <b>${num(ans)}</b>`}.`,
+        solution: `The terms are ${num(x)}, ${num(y)}, ${num(y - x)}, ${num(-x)}, ${num(-y)}, ${num(x - y)}, and then ${num(x)}, ${num(y)} again. Each term depends only on the two before it, so the terms repeat every 6, and each block of 6 adds up to 0. ${N} = 6·${(N - r) / 6} + ${r}, so the sum is just ${r === 1 ? `the first term, <b>${num(ans)}</b>` : `that of the first ${r} terms, ${plusList([x, y, y - x, -x, -y].slice(0, r))} = <b>${num(ans)}</b>`}.`,
       };
     }
     // two facts about the sequence pick out x and y; then a third sum
@@ -792,7 +799,9 @@ const repeating = [
     const pairs = rs.flatMap((i) => rs.filter((j) => j !== i && given[i][0] * given[j][1] - given[i][1] * given[j][0] !== 0 && (ask === 'sums' || [3, 0].includes(i) || [3, 0].includes(j))).map((j) => [i, j]));
     const [rA, rB] = d.pick(pairs), rC = d.pick([1, 2, 3, 4, 5].filter((k) => k !== rA && k !== rB && S(k) !== 0));
     const A = big(rA), B = big(rB), C = big(rC), U = ask === 'terms' ? T(rA) : S(rA), V = ask === 'terms' ? T(rB) : S(rB), ans = S(rC);
-    const what = ask === 'terms' ? (k) => `${an(k)}` : (k) => `the sum of the first ${k} terms`;
+    // the first r terms written out in x and y, and what K's remainder rK says about term K (or the first K terms)
+    const firstR = (r) => ['x', 'y', '(y − x)', '(−x)', '(−y)'].slice(0, r).join(' + ');
+    const say = (K, rK) => (ask === 'terms' ? `${an(K)} = ${an(rK || 6)} = ${xy(SIX_T[rK])}` : rK === 1 ? `the sum of the first ${K} terms is just x` : `the sum of the first ${K} terms is ${firstR(rK)} = ${xy(SIX_S[rK])}`);
     return {
       topic: 'Repeating patterns', rank: ask === 'terms' ? 16 : 18,
       text: ask === 'terms'
@@ -806,7 +815,7 @@ const repeating = [
         const k = ask === 'terms' ? 0 : 1;
         return seen[A][k] === U && seen[B][k] === V && seen[C][1] === ans ? '' : 'the sequence does not fit';
       },
-      solution: `Call the first two terms x and y. The terms go x, y, y − x, −x, −y, x − y, and then x, y again, so they repeat every 6 and each block of 6 adds up to 0; so ${ask === 'terms' ? 'a term' : 'the sum of the first n terms'} depends only on the remainder when its position is divided by 6. ${A} leaves remainder ${rA}, so ${what(A)} is ${xy(given[rA])}, and ${B} leaves remainder ${rB}, so ${what(B)} is ${xy(given[rB])}. Solving ${xy(given[rA])} = ${num(U)} and ${xy(given[rB])} = ${num(V)} gives x = ${num(x)} and y = ${num(y)}. ${C} leaves remainder ${rC}, so the first ${C} terms add up to the first ${rC}, which is ${xy(SIX_S[rC])} = <b>${num(ans)}</b>.`,
+      solution: `Call the first two terms x and y. The terms go x, y, y − x, −x, −y, x − y, and then x, y again, so they repeat every 6 and each block of 6 adds up to 0. So ${ask === 'terms' ? 'a term depends only on the remainder when its position is divided by 6' : 'the sum of the first n terms depends only on the remainder when n is divided by 6'}. ${A} leaves remainder ${rA}, so ${say(A, rA)}, and ${B} leaves remainder ${rB}, so ${say(B, rB)}. Solving ${xy(given[rA])} = ${num(U)} and ${xy(given[rB])} = ${num(V)} gives x = ${num(x)} and y = ${num(y)}. ${C} leaves remainder ${rC}, so the first ${C} terms add up to ${rC === 1 ? 'just the first term, x' : `the same as the first ${rC}, ${firstR(rC)} = ${xy(SIX_S[rC])}`} = <b>${num(ans)}</b>.`,
     };
   },
   // blocks that grow: 1, 2, 2, 3, 3, 3, … (each n written n times) or 1; 1, 2; 1, 2, 3; …: a far term, or a long sum
@@ -817,6 +826,7 @@ const repeating = [
     const reps = ask === 'term' || ask === 'sum';
     return {
       topic: 'Repeating patterns', rank: { term: 14, row: 15, sum: 16, rowsum: 16 }[ask],
+      tip: 'The blocks end at the triangular numbers 1, 3, 6, 10, …, so find the two that the position falls between.',
       text: (reps ? 'In the sequence 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, …, each positive integer n appears n times in a row.' : 'The sequence 1, 1, 2, 1, 2, 3, 1, 2, 3, 4, 1, … counts from 1 up to 1, then from 1 up to 2, then from 1 up to 3, and so on.')
         + (ask === 'term' || ask === 'row' ? ` What is its ${ord(N)} term?` : ` What is the sum of its first ${num(N)} terms?`),
       answer: choices(d, ans, {
@@ -830,12 +840,12 @@ const repeating = [
         return got === ans ? '' : `the sequence gives ${got}`;
       },
       solution: reps
-        ? `The block of m's ends at position 1 + 2 + ⋯ + m = ${over('m(m + 1)', 2)}${ask === 'sum' ? ' and adds up to m·m = m<sup>2</sup>' : ''}. Since ${num(tri(n - 1))} &lt; ${num(N)} ≤ ${num(tri(n))}, the ${ord(N)} term is in the block of ${n}s${ask === 'sum' ? `, and it is the ${ord(r)} ${n} there` : ''}. ${ask === 'term'
-          ? `So it is <b>${n}</b>.`
+        ? `The block of m’s ends at position 1 + 2 + ⋯ + m = ${over('m(m + 1)', 2)}${ask === 'sum' ? ' and adds up to m·m = m<sup>2</sup>' : ''}. Since ${n - 1}·${n}/2 = ${num(tri(n - 1))} &lt; ${num(N)} ≤ ${num(tri(n))} = ${n}·${n + 1}/2, the ${ord(N)} term is in the block of ${n}s${ask === 'sum' ? `, and it is the ${ord(r)} ${n} there` : ''}. ${ask === 'term'
+          ? `So the ${ord(N)} term is <b>${n}</b>.`
           : `So the first ${num(N)} terms are the complete blocks up to ${n - 1} and then ${r} copies of ${n}. Using 1<sup>2</sup> + 2<sup>2</sup> + ⋯ + k<sup>2</sup> = ${over('k(k + 1)(2k + 1)', 6)}, their sum is ${num(sq)} + ${r}·${n} = <b>${num(ans)}</b>.`}`
-        : `Row k is 1, 2, …, k, so it ends at position 1 + 2 + ⋯ + k = ${over('k(k + 1)', 2)}${ask === 'rowsum' ? ' and adds up to that same number' : ''}. Since ${num(tri(n - 1))} &lt; ${num(N)} ≤ ${num(tri(n))}, the ${ord(N)} term is in row ${n}, in place ${num(N)} − ${num(tri(n - 1))} = ${r} there. ${ask === 'row'
-          ? `So it is <b>${r}</b>.`
-          : `So the first ${num(N)} terms are the complete rows 1 to ${n - 1} and then 1, 2, …, ${r}. Since 1 + 3 + 6 + ⋯ + ${over('k(k + 1)', 2)} = ${over('k(k + 1)(k + 2)', 6)}, the complete rows add up to ${over(`${n - 1}·${n}·${n + 1}`, 6)} = ${num(tet)}, and the rest adds 1 + 2 + ⋯ + ${r} = ${tri(r)}. So the sum is ${num(tet)} + ${tri(r)} = <b>${num(ans)}</b>.`}`,
+        : `Row k is 1, 2, …, k, so it ends at position 1 + 2 + ⋯ + k = ${over('k(k + 1)', 2)}${ask === 'rowsum' ? ' and adds up to that same number' : ''}. Since ${n - 1}·${n}/2 = ${num(tri(n - 1))} &lt; ${num(N)} ≤ ${num(tri(n))} = ${n}·${n + 1}/2, the ${ord(N)} term is in row ${n}, in place ${num(N)} − ${num(tri(n - 1))} = ${r} there. ${ask === 'row'
+          ? `So the ${ord(N)} term is <b>${r}</b>.`
+          : `So the first ${num(N)} terms are the complete rows 1 to ${n - 1} and then 1, 2, …, ${r}. Since 1 + 3 + 6 + ⋯ + ${over('k(k + 1)', 2)} = ${over('k(k + 1)(k + 2)', 6)}, the complete rows add up to ${over(`${n - 1}·${n}·${n + 1}`, 6)} = ${num(tet)}, and the rest adds 1 + 2 + ⋯ + ${r} = ${r}·${r + 1}/2 = ${num(tri(r))}. So the sum is ${num(tet)} + ${tri(r)} = <b>${num(ans)}</b>.`}`,
     };
   },
   // a function applied over and over: a fraction rule that comes back after 3, 4 or 6 steps, sums of digit squares, or halving
@@ -855,7 +865,7 @@ const repeating = [
         text: `Let f(x) = ${over(linear(p, q), linear(rr, s))}. ${name} starts with ${fr(x0)} and applies f again and again: ${fr(x0)}, f(${fr(x0)}), f(f(${fr(x0)})), and so on. What number does ${name} have after applying f ${num(M)} times?`,
         answer: fchoices(d, ans, [...o.filter((x) => x !== ans), cut(-x0[0], x0[1])]),
         check: () => { let a = Q(...x0); for (let i = 0; i < M; i++) a = qdiv(qadd(qmul(Q(p), a), Q(q)), qadd(qmul(Q(rr), a), Q(s))); return said(a, ans); },
-        solution: `Work out the first few values: ${[...o, x0].map(fr).join(' → ')}. So after ${P} steps the starting number comes back, and from then on everything repeats every ${P} steps. ${num(M)} = ${P}·${Math.floor(M / P)} + ${r}, so after ${num(M)} steps ${name} has the same number as after ${r} step${r > 1 ? 's' : ''}, which is <b>${fr(ans)}</b>.`,
+        solution: `The first few values are ${[...o, x0].map(fr).join(' → ')}. So after ${P} steps the starting number comes back, and from then on everything repeats every ${P} steps. ${num(M)} = ${P}·${Math.floor(M / P)} + ${r}, so after ${num(M)} steps ${name} has the same number as after ${r} step${r > 1 ? 's' : ''}, which is <b>${fr(ans)}</b>.`,
       };
     }
     const f = ask === 'digits' ? digitSq : (x) => (x % 2 ? x + v[0] : x / 2), n0 = ask === 'digits' ? v[0] : v[1];
@@ -868,7 +878,7 @@ const repeating = [
         : `${name} starts with ${n0}. At each step, an even number is halved and an odd number has ${v[0]} added to it. What is the number after ${num(N)} steps?`,
       answer: choices(d, ans, [at(N + 1), at(N - 1), at(N + 2), ...cycle, ...seq.slice(-4), n0]),
       check: () => { let x = n0; for (let i = 0; i < N; i++) x = f(x); return x === ans ? '' : `after ${N} steps it is ${x}`; },
-      solution: `Follow the numbers: ${seq.join(' → ')} → ${seq[start]}. ${L === 1 ? `From ${seq[start]} on the number never changes` : `From ${seq[start]} on they go round a cycle of ${L} numbers (${cycle.join(', ')})`}, and the start reaches ${seq[start]} after ${start} step${start === 1 ? '' : 's'}. ${L === 1 ? `So after ${num(N)} steps the number is still <b>${ans}</b>.` : `After ${num(N)} steps we are ${num(N - start)} steps into the cycle, and ${(N - start) % L ? `${num(N - start)} = ${L}·${Math.floor((N - start) / L)} + ${(N - start) % L}, so the number is <b>${ans}</b>` : `${num(N - start)} is a whole number of turns round it (${L}·${Math.floor((N - start) / L)}), so the number is back at <b>${ans}</b>`}.`}`,
+      solution: `The numbers go ${seq.join(' → ')} → ${seq[start]}. ${L === 1 ? `From ${seq[start]} on the number never changes` : `From ${seq[start]} on they go round a cycle of ${L} numbers (${cycle.join(', ')})`}, and the start reaches ${seq[start]} after ${start} step${start === 1 ? '' : 's'}. ${L === 1 ? `So after ${num(N)} steps the number is still <b>${ans}</b>.` : `After ${num(N)} steps we are ${num(N - start)} steps into the cycle, and ${(N - start) % L ? `${num(N - start)} = ${L}·${Math.floor((N - start) / L)} + ${(N - start) % L}, so the number is <b>${ans}</b>` : `${num(N - start)} is a whole number of turns round it (${L}·${Math.floor((N - start) / L)}), so the number is back at <b>${ans}</b>`}.`}`,
     };
   },
 ];

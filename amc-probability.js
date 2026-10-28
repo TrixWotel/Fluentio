@@ -6,6 +6,15 @@ import { choices, showFrac, range } from './amc-kit.js';
 
 const cut = (p, q) => { const g = gcd(p, q) || 1; return [p / g, q / g]; };
 const fr = ([p, q]) => frac(p, q);
+// a fraction as written, not reduced (for working that goes on to reduce it)
+const raw = (p, q) => `<span class="fr"><span>${num(p)}</span><span>${num(q)}</span></span>`;
+// "p/q = " before a fraction that reduces, nothing when p/q is already in lowest terms
+const ratio = (p, q) => (gcd(p, q) === 1 ? '' : `${num(p)}/${num(q)} = `);
+const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+const Cap = (s) => s[0].toUpperCase() + s.slice(1);
+const listOr = (xs) => (xs.length < 2 ? String(xs[0]) : `${xs.slice(0, -1).join(', ')} or ${xs.at(-1)}`);
+// √v, or its whole-number root when v is a perfect square
+const root = (v) => (Number.isInteger(Math.sqrt(v)) ? String(Math.sqrt(v)) : `√${v}`);
 const sum = ([p, q]) => p + q;
 const under1 = ([p, q]) => p > 0 && p < q;
 // combo, with a name of its own for each kind of question, so no two kinds share a list of combinations
@@ -41,7 +50,7 @@ export const probability = {
       const a = p1 / q1, b = p2 / q2, g = gcd(wA, wB);
       return {
         topic: 'Taking turns', rank: 18,
-        text: `${P} and ${Q} take turns throwing a ball at a can, ${P} first. Each of ${P}'s throws knocks the can over with probability ${frac(p1, q1)}, and each of ${Q}'s with probability ${frac(p2, q2)}, all independently. The first to knock it over wins. What is the probability that ${who} wins?`,
+        text: `${P} and ${Q} take turns throwing a ball at a can, ${P} first. Each of ${P}’s throws knocks the can over with probability ${frac(p1, q1)}, and each of ${Q}’s with probability ${frac(p2, q2)}, all independently. The first to knock it over wins. What is the probability that ${who} wins?`,
         answer: choices(d, ans, [second ? cut(p2 * q1, p1 * q2 + p2 * q1) : cut(p1 * q2, p1 * q2 + p2 * q1), second ? cut(wB, q1 * q2) : [p1, q1], cut(second ? wA : wB, wA + wB), [1, 2],
           second ? [p2, q2] : cut(p1 * (q2 - p2), q1 * q2), [q1 - p1, q1], [1, 3]].filter(under1), showFrac),
         check: () => {
@@ -49,7 +58,7 @@ export const probability = {
           for (let i = 0; i < 4000; i++) { s += second ? r * (1 - a) * b : r * a; r *= (1 - a) * (1 - b); }
           return Math.abs(s - ans[0] / ans[1]) < 1e-12 ? '' : `series gives ${s}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `Think in rounds: ${P} throws, then ${Q}. A round ends with ${P} winning with probability ${frac(p1, q1)}, ends with ${Q} winning with probability ${frac(q1 - p1, q1)}·${frac(p2, q2)} = ${frac(wB, q1 * q2)}, and otherwise the game starts over exactly as before. So only those two endings matter, in the ratio ${frac(p1, q1)} : ${frac(wB, q1 * q2)} = ${wA / g} : ${wB / g}, and ${who} wins with probability ${(second ? wB : wA) / g}/(${wA / g} + ${wB / g}) = <b>${fr(ans)}</b>.`,
+        solution: `Think in rounds of two throws, ${P}’s and then ${Q}’s. A round ends with ${P} winning with probability ${frac(p1, q1)}, ends with ${Q} winning with probability ${frac(q1 - p1, q1)}·${frac(p2, q2)} = ${frac(wB, q1 * q2)} (${Q} only throws after a miss), and otherwise the game starts over exactly as before. So only those two endings matter. With the common denominator ${q1 * q2} they are ${raw(wA, q1 * q2)} and ${raw(wB, q1 * q2)}, in the ratio ${wA} : ${wB}${g > 1 ? ` = ${wA / g} : ${wB / g}` : ''}, so ${who} wins with probability ${(second ? wB : wA) / g}/(${wA / g} + ${wB / g}) = <b>${fr(ans)}</b>.`,
       };
     },
     // a fair game: the chance the second player needs so that both are equally likely to win
@@ -58,7 +67,7 @@ export const probability = {
       const [P, Q] = d.pick(NAMES), b = cut(p, q - p), a = p / q;
       return {
         topic: 'Taking turns', rank: 17,
-        text: `${P} and ${Q} take turns shooting at a target, ${P} first, and the first to hit it wins. Each of ${P}'s shots hits with probability ${frac(p, q)}. What must the probability of each of ${Q}'s shots be for the game to be fair, with each of them equally likely to win?`,
+        text: `${P} and ${Q} take turns shooting at a target, ${P} first, and the first to hit it wins. Each of ${P}’s shots hits with probability ${frac(p, q)}. What must the probability of each of ${Q}’s shots be for the game to be fair, with each of them equally likely to win?`,
         answer: choices(d, b, [[p, q], cut(q - p, q), [1, 2], cut(p, q + p), cut(2 * p, q)].filter(under1), showFrac),
         check: () => {
           const bb = b[0] / b[1];
@@ -66,7 +75,7 @@ export const probability = {
           for (let i = 0; i < 4000; i++) { s += r * a; r *= (1 - a) * (1 - bb); }
           return b[0] < b[1] && Math.abs(s - 0.5) < 1e-12 ? '' : `${P} wins with probability ${s}`;
         },
-        solution: `Look at one round. ${P} wins it with probability ${frac(p, q)}; ${Q} only shoots after a miss, so ${Q} wins it with probability ${frac(q - p, q)}·b; otherwise the game starts over. The game is fair when those two endings are equally likely: ${frac(p, q)} = ${frac(q - p, q)}·b, so b = ${p}/${q - p} = <b>${fr(b)}</b>.`,
+        solution: `Call the chance of each of ${Q}’s shots b, and look at one round. ${P} wins it with probability ${frac(p, q)}; ${Q} only shoots after a miss, so ${Q} wins it with probability ${frac(q - p, q)}·b; otherwise the game starts over. The game is fair when those two endings are equally likely, ${frac(p, q)} = ${frac(q - p, q)}·b, so b = ${frac(p, q)} ÷ ${frac(q - p, q)} = <b>${fr(b)}</b>.`,
       };
     },
     // three players in turn, all with the same chance
@@ -82,7 +91,7 @@ export const probability = {
           for (let i = 0; i < 3000; i++) { s += r * (1 - a) ** who * a; r *= (1 - a) ** 3; }
           return Math.abs(s - ans[0] / ans[1]) < 1e-12 ? '' : `series gives ${s}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `Look at one round of three rolls. ${names[0]} wins it with probability ${frac(p, q)}, ${names[1]} with ${frac(m, q)}·${frac(p, q)} (only after a miss), ${names[2]} with (${frac(m, q)})<sup>2</sup>·${frac(p, q)}, and otherwise the round starts over. So their chances are in the ratio 1 : ${frac(m, q)} : (${frac(m, q)})<sup>2</sup> = ${w.join(' : ')}, and ${names[who]} wins with probability ${w[who]}/${S} = <b>${fr(ans)}</b>.`,
+        solution: `Look at one round of three rolls. ${names[0]} wins it with probability ${frac(p, q)}, ${names[1]} with ${frac(m, q)}·${frac(p, q)} (only after a miss), ${names[2]} with (${frac(m, q)})<sup>2</sup>·${frac(p, q)}, and otherwise the game starts over exactly as before. Dividing each by ${frac(p, q)}, their chances are in the ratio 1 : ${frac(m, q)} : (${frac(m, q)})<sup>2</sup>, and multiplying by ${q * q} turns that into ${w.join(' : ')}. So ${names[who]} wins with probability ${w[who]}/(${w.join(' + ')}) = <b>${fr(ans)}</b>.`,
       };
     },
     // a time limit: each player only gets n tries
@@ -91,10 +100,11 @@ export const probability = {
       const [P, Q] = d.pick(NAMES), Q1 = q1 * q2, R = (q1 - p1) * (q2 - p2), win = second ? (q1 - p1) * p2 : p1 * q2;
       let top = 0;
       for (let i = 0; i < n; i++) top += R ** i * win * Q1 ** (n - 1 - i);
-      const ans = cut(top, Q1 ** n), r = cut(R, Q1);
+      const ans = cut(top, Q1 ** n), r = cut(R, Q1), many = range(0, n - 1).reduce((s, i) => s + R ** i * Q1 ** (n - 1 - i), 0);
       return {
         topic: 'Taking turns', rank: 16,
-        text: `${P} and ${Q} take turns at a basketball shot, ${P} first, and the first to score wins. Each of ${P}'s shots goes in with probability ${frac(p1, q1)}, and each of ${Q}'s with probability ${frac(p2, q2)}. They only have time for ${n} shots each; if nobody has scored by then, nobody wins. What is the probability that ${second ? Q : P} wins?`,
+        tip: 'Find the chance that one round ends with this player scoring and the chance that nobody scores in it, then add up this player’s chances over the rounds there is time for.',
+        text: `${P} and ${Q} take turns at a basketball shot, ${P} first, and the first to score wins. Each of ${P}’s shots goes in with probability ${frac(p1, q1)}, and each of ${Q}’s with probability ${frac(p2, q2)}. They only have time for ${n} shots each; if nobody has scored by then, nobody wins. What is the probability that ${second ? Q : P} wins?`,
         answer: choices(d, ans, [cut(win, Q1 - R), cut(win, Q1), cut(Q1 ** n - R ** n, Q1 ** n), cut(top - R ** (n - 1) * win, Q1 ** n), cut(n * win, Q1)].filter(under1), showFrac),
         check: () => {
           // every way the 2n shots could go, weighted, and who scores first
@@ -107,7 +117,7 @@ export const probability = {
           }
           return good * ans[1] === all * ans[0] ? '' : `counted ${good}/${all}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `A round (one shot each) ends with ${P} scoring with probability ${frac(p1, q1)}, with ${Q} scoring with probability ${frac(q1 - p1, q1)}·${frac(p2, q2)} = ${frac((q1 - p1) * p2, Q1)}, and with both missing with probability r = ${fr(r)}; only a double miss leads to another round. So ${second ? Q : P} wins in round ${n === 3 ? '1, 2 or 3' : '1 or 2'} with probability ${frac(win, Q1)}·(1 + ${fr(r)}${n === 3 ? ` + (${fr(r)})<sup>2</sup>` : ''}) = <b>${fr(ans)}</b>.`,
+        solution: `A round (one shot each) ends with ${P} scoring with probability ${frac(p1, q1)}, with ${Q} scoring with probability ${frac(q1 - p1, q1)}·${frac(p2, q2)} = ${frac((q1 - p1) * p2, Q1)}, and with both missing with probability r = ${frac(q1 - p1, q1)}·${frac(q2 - p2, q2)} = ${fr(r)}; only a double miss leads to another round. So ${second ? Q : P} wins in round ${n === 3 ? '1, 2 or 3' : '1 or 2'} with probability ${frac(win, Q1)}·(1 + ${fr(r)}${n === 3 ? ` + (${fr(r)})<sup>2</sup>` : ''}) = ${frac(win, Q1)}·${frac(many, Q1 ** (n - 1))} = <b>${fr(ans)}</b>.`,
       };
     },
   ],
@@ -131,8 +141,8 @@ export const probability = {
           return (N * good) / base ** k === E ? '' : `counted ${(N * good) / base ** k}, said ${E}`;
         },
         solution: kind === 'coin'
-          ? `A student ends without heads only if all ${k} flips are tails, which has probability (${frac(1, 2)})<sup>${k}</sup> = ${miss}. So each student ends with heads with probability ${hit}, and by linearity of expectation the expected number is ${N}·${hit} = <b>${num(E)}</b>.`
-          : `A player ends without a 5 or 6 only if all ${k} rolls miss, which has probability (${frac(2, 3)})<sup>${k}</sup> = ${miss}. So each player succeeds with probability ${hit}, and by linearity of expectation the expected number is ${N}·${hit} = <b>${num(E)}</b>.`,
+          ? `A student ends without heads only if all ${k} flips are tails, which has probability (${frac(1, 2)})<sup>${k}</sup> = ${miss}. So each student ends with heads with probability 1 − ${miss} = ${hit}, and by linearity of expectation the expected number is ${N}·${hit} = ${N / base ** k}·${base ** k - (base - 1) ** k} = <b>${num(E)}</b>.`
+          : `A player ends without a 5 or 6 only if all ${k} rolls miss, which has probability (${frac(2, 3)})<sup>${k}</sup> = ${miss}. So each player succeeds with probability 1 − ${miss} = ${hit}, and by linearity of expectation the expected number is ${N}·${hit} = ${N / base ** k}·${base ** k - (base - 1) ** k} = <b>${num(E)}</b>.`,
       };
     },
     // the same games, but the expected number of tries used
@@ -152,7 +162,7 @@ export const probability = {
           for (let s = 0; s < base ** k; s++) { let x = s, t = k; for (let i = 0; i < k; i++) { if (x % base === 0) { t = i + 1; break; } x = Math.floor(x / base); } tries += t; }
           return (N * tries) / base ** k === E ? '' : `counted ${(N * tries) / base ** k}, said ${E}`;
         },
-        solution: `By linearity, add up each person's expected number of ${word}s. The first ${word} always happens; the next happens only if every ${word} before it failed, so the j-th happens with probability (${frac(base - 1, base)})<sup>j−1</sup>. One person expects 1 + ${frac(base - 1, base)}${k > 2 ? ` + (${frac(base - 1, base)})<sup>2</sup>` : ''}${k > 3 ? ` + (${frac(base - 1, base)})<sup>3</sup>` : ''} = ${frac(E, N)} ${word}s, so ${N} people expect ${N}·${frac(E, N)} = <b>${num(E)}</b>.`,
+        solution: `By linearity, add up each person’s expected number of ${word}s. The first ${word} always happens; the next happens only if every ${word} before it failed, so the j-th happens with probability (${frac(base - 1, base)})<sup>j−1</sup>. One person expects 1 + ${frac(base - 1, base)}${k > 2 ? ` + (${frac(base - 1, base)})<sup>2</sup>` : ''}${k > 3 ? ` + (${frac(base - 1, base)})<sup>3</sup>` : ''} = ${frac(E, N)} ${word}s, so ${N} people expect ${N}·${frac(E, N)} = <b>${num(E)}</b>.`,
       };
     },
     // how many different numbers show on a handful of dice: one yes-or-no count per number
@@ -161,14 +171,14 @@ export const probability = {
       const E = cut(s ** n - (s - 1) ** n, s ** (n - 1)), shows = frac(s ** n - (s - 1) ** n, s ** n);
       return {
         topic: 'Expected value', rank: 19,
-        text: `${n} fair ${s}-sided dice, numbered 1 to ${s}, are rolled. What is the expected number of different numbers that show?`,
+        text: `${Cap(WORDS[n])} fair ${s}-sided dice, numbered 1 to ${s}, are rolled. What is the expected number of different numbers that show?`,
         answer: choices(d, E, [[n, 1], cut(n * s - choose(n, 2), s), cut(s ** n - (s - 1) ** n, s ** n), cut((s - 1) ** n, s ** (n - 1)), cut(n * (s + 1), 2 * s)], showFrac),
         check: () => {
           let total = 0, all = 0;
           for (const r of rolls(n, s)) { total += new Set(r).size; all++; }
           return total * E[1] === all * E[0] ? '' : `counted ${total}/${all}, said ${E[0]}/${E[1]}`;
         },
-        solution: `Count with one yes-or-no question per number. A given number is missed by all ${n} dice with probability (${frac(s - 1, s)})<sup>${n}</sup>, so it shows with probability 1 − (${frac(s - 1, s)})<sup>${n}</sup> = ${shows}. By linearity of expectation, add that up over the ${s} numbers: ${s}·${shows} = <b>${fr(E)}</b>.`,
+        solution: `Count with one yes-or-no question per number. A given number is missed by ${n === 2 ? 'both' : `all ${n}`} dice with probability (${frac(s - 1, s)})<sup>${n}</sup>, so it shows with probability 1 − (${frac(s - 1, s)})<sup>${n}</sup> = ${shows}. By linearity of expectation, adding that up over the ${s} numbers gives ${s}·${shows} = <b>${fr(E)}</b>.`,
       };
     },
     // back-to-back heads in a row of tosses: overlapping pairs still add by linearity
@@ -188,7 +198,7 @@ export const probability = {
           }
           return total * E[1] === b ** n * E[0] ? '' : `counted ${total}/${b ** n}, said ${E[0]}/${E[1]}`;
         },
-        solution: `There are ${n - 1} places where two tosses sit side by side (tosses 1 and 2, 2 and 3, …, ${n - 1} and ${n}), and each of them is two heads with probability (${frac(a, b)})<sup>2</sup> = ${frac(a * a, b * b)}. Linearity of expectation doesn't mind that the places overlap, so the expected count is ${n - 1}·${frac(a * a, b * b)} = <b>${fr(E)}</b>.`,
+        solution: `There are ${n - 1} places where two tosses sit side by side (tosses 1 and 2, 2 and 3, …, ${n - 1} and ${n}), and each of them is two heads with probability (${frac(a, b)})<sup>2</sup> = ${frac(a * a, b * b)}. Linearity of expectation doesn’t mind that the places overlap, so the expected count is ${n - 1}·${frac(a * a, b * b)} = <b>${fr(E)}</b>.`,
       };
     },
   ],
@@ -205,15 +215,16 @@ export const probability = {
         solution: `Every die shows at least 1, which uses up ${n} of the ${s}. The other ${e} pips can be shared among the ${n} dice in any way (no die gets more than 5 extra, so none goes past 6). By stars and bars that is C(${e} + ${n - 1}, ${n - 1}) = C(${s - 1}, ${n - 1}) = <b>${num(m)}</b>.`,
       };
     },
-    // a big total: turn every die upside down (x becomes 7 − x) and it's a small total
+    // a big total: turn every die upside down (x becomes 7 − x) and it’s a small total
     (d, ctx) => {
       const [n, e] = pick(ctx, 'high', [[3, 4, 5, 6, 7], [2, 3, 4, 5]]), s = 6 * n - e, m = choose(e + n - 1, n - 1);
       return {
         topic: 'Many dice', rank: 12,
-        text: `${n} ordinary dice are thrown at once. In how many of the 6<sup>${n}</sup> equally likely outcomes is the total exactly ${s}?`,
+        text: `${Cap(WORDS[n])} ordinary dice are thrown at once. In how many of the 6<sup>${n}</sup> equally likely outcomes is the total exactly ${s}?`,
+        tip: 'Turn every die upside down in your mind: x becomes 7 − x, so a big total becomes a small one, which is easier to count.',
         answer: choices(d, m, [choose(e + n, n), choose(e + n - 1, n), choose(e + n, n - 1), choose(e + n - 2, n - 1), n * e, choose(s - 1, n - 1)].filter((v) => v < 6 ** n)),
         check: () => (totals(n)[s] === m ? '' : `counted ${totals(n)[s]}, said ${m}`),
-        solution: `Turn each die over in your mind: a die showing x has 7 − x on the bottom. That turns every outcome with a total of ${s} into one with a total of ${7 * n} − ${s} = ${n + e}, one for one. So count those instead: give each die its 1, leaving ${e} extra pips for ${n} dice, C(${e} + ${n - 1}, ${n - 1}) = <b>${num(m)}</b>.`,
+        solution: `Turn each die over in your mind, since a die showing x has 7 − x on the bottom. That turns every outcome with a total of ${s} into one with a total of 7·${n} − ${s} = ${n + e}, one for one. So count the outcomes with a total of ${n + e} instead. Giving each die its 1 leaves ${e} extra pips to share among the ${n} dice (no die gets more than 5 extra, so none goes past 6), and by stars and bars that can be done in C(${e} + ${n - 1}, ${n - 1}) = <b>${num(m)}</b> ways.`,
       };
     },
     // a middle total, where a die could go past 6: stars and bars, then take those out
@@ -225,7 +236,7 @@ export const probability = {
         text: `${n === 3 ? 'Three' : 'Four'} ordinary dice are rolled. In how many of the ${6 ** n} equally likely outcomes do the numbers add up to exactly ${t}?`,
         answer: choices(d, m, [X, X - Y, choose(t, n - 1) - n * choose(t - 6, n - 1), X - n * choose(t - 6, n - 1)].filter((v) => v > 0)),
         check: () => (totals(n)[t] === m ? '' : `counted ${totals(n)[t]}, said ${m}`),
-        solution: `Without the limit of 6: give each die its 1 and share the other ${t - n} pips, C(${t - 1}, ${n - 1}) = ${X} ways. But a die can't show 7 or more. The ways where one particular die does are counted by giving it 6 extra first: C(${t - 7}, ${n - 1}) = ${Y}, and any of the ${n} dice could be that one (two dice can't both go past 6, since that needs a total of at least ${12 + n}). So the count is ${X} − ${n}·${Y} = <b>${num(m)}</b>.`,
+        solution: `Ignoring the limit of 6 at first, give each die its 1 and share the other ${t - n} pips freely, in C(${t - n} + ${n - 1}, ${n - 1}) = C(${t - 1}, ${n - 1}) = ${X} ways. But a die can’t show 7 or more. The ways where one particular die does are counted by giving it 6 extra first, which leaves ${t - n - 6} pip${t - n - 6 === 1 ? '' : 's'} to share freely, in C(${t - n - 6} + ${n - 1}, ${n - 1}) = ${Y} way${Y === 1 ? '' : 's'}. Any of the ${n} dice could be that one, and two dice can’t both go past 6, since that needs a total of at least ${12 + n}. So the count is ${X} − ${n}·${Y} = <b>${num(m)}</b>.`,
       };
     },
     // "or less": a spare box for the pips not used
@@ -233,10 +244,10 @@ export const probability = {
       const [n, e] = pick(ctx, 'atmost', [[3, 4, 5, 6], [2, 3, 4, 5]]), m = choose(n + e, n);
       return {
         topic: 'Many dice', rank: 13,
-        text: `${n} ordinary dice are rolled. In how many of the 6<sup>${n}</sup> equally likely outcomes is the total ${n + e} or less?`,
+        text: `${Cap(WORDS[n])} ordinary dice are rolled. In how many of the 6<sup>${n}</sup> equally likely outcomes is the total ${n + e} or less?`,
         answer: choices(d, m, [choose(n + e - 1, n - 1), choose(n + e, n - 1), choose(n + e + 1, n), choose(n + e - 1, n)]),
         check: () => { const w = totals(n), c = range(n, n + e).reduce((s, t) => s + w[t], 0); return c === m ? '' : `counted ${c}, said ${m}`; },
-        solution: `Give every die its 1, so the ${n} dice share at most ${e} extra pips. Add a spare box for the pips that aren't used: then exactly ${e} pips go into ${n} + 1 boxes, which is C(${e} + ${n}, ${n}) = <b>${num(m)}</b>. (Or add C(j + ${n - 1}, ${n - 1}) for j = 0 to ${e}: the hockey-stick identity gives the same number.)`,
+        solution: `Give every die its 1, so the ${n} dice share at most ${e} extra pips (no die gets more than 5 extra, so none goes past 6). Add a spare box for the pips that aren’t used, so that exactly ${e} pips go into ${n + 1} boxes, the ${n} dice and the spare. By stars and bars that can be done in C(${e} + ${n}, ${n}) ways, the same as adding up C(j + ${n - 1}, ${n - 1}) for j = 0 to ${e} extra pips (the hockey-stick identity). So the count is C(${n + e}, ${n}) = <b>${num(m)}</b>.`,
       };
     },
   ],
@@ -258,7 +269,7 @@ export const probability = {
           for (const x of sets) for (const y of sets) { all++; if (popcount(x & y) === j) hit++; }
           return hit * ans[1] === all * ans[0] ? '' : `counted ${hit}/${all}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `Fix ${P}'s ${k} films. ${Q}'s list is one of C(${n}, ${k}) = ${C} equally likely choices. To share exactly ${j}, ${Q} takes ${j} of ${P}'s ${k} films (C(${k}, ${j}) = ${a} ways) and ${k - j} of the other ${n - k} (C(${n - k}, ${k - j}) = ${b} ways). Probability = ${a}·${b}/${C} = <b>${fr(ans)}</b>.`,
+        solution: `Fix ${P}’s ${k} films. ${Q}’s list is one of C(${n}, ${k}) = ${C} equally likely choices. To share exactly ${j}, ${Q} takes ${j} of ${P}’s ${k} films (C(${k}, ${j}) = ${a} ways) and ${k - j} of the other ${n - k} (C(${n - k}, ${k - j}) = ${b} ways). Probability = ${a}·${b}/${C} = <b>${fr(ans)}</b>.`,
       };
     },
     // at least one in common: the complement is "none in common"
@@ -275,7 +286,7 @@ export const probability = {
           for (const x of sets) for (const y of sets) { all++; if (x & y) hit++; }
           return hit * ans[1] === all * ans[0] ? '' : `counted ${hit}/${all}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `Use the opposite. Fix ${P}'s list; ${Q} shares nothing with it exactly when all ${k} of ${Q}'s songs come from the other ${n - k}, which happens for C(${n - k}, ${k}) = ${none} of the C(${n}, ${k}) = ${C} equally likely lists. So at least one song is shared with probability 1 − ${frac(none, C)} = <b>${fr(ans)}</b>.`,
+        solution: `Use the opposite. Fix ${P}’s list; ${Q} shares nothing with it exactly when ${k === 2 ? 'both' : `all ${k}`} of ${Q}’s songs come from the other ${n - k}, which happens for C(${n - k}, ${k}) = ${none} of the C(${n}, ${k}) = ${C} equally likely lists. So at least one song is shared with probability 1 − ${raw(none, C)}${gcd(none, C) > 1 ? ` = 1 − ${frac(none, C)}` : ''} = <b>${fr(ans)}</b>.`,
       };
     },
     // the expected number in common: linearity, one item at a time
@@ -285,29 +296,30 @@ export const probability = {
       return {
         topic: 'Choices in common', rank: 13,
         text: `A menu has ${n} dishes. ${P} picks ${a} different dishes at random, and ${Q}, separately, picks ${b} at random. What is the expected number of dishes that both of them pick?`,
+        tip: 'Add up, one of the second person’s dishes at a time, the chance that it is also on the first person’s list.',
         answer: choices(d, E, [cut(a * b, n * n), cut(Math.min(a, b), n), cut(a + b, n), cut(a * b, n - 1), cut(a * b, 2 * n)], showFrac),
         check: () => {
-          // the overlap's whole distribution (hypergeometric), added up: Σ j·C(a, j)·C(n − a, b − j) over C(n, b)
+          // the overlap’s whole distribution (hypergeometric), added up: Σ j·C(a, j)·C(n − a, b − j) over C(n, b)
           let top = 0; for (let j = 0; j <= Math.min(a, b); j++) top += j * choose(a, j) * choose(n - a, b - j);
           return top * E[1] === choose(n, b) * E[0] ? '' : `counted ${top}/${choose(n, b)}, said ${E[0]}/${E[1]}`;
         },
-        solution: `Use linearity of expectation, one of ${Q}'s dishes at a time: each is one of ${P}'s ${a} with probability ${frac(a, n)}. So the expected number of dishes on both lists is ${b}·${frac(a, n)} = <b>${fr(E)}</b>.`,
+        solution: `Use linearity of expectation, one of ${Q}’s dishes at a time. Each is one of ${P}’s ${a} with probability ${ratio(a, n)}${frac(a, n)}. So the expected number of dishes on both lists is ${b}·${frac(a, n)} = <b>${fr(E)}</b>.`,
       };
     },
-    // everything one person picks lies inside the other's list
+    // everything one person picks lies inside the other’s list
     (d, ctx) => {
       const [n, m, k] = pick(ctx, 'inside', [[8, 9, 10, 12], [4, 5, 6], [2, 3]], (n, m, k) => k < m && m < n);
       const [P, Q] = d.pick(NAMES), top = choose(m, k), C = choose(n, k), ans = cut(top, C);
       return {
         topic: 'Choices in common', rank: 9,
-        text: `${P} marks ${m} of the ${n} books on a shelf as favorites. ${Q}, without knowing which, picks ${k} of the ${n} books at random. What is the probability that all of ${Q}'s books are among ${P}'s favorites?`,
+        text: `${P} marks ${m} of the ${n} books on a shelf as favorites. ${Q}, without knowing which, picks ${k} of the ${n} books at random. What is the probability that ${k === 2 ? 'both' : `all ${k}`} of ${Q}’s books are among ${P}’s favorites?`,
         answer: choices(d, ans, [cut(m, n), cut(m ** k, n ** k), cut(top, choose(n, m)), cut(k, m), cut(choose(m - 1, k - 1), C)].filter(under1), showFrac),
         check: () => {
           let hit = 0, all = 0;
           for (let x = 0; x < 2 ** n; x++) if (popcount(x) === k) { all++; if (x < 2 ** m) hit++; }
           return hit * ans[1] === all * ans[0] ? '' : `counted ${hit}/${all}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `Fix ${P}'s ${m} favorites. ${Q}'s pick is one of C(${n}, ${k}) = ${C} equally likely sets of ${k} books, and C(${m}, ${k}) = ${top} of them lie entirely among the favorites. So the probability is ${top}/${C} = <b>${fr(ans)}</b>.`,
+        solution: `Fix ${P}’s ${m} favorites. ${Q}’s pick is one of C(${n}, ${k}) = ${C} equally likely sets of ${k} books, and C(${m}, ${k}) = ${top} of them lie entirely among the favorites. So the probability is ${top}/${C} = <b>${fr(ans)}</b>.`,
       };
     },
   ],
@@ -319,6 +331,7 @@ export const probability = {
       const ms = range(1, r), top = ms.reduce((s, m) => s + choose(t - 1, m - 1) * 6 ** (r - m), 0), ans = cut(top, 6 ** r);
       return {
         topic: 'Running totals', rank: 7,
+        tip: 'Split by how many rolls it takes to land exactly on the square, and count the ordered ways that many rolls can add up to it.',
         text: `A token starts on square 0 of a long track. Each turn a fair die is rolled and the token moves forward that many squares. After ${r} turns, what is the probability that the token has stopped on square ${t} at some point?`,
         answer: choices(d, ans, [[1, 6], cut(top - choose(t - 1, r - 1), 6 ** r), cut(choose(t - 1, r - 1), 6 ** r), cut(6 ** r - 5 ** r, 6 ** r)], showFrac),
         check: () => {
@@ -326,7 +339,7 @@ export const probability = {
           for (let s = 0; s < 6 ** r; s++) { let x = s, tot = 0, ok = false; for (let i = 0; i < r; i++) { tot += (x % 6) + 1; x = Math.floor(x / 6); if (tot === t) ok = true; } if (ok) hit++; }
           return hit * ans[1] === 6 ** r * ans[0] ? '' : `counted ${hit}/${6 ** r}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `The token stops on ${t} exactly when its first few rolls add up to ${t}. With m rolls there are C(${t - 1}, m − 1) ways to do that (every roll is at most 6, since ${t} ≤ 6), each with probability (${frac(1, 6)})<sup>m</sup>. Adding m = 1 to ${r}: ${ms.map((m) => frac(choose(t - 1, m - 1), 6 ** m)).join(' + ')} = <b>${fr(ans)}</b>.`,
+        solution: `The token stops on ${t} exactly when its first few rolls add up to ${t}. With m rolls, that means writing ${t} as an ordered sum of m whole numbers, each at least 1. There are C(${t - 1}, m − 1) such sums, one for each way to cut a row of ${t} dots at m − 1 of the ${t - 1} gaps between them, and no part is more than ${t}, so a die can roll every part. Each way has probability (${frac(1, 6)})<sup>m</sup>. Adding these for m = 1 to ${r} gives ${ms.map((m) => raw(choose(t - 1, m - 1), 6 ** m)).join(' + ')} = ${gcd(top, 6 ** r) > 1 ? `${raw(top, 6 ** r)} = ` : ''}<b>${fr(ans)}</b>.`,
       };
     },
     // no turn limit: the chance of ever stopping on a square, square by square
@@ -345,7 +358,7 @@ export const probability = {
           for (const r of rolls(t)) { let tot = 0; for (const x of r) { tot += x; if (tot >= t) break; } if (tot === t) hit++; }
           return hit * ans[1] === 6 ** t * ans[0] ? '' : `counted ${hit}/${6 ** t}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `Let P(k) be the chance that the token ever stops on square k. To stop on k it must stop on one of the six squares just before it and then roll exactly the gap, and those are separate cases, so P(k) = ${frac(1, 6)}·(P(k − 1) + ⋯ + P(k − 6)), with P(0) = 1 and P(k) = 0 below 0. Working up: ${range(1, t).map((k) => `P(${k}) = ${fr(P(k))}`).join(', ')}; each is ${frac(7, 6)} times the one before, so P(${t}) = 7<sup>${t - 1}</sup>/6<sup>${t}</sup> = <b>${fr(ans)}</b>.`,
+        solution: `Let P(k) be the chance that the token ever stops on square k. To stop on k it must stop on one of the six squares just before it and then roll exactly the gap, and those are separate cases, so P(k) = ${frac(1, 6)}·(P(k − 1) + ⋯ + P(k − 6)), with P(0) = 1 and P(k) = 0 below 0. For k from 2 to 6, the bracket is the one for P(k − 1), which is 6·P(k − 1), plus P(k − 1) itself, so P(k) = ${frac(7, 6)}·P(k − 1). Working up from P(1) = ${frac(1, 6)} gives ${range(2, t - 1).map((k) => `P(${k}) = ${fr(P(k))}, `).join('')}${t > 2 ? 'and ' : ''}P(${t}) = 7${t > 2 ? `<sup>${t - 1}</sup>` : ''}/6<sup>${t}</sup> = <b>${fr(ans)}</b>.`,
       };
     },
     // a frog jumping by a coin: the same idea with two step sizes
@@ -375,12 +388,13 @@ export const probability = {
       const c = 6 - Math.abs(s - 7), chance = (k) => 1 - ((36 - c) / 36) ** k;
       const enough = (k) => BigInt(tq) * (36n ** BigInt(k) - BigInt(36 - c) ** BigInt(k)) > BigInt(tp) * 36n ** BigInt(k);
       let n = 1; while (!enough(n)) n++;
+      const miss = frac(36 - c, 36), bound = Math.log(tq / (tq - tp)) / Math.log(36 / (36 - c)), exact = Number.isInteger((tp / tq) * 1e4);
       return {
         topic: 'At least once', rank: 12,
         text: `Two fair dice are thrown together, again and again. What is the smallest number of throws for which the probability of a total of ${s} turning up at least once is greater than ${frac(tp, tq)}?`,
         answer: choices(d, n, [n - 1, n + 1, Math.ceil((36 * tp) / (tq * c)), n + 2, n - 2].filter((x) => x >= 1)),
         check: () => (enough(n) && !enough(n - 1) ? '' : `${n} is not the least`),
-        solution: `A total of ${s} happens in ${c} of the 36 ways, so one throw misses it with probability ${frac(36 - c, 36)}. In n throws the chance of at least one ${s} is 1 − (${frac(36 - c, 36)})<sup>n</sup>. For n = ${n - 1} that is about ${num(chance(n - 1), 4)}, not more than ${frac(tp, tq)} (about ${num(tp / tq, 4)}); for n = ${n} it is about ${num(chance(n), 4)}. So the answer is <b>${n}</b>.`,
+        solution: `A total of ${s} happens in ${c} of the 36 ways, so one throw misses it with probability ${ratio(36 - c, 36)}${miss}. In n throws the chance of at least one ${s} is 1 − (${miss})<sup>n</sup>, which is more than ${frac(tp, tq)} when (${miss})<sup>n</sup> is less than ${frac(tq - tp, tq)}. Taking logarithms, that means n > log(${frac(tq, tq - tp)}) ÷ log(${frac(36, 36 - c)}) ≈ ${num(bound, 2)}, so try the whole numbers on either side. For n = ${n - 1} the chance is about ${num(chance(n - 1), 4)}, not more than ${frac(tp, tq)} (${exact ? '' : 'about '}${num(tp / tq, 4)}), and for n = ${n} it is about ${num(chance(n), 4)}. So the answer is <b>${n}</b>.`,
       };
     },
     // the chance itself, for a few throws: 1 minus the chance of missing every time
@@ -391,14 +405,14 @@ export const probability = {
       const ans = cut(36 ** n - (36 - c) ** n, 36 ** n);
       return {
         topic: 'At least once', rank: 9,
-        text: `A pair of fair dice is thrown ${n} times. What is the probability of getting ${ev} at least once?`,
+        text: `A pair of fair dice is thrown ${n === 2 ? 'twice' : `${n} times`}. What is the probability of getting ${ev} at least once?`,
         answer: choices(d, ans, [cut(n * c, 36), cut(c ** n, 36 ** n), cut((36 - c) ** n, 36 ** n), cut(n * c * (36 - c) ** (n - 1), 36 ** n)], showFrac),
         check: () => {
           let hit = 0;
           for (const r of rolls(2 * n)) { let ok = false; for (let i = 0; i < n; i++) if (test(r[2 * i], r[2 * i + 1])) ok = true; if (ok) hit++; }
           return hit * ans[1] === 36 ** n * ans[0] ? '' : `counted ${hit}/${36 ** n}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `One throw gives ${ev} in ${c} of the 36 ways, so it misses with probability ${frac(36 - c, 36)}. All ${n} throws miss with probability (${frac(36 - c, 36)})<sup>${n}</sup> = ${frac((36 - c) ** n, 36 ** n)}, so getting it at least once has probability 1 − ${frac((36 - c) ** n, 36 ** n)} = <b>${fr(ans)}</b>.`,
+        solution: `One throw gives ${ev} in ${c} of the 36 ways, so it misses in the other ${36 - c}, with probability ${ratio(36 - c, 36)}${frac(36 - c, 36)}. ${n === 2 ? 'Both' : `All ${n}`} throws miss with probability (${frac(36 - c, 36)})<sup>${n}</sup> = ${frac((36 - c) ** n, 36 ** n)}, so getting it at least once has probability 1 − ${frac((36 - c) ** n, 36 ** n)} = <b>${fr(ans)}</b>.`,
       };
     },
     // at least twice: take away "never" and "exactly once"
@@ -407,6 +421,7 @@ export const probability = {
       const none = (6 - a) ** n, once = n * a * (6 - a) ** (n - 1), ans = cut(6 ** n - none - once, 6 ** n);
       return {
         topic: 'At least once', rank: 14,
+        tip: 'Count the opposite, which here is getting it never or exactly once.',
         text: `A fair die is rolled ${n} times. What is the probability of getting ${face} at least twice?`,
         answer: choices(d, ans, [cut(6 ** n - none, 6 ** n), cut(choose(n, 2) * a * a * (6 - a) ** (n - 2), 6 ** n), cut(6 ** n - none - a * (6 - a) ** (n - 1), 6 ** n), cut(a * a, 36)], showFrac),
         check: () => {
@@ -415,24 +430,26 @@ export const probability = {
           for (const r of rolls(n)) if (r.filter((x) => good.includes(x)).length >= 2) hit++;
           return hit * ans[1] === 6 ** n * ans[0] ? '' : `counted ${hit}/${6 ** n}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `Count the opposite: ${face} never, or exactly once. Never: (${frac(6 - a, 6)})<sup>${n}</sup> = ${frac(none, 6 ** n)}. Exactly once: ${n} choices of which roll, so ${n}·${frac(a, 6)}·(${frac(6 - a, 6)})<sup>${n - 1}</sup> = ${frac(once, 6 ** n)}. So at least twice has probability 1 − ${frac(none, 6 ** n)} − ${frac(once, 6 ** n)} = <b>${fr(ans)}</b>.`,
+        solution: `Count the opposite, ${face} never or exactly once, among the 6<sup>${n}</sup> = ${num(6 ** n)} equally likely outcomes. Never means every roll is one of the other ${6 - a} numbers, in ${6 - a}<sup>${n}</sup> = ${num(none)} outcomes. Exactly once means ${n} choices of which roll, ${a === 1 ? 'one way' : `${a} ways`} for that roll and ${6 - a} for each of the others, in ${n}·${a}·${6 - a}<sup>${n - 1}</sup> = ${num(once)} outcomes. So ${num(6 ** n)} − ${num(none)} − ${num(once)} = ${num(6 ** n - none - once)} outcomes have it at least twice, and the probability is ${ratio(6 ** n - none - once, 6 ** n)}<b>${fr(ans)}</b>.`,
       };
     },
     // two things each at least once: inclusion and exclusion on the ways to miss
     (d, ctx) => {
       const PAIRS = [['a 1', [1], 'a 6', [6]], ['a 6', [6], 'an odd number', [1, 3, 5]], ['a 1 or a 2', [1, 2], 'a 5 or a 6', [5, 6]], ['a 2', [2], 'a 5 or a 6', [5, 6]]];
       const [[X, xs, Y, ys], n] = pick(ctx, 'both', [PAIRS, [2, 3, 4]]);
+      const bare = (s) => s.replace(/\ban? (?=\d|odd)/g, '');   // 'a 5 or a 6' → '5 or 6', 'an odd number' → 'odd number'
       const a1 = xs.length, a2 = ys.length, top = 6 ** n - (6 - a1) ** n - (6 - a2) ** n + (6 - a1 - a2) ** n, ans = cut(top, 6 ** n);
       return {
         topic: 'At least once', rank: 15,
-        text: `A fair die is rolled ${n} times. What is the probability that ${X} and ${Y} each turn up at least once?`,
+        text: `A fair die is rolled ${n === 2 ? 'twice' : `${n} times`}. What is the probability that at least one roll shows ${X} and at least one roll shows ${Y}?`,
+        tip: 'Take away the outcomes that miss the first thing and those that miss the second, then add back the ones that miss both.',
         answer: choices(d, ans, [cut((6 ** n - (6 - a1) ** n) * (6 ** n - (6 - a2) ** n), 6 ** (2 * n)), cut(6 ** n - (6 - a1) ** n - (6 - a2) ** n, 6 ** n), cut(6 ** n - (6 - a1 - a2) ** n, 6 ** n), cut(a1 * a2 * n * (n - 1), 36), [a1 * a2, 36], cut(a1 + a2, 6), [1, 6]].filter(under1), showFrac),
         check: () => {
           let hit = 0;
           for (const r of rolls(n)) if (r.some((x) => xs.includes(x)) && r.some((x) => ys.includes(x))) hit++;
           return hit * ans[1] === 6 ** n * ans[0] ? '' : `counted ${hit}/${6 ** n}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `Count the rolls that miss. No ${X.replace(/^an? /, '')}: ${6 - a1}<sup>${n}</sup> = ${(6 - a1) ** n} of the ${6 ** n} outcomes. No ${Y.replace(/^an? /, '')}: ${(6 - a2) ** n}. Neither: ${6 - a1 - a2}<sup>${n}</sup> = ${(6 - a1 - a2) ** n}, which the first two both counted. So ${6 ** n} − ${(6 - a1) ** n} − ${(6 - a2) ** n} + ${(6 - a1 - a2) ** n} = ${top} outcomes have both, and the probability is <b>${fr(ans)}</b>.`,
+        solution: `Of the 6<sup>${n}</sup> = ${6 ** n} equally likely outcomes, take away those that miss one of the two. With no ${bare(X)}, every roll is one of the other ${6 - a1} numbers, in ${6 - a1}<sup>${n}</sup> = ${(6 - a1) ** n} outcomes. With no ${bare(Y)}, every roll is one of the other ${6 - a2}, in ${6 - a2}<sup>${n}</sup> = ${(6 - a2) ** n} outcomes. Both of those counts include the ${6 - a1 - a2}<sup>${n}</sup> = ${(6 - a1 - a2) ** n} outcomes with neither, which were taken away twice, so add them back once. That leaves ${6 ** n} − ${(6 - a1) ** n} − ${(6 - a2) ** n} + ${(6 - a1 - a2) ** n} = ${top} outcomes with both, and the probability is ${ratio(top, 6 ** n)}<b>${fr(ans)}</b>.`,
       };
     },
   ],
@@ -454,7 +471,7 @@ export const probability = {
           for (let i = 1; i * i <= N; i++) if (N % i === 0) for (const x of i * i === N ? [i] : [i, N / i]) { all++; if (power(x)) good++; }
           return good * ans[1] === all * ans[0] ? '' : `counted ${good}/${all}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `${F}! = ${fact}. A divisor chooses each exponent from 0 up to the one here, so there are ${exps.map((e) => `(${e} + 1)`).join('·')} = ${D} divisors. It is a perfect ${word} when every exponent is a multiple of ${r}, which leaves ${exps.map((e) => Math.floor(e / r) + 1).join('·')} = ${S} of them. The probability is ${S}/${D} = ${fr(ans)}, so a + b = <b>${value}</b>.`,
+        solution: `${F}! = ${fact}. A divisor chooses each exponent from 0 up to the one here, so there are ${exps.map((e) => `(${e} + 1)`).join('·')} = ${D} divisors. It is a perfect ${word} when every exponent is a multiple of ${r} (the exponent of ${primes[0]}, for example, can be ${listOr(range(0, exps[0]).filter((x) => x % r === 0))}), which leaves ${exps.map((e) => Math.floor(e / r) + 1).join('·')} = ${S} of them. The probability is ${S}/${D} = ${fr(ans)}, so a + b = <b>${value}</b>.`,
       };
     },
     // a random divisor is a multiple of m: those are m times the divisors of N/m
@@ -466,7 +483,7 @@ export const probability = {
         text: `A positive divisor of ${N} is chosen at random, each equally likely. What is the probability that it is a multiple of ${m}?`,
         answer: choices(d, ans, [[1, m], cut(tau(m), D), cut(D - K, D), cut(K + 1, D), cut(1, tau(m))].filter(under1), showFrac),
         check: () => { const ds = divisorsOf(N), hit = ds.filter((x) => x % m === 0).length; return hit * ans[1] === ds.length * ans[0] ? '' : `counted ${hit}/${ds.length}, said ${ans[0]}/${ans[1]}`; },
-        solution: `A divisor of ${N} that is a multiple of ${m} is ${m}·k for a divisor k of ${N}/${m} = ${N / m}, and every such k gives one. ${N} = ${shown(N)} has ${factor(N).map(([, e]) => `(${e} + 1)`).join('·')} = ${D} divisors, and ${N / m} = ${shown(N / m)} has ${K}. So the probability is ${K}/${D} = <b>${fr(ans)}</b>.`,
+        solution: `A divisor of ${N} that is a multiple of ${m} is ${m}·k for a divisor k of ${N}/${m} = ${N / m}, and every such k gives one. ${N} = ${shown(N)} has ${factor(N).map(([, e]) => `(${e} + 1)`).join('·')} = ${D} divisors, and ${N / m} = ${shown(N / m)} has ${factor(N / m).map(([, e]) => `(${e} + 1)`).join('·')} = ${K}. So the probability is ${ratio(K, D)}<b>${fr(ans)}</b>.`,
       };
     },
     // a random divisor of N also divides M (which divides N)
@@ -478,7 +495,7 @@ export const probability = {
         text: `A positive divisor of ${N} is chosen at random, each equally likely. What is the probability that it is also a divisor of ${M}?`,
         answer: choices(d, ans, [cut(M, N), cut(tau(N / M), D), cut(K - 1, D), [1, N / M], cut(K, D + K)].filter(under1), showFrac),
         check: () => { const ds = divisorsOf(N), hit = ds.filter((x) => M % x === 0).length; return hit * ans[1] === ds.length * ans[0] ? '' : `counted ${hit}/${ds.length}, said ${ans[0]}/${ans[1]}`; },
-        solution: `${M} divides ${N}, so every divisor of ${M} is one of the divisors of ${N}: the good choices are exactly the divisors of ${M}. ${M} = ${shown(M)} has ${K} divisors, and ${N} = ${shown(N)} has ${D}. So the probability is ${K}/${D} = <b>${fr(ans)}</b>.`,
+        solution: `${M} divides ${N}, so every divisor of ${M} is also a divisor of ${N}, and the good choices are exactly the divisors of ${M}. ${M} = ${shown(M)} has ${factor(M).map(([, e]) => `(${e} + 1)`).join('·')} = ${K} divisors, and ${N} = ${shown(N)} has ${factor(N).map(([, e]) => `(${e} + 1)`).join('·')} = ${D}. So the probability is ${ratio(K, D)}<b>${fr(ans)}</b>.`,
       };
     },
     // a divisor of a power of pq is a multiple of a smaller power: two exponents to choose
@@ -490,7 +507,7 @@ export const probability = {
         text: `A positive divisor of ${pw(base, n)} is chosen at random, each equally likely. What is the probability that it is a multiple of ${pw(base, k)}?`,
         answer: choices(d, ans, [cut(n - k + 1, n + 1), cut((n - k) ** 2, (n + 1) ** 2), [1, base ** k], cut(n - k, n), cut((n - k + 1) ** 2, n * n)].filter(under1), showFrac),
         check: () => { let hit = 0; for (let i = 0; i <= n; i++) for (let j = 0; j <= n; j++) if (i >= k && j >= k) hit++; return hit * ans[1] === (n + 1) ** 2 * ans[0] ? '' : `counted ${hit}, said ${ans[0]}/${ans[1]}`; },
-        solution: `${pw(base, n)} = ${pw(p, n)}·${pw(q, n)}, so its divisors are ${p}<sup>i</sup>·${q}<sup>j</sup> with i and j each from 0 to ${n}: ${(n + 1) ** 2} of them. Such a divisor is a multiple of ${pw(base, k)} = ${pw(p, k)}·${pw(q, k)} exactly when i ≥ ${k} and j ≥ ${k}, which leaves ${n - k + 1}·${n - k + 1} = ${(n - k + 1) ** 2}. So the probability is <b>${fr(ans)}</b>.`,
+        solution: `${pw(base, n)} = ${pw(p, n)}·${pw(q, n)}, so its divisors are ${p}<sup>i</sup>·${q}<sup>j</sup> with i and j each from 0 to ${n}, and there are ${n + 1}·${n + 1} = ${(n + 1) ** 2} of them. Such a divisor is a multiple of ${pw(base, k)} = ${pw(p, k)}·${pw(q, k)} exactly when i ≥ ${k} and j ≥ ${k}, which leaves ${n - k + 1}·${n - k + 1} = ${(n - k + 1) ** 2}. So the probability is ${ratio((n - k + 1) ** 2, (n + 1) ** 2)}<b>${fr(ans)}</b>.`,
       };
     },
   ],
@@ -505,7 +522,7 @@ export const probability = {
         text: `A whole number N is chosen at random from 1 to ${M}, each equally likely. What is the probability that N<sup>${e}</sup> − 1 is a multiple of ${p}?`,
         answer: choices(d, ans, [cut(p - 1, p), [1, p], cut(g, p - 1), cut(p - 1 - g, p), [1, p - 1]], showFrac),
         check: () => { let hit = 0; for (let N = 1; N <= M; N++) if (modpow(N, e, p) === 1) hit++; return hit * ans[1] === M * ans[0] ? '' : `counted ${hit}/${M}, said ${ans[0]}/${ans[1]}`; },
-        solution: `Only N's remainder when divided by ${p} matters, and ${M} = ${p}·${M / p}, so the remainders 0, 1, …, ${p - 1} are equally likely. Remainder 0 never works. For the others, r<sup>${p - 1}</sup> leaves remainder 1 (Fermat's little theorem), so r<sup>${e}</sup> leaves the same remainder as ${small ? `r<sup>${small}</sup>, and that is 1 for r = ${good.join(', ')}` : `r<sup>0</sup> = 1, for every one of them`}. So ${g} of the ${p} remainders work: <b>${fr(ans)}</b>.`,
+        solution: `Only N’s remainder when divided by ${p} matters, and ${M} = ${p}·${M / p}, so the remainders 0, 1, …, ${p - 1} are equally likely. Remainder 0 never works. ${e < p - 1 ? '' : `For the others, r<sup>${p - 1}</sup> leaves remainder 1 (Fermat’s little theorem), ${e === p - 1 ? 'for every one of them' : `and ${e} = ${e < 2 * (p - 1) ? '' : `${Math.floor(e / (p - 1))}·`}${p - 1}${small ? ` + ${small}` : ''}, so r<sup>${e}</sup> leaves ${small ? `the same remainder as r<sup>${small}</sup>` : 'remainder 1 for every one of them'}`}. `}${small || e < p - 1 ? `For r = 1, 2, …, ${p - 1}, r<sup>${small || e}</sup> leaves remainders ${range(1, p - 1).map((r) => modpow(r, small || e, p)).join(', ')}, so it is 1 only for r = ${listing(good)}. ` : ''}So ${g} of the ${p} remainders work, and the probability is <b>${fr(ans)}</b>.`,
       };
     },
     // N² + k divisible by a prime: test the remainders
@@ -517,7 +534,7 @@ export const probability = {
         text: `A whole number N is chosen at random from 1 to ${M}, each equally likely. What is the probability that N<sup>2</sup> + ${k} is a multiple of ${p}?`,
         answer: choices(d, ans, [[1, p], cut(good.length, p - 1), [1, p - 1], cut(p - good.length, p), [1, 2]], showFrac),
         check: () => { let hit = 0; for (let N = 1; N <= M; N++) if ((N * N + k) % p === 0) hit++; return hit * ans[1] === M * ans[0] ? '' : `counted ${hit}/${M}, said ${ans[0]}/${ans[1]}`; },
-        solution: `Only N's remainder r when divided by ${p} matters, and ${M} = ${p}·${M / p}, so all ${p} remainders are equally likely. Try them: r<sup>2</sup> + ${k} is a multiple of ${p} only for r = ${listing(good)} (${good.map((r) => `${r * r + k}`).join(' and ')}). So ${good.length} of the ${p} remainders work: <b>${fr(ans)}</b>.`,
+        solution: `Only N’s remainder r when divided by ${p} matters, and ${M} = ${p}·${M / p}, so all ${p} remainders are equally likely. Try them: r<sup>2</sup> + ${k} is a multiple of ${p} only for r = ${listing(good)} (${good.map((r) => `${r * r + k}`).join(' and ')}). So ${good.length} of the ${p} remainders work: <b>${fr(ans)}</b>.`,
       };
     },
     // a product of two random numbers is a multiple of m: count pairs of remainders
@@ -529,7 +546,7 @@ export const probability = {
         text: `Two whole numbers a and b are chosen independently at random from 1 to ${M}. What is the probability that the product ab is a multiple of ${m}?`,
         answer: choices(d, ans, [[1, m], cut(2 * m - 1, m * m), [2, m], cut(m * m - cnt, m * m), cut(cnt - m, m * m)].filter(under1), showFrac),
         check: () => { let hit = 0; for (let a = 1; a <= M; a++) for (let b = 1; b <= M; b++) if ((a * b) % m === 0) hit++; return hit * ans[1] === M * M * ans[0] ? '' : `counted ${hit}/${M * M}, said ${ans[0]}/${ans[1]}`; },
-        solution: `Only the remainders of a and b when divided by ${m} matter, and ${M} is a multiple of ${m}, so all ${m}·${m} = ${m * m} pairs of remainders are equally likely. If a leaves remainder x, then ab is a multiple of ${m} exactly when b is a multiple of ${m}/gcd(x, ${m}), and that allows gcd(x, ${m}) of the ${m} remainders for b. Adding gcd(x, ${m}) for x = 0 to ${m - 1}: ${g.join(' + ')} = ${cnt}. So the probability is ${cnt}/${m * m} = <b>${fr(ans)}</b>.`,
+        solution: `Only the remainders of a and b when divided by ${m} matter, and ${M} is a multiple of ${m}, so all ${m}·${m} = ${m * m} pairs of remainders are equally likely. If a leaves remainder x, then ab is a multiple of ${m} exactly when b is a multiple of ${m}/gcd(x, ${m}), and that allows gcd(x, ${m}) of the ${m} remainders for b. Adding gcd(x, ${m}) for x = 0 to ${m - 1} gives ${g.join(' + ')} = ${cnt} good pairs. So the probability is ${ratio(cnt, m * m)}<b>${fr(ans)}</b>.`,
       };
     },
     // a power b^N leaves remainder 1: the remainders of the powers go round in a cycle
@@ -566,7 +583,7 @@ export const probability = {
           for (const m of set) for (let Y = lo; Y <= hi; Y++) if ((BigInt(m) ** BigInt(Y)) % 10n === BigInt(t)) hit++;
           return hit * ans[1] === total * ans[0] ? '' : `counted ${hit}/${total}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `The units digit of a<sup>Y</sup> depends only on the units digit of a, and repeats every 4 steps of Y; the ${N} years contain each remainder mod 4 exactly ${N / 4} times. ${set.map((m, i) => `${m} (units digits ${cycle(m)}, …): ${counts[i]} years`).join('; ')}. That is ${hits} of the 5·${N} = ${total} equally likely pairs: <b>${fr(ans)}</b>.`,
+        solution: `The units digit of a<sup>Y</sup> depends only on the units digit of a, and repeats every 4 steps of Y, so it is settled by Y’s remainder when divided by 4; the ${N} years from ${lo} to ${hi} contain each remainder exactly ${N / 4} times. Going through the spinner’s numbers, ${set.map((m, i) => `${m} (units digits ${cycle(m)}, …) gives ${counts[i]} years`).join('; ')}. That is ${hits} of the 5·${N} = ${total} equally likely pairs, so the probability is ${ratio(hits, total)}<b>${fr(ans)}</b>.`,
       };
     },
     // a power of a random number: only its last digit matters, and every last digit is equally likely
@@ -593,7 +610,7 @@ export const probability = {
         text: `Two whole numbers a and b are chosen independently at random from 1 to ${M}. What is the probability that a<sup>2</sup> + b<sup>2</sup> ends in the digit ${t}?`,
         answer: choices(d, ans, [[1, 10], cut(cnt, 50), cut(ways.length, 36), cut(cnt + 10, 100), cut(cnt, 90)].filter(under1), showFrac),
         check: () => { let hit = 0; for (let a = 1; a <= M; a++) for (let b = 1; b <= M; b++) if ((a * a + b * b) % 10 === t) hit++; return hit * ans[1] === M * M * ans[0] ? '' : `counted ${hit}/${M * M}, said ${ans[0]}/${ans[1]}`; },
-        solution: `Only the last digits matter, and each of the 100 pairs of last digits is equally likely. Squares of 0 to 9 end in ${SQ.join(', ')}: so 0 and 5 once each, and 1, 4, 6, 9 twice each. The sum ends in ${t} for these pairs of square endings: ${ways.map(([u, v]) => `${u} + ${v} (${many(u)}·${many(v)} = ${many(u) * many(v)})`).join(', ')}, ${cnt} pairs of digits in all. So the probability is ${cnt}/100 = <b>${fr(ans)}</b>.`,
+        solution: `Only the last digits matter, and each of the 100 pairs of last digits is equally likely. Squares of 0 to 9 end in ${SQ.join(', ')}, so the endings 0 and 5 come from one digit each, and 1, 4, 6 and 9 from two digits each. The sum ends in ${t} for these pairs of square endings, each with the number of pairs of digits that give it: ${ways.map(([u, v]) => `${u} + ${v} (${many(u)}·${many(v)} = ${many(u) * many(v)})`).join(', ')}, ${cnt} pairs of digits in all. So the probability is ${ratio(cnt, 100)}<b>${fr(ans)}</b>.`,
       };
     },
     // a product of two random numbers: count the pairs of last digits
@@ -605,7 +622,7 @@ export const probability = {
         text: `Two whole numbers are chosen independently at random from 1 to ${M}. What is the probability that their product ends in the digit ${t}?`,
         answer: choices(d, ans, [[1, 10], cut(cnt, 50), cut(cnt - per[0], 100), cut(cnt + 1, 100), cut(cnt, 81)].filter(under1), showFrac),
         check: () => { let hit = 0; for (let a = 1; a <= M; a++) for (let b = 1; b <= M; b++) if ((a * b) % 10 === t) hit++; return hit * ans[1] === M * M * ans[0] ? '' : `counted ${hit}/${M * M}, said ${ans[0]}/${ans[1]}`; },
-        solution: `Only the last digits matter, and each of the 100 pairs of last digits is equally likely. For each last digit x of the first number, count the last digits y of the second with x·y ending in ${t}: ${range(0, 9).filter((x) => per[x]).map((x) => `${x} → ${per[x]}`).join(', ')}${per.some((c) => !c) ? ' (the others give none)' : ''}. That is ${cnt} pairs, so the probability is ${cnt}/100 = <b>${fr(ans)}</b>.`,
+        solution: `Only the last digits matter, and each of the 100 pairs of last digits is equally likely. For each last digit x of the first number, count the last digits y of the second with x·y ending in ${t}: ${range(0, 9).filter((x) => per[x]).map((x) => `${x} → ${per[x]}`).join(', ')}${per.some((c) => !c) ? ' (the others give none)' : ''}. That is ${cnt} pairs, so the probability is ${ratio(cnt, 100)}<b>${fr(ans)}</b>.`,
       };
     },
   ],
@@ -626,7 +643,7 @@ export const probability = {
           for (let x = 1; x < 100; x++) if ([...String(x)].every((c) => S.includes(+c))) { all++; if (sieve[x]) hit++; }
           return hit * ans[1] === all * ans[0] ? '' : `counted ${hit}/${all}, said ${ans[0]}/${ans[1]}`;
         },
-        solution: `There are ${S.length} one-digit and ${S.length}² = ${S.length ** 2} two-digit numbers like that, ${tot} in all. The primes among them are ${primes.join(', ')}${S.includes(1) ? ' (1 is not prime)' : ''}: ${cnt} of them. So the probability is ${cnt}/${tot} = <b>${fr(ans)}</b>.`,
+        solution: `Below 100 there are ${S.length} one-digit and ${S.length}² = ${S.length ** 2} two-digit numbers like that, ${tot} in all. Testing each for a factor of 2, 3, 5 or 7, the primes among them are ${listing(primes)}${S.includes(1) ? ' (1 is not prime)' : ''}, ${cnt} of them. So the probability is ${ratio(cnt, tot)}<b>${fr(ans)}</b>.`,
       };
     },
     // two dice: is their sum (or product) prime
@@ -637,6 +654,7 @@ export const probability = {
       const sums = range(2, 2 * s).filter(isPrime), small = range(2, s).filter(isPrime);
       return {
         topic: 'Prime chances', rank: 9,
+        ...(op === 'product' ? { tip: 'Ask when a product of two whole numbers can be prime at all.' } : {}),
         text: `Two fair ${s}-sided dice, numbered 1 to ${s}, are rolled. What is the probability that the ${op} of the two numbers is prime?`,
         answer: choices(d, ans, op === 'sum'
           ? [cut(sums.length, 2 * s - 1), cut(cnt + 1, s * s), cut(cnt - 1, s * s), cut(cnt, s * (s + 1) / 2)]
@@ -648,8 +666,8 @@ export const probability = {
           return hit * ans[1] === s * s * ans[0] ? '' : `counted ${hit}/${s * s}, said ${ans[0]}/${ans[1]}`;
         },
         solution: op === 'sum'
-          ? `There are ${s}·${s} = ${s * s} equally likely ordered rolls. The prime sums possible are ${listing(sums)}, made in ${sums.map((p) => pairs.filter((pr) => f(pr) === p).length).join(' + ')} = ${cnt} ways. So the probability is ${cnt}/${s * s} = <b>${fr(ans)}</b>.`
-          : `A product of two whole numbers is prime only when one of them is 1 and the other is prime. The primes up to ${s} are ${listing(small)} (${small.length} of them), and either die can be the 1, so ${2 * small.length} of the ${s * s} equally likely rolls work: <b>${fr(ans)}</b>.`,
+          ? `There are ${s}·${s} = ${s * s} equally likely ordered rolls. The prime sums possible are ${listing(sums)}, made in ${sums.map((p) => pairs.filter((pr) => f(pr) === p).length).join(' + ')} = ${cnt} ways. So the probability is ${ratio(cnt, s * s)}<b>${fr(ans)}</b>.`
+          : `A product of two whole numbers is prime only when one of them is 1 and the other is prime. The primes up to ${s} are ${listing(small)} (${small.length} of them), and either die can be the 1, so ${2 * small.length} of the ${s}·${s} = ${s * s} equally likely rolls work. So the probability is ${ratio(2 * small.length, s * s)}<b>${fr(ans)}</b>.`,
       };
     },
     // a stretch of twenty numbers: list its primes
@@ -661,7 +679,7 @@ export const probability = {
         text: `A whole number is chosen at random from ${lo} to ${hi}, each equally likely. What is the probability that it is prime?`,
         answer: choices(d, ans, [cut(cnt, hi - lo), cut(cnt + 1, hi - lo + 1), [1, 4], cut(cnt - 1, hi - lo + 1), [1, 5], [3, 10], [1, 2]].filter(under1), showFrac),
         check: () => { let hit = 0; for (let x = lo; x <= hi; x++) { let p = x > 1; for (let i = 2; i < x; i++) if (x % i === 0) p = false; if (p) hit++; } return hit * ans[1] === (hi - lo + 1) * ans[0] ? '' : `counted ${hit}, said ${ans[0]}/${ans[1]}`; },
-        solution: `There are ${hi} − ${lo} + 1 = ${hi - lo + 1} numbers from ${lo} to ${hi}. Testing each for a factor of 2, 3, 5${hi > 120 ? ', 7 or 11' : ' or 7'}, the primes among them are ${listing(primes)}: ${cnt} of them. So the probability is ${cnt}/${hi - lo + 1} = <b>${fr(ans)}</b>.`,
+        solution: `There are ${hi} − ${lo} + 1 = ${hi - lo + 1} numbers from ${lo} to ${hi}. Testing each for a factor of 2, 3, 5${hi > 120 ? ', 7 or 11' : ' or 7'}, the primes among them are ${listing(primes)}, ${cnt} of them. So the probability is ${ratio(cnt, hi - lo + 1)}<b>${fr(ans)}</b>.`,
       };
     },
     // a two-digit number made from two spins or rolls
@@ -673,13 +691,13 @@ export const probability = {
         text: `${desc}: the first result is the tens digit and the second the units digit of a two-digit number. What is the probability that this number is prime?`,
         answer: choices(d, ans, [cut(primes.length, 90), cut(primes.length + 1, made.length), cut(S.filter(isPrime).length, S.length), cut(primes.length, made.length + S.length), [1, 2]].filter(under1), showFrac),
         check: () => { let hit = 0; for (const a of S) for (const b of S) { const x = 10 * a + b; let p = true; for (let i = 2; i * i <= x; i++) if (x % i === 0) p = false; if (p) hit++; } return hit * ans[1] === made.length * ans[0] ? '' : `counted ${hit}, said ${ans[0]}/${ans[1]}`; },
-        solution: `There are ${S.length}·${S.length} = ${made.length} equally likely numbers. A prime can't end in an even digit or 5, so only the numbers ending in ${listing(S.filter((x) => [1, 3, 7, 9].includes(x)))} can work; testing those, the primes are ${listing(primes)}: ${primes.length} of them. So the probability is <b>${fr(ans)}</b>.`,
+        solution: `There are ${S.length}·${S.length} = ${made.length} equally likely numbers. A prime can’t end in an even digit or 5, so only the numbers ending in ${listOr(S.filter((x) => [1, 3, 7, 9].includes(x)))} can work; testing those, the primes are ${listing(primes)}, ${primes.length} of them. So the probability is ${ratio(primes.length, made.length)}<b>${fr(ans)}</b>.`,
       };
     },
   ],
 
   'Geometric probability': [
-    // a ring inside a diamond: the ring's area is π times the difference of the squared radii
+    // a ring inside a diamond: the ring’s area is π times the difference of the squared radii
     (d, ctx) => {
       const [a, c, w] = pick(ctx, 'ring', [[6, 10, 12], range(4, 70), range(3, 30)], (a, c, w) => { const [m, n] = cut(w, a * a); return c - w >= 1 && c + w <= (a * a) / 2 && m + n >= 10; });
       const [m, n] = cut(w, a * a), value = m + n;
@@ -700,7 +718,7 @@ export const probability = {
           const want = (m / n) * Math.PI;
           return Math.abs(got - want) < 0.005 * want ? '' : `grid gives ${got}, said ${want}`;
         },
-        solution: `The gold part is where ${c - w} ≤ x<sup>2</sup> + y<sup>2</sup> ≤ ${c + w}: a ring between radii √${c - w} and √${c + w}, with area π(${c + w} − ${c - w}) = ${2 * w}π. It lies inside the tile, because the largest circle in the tile has radius ${a}/√2, and (${a}/√2)<sup>2</sup> = ${(a * a) / 2} ≥ ${c + w}. The tile is a square with diagonals ${2 * a}, so its area is ½·${2 * a}·${2 * a} = ${2 * a * a}. The probability is ${2 * w}π/${2 * a * a} = ${frac(w, a * a)}·π, so m + n = <b>${num(value)}</b>.`,
+        solution: `Since ${w * w} = ${w}<sup>2</sup>, the gold condition says that x<sup>2</sup> + y<sup>2</sup> − ${c} is between −${w} and ${w}, so the gold part is where ${c - w} ≤ x<sup>2</sup> + y<sup>2</sup> ≤ ${c + w}. That is a ring between radii ${root(c - w)} and ${root(c + w)}, with area π(${c + w} − ${c - w}) = ${2 * w}π. It lies inside the tile, because the largest circle in the tile has radius ${a}/√2, and (${a}/√2)<sup>2</sup> = ${(a * a) / 2} ≥ ${c + w}. The tile is a square with diagonals ${2 * a}, so its area is ½·${2 * a}·${2 * a} = ${2 * a * a}. The probability is ${2 * w}π/${2 * a * a} = ${frac(w, a * a)}·π, so m + n = <b>${num(value)}</b>.`,
       };
     },
     // two people arrive at random times and wait: a square with a band along its diagonal
@@ -712,7 +730,7 @@ export const probability = {
         text: `${P} and ${Q} each arrive at the park at a random time between 4:00 and ${end}, independently, every moment equally likely. Whoever comes first waits ${w} minutes for the other, then leaves. What is the probability that they meet?`,
         answer: choices(d, ans, [cut(w, T), cut(2 * w, T), cut((T - w) ** 2, T * T), cut(w * w, T * T), cut(w * (2 * T - w), 2 * T * T)].filter(under1), showFrac),
         check: () => { const got = share(T, T, (x, y) => Math.abs(x - y) <= w); return Math.abs(got - ans[0] / ans[1]) < 0.004 ? '' : `grid gives ${got}, said ${ans[0]}/${ans[1]}`; },
-        solution: `Put ${P}'s arrival time (in minutes after 4:00) on one axis and ${Q}'s on the other: every point of a ${T}-by-${T} square is equally likely. They meet when the two times differ by at most ${w}, which is the square minus two corner triangles with legs ${T - w}. Together those triangles make a ${T - w}-by-${T - w} square, so the probability is 1 − (${frac(T - w, T)})<sup>2</sup> = <b>${fr(ans)}</b>.`,
+        solution: `Put ${P}’s arrival time (in minutes after 4:00) on one axis and ${Q}’s on the other, so that every point of a ${T}-by-${T} square is equally likely. They meet when the two times differ by at most ${w}, which is the square minus two corner triangles with legs ${T - w}. Together those triangles make a ${T - w}-by-${T - w} square, so the probability is 1 − ${raw((T - w) ** 2, T * T)} = <b>${fr(ans)}</b>.`,
       };
     },
     // near a corner of a square: four quarter circles
@@ -735,7 +753,7 @@ export const probability = {
           const got = share(s, s, near), want = (m / n) * Math.PI;
           return Math.abs(got - want) < 0.005 * want + 0.001 ? '' : `grid gives ${got}, said ${want}`;
         },
-        solution: `Around each corner, the points within ${r} form a quarter circle of area ¼·π·${r}<sup>2</sup>. The four quarter circles don't overlap (${r} + ${r} ≤ ${s}), so together they make one whole circle's worth, ${r === 1 ? '' : r * r}π. The square's area is ${s * s}, so the probability is ${r === 1 ? '' : r * r}π/${s * s} = ${frac(r * r, s * s)}·π, and m + n = <b>${num(value)}</b>.`,
+        solution: `Around each corner, the points within ${r} form a quarter circle of area ¼·π·${r}<sup>2</sup>. The four quarter circles don’t overlap (${r} + ${r} ≤ ${s}), so together they make one whole circle’s worth, ${r === 1 ? '' : r * r}π. The square’s area is ${s * s}, so the probability is ${r === 1 ? '' : r * r}π/${s * s} = ${frac(r * r, s * s)}·π, and m + n = <b>${num(value)}</b>.`,
       };
     },
     // two random numbers with a small sum: a triangle in a rectangle

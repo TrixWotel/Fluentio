@@ -1,6 +1,6 @@
 // Harder AMC 10 probability: 5 topics with ranks from 9 to 22, modelled on ideas from recent contests (a random walk
 // that stops at either end, two people side by side at a round table, the expected largest count, people getting their
-// own things back, and the AMC's own scoring), with new numbers, wording and settings. Each topic asks its idea three or
+// own things back, and the AMC’s own scoring), with new numbers, wording and settings. Each topic asks its idea three or
 // four ways, and check() gets every answer a second way: the state equations solved exactly with BigInt fractions, or
 // every seating, order, roll or guess tried one by one.
 import { combo, num, frac, gcd, choose } from '../kit/bank.js';
@@ -18,6 +18,8 @@ const over = ([a, b], [c, e]) => cut(a * e, b * c);
 const ONE = [1, 1];
 // "p/q = " before a fraction that reduces, nothing when p/q is already in lowest terms
 const ratio = (p, q) => (gcd(p, q) === 1 ? '' : `${num(p)}/${num(q)} = `);
+// a fraction as written, not reduced (for working that goes on to reduce it)
+const raw = (p, q) => `<span class="fr"><span>${p}</span><span>${q}</span></span>`;
 // a sum of whole numbers as people write it: 6 + 4 + 2 − 2
 const sumText = (list) => list.map((v, i) => (i === 0 ? num(v) : v < 0 ? ` − ${num(-v)}` : ` + ${num(v)}`)).join('');
 // combo, with a name of its own for each kind of question, so no two kinds share a list of combinations
@@ -81,7 +83,7 @@ function patternMoves(pats, [a, b]) {
   }
   return moves;
 }
-// every order of 0 … n − 1 (one array, changed in place: Heap's method), for checks
+// every order of 0 … n − 1 (one array, changed in place: Heap’s method), for checks
 function eachPerm(n, f) {
   const a = range(0, n - 1), c = Array(n).fill(0);
   f(a);
@@ -92,7 +94,7 @@ function eachPerm(n, f) {
 // every choice of k of the numbers 0 … n − 1, as bit masks
 const subsets = (n, k) => range(0, 2 ** n - 1).filter((m) => { let c = 0; for (let x = m; x; x &= x - 1) c++; return c === k; });
 
-// ---------- drawing: an svg with the page's figure styles ----------
+// ---------- drawing: an svg with the page’s figure styles ----------
 const r2 = (v) => Math.round(v * 100) / 100;
 const svg = (w, h, name, parts) => `<svg class="tri" viewBox="0 0 ${w} ${h}" role="img" aria-label="${name}">${parts.join('')}</svg>`;
 const seg = ([x1, y1], [x2, y2], cls = 'side') => `<line class="${cls}" x1="${r2(x1)}" y1="${r2(y1)}" x2="${r2(x2)}" y2="${r2(y2)}"/>`;
@@ -146,7 +148,7 @@ export const hardProbability = {
           const v = states(moves, { 0: far ? [0, 1] : [1, 1], [n]: far ? [1, 1] : [0, 1] }, 0)[k];
           return equal(v, ans) ? '' : `the state equations give ${show(v)}, said ${ans.join('/')}`;
         },
-        solution: `Let P(j) be the chance that the game ends on square ${n} when the token is on square j, so P(0) = 0 and P(${n}) = 1. From square j the token moves right with chance ${fr(p)} and left with chance ${fr(q)}, so P(j) = ${fr(p)}·P(j + 1) + ${fr(q)}·P(j − 1). Writing the left side as ${fr(p)}·P(j) + ${fr(q)}·P(j), this says ${fr(p)}·(P(j + 1) − P(j)) = ${fr(q)}·(P(j) − P(j − 1)), so each gap between neighboring squares' chances is ${fr(cut(b, a))} times the gap before it. The ${n} gaps from P(0) = 0 up to P(${n}) = 1 are therefore in the ratio ${gaps.join(' : ')}, which adds up to ${S}. P(${k}) is ${k === 1 ? 'just the first gap' : `the sum of the first ${k} gaps, (${first.join(' + ')})/${S}`} = ${far ? `<b>${fr(ans)}</b>.` : `${fr(right)}. So the game ends on square 0 with probability 1 − ${fr(right)} = <b>${fr(ans)}</b>.`}`,
+        solution: `Let P(j) be the chance that the game ends on square ${n} when the token is on square j, so P(0) = 0 and P(${n}) = 1. From square j the token moves right with chance ${fr(p)} and left with chance ${fr(q)}, so P(j) = ${fr(p)}·P(j + 1) + ${fr(q)}·P(j − 1). Writing the left side as ${fr(p)}·P(j) + ${fr(q)}·P(j), this says ${fr(p)}·(P(j + 1) − P(j)) = ${fr(q)}·(P(j) − P(j − 1)), so each gap between neighboring squares’ chances is ${fr(cut(b, a))} times the gap before it. The ${n} gaps from P(0) = 0 up to P(${n}) = 1 are therefore in the ratio ${gaps.join(' : ')}, which adds up to ${S}. P(${k}) is ${k === 1 ? 'just the first gap' : `the sum of the first ${k} gaps, (${first.join(' + ')})/${S}`} = ${far ? `<b>${fr(ans)}</b>.` : `${fr(right)}. So the game ends on square 0 with probability 1 − ${fr(right)} = <b>${fr(ans)}</b>.`}`,
       };
     },
     // a coin flipped until one of two patterns shows: which one comes first
@@ -154,7 +156,7 @@ export const hardProbability = {
       const RACES = [
         { X: 'HH', Y: 'TH', kind: 'start', run: 'HH', why: 'Suppose the first HH does not start at flip 1. Then the flip just before it is a T (if it were an H, HH would have shown one flip earlier), and that T with the next H makes TH, which is complete before the HH is. So HH comes first only when the first two flips are both heads' },
         { X: 'TT', Y: 'HT', kind: 'start', run: 'TT', why: 'Suppose the first TT does not start at flip 1. Then the flip just before it is an H (if it were a T, TT would have shown one flip earlier), and that H with the next T makes HT, which is complete before the TT is. So TT comes first only when the first two flips are both tails' },
-        { X: 'HHH', Y: 'THH', kind: 'start', run: 'HHH', why: 'Suppose the first HHH does not start at flip 1. Then the flip just before it is a T (if it were an H, HHH would have shown one flip earlier), and that T with the next two H\'s makes THH, which is complete before the HHH is. So HHH comes first only when the first three flips are all heads' },
+        { X: 'HHH', Y: 'THH', kind: 'start', run: 'HHH', why: 'Suppose the first HHH does not start at flip 1. Then the flip just before it is a T (if it were an H, HHH would have shown one flip earlier), and that T with the next two H’s makes THH, which is complete before the HHH is. So HHH comes first only when the first three flips are all heads' },
         { X: 'HHT', Y: 'THH', kind: 'start', run: 'HH', why: 'If the first two flips are heads, the heads go on until the first T, which completes HHT, and THH cannot show before that T. Otherwise the first HH has a T just before it (if it were an H, HH would have shown one flip earlier), so THH is complete as soon as that HH is, before HHT, which needs one more flip. So HHT comes first exactly when the first two flips are both heads' },
         { X: 'HH', Y: 'HT', kind: 'next' }, { X: 'TT', Y: 'TH', kind: 'next' }, { X: 'HT', Y: 'TH', kind: 'first' },
         { X: 'HHT', Y: 'HTH', kind: 'states' }, { X: 'TTH', Y: 'THT', kind: 'states' },
@@ -171,11 +173,17 @@ export const hardProbability = {
         start: () => `${race.why}, which has probability (${fr(pp)})<sup>${race.run.length}</sup> = ${tail}`,
         next: () => `Both patterns start with ${h}, so nothing before the first ${h} matters. Once ${art(h)} ${h} has come, the very next flip settles it: another ${h} completes ${X}, and ${art(t)} ${t} completes ${Y}. So ${X} comes first exactly when that flip is ${h === 'H' ? 'heads' : 'tails'}, which has probability ${tail}`,
         first: () => `Look at the first flip. If it is an H, the flips stay H until the first T, and that T completes HT, while TH cannot have shown yet, since it needs a T before an H. If it is a T, the first H to come completes TH in the same way. So HT comes first exactly when the first flip is heads, which has probability ${tail}`,
-        states: () => `Use states, keeping track only of how the latest flips could begin a pattern. Once ${h}${h} has shown, ${X} is sure to win, because the first ${t} after it completes ${X}. Let x be ${X}'s chance from a lone ${h} (one not right after another ${h}). The next flip gives ${h}${h} (chance ${fr(pp)}, a sure win) or ${h}${t} (chance ${fr(qq)}), and from ${h}${t} ${art(h)} ${h} completes ${Y}, while ${art(t)} ${t} wipes out all progress, so the race is then just a wait for the next ${h}, and ${X}'s chance is x again. So x = ${fr(pp)} + ${fr(qq)}·${fr(qq)}·x, which gives x = ${fr(pp)}/(1 − ${fr(times(qq, qq))}) = ${fr(PX)}. The race begins with no progress, which is also just a wait for ${art(h)} ${h}, so ${X} comes first with probability ${tail}`,
+        states: () => `Use states, keeping track only of how the latest flips could begin a pattern. Once ${h}${h} has shown, ${X} is sure to win, because the first ${t} after it completes ${X}. Let x be ${X}’s chance from a lone ${h} (one not right after another ${h}). The next flip gives ${h}${h} (chance ${fr(pp)}, a sure win) or ${h}${t} (chance ${fr(qq)}), and from ${h}${t} ${art(h)} ${h} completes ${Y}, while ${art(t)} ${t} wipes out all progress, so the race is then just a wait for the next ${h}, and ${X}’s chance is x again. So x = ${fr(pp)} + ${fr(qq)}·${fr(qq)}·x, which gives x = ${fr(pp)}/(1 − ${fr(times(qq, qq))}) = ${fr(PX)}. The race begins with no progress, which is also just a wait for ${art(h)} ${h}, so ${X} comes first with probability ${tail}`,
       }[kind]();
       const ratio = over(c(X), plus(c(X), c(Y)));
+      const tip = {
+        start: `Ask what the flip just before the first ${race.run} must be, unless that ${race.run} starts at flip 1.`,
+        next: `Nothing before the first ${h} matters, so ask what the flip right after it does.`,
+        first: 'Ask what happens after the very first flip, whichever way it lands.',
+      }[kind];
       return {
         topic: 'Random walks and states', rank: { start: 19, next: 18, first: 18, states: 20 }[kind],
+        ...(tip ? { tip } : {}),
         text: `${fair ? 'A fair coin' : `A coin that lands heads with probability ${fr(p)}`} is flipped again and again, and the results are written in a row, H for heads and T for tails. The flipping stops as soon as ${X} or ${Y} appears as consecutive letters. What is the probability that ${A} appears before ${B}?`,
         answer: choices(d, ans, [[1, 2], minus(ONE, ans), ask ? minus(ONE, ratio) : ratio, c(A), ask ? minus(ONE, pp) : pp, kind === 'states' ? over(ONE, plus(ONE, pp)) : times(pp, pp), [2, 3], [1, 4]].filter(under1), showFrac),
         check: () => {
@@ -196,21 +204,21 @@ export const hardProbability = {
       if (kind === 'HH') {
         E = over(hp, p2);
         wrongs = [over(ONE, p2), over([2, 1], p2), over([2, 1], p), minus(E, ONE), plus(over(ONE, p2), over([2, 1], p))];
-        sol = `Use states that record how much of the run the last ${unit}s already have. Let a be the expected number of ${unit}s still to come with no progress (at the start, or just after ${miss}), and b the number still to come right after ${hit}. Each ${unit} counts 1, and ${hit} comes with chance ${fr(p)}: a = 1 + ${fr(p)}·b + ${fr(q)}·a, and b = 1 + ${fr(q)}·a, since right after ${hit}, ${hit} again finishes and ${miss} starts over. Putting b into the first equation, a = 1 + ${fr(p)} + ${fr(plus(pq, q))}·a, so ${fr(p2)}·a = ${fr(hp)}. So a = <b>${fr(E)}</b>.`;
+        sol = `Use states that record how much of the run the last ${unit}s already have. Let a be the expected number of ${unit}s still to come with no progress (at the start, or just after ${miss}), and b the number still to come right after ${hit}. Each ${unit} counts 1, and ${hit} comes with chance ${fr(p)}: a = 1 + ${fr(p)}·b + ${fr(q)}·a, and b = 1 + ${fr(q)}·a, since right after ${hit}, ${hit} again finishes and ${miss} starts over. Putting b into the first equation, a = 1 + ${fr(p)} + ${fr(plus(pq, q))}·a, so ${fr(p2)}·a = ${fr(hp)}, and a = <b>${fr(E)}</b>.`;
       } else if (kind === 'HHH') {
         const s = plus(hp, p2);
         E = over(s, p3);
         wrongs = [over(ONE, p3), over([3, 1], p), plus(over(ONE, p2), over(ONE, p3)), minus(E, ONE), plus(E, ONE), over([2, 1], p3)];
-        sol = `Use states that record how many heads in a row the last flips end with (none, one or two). Let a, b and c be the expected numbers of flips still to come from those states. Each flip counts 1, heads moves one state up (or finishes, from two), and tails sends it back to none: a = 1 + ${fr(p)}·b + ${fr(q)}·a, b = 1 + ${fr(p)}·c + ${fr(q)}·a and c = 1 + ${fr(q)}·a. Putting c into b, and then b into a, gives a = ${fr(s)} + ${fr(times(q, s))}·a. Since 1 − ${fr(times(q, s))} = ${fr(p3)}, this means ${fr(p3)}·a = ${fr(s)}, so a = <b>${fr(E)}</b>.`;
+        sol = `Use states that record how many heads in a row the last flips end with (none, one or two). Let a, b and c be the expected numbers of flips still to come from those states. Each flip counts 1, heads moves one state up (or finishes, from two), and tails sends it back to none: a = 1 + ${fr(p)}·b + ${fr(q)}·a, b = 1 + ${fr(p)}·c + ${fr(q)}·a and c = 1 + ${fr(q)}·a. Putting c into b gives b = ${fr(hp)} + ${fr(times(q, hp))}·a, and putting that into a gives a = ${fr(s)} + ${fr(times(q, s))}·a. Since 1 − ${fr(times(q, s))} = ${fr(p3)}, this means ${fr(p3)}·a = ${fr(s)}, so a = <b>${fr(E)}</b>.`;
       } else if (kind === 'HT') {
         E = plus(over(ONE, p), over(ONE, q));
         wrongs = [over(ONE, p2), over(ONE, times(q, q)), over(hp, p2), minus(E, ONE), [4, 1], over([2, 1], p)];
-        sol = `Split the wait into two waits, one after the other. First wait for ${hit}: something with chance r takes 1/r tries on average, so this takes ${fr(over(ONE, p))} ${unit}s on average. Once ${hit} has come, it stays useful (another ${die ? 'six' : 'head'} just takes its place), so now wait for ${miss}, which completes the pattern: ${fr(over(ONE, q))} more on average. In all, ${fr(over(ONE, p))} + ${fr(over(ONE, q))} = <b>${fr(E)}</b>.`;
+        sol = `Split the wait into two waits, one after the other. First wait for ${hit}, and since something with chance r takes 1/r tries on average, this takes ${fr(over(ONE, p))} ${unit}s on average. Once ${hit} has come, it stays useful (another ${die ? 'six' : 'head'} just takes its place), so now wait for ${miss}, which completes the pattern, ${fr(over(ONE, q))} more on average. In all, ${fr(over(ONE, p))} + ${fr(over(ONE, q))} = <b>${fr(E)}</b>.`;
       } else {
         const hh = over(plus(ONE, q), minus(ONE, pq)), tt = plus(ONE, times(p, hh)), m = plus(p2, times(q, q));
         E = plus(ONE, plus(times(p, hh), times(q, tt)));
         wrongs = [[3, 1], over(ONE, m), plus(ONE, over(ONE, m)), minus(E, ONE), plus(ONE, over(ONE, minus(ONE, pq)))];
-        sol = `After the first flip, all that matters is which way the last flip landed. Let h be the expected number of flips still to come after heads, and t after tails. The next flip either repeats, which finishes, or switches: h = 1 + ${fr(q)}·t and t = 1 + ${fr(p)}·h. Putting t into the first, h = 1 + ${fr(q)} + ${fr(pq)}·h, so h = ${fr(hh)}, and then t = ${fr(tt)}. Counting the first flip, the expected number is 1 + ${fr(p)}·${fr(hh)} + ${fr(q)}·${fr(tt)} = <b>${fr(E)}</b>.`;
+        sol = `After the first flip, all that matters is which way the last flip landed. Let h be the expected number of flips still to come after heads, and t after tails. The next flip either repeats, which finishes, or switches: h = 1 + ${fr(q)}·t and t = 1 + ${fr(p)}·h. Putting t into the first, h = 1 + ${fr(q)} + ${fr(pq)}·h, so ${fr(minus(ONE, pq))}·h = ${fr(plus(ONE, q))} and h = ${fr(hh)}. Then t = 1 + ${fr(p)}·${fr(hh)} = ${fr(tt)}. Counting the first flip, the expected number is 1 + ${fr(p)}·${fr(hh)} + ${fr(q)}·${fr(tt)} = <b>${fr(E)}</b>.`;
       }
       const what = { HH: die ? 'two sixes come up in a row' : 'it lands heads twice in a row', HHH: 'it lands heads three times in a row', HT: die ? 'a six is followed right away by a roll that is not a six' : 'a head is followed right away by a tail', same: 'it lands the same way twice in a row' }[kind];
       return {
@@ -244,8 +252,8 @@ export const hardProbability = {
           return equal(v, [E, 1]) ? '' : `the state equations give ${show(v)}, said ${E}`;
         },
         solution: wall
-          ? `Let E(j) be the expected number of jumps still to come from pad j, so E(${n}) = 0. From pad 0 the next jump surely goes to pad 1, so E(0) = 1 + E(1), and from the pads in between E(j) = 1 + ${half}·(E(j − 1) + E(j + 1)). Look at the drops d(j) = E(j) − E(j + 1). The wall gives d(0) = 1, and the middle equation rearranges to d(j) = d(j − 1) + 2, so the drops are the odd numbers 1, 3, 5, …, that is d(j) = 2j + 1. From pad ${k} the frog has to make up every drop from pad ${k} to pad ${n}: ${odds.length <= 5 ? odds.join(' + ') : `${odds[0]} + ${odds[1]} + ⋯ + ${odds.at(-1)}`} = ${n}<sup>2</sup>${k ? ` − ${k}<sup>2</sup>` : ''} = <b>${E}</b>.`
-          : `Let E(j) be the expected number of jumps still to come from pad j, so E(0) = E(${n}) = 0, and E(j) = 1 + ${half}·(E(j − 1) + E(j + 1)) for the pads in between. Rearranged, the drops d(j) = E(j) − E(j + 1) satisfy d(j) = d(j − 1) + 2, so each drop is 2 more than the one before. The ${n} drops from pad 0 to pad ${n} add up to E(0) − E(${n}) = 0, so they run from −${n - 1} up to ${n - 1} in steps of 2, that is d(j) = 2j − ${n - 1}. Then E(${k}) = E(0) − ${range(0, k - 1).map((j) => `d(${j})`).join(' − ')} = ${sumText(drops)}, and in general E(k) = k(${n} − k), the product of the frog's distances to the two banks. So the answer is ${k}·${n - k} = <b>${E}</b>.`,
+          ? `Let E(j) be the expected number of jumps still to come from pad j, so E(${n}) = 0. From pad 0 the next jump surely goes to pad 1, so E(0) = 1 + E(1), and from the pads in between E(j) = 1 + ${half}·(E(j − 1) + E(j + 1)). Look at the drops d(j) = E(j) − E(j + 1). The wall gives d(0) = 1, and the middle equation rearranges to d(j) = d(j − 1) + 2, so the drops are the odd numbers 1, 3, 5, …, that is d(j) = 2j + 1. From pad ${k} the frog has to make up every drop from pad ${k} to pad ${n}, and since E(${n}) = 0, E(${k}) is their sum, ${odds.length <= 5 ? odds.join(' + ') : `${odds[0]} + ${odds[1]} + ⋯ + ${odds.at(-1)}`}. The first m odd numbers add up to m<sup>2</sup>, so that is ${n}<sup>2</sup>${k ? ` − ${k}<sup>2</sup>` : ''} = <b>${E}</b>.`
+          : `Let E(j) be the expected number of jumps still to come from pad j, so E(0) = E(${n}) = 0, and E(j) = 1 + ${half}·(E(j − 1) + E(j + 1)) for the pads in between. Rearranged, the drops d(j) = E(j) − E(j + 1) satisfy d(j) = d(j − 1) + 2, so each drop is 2 more than the one before. The ${n} drops from pad 0 to pad ${n} add up to E(0) − E(${n}) = 0, so they run from −${n - 1} up to ${n - 1} in steps of 2, that is d(j) = 2j − ${n - 1}. Then E(${k}) = E(0) − ${range(0, k - 1).map((j) => `d(${j})`).join(' − ')} = ${k > 1 ? `${sumText(drops)} = ` : ''}${E}, which is ${k}·(${n} − ${k}); in general E(k) = k(${n} − k), the product of the frog’s distances to the two banks. So the answer is <b>${E}</b>.`,
       };
     },
   ],
@@ -274,7 +282,7 @@ export const hardProbability = {
             }
             return good * ans[1] === all3 * ans[0] ? '' : `counted ${good}/${all3}, said ${ans.join('/')}`;
           },
-          solution: `Look only at ${A}'s two neighbors. Whatever seat ${A} takes, the two seats beside ${A} are filled by 2 of the other ${n - 1} people, and each of the C(${n - 1}, 2) = ${all} pairs is equally likely. Neither neighbor is ${B} or ${C} when both come from the other ${n - 3} people: C(${n - 3}, 2) = ${none} pairs. So neither of them sits next to ${A} with probability ${ratio(none, all)}${kind === 'neither' ? `<b>${fr(ans)}</b>.` : `${fr(neither)}. At least one of them does with probability 1 − ${fr(neither)} = <b>${fr(ans)}</b>.`}`,
+          solution: `Look only at ${A}’s two neighbors. Whatever seat ${A} takes, the two seats beside ${A} are filled by 2 of the other ${n - 1} people, and each of the C(${n - 1}, 2) = ${all} pairs is equally likely. Neither neighbor is ${B} or ${C} when both come from the other ${n - 3} people, which happens for C(${n - 3}, 2) = ${none} pairs. So neither of them sits next to ${A} with probability ${ratio(none, all)}${kind === 'neither' ? `<b>${fr(ans)}</b>.` : `${fr(neither)}. At least one of them does with probability 1 − ${fr(neither)} = <b>${fr(ans)}</b>.`}`,
         };
       }
       const good = { next: 2, across: 1, near: 4 }[kind], ans = cut(good, n - 1);
@@ -285,7 +293,7 @@ export const hardProbability = {
         text: `${Cap(WORDS[m])} friends, ${A} and ${B} among them, choose ${m} of the ${n} chairs around a round table at random and sit down, one to a chair; the other chairs stay empty. What is the probability that ${A} and ${B} sit ${where}?`,
         answer: choices(d, ans, [cut(good, m - 1), cut(good, n), cut(good === 1 ? 2 : good / 2, n - 1), cut(good, n - 2), cut(good, m)].filter(under1), showFrac),
         check: () => {
-          // every way the two of them can take two different chairs (the others don't change which pairs are equally likely)
+          // every way the two of them can take two different chairs (the others don’t change which pairs are equally likely)
           let hit = 0;
           for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) {
             if (a === b) continue;
@@ -307,7 +315,7 @@ export const hardProbability = {
         touch: [apart, row3, cut(6, n - 1), pair, minus(ONE, times(cut(n - 3, n - 1), cut(n - 5, n - 2)))],
         pair: [cut(2 * (n - 4), (n - 1) * (n - 2)), minus(ONE, apart), row3, cut(4 * (n - 4), (n - 1) * (n - 2)), cut(3 * (n - 4), (n - 1) * (n - 2)), times(cut(6, n - 1), cut(n - 3, n - 2))],
       }[kind];
-      const sepText = `Fix ${A}'s seat. ${B} and ${C} take 2 of the other ${n - 1} seats, and all C(${n - 1}, 2) = ${all} pairs of seats are equally likely. Those ${n - 1} seats form a row from the seat on ${A}'s left around to the seat on ${A}'s right; ${B} and ${C} must avoid both ends of that row (they are next to ${A}), so they use the middle ${n - 3} seats, and they must not take two neighbors there. Of the C(${n - 3}, 2) = ${mid} pairs of middle seats, ${n - 4} are neighbors, which leaves ${sep}. So no two friends sit together with probability ${ratio(sep, all)}`;
+      const sepText = `Fix ${A}’s seat. ${B} and ${C} take 2 of the other ${n - 1} seats, and all C(${n - 1}, 2) = ${all} pairs of seats are equally likely. Those ${n - 1} seats form a row from the seat on ${A}’s left around to the seat on ${A}’s right; ${B} and ${C} must avoid both ends of that row (they are next to ${A}), so they use the middle ${n - 3} seats, and they must not take two neighbors there. Of the C(${n - 3}, 2) = ${mid} pairs of middle seats, ${n - 4} are neighbors, which leaves ${sep}. So no two friends sit together with probability ${ratio(sep, all)}`;
       return {
         topic: 'Round table chances', rank: kind === 'pair' ? 18 : 17,
         text: `${Cap(WORDS[n])} people, among them three friends ${A}, ${B} and ${C}, sit in random order around a round table with ${n} seats. What is the probability that ${{ apart: 'no two of the three friends sit next to each other', touch: 'at least two of the three friends sit next to each other', pair: 'exactly two of the three friends sit next to each other, with the third friend next to neither of them' }[kind]}?`,
@@ -324,8 +332,8 @@ export const hardProbability = {
           return hit * ans[1] === all3 * ans[0] ? '' : `counted ${hit}/${all3}, said ${ans.join('/')}`;
         },
         solution: kind === 'pair'
-          ? `There are 3 choices for which two friends form the pair, and these cases can't overlap, since two pairs at once would put all three friends in a row. Say the pair is ${A} and ${B}. Whatever seat ${A} takes, ${B} is equally likely to be in any of the other ${n - 1} seats, and 2 of them are next to ${A}, so the chance is ${frac(2, n - 1)}. Then ${C} is in one of the other ${n - 2} seats and must avoid the 2 seats at the two ends of the pair, a chance of ${frac(n - 4, n - 2)}. So the answer is 3·${frac(2, n - 1)}·${frac(n - 4, n - 2)} = <b>${fr(ans)}</b>.`
-          : kind === 'apart' ? `${sepText}<b>${fr(ans)}</b>.` : `Count the opposite, no two friends side by side. ${sepText}${fr(apart)}. So at least two of them sit together with probability 1 − ${fr(apart)} = <b>${fr(ans)}</b>.`,
+          ? `There are 3 choices for which two friends form the pair, and these cases can’t overlap, since two pairs at once would put all three friends in a row. Say the pair is ${A} and ${B}. Whatever seat ${A} takes, ${B} is equally likely to be in any of the other ${n - 1} seats, and 2 of them are next to ${A}, so the chance is ${ratio(2, n - 1)}${frac(2, n - 1)}. Then ${C} is in one of the other ${n - 2} seats and must avoid the 2 seats at the two ends of the pair, a chance of ${ratio(n - 4, n - 2)}${frac(n - 4, n - 2)}. So the answer is 3·${frac(2, n - 1)}·${frac(n - 4, n - 2)} = <b>${fr(ans)}</b>.`
+          : kind === 'apart' ? `${sepText}<b>${fr(ans)}</b>.` : `Count the opposite, no two friends side by side. ${sepText}${fr(apart)}. That means at least two of them sit together with probability 1 − ${fr(apart)} = <b>${fr(ans)}</b>.`,
       };
     },
     // couples: all together, none together, at least one together, or one couple together and another apart
@@ -344,9 +352,15 @@ export const hardProbability = {
         given: [cut(2, N - 1), times(cut(2, N - 1), cut(N - 3, N - 1)), times(cut(2, N - 1), cut(2, N - 2)), cut(1, N - 1), times(cut(2, N - 1), cut(N - 3, N - 2))],
       }[kind];
       const terms = range(0, m).map((j) => (j ? `${j % 2 ? '−' : '+'} C(${m}, ${j})·${2 ** j}·${N - j - 1}!` : `${N - 1}!`)).join(' ');
-      const incl = `Count seatings up to turning the table: (${N} − 1)! = ${num(total)} in all. If j particular couples sit together, glue each of them into a block that can face 2 ways: ${N} − j units around the table give (${N} − j − 1)!·2<sup>j</sup> seatings. By inclusion–exclusion, the seatings with no couple together number ${terms} = ${S.map((v, j) => (j ? `${j % 2 ? '−' : '+'} ${num(v)}` : num(v))).join(' ')} = ${num(noneCount)}, so no couple sits together with probability ${num(noneCount)}/${num(total)} = `;
+      const incl = `Counting seatings up to turning the table, there are (${N} − 1)! = ${num(total)} in all. If j particular couples sit together, glue each of them into a block that can face 2 ways, and then the ${N} − j units around the table give (${N} − j − 1)!·2<sup>j</sup> seatings. By inclusion–exclusion, the seatings with no couple together number ${terms} = ${S.map((v, j) => (j ? `${j % 2 ? '−' : '+'} ${num(v)}` : num(v))).join(' ')} = ${num(noneCount)}, so no couple sits together with probability ${num(noneCount)}/${num(total)} = `;
       return {
         topic: 'Round table chances', rank: { all: 17, none: 19, some: 19, given: 16 }[kind],
+        tip: {
+          all: 'Glue each couple into a block, then count the ways to seat the blocks around the table and to turn each block.',
+          none: 'Glue the couples that sit together into blocks, and count the seatings with no couple together by inclusion–exclusion.',
+          some: 'Count the opposite, no couple together, by inclusion–exclusion, gluing the couples that sit together into blocks.',
+          given: 'Find the chance that the first couple sits together, then treat them as one block for the second couple.',
+        }[kind],
         text: kind === 'given'
           ? `${Cap(WORDS[m])} couples sit in random order around a round table with ${N} seats; two of the couples are ${A} and ${B}, and ${C} and ${D}. What is the probability that ${A} and ${B} sit next to each other but ${C} and ${D} do not?`
           : `${Cap(WORDS[m])} couples (${N} people) sit in random order around a round table with ${N} seats. What is the probability that ${{ all: 'every couple sits side by side', none: 'no couple sits side by side', some: 'at least one couple sits side by side' }[kind]}?`,
@@ -367,7 +381,7 @@ export const hardProbability = {
           all: `Glue each couple into a block. Around the table the ${m} blocks can go in (${m} − 1)! = ${fact(m - 1)} orders, once turns of the table count as the same, and each block can face either way, which gives 2<sup>${m}</sup> = ${2 ** m} more choices. So ${2 ** m * fact(m - 1)} of the (${N} − 1)! = ${num(total)} equally likely seatings have every couple together, and the probability is ${2 ** m * fact(m - 1)}/${num(total)} = <b>${fr(ans)}</b>.`,
           none: `${incl}<b>${fr(ans)}</b>.`,
           some: `Count the opposite, the seatings where no couple sits together. ${incl}${fr(none)}. So at least one couple sits together with probability 1 − ${fr(none)} = <b>${fr(ans)}</b>.`,
-          given: `Start with ${A} and ${B}. Whatever seat ${A} takes, ${B} is equally likely to be in any of the other ${N - 1}, and 2 of them are next to ${A}, so they sit together with probability ${frac(2, N - 1)}. Given that, treat ${A} and ${B} as one block, so ${N - 1} units sit around the table. Of the ${N - 2} units other than ${C}, ${D} is equally likely to be any one, and 2 of them are beside ${C}, so ${C} and ${D} are apart with probability 1 − ${frac(2, N - 2)} = ${frac(N - 4, N - 2)}. The answer is ${frac(2, N - 1)}·${frac(N - 4, N - 2)} = <b>${fr(ans)}</b>.`,
+          given: `Start with ${A} and ${B}. Whatever seat ${A} takes, ${B} is equally likely to be in any of the other ${N - 1}, and 2 of them are next to ${A}, so they sit together with probability ${frac(2, N - 1)}. Given that, treat ${A} and ${B} as one block, so ${N - 1} units sit around the table. Of the ${N - 2} units other than ${C}, ${D} is equally likely to be any one, and 2 of them are beside ${C}, so ${C} and ${D} are apart with probability 1 − ${raw(2, N - 2)} = ${frac(N - 4, N - 2)}. The answer is ${frac(2, N - 1)}·${frac(N - 4, N - 2)} = <b>${fr(ans)}</b>.`,
         }[kind],
       };
     },
@@ -390,7 +404,7 @@ export const hardProbability = {
         },
         solution: alt
           ? `Fix the seat of one of the ${X}; after that, all that matters is which seats the other ${X} take. The other ${b - 1} ${X} take ${b - 1} of the other ${N - 1} seats, and all C(${N - 1}, ${b - 1}) = ${all} choices of seats are equally likely. The groups alternate for just one of those choices, every second seat counting from the fixed one. So the probability is <b>${fr(ans)}</b>.`
-          : `Fix the seat of one of the ${Y}. The other ${N - 1} seats then form a row from the seat on that person's left around to the seat on the right (the two ends of the row are both beside the fixed seat, not beside each other), and the ${b} ${X} take ${b} of those seats, all C(${N - 1}, ${b}) = ${all} choices equally likely. Along the row, the other ${g - 1} ${Y} leave ${g} gaps (between two of them, or at either end), and no two ${X} are neighbors exactly when the ${X} go into ${b} different gaps, one in each: C(${g}, ${b}) = ${good} ways. So the probability is ${ratio(good, all)}<b>${fr(ans)}</b>.`,
+          : `Fix the seat of one of the ${Y}. The other ${N - 1} seats then form a row from the seat on that person’s left around to the seat on the right (the two ends of the row are both beside the fixed seat, not beside each other), and the ${b} ${X} take ${b} of those seats, all C(${N - 1}, ${b}) = ${all} choices equally likely. Along the row, the other ${g - 1} ${Y} leave ${g} gaps (between two of them, or at either end), and no two ${X} are neighbors exactly when the ${X} go into ${b} different gaps, one in each, which can be done in C(${g}, ${b}) = ${good} ways. So the probability is ${ratio(good, all)}<b>${fr(ans)}</b>.`,
       };
     },
   ],
@@ -413,14 +427,16 @@ export const hardProbability = {
         min3: [mean, cards, cut(range(1, s).reduce((t, j) => t + j * j, 0), s * s), plus(E, ONE), cut(s, 4)],
         gap: [cards, cut(s, 3), cut(s - 1, 2), cut(s - 1, 3), cut(s * s - 1, 6 * s)],
       }[kind];
+      // the sum of the first m squares (or cubes), by its formula
+      const sq = n === 2 ? 'squares' : 'cubes', formula = (m) => (n === 2 ? `${m}·${m + 1}·${2 * m + 1}/6` : `(${m}·${m + 1}/2)<sup>2</sup>`);
       const tail = `Use the tail-sum trick, which says that a whole number X from 1 to ${s} has E(X) = P(X ≥ 1) + P(X ≥ 2) + ⋯ + P(X ≥ ${s}), since X counts how many of k = 1, 2, …, ${s} satisfy X ≥ k`;
       let sol;
       if (kind === 'gap') {
-        sol = `By linearity, the expected gap is E(larger) − E(smaller). ${tail}. The larger is at least k unless both dice show less than k, so P(larger ≥ k) = 1 − ((k − 1)/${s})<sup>2</sup>, and adding these gives E(larger) = ${s} − (${powers(1, s - 1)})/${S} = ${fr(maxE)}. The smaller is at least k when both dice are, so P(smaller ≥ k) = ((${s} − k + 1)/${s})<sup>2</sup>, and E(smaller) = (${powers(1, s)})/${S} = ${fr(minE)}. So the expected gap is ${fr(maxE)} − ${fr(minE)} = <b>${fr(E)}</b>.`;
+        sol = `By linearity, the expected gap is E(larger) − E(smaller). ${tail}. The larger is at least k unless both dice show less than k, so P(larger ≥ k) = 1 − ((k − 1)/${s})<sup>2</sup>, and adding these gives E(larger) = ${s} − (${powers(1, s - 1)})/${S} = ${s} − ${num(low)}/${num(S)} = ${fr(maxE)}. The smaller is at least k when both dice are, so P(smaller ≥ k) = ((${s} − k + 1)/${s})<sup>2</sup>, and E(smaller) = (${powers(1, s)})/${S} = ${fr(minE)}. So the expected gap is ${fr(maxE)} − ${fr(minE)} = <b>${fr(E)}</b>.`;
       } else if (big2) {
-        sol = `${tail}. Here X is the ${n === 2 ? 'larger' : 'largest'} number, which is less than k only when ${n === 2 ? 'both dice show' : 'all three dice show'} at most k − 1. So P(X ≥ k) = 1 − ((k − 1)/${s})<sup>${n}</sup>. Adding these for k = 1 to ${s} gives E(X) = ${s} − (${powers(1, s - 1)})/${S} = ${s} − ${fr(cut(low, S))} = <b>${fr(E)}</b>.`;
+        sol = `${tail}. Here X is the ${n === 2 ? 'larger' : 'largest'} number, which is less than k only when ${n === 2 ? 'both dice show' : 'all three dice show'} at most k − 1. So P(X ≥ k) = 1 − ((k − 1)/${s})<sup>${n}</sup>. Adding these for k = 1 to ${s} gives E(X) = ${s} − (${powers(1, s - 1)})/${S}${s - 1 <= 4 ? '' : `. The first ${s - 1} ${sq} add up to ${formula(s - 1)} = ${num(low)}, so E(X)`} = ${s} − ${num(low)}/${num(S)} = <b>${fr(E)}</b>.`;
       } else {
-        sol = `${tail}. Here X is the ${n === 2 ? 'smaller' : 'smallest'} number, which is at least k exactly when ${n === 2 ? 'both dice show' : 'all three dice show'} k or more. So P(X ≥ k) = ((${s} − k + 1)/${s})<sup>${n}</sup>. Adding these for k = 1 to ${s} gives E(X) = (${powers(1, s)})/${S} = <b>${fr(E)}</b>.`;
+        sol = `${tail}. Here X is the ${n === 2 ? 'smaller' : 'smallest'} number, which is at least k exactly when ${n === 2 ? 'both dice show' : 'all three dice show'} k or more. So P(X ≥ k) = ((${s} − k + 1)/${s})<sup>${n}</sup>. Adding these for k = 1 to ${s} gives E(X) = (${powers(1, s)})/${S}${s <= 4 ? '' : `. The first ${s} ${sq} add up to ${formula(s)} = ${num(low + S)}, so E(X)`} = ${ratio(low + S, S)}<b>${fr(E)}</b>.`;
       }
       return {
         topic: 'Expected maximum', rank: n === 3 || kind === 'gap' ? 20 : 19,
@@ -462,6 +478,7 @@ export const hardProbability = {
       }[kind];
       return {
         topic: 'Expected maximum', rank: kind === 'min' || kind === 'max' ? 20 : 21,
+        tip: 'The numbers drawn split the others into gaps, and by symmetry every gap has the same expected size.',
         text: `${setup} What is the expected value of ${ask}?`,
         answer: choices(d, E, wrongs.filter((w) => w[0] > 0), showFrac),
         check: () => {
@@ -476,7 +493,7 @@ export const hardProbability = {
         solution: `Line up the numbers 1 to ${n}. The ${k} that are ${verb} split the other ${n - k} into ${k + 1} gaps (before the smallest ${verb} number, between ${verb} neighbors, and after the largest). Every draw matches one list of ${k + 1} gap sizes adding up to ${n - k}, and every such list is equally likely, so by symmetry every gap has the same expected size, ${gcd(n - k, k + 1) === 1 ? fr(g) : `${n - k}/${k + 1} = ${fr(g)}`}. ${last}`,
       };
     },
-    // balls dropped into boxes: the expected number of empty boxes, of boxes with one ball, or the fullest box's load
+    // balls dropped into boxes: the expected number of empty boxes, of boxes with one ball, or the fullest box’s load
     (d, ctx) => {
       const [kind, [b, n], place] = pick(ctx, 'boxes', [['empty', 'single', 'largest'], [[3, 3], [3, 4], [4, 2], [4, 3], [4, 4], [5, 2], [5, 3], [6, 2], [4, 5], [5, 4]], [0, 1, 2]],
         (kind, [b, n]) => (kind === 'largest' ? n <= 4 && b + n <= 9 && !(b === 5 && n === 4) : n >= 3));
@@ -516,12 +533,13 @@ export const hardProbability = {
         E = cut(top, N);
         wrongs = [cut(b, n), [Math.ceil(b / n), 1], cut(parts.reduce((t, l) => t + l[0], 0), parts.length), minus(E, ONE), plus(cut(b, n), ONE)];
         const full = (l) => [...l, ...Array(n - l.length).fill(0)].join(' + '), ex = parts[1], exBoxes = ways(ex) / (fact(b) / ex.reduce((t, x) => t * fact(x), 1));
-        sol = `Sort the ${n}<sup>${b}</sup> = ${N} equally likely outcomes by how the ${items} are shared out, ignoring which ${box} is which: ${parts.map((l, i) => `${i === parts.length - 1 ? 'and ' : ''}${full(l)} in ${ways(l)}`).join(', ')}. (For example, ${full(ex)} happens in ${exBoxes}·${ways(ex) / exBoxes} = ${ways(ex)} ways, with ${exBoxes} ways to decide which ${box} gets how many and ${ways(ex) / exBoxes} ways to decide which ${items} go where.) So the fullest ${box} has ${tops.map((m, i) => `${i && i === tops.length - 1 ? 'and ' : ''}${m} in ${byMax[m]}`).join(', ')} of the outcomes, and the expected number is (${tops.map((m) => `${m}·${byMax[m]}`).join(' + ')})/${N} = ${top}/${N} = <b>${fr(E)}</b>.`;
+        sol = `Sort the ${n}<sup>${b}</sup> = ${N} equally likely outcomes by how the ${items} are shared out, ignoring which ${box} is which: ${parts.map((l, i) => `${i === parts.length - 1 ? 'and ' : ''}${full(l)} in ${ways(l)}`).join(', ')}. For example, ${full(ex)} happens in ${exBoxes}·${ways(ex) / exBoxes} = ${ways(ex)} ways, with ${exBoxes} ways to decide which ${box} gets how many and ${ways(ex) / exBoxes} ways to decide which ${items} go where. So the fullest ${box} has ${tops.map((m, i) => `${i && i === tops.length - 1 ? 'and ' : ''}${m} in ${byMax[m]}`).join(', ')} of the outcomes, and the expected number is (${tops.map((m) => `${m}·${byMax[m]}`).join(' + ')})/${N} = ${top}/${N} = <b>${fr(E)}</b>.`;
         rank = b >= 5 || n === 4 ? 22 : 21;
       }
       const ask = { empty: `What is the expected number of ${boxes} that end up empty?`, single: `What is the expected number of ${boxes} that end up with exactly one ${item}?`, largest: `What is the expected number of ${items} in the ${box} that gets the most? (If several tie for the most, that number counts.)` }[kind];
       return {
         topic: 'Expected maximum', rank,
+        ...(kind === 'largest' ? { tip: `Sort the equally likely outcomes by how many ${items} land in each ${box}, and weigh each largest load by how many outcomes give it.` } : {}),
         text: `${setup} ${ask}`,
         answer: choices(d, E, wrongs.filter((w) => w[0] > 0), showFrac),
         check: () => {
@@ -541,10 +559,15 @@ export const hardProbability = {
       const [kind, n] = pick(ctx, 'records', [['record', 'see', 'changes', 'peaks'], [4, 5, 6, 7, 8]]);
       const H = range(1, n).reduce((t, j) => plus(t, [1, j]), [0, 1]), E = { record: H, see: H, changes: minus(H, ONE), peaks: cut(n + 1, 3) }[kind];
       const harmonic = (from) => range(from, n).map((j) => (j === 1 ? '1' : frac(1, j))).join(' + ');
+      // the same sum over a common denominator, then "p/q = " if it reduces
+      const together = (from) => {
+        const L = range(1, n).reduce((a, j) => (a * j) / gcd(a, j), 1), parts = range(from, n).map((j) => L / j), top = parts.reduce((a, b) => a + b, 0);
+        return `(${parts.join(' + ')})/${L} = ${ratio(top, L)}`;
+      };
       const text = {
         record: `The cards numbered 1 to ${n} are shuffled and turned over one at a time. A card is a record if it is higher than every card turned over before it, so the first card is always a record. What is the expected number of records?`,
         see: `${Cap(WORDS[n])} students, all of different heights, stand in a single line in random order, facing a stage at the front. A student can see the stage only if he or she is taller than everyone in front, so the student at the front always can. What is the expected number of students who can see the stage?`,
-        changes: `${Cap(WORDS[n])} players, whose scores will all be different, take turns at a game in random order. A screen shows the highest score so far: the first player's score goes up on it, and after that the screen changes only when a player beats the score showing. What is the expected number of times the screen changes after the first score goes up?`,
+        changes: `${Cap(WORDS[n])} players, whose scores will all be different, take turns at a game in random order. A screen shows the highest score so far: the first player’s score goes up on it, and after that the screen changes only when a player beats the score showing. What is the expected number of times the screen changes after the first score goes up?`,
         peaks: `${Cap(WORDS[n])} children, all of different heights, stand in a row in random order. A child is a peak if he or she is taller than every child standing right next to him or her (one neighbor for each child at an end, two for the others). What is the expected number of peaks?`,
       }[kind];
       const wrongs = {
@@ -570,13 +593,13 @@ export const hardProbability = {
         },
         solution: kind === 'peaks'
           ? `Use linearity of expectation, adding up, child by child, the chance of being a peak. A child at an end is a peak when taller than the one neighbor, which happens with probability ${frac(1, 2)}, like a fair coin flip. A child in the middle is a peak when the tallest of the three (the child and both neighbors), and each of the three is equally likely to be tallest, so that happens with probability ${frac(1, 3)}. So the expected number is 2·${frac(1, 2)} + ${n - 2}·${frac(1, 3)} = <b>${fr(E)}</b>.`
-          : `Use linearity of expectation, adding up, one by one, the chance that the j-th ${k} ${{ record: 'is a record', see: 'can see the stage', changes: 'changes the screen' }[kind]}. That happens exactly when ${{ record: 'it is the highest of the first j cards', see: 'he or she is the tallest of the first j students', changes: 'that player\'s score is the highest of the first j' }[kind]}, and each of the first j is equally likely to be the ${kind === 'see' ? 'tallest' : 'highest'}, so the chance is 1/j. ${kind === 'changes' ? `The first player's score doesn't count as a change, so the expected number of changes is ${harmonic(2)} = <b>${fr(E)}</b>.` : `So the expected number is ${harmonic(1)} = <b>${fr(E)}</b>.`}`,
+          : `Use linearity of expectation, adding up, one by one, the chance that the j-th ${k} ${{ record: 'is a record', see: 'can see the stage', changes: 'changes the screen' }[kind]}. That happens exactly when ${{ record: 'it is the highest of the first j cards', see: 'he or she is the tallest of the first j students', changes: 'that player’s score is the highest of the first j' }[kind]}, and each of the first j is equally likely to be the ${kind === 'see' ? 'tallest' : 'highest'}, so the chance is 1/j. ${kind === 'changes' ? `The first player’s score doesn’t count as a change, so the expected number of changes is ${harmonic(2)} = ${together(2)}<b>${fr(E)}</b>.` : `So the expected number is ${harmonic(1)} = ${together(1)}<b>${fr(E)}</b>.`}`,
       };
     },
   ],
 
   'Derangements and matching': [
-    // how many ways nobody gets their own: plain, with one person's item given, or with no two swapping
+    // how many ways nobody gets their own: plain, with one person’s item given, or with no two swapping
     (d, ctx) => {
       const [kind, n, place] = pick(ctx, 'count', [['none', 'given', 'loops'], [4, 5, 6, 7], [0, 1, 2]]);
       const [A, B] = d.pick(PAIRS), D = DER[n];
@@ -585,11 +608,11 @@ export const hardProbability = {
         [`${Cap(WORDS[n])} students, ${A} and ${B} among them, each take a quiz. The teacher hands the ${n} quizzes back out for grading, one to each student.`, 'his or her own quiz', 'quiz', 'quizzes', 'students'],
         [`${Cap(WORDS[n])} friends, ${A} and ${B} among them, each bring a book to a book swap. The ${n} books are handed out again, one to each friend.`, 'the book he or she brought', 'book', 'books', 'friends'],
       ][place];
-      const ask = { none: `nobody get ${own}`, given: `nobody get ${own}, with ${A} getting ${B}'s ${item}`, loops: `nobody get ${own}, with no two ${people} getting each other's ${items}` }[kind];
+      const ask = { none: `nobody get ${own}`, given: `nobody get ${own}, with ${A} getting ${B}’s ${item}`, loops: `nobody get ${own}, with no two ${people} getting each other’s ${items}` }[kind];
       const loops = { 4: [[[4], 6]], 5: [[[5], 24]], 6: [[[6], 120], [[3, 3], 40]], 7: [[[7], 720], [[3, 4], 420]] }[n];
       const ans = { none: D, given: D / (n - 1), loops: loops.reduce((t, [, c]) => t + c, 0) }[kind];
       const ie = range(0, n).map((j) => (j ? `${j % 2 ? '−' : '+'} ${num(fact(n) / fact(j))}` : num(fact(n)))).join(' ');
-      const count = `Count all ${n}! = ${num(fact(n))} ways and use inclusion–exclusion on the ${people} who get their own ${item}. The ways where j particular ${people} get their own number (${n} − j)!, and those j can be chosen in C(${n}, j) ways, which makes C(${n}, j)·(${n} − j)! = ${n}!/j!. So nobody gets their own ${item} in ${n}! − ${n}!/1! + ${n}!/2! − ⋯ = ${ie} = `;
+      const count = `Count all ${n}! = ${num(fact(n))} ways and use inclusion–exclusion on the ${people} who get their own ${item}. If j particular ${people} all get their own ${item}, the rest can be handed out in (${n} − j)! ways, and those j can be chosen in C(${n}, j) ways, which makes C(${n}, j)·(${n} − j)! = ${n}!/j!. So nobody gets their own ${item} in ${n}! − ${n}!/1! + ${n}!/2! − ⋯ = ${ie} = `;
       const wrongs = {
         none: [fact(n) / 2, fact(n - 1), fact(n) - D, (n - 1) * DER[n - 1], D - 2 * (n % 2 ? -1 : 1)],
         given: [D, DER[n - 1], DER[n - 2], fact(n - 2), D / n, fact(n - 1) / (n - 1)],
@@ -612,8 +635,8 @@ export const hardProbability = {
         },
         solution: {
           none: `${count}<b>${num(ans)}</b> ways.`,
-          given: `${count}${num(D)} ways. Now use symmetry. Swapping the names of two of the other ${people} swaps which of their ${items} ${A} gets and changes nothing else, so ${A} gets each of the other ${n - 1} ${people}' ${items} equally often. So ${A} gets ${B}'s ${item} in ${num(D)}/${n - 1} = <b>${num(ans)}</b> of them.`,
-          loops: `Follow the ${items}. ${A} has someone's ${item}, that person has someone else's, and so on until it comes back to ${A}, so the ${people} split into loops. Nobody having their own ${item} means no loop of 1, and no two having each other's means no loop of 2, so every loop has at least 3 ${people}. The ${people} in a loop of k can go round it in (k − 1)! ways (start from any one of them). ${n === 6 ? `For 6 ${people}, that means one loop of 6, in 5! = 120 ways, or two loops of 3, with C(6, 3)/2 = 10 ways to split them up (halved, since the two loops are alike) times 2·2 for going round each, 40 ways. In all, 120 + 40 = ` : n === 7 ? `For 7 ${people}, that means one loop of 7, in 6! = 720 ways, or a loop of 3 and a loop of 4, with C(7, 3) = 35 ways to choose the 3 times 2!·3! = 12 for going round, 420 ways. In all, 720 + 420 = ` : `For ${n} ${people} that leaves only one loop of all ${n}, which can be done in (${n} − 1)! = `}<b>${num(ans)}</b> ways.`,
+          given: `${count}${num(D)} ways. Now use symmetry, since swapping the names of two of the other ${people} swaps which of their ${items} ${A} gets and changes nothing else, so ${A} gets each of the other ${n - 1} ${people}’ ${items} equally often. So ${A} gets ${B}’s ${item} in ${num(D)}/${n - 1} = <b>${num(ans)}</b> of them.`,
+          loops: `Follow the ${items}. ${A} has someone’s ${item}, that person has someone else’s, and so on until it comes back to ${A}, so the ${people} split into loops. Nobody having their own ${item} means no loop of 1, and no two having each other’s means no loop of 2, so every loop has at least 3 ${people}. The ${people} in a loop of k can go round it in (k − 1)! ways (start from any one of them). ${n === 6 ? `For 6 ${people}, that means one loop of 6, in 5! = 120 ways, or two loops of 3, with C(6, 3)/2 = 10 ways to split them up (halved, since the two loops are alike) times 2·2 for going round each, 40 ways. In all, 120 + 40 = ` : n === 7 ? `For 7 ${people}, that means one loop of 7, in 6! = 720 ways, or a loop of 3 and a loop of 4, with C(7, 3) = 35 ways to choose the 3 times 2!·3! = 12 for going round, 420 ways. In all, 720 + 420 = ` : `For ${n} ${people} that leaves only one loop of all ${n}, which can be done in (${n} − 1)! = `}<b>${num(ans)}</b> ways.`,
         }[kind],
       };
     },
@@ -627,7 +650,7 @@ export const hardProbability = {
         [`A coat check mixes up its tickets and returns the ${n} coats to their ${n} owners at random, one coat each.`, 'owners', 'gets his or her own coat', 'get their own coats'],
       ][place];
       const derText = m === 2 ? 'just 1 way (they swap)' : m === 3 ? '2 ways (passing along a loop of three, one way round or the other)'
-        : `${range(0, m).map((j) => (j ? `${j % 2 ? '−' : '+'} ${fact(m) / fact(j)}` : fact(m))).join(' ')} = ${DER[m]} ways, by inclusion–exclusion`;
+        : `${m}! − ${m}!/1! + ${m}!/2! − ⋯ = ${range(0, m).map((j) => (j ? `${j % 2 ? '−' : '+'} ${num(fact(m) / fact(j))}` : num(fact(m)))).join(' ')} = ${DER[m]} ways, by inclusion–exclusion`;
       return {
         topic: 'Derangements and matching', rank: k === 1 ? 18 : 19,
         text: `${setup} What is the probability that exactly ${WORDS[k]} of the ${things} ${k === 1 ? one : many}?`,
@@ -640,7 +663,7 @@ export const hardProbability = {
         solution: `First choose which ${k === 1 ? 'one gets' : `${WORDS[k]} get`} it right, in C(${n}, ${k}) = ${choose(n, k)} ways. The other ${m} must all be wrong, which can happen in ${derText}. So ${choose(n, k)}·${DER[m]} = ${top} of the ${n}! = ${fact(n)} equally likely ways work, and the probability is ${top}/${fact(n)} = <b>${fr(ans)}</b>.`,
       };
     },
-    // a gift swap: nobody draws their own name; or, redrawn until that's so, two who drew each other, or one loop through all
+    // a gift swap: nobody draws their own name; or, redrawn until that’s so, two who drew each other, or one loop through all
     (d, ctx) => {
       const [kind, n] = pick(ctx, 'swap', [['nobody', 'pair', 'loop'], [4, 5, 6, 7]]);
       const [A, B] = d.pick(PAIRS), D = DER[n], F = fact(n);
@@ -650,10 +673,10 @@ export const hardProbability = {
       const redraw = 'If anyone draws his or her own name, all the names go back in and everyone draws again, until nobody has drawn his or her own name.';
       const text = {
         nobody: `${base} What is the probability that nobody draws his or her own name?`,
-        pair: `${base} ${redraw} In the final draw, what is the probability that ${A} and ${B} drew each other's names?`,
+        pair: `${base} ${redraw} In the final draw, what is the probability that ${A} and ${B} drew each other’s names?`,
         loop: `${base} ${redraw} The gifts are then given in a chain: ${A} gives first, then whoever ${A} drew gives, and so on. What is the probability that every friend gives a gift before the chain comes back to ${A}?`,
       }[kind];
-      const count = `By inclusion–exclusion (the ways where j particular friends draw their own names number (${n} − j)!, and the j can be chosen in C(${n}, j) ways), the draws where nobody has their own name number ${n}! − ${n}!/1! + ${n}!/2! − ⋯ = ${ie}`;
+      const count = `By inclusion–exclusion (if j particular friends draw their own names, the others can draw in (${n} − j)! ways, and the j can be chosen in C(${n}, j) ways), the draws where nobody has their own name number ${n}! − ${n}!/1! + ${n}!/2! − ⋯ = ${ie}`;
       const wrongs = {
         nobody: [minus(ONE, ans), cut((n - 1) ** n, n ** n), cut(n - 1, n), [1, 2], cut(D + 1, F), cut(fact(n - 1), F)],
         pair: [cut(1, (n - 1) ** 2), cut(1, choose(n, 2)), cut(DER[n - 2], F), cut(1, n - 1), cut(fact(n - 2), D)],
@@ -679,7 +702,7 @@ export const hardProbability = {
         solution: {
           nobody: `There are ${n}! = ${num(F)} equally likely draws. ${count}. So the probability is ${num(D)}/${num(F)} = <b>${fr(ans)}</b>.`,
           pair: `Drawing again until nobody has their own name makes each of the draws where nobody does equally likely, so only those count. ${count}. If ${A} and ${B} drew each other, the other ${n - 2} must also have drawn among themselves with nobody drawing their own name, which can happen in ${DER[n - 2]} way${DER[n - 2] === 1 ? '' : 's'}. So the probability is ${ratio(DER[n - 2], D)}<b>${fr(ans)}</b>.`,
-          loop: `Drawing again until nobody has their own name makes each of the draws where nobody does equally likely, so only those count. ${count}. The chain reaches everyone when the draws make one loop through all ${n} friends: after ${A}, the other ${n - 1} can follow in any order, (${n} − 1)! = ${fact(n - 1)} ways, and in each of these nobody has drawn their own name. So the probability is ${ratio(fact(n - 1), D)}<b>${fr(ans)}</b>.`,
+          loop: `Drawing again until nobody has their own name makes each of the draws where nobody does equally likely, so only those count. ${count}. The chain reaches everyone when the draws make one loop through all ${n} friends, and after ${A} the other ${n - 1} can follow in any order, (${n} − 1)! = ${fact(n - 1)} ways, and in each of these nobody has drawn their own name. So the probability is ${ratio(fact(n - 1), D)}<b>${fr(ans)}</b>.`,
         }[kind],
       };
     },
@@ -730,7 +753,7 @@ export const hardProbability = {
   ],
 
   'Guess or leave blank': [
-    // the AMC's scoring: what guessing is worth after ruling choices out, for one plan or the best one
+    // the AMC’s scoring: what guessing is worth after ruling choices out, for one plan or the best one
     (d, ctx) => {
       // the three kinds take turns, each walking through its own combinations
       const kind = ['gain', 'plan', 'best'][ctx.k % 3], sub = { ...ctx, k: Math.floor(ctx.k / 3) };
@@ -754,14 +777,14 @@ export const hardProbability = {
         const blank = rest - g;
         ans = 6 * s + g * score(e) + 1.5 * blank;
         wrongs = [6 * s + g * score(e), 6 * s + g * 1.2 + 1.5 * blank, 6 * s + 1.5 * rest, 6 * s + (6 * g * (e + 1)) / 5 + 1.5 * blank, 6 * (s + g) + 1.5 * blank];
-        text = `${amc} ${who} answers ${s} questions and is sure of them, and they are all right. On ${g} other questions ${who} ${e ? `can rule out ${WORDS[e]} of the five choices as wrong, and guesses at random among the other ${WORDS[5 - e]}` : 'has no idea at all, and guesses at random among all five choices'}. ${who} leaves the remaining ${blank} questions blank. What is ${who}'s expected score?`;
+        text = `${amc} ${who} answers ${s} questions and is sure of them, and they are all right. On ${g} other questions ${who} ${e ? `can rule out ${WORDS[e]} of the five choices as wrong, and guesses at random among the other ${WORDS[5 - e]}` : 'has no idea at all, and guesses at random among all five choices'}. ${who} leaves the remaining ${blank} questions blank. What is ${who}’s expected score?`;
         sol = `Add up the expected points question by question, since expectation adds. The ${s} sure answers give 6·${s} = ${6 * s}. A guess among ${5 - e} choices is right with probability 1/${5 - e}, so it is worth 6/${5 - e} = ${num(score(e))} points on average, and the ${g} guesses give ${g}·${num(score(e))} = ${num(g * score(e))}. The ${blank} blanks give 1.5·${blank} = ${num(1.5 * blank)}. In all, ${6 * s} + ${num(g * score(e))} + ${num(1.5 * blank)} = <b>${num(ans)}</b>.`;
         rank = 10;
       } else {
         ans = 6 * s + 1.5 * x0 + 1.5 * x1 + 2 * x2 + 3 * x3;
         wrongs = [6 * s + 1.2 * x0 + 1.5 * x1 + 2 * x2 + 3 * x3, 6 * s + 1.5 * (rest), 6 * s + 1.5 * (x0 + x1 + x2) + 3 * x3, 6 * s + 2 * x2 + 3 * x3, 6 * s + 1.5 * x0 + 1.2 * x1 + 2 * x2 + 3 * x3];
         text = `${amc} ${who} answers ${s} questions and is sure of them, and they are all right. Of the other ${rest}, ${who} has no idea on ${x0}, can rule out exactly one choice as wrong on ${x1}, exactly two on ${x2}, and exactly three on ${x3}. On each of these ${rest}, ${who} either guesses at random among the choices not ruled out or leaves it blank. What is the largest expected score ${who} can get?`;
-        sol = `Decide question by question, since expected points add up. A guess with e choices ruled out is right with probability 1/(5 − e), so it is worth 6/(5 − e) points on average, against 1.5 for a blank. That gives 6/5 = 1.2 with nothing ruled out (worse than a blank), 6/4 = 1.5 with one ruled out (a tie), 2 with two and 3 with three (both better). So leave the ${x0} blank, take 1.5 either way on the ${x1}, and guess on the other ${x2 + x3}. The best expected score is 6·${s} + 1.5·${x0 + x1} + 2·${x2} + 3·${x3} = <b>${num(ans)}</b>.`;
+        sol = `Decide question by question, since expected points add up. A guess with e choices ruled out is right with probability 1/(5 − e), so it is worth 6/(5 − e) points on average, against 1.5 for a blank. That gives 6/5 = 1.2 with nothing ruled out (worse than a blank), 6/4 = 1.5 with one ruled out (a tie), 2 with two and 3 with three (both better). So leave blank the ${x0} with nothing ruled out, take 1.5 either way on the ${x1} with one ruled out, and guess on the other ${x2 + x3}. The best expected score is 6·${s} + 1.5·${x0 + x1} + 2·${x2} + 3·${x3} = <b>${num(ans)}</b>.`;
         rank = 11;
       }
       return {
@@ -812,7 +835,7 @@ export const hardProbability = {
           const first = [0, 1, 2, 3, 4].find((e) => { let t = 0; for (let c = 0; c < 5 - e; c++) t += c === 0 ? R : W; return t > B * (5 - e) + 1e-9; });
           return first === ans ? '' : `found ${first}, said ${ans}`;
         },
-        solution: `If ${who} rules out e choices, 5 − e are left, so a guess is right with probability 1/(5 − e) and wrong otherwise. Its expected score is ${W ? `(${R} − ${-W}·(4 − e))` : R}/(5 − e), to be compared with ${num(B)} for a blank. Try e = 0, 1, 2, … in turn: ${lines.join('; ')}. So the smallest number is <b>${ans}</b>.`,
+        solution: `If ${who} rules out e choices, 5 − e are left, so a guess is right with probability 1/(5 − e) and wrong otherwise. Its expected score is ${W ? `(${R} − ${-W}·(4 − e))` : R}/(5 − e), to be compared with ${num(B)} for a blank, so try e = 0, 1, 2, … in turn. ${lines.map(Cap).join('. ')}. So the smallest number is <b>${ans}</b>.`,
       };
     },
     // the scores behind a total: how many ways, the fewest right, the most wrong
@@ -828,6 +851,7 @@ export const hardProbability = {
       }[kind].filter((v) => Number.isInteger(v) && v >= 0 && v <= 25);
       return {
         topic: 'Guess or leave blank', rank: kind === 'wrong' ? 13 : 12,
+        tip: 'Write the score as 6r + 1.5b, with r right and b blank and r + b at most 25, and list the whole numbers that fit.',
         text: `The AMC 10 has 25 questions; each right answer earns 6 points, each question left blank 1.5, and each wrong answer 0. ${who} scored ${num(S)}. ${{ count: `How many different possibilities are there for the numbers of questions ${who} got right, left blank and got wrong?`, fewest: `What is the fewest questions ${who} could have answered correctly?`, wrong: `What is the largest number of questions ${who} could have answered wrong?` }[kind]}`,
         answer: choices(d, ans, wrongs),
         check: () => {
@@ -837,7 +861,7 @@ export const hardProbability = {
           const got = kind === 'count' ? found.length : kind === 'fewest' ? Math.min(...found.map((f) => f[0])) : Math.max(...found.map((f) => f[2]));
           return got === ans ? '' : `found ${got}, said ${ans}`;
         },
-        solution: `Let r be the number right and b the number blank. Then 6r + 1.5b = ${num(S)}, so b = ${T} − 4r, and there are two limits: b ≥ 0 means r ≤ ${hi}, and r + b ≤ 25 means ${T} − 3r ≤ 25, so r ≥ ${lo}. That leaves ${rows.map(([r, b, w]) => `${r} right, ${b} blank and ${w} wrong`).join('; ')}. ${{ count: `That is <b>${ans}</b> possibilities.`, fewest: `The fewest right is <b>${ans}</b>.`, wrong: `Each extra right answer takes away 4 blanks and adds 3 wrong answers, so the most wrong answers come with the most right ones: ${rows.at(-1)[0]} right, ${rows.at(-1)[1]} blank and <b>${ans}</b> wrong.` }[kind]}`,
+        solution: `Let r be the number right and b the number blank. Then 6r + 1.5b = ${num(S)}, and dividing by 1.5 gives 4r + b = ${T}, so b = ${T} − 4r. The blanks can’t be negative, so 4r ≤ ${T} and r ≤ ${hi}; and r + b = ${T} − 3r can’t be more than 25, so 3r ≥ ${T - 25} and r ≥ ${lo}. That leaves ${rows.map(([r, b, w]) => `${r} right, ${b} blank and ${w} wrong`).join('; ')}. ${{ count: `That is <b>${ans}</b> possibilities.`, fewest: `The fewest right is <b>${ans}</b>.`, wrong: `Each extra right answer takes away 4 blanks and adds 3 wrong answers, so the most wrong answers come with the most right ones, ${rows.at(-1)[0]} right, ${rows.at(-1)[1]} blank and <b>${ans}</b> wrong.` }[kind]}`,
       };
     },
     // the chance that guessing on several questions beats leaving them all blank
@@ -848,6 +872,7 @@ export const hardProbability = {
       const ans = atLeast(t), below = range(0, t - 1);
       return {
         topic: 'Guess or leave blank', rank: t >= 2 ? 14 : 13,
+        tip: 'Find how many right answers it takes to beat the blank score, then count the opposite, too few right.',
         text: `On the AMC 10, a right answer earns 6 points, a question left blank 1.5, and a wrong answer 0. ${who} has ${n} questions left and, on each of them, ${c === 5 ? 'has no idea, so all five choices are left' : `can rule out exactly ${WORDS[5 - c]} of the five choices, leaving ${WORDS[c]}`}. Leaving all ${n} blank would earn ${num(blank)} points. If ${who} instead guesses at random among the choices left on all ${n}, what is the probability of earning ${strict ? 'more than' : 'at least'} ${num(blank)} points on them?`,
         answer: choices(d, ans, [t > 1 ? atLeast(t - 1) : atLeast(t + 1), atLeast(t + 1), cut(P(t), all), [1, 2], minus(ONE, ans), atLeast(1)].filter(under1), showFrac),
         check: () => {
@@ -856,7 +881,7 @@ export const hardProbability = {
           for (let x = 0; x < all; x++) { let right = 0; for (let i = 0, y = x; i < n; i++, y = Math.floor(y / c)) if (y % c === 0) right++; if (strict ? 12 * right > 3 * n : 12 * right >= 3 * n) good++; }
           return good * ans[1] === all * ans[0] ? '' : `counted ${good}/${all}, said ${ans.join('/')}`;
         },
-        solution: `Guessing on all ${n} earns 6 points for each one right, so ${who} needs 6·(number right) ${strict ? '>' : '≥'} ${num(blank)}, which means at least ${t} right. Each guess is right with probability ${frac(1, c)}, independently. ${t === 1 ? `Count the opposite, no right answers at all, which has probability (${frac(c - 1, c)})<sup>${n}</sup> = ${frac(P(0), all)}` : `Count the opposite, fewer than ${t} right: ${below.map((r) => `${r} right has probability ${r ? `${choose(n, r) > 1 ? `${choose(n, r)}·` : ''}${frac(1, c)}${r > 1 ? `<sup>${r}</sup>` : ''}·` : ''}(${frac(c - 1, c)})<sup>${n - r}</sup> = ${frac(P(r), all)}`).join(', and ')}`}. So the probability is 1 − ${below.map((r) => frac(P(r), all)).join(' − ')} = <b>${fr(ans)}</b>.`,
+        solution: `Guessing on all ${n} earns 6 points for each one right, so ${who} needs 6·(number right) ${strict ? '>' : '≥'} ${num(blank)}, which means at least ${t} right. Each guess is right with probability ${frac(1, c)}, independently. ${t === 1 ? `Count the opposite, no right answers at all, which has probability (${frac(c - 1, c)})<sup>${n}</sup> = ${raw(P(0), all)}` : `Count the opposite, fewer than ${t} right, where ${below.map((r) => `${r} right has probability ${r ? `${choose(n, r) > 1 ? `${choose(n, r)}·` : ''}${frac(1, c)}${r > 1 ? `<sup>${r}</sup>` : ''}·` : ''}(${frac(c - 1, c)})<sup>${n - r}</sup> = ${raw(P(r), all)}`).join(', and ')}`}. So the probability is 1 − ${below.map((r) => raw(P(r), all)).join(' − ')} = ${gcd(ans[0] * all / ans[1], all) > 1 ? `${raw(ans[0] * all / ans[1], all)} = ` : ''}<b>${fr(ans)}</b>.`,
       };
     },
   ],

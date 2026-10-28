@@ -61,11 +61,33 @@ function cornerName(p, ctr, text, lines, needed = true, gap = 14) {
   return needed || room(best) >= 8 ? label(best, text) : '';
 }
 // a point's name, in the middle of the widest gap between the lines that leave it toward `others`
-function nameAt(p, others, text, gap = 15) {
+function nameSpot(p, others, gap = 15) {
   const angles = others.map((q) => Math.atan2(q[1] - p[1], q[0] - p[0])).sort((a, b) => a - b);
   let best = 0, at = 0;
   angles.forEach((a, i) => { const b = i + 1 < angles.length ? angles[i + 1] : angles[0] + 2 * Math.PI; if (b - a > best) { best = b - a; at = a + (b - a) / 2; } });
-  return label([p[0] + gap * Math.cos(at), p[1] + gap * Math.sin(at)], text);
+  return [p[0] + gap * Math.cos(at), p[1] + gap * Math.sin(at)];
+}
+const nameAt = (p, others, text, gap = 15) => label(nameSpot(p, others, gap), text);
+// a point's name inside a triangle, in the middle of whichever of the given angles at p (pairs of points the rays run
+// to) leaves it farthest from the drawn lines and from other names
+function insideName(p, angles, text, lines, spots = [], gap = 15) {
+  const cand = angles.map(([a, b]) => { const u = unit(p, a), v = unit(p, b), w = unit([0, 0], [u[0] + v[0], u[1] + v[1]]); return along(p, w, gap); });
+  const room = (s) => Math.min(...lines.map((l) => toSeg(s, l)), ...spots.map((t) => Math.hypot(s[0] - t[0], s[1] - t[1])));
+  return label(cand.reduce((x, y) => (room(y) > room(x) ? y : x)), text);
+}
+// a side's length measured outside the triangle (away from ctr): a thin line beside the whole side pq with end ticks,
+// and the length beyond its middle, for a side whose middle is taken (a median's foot)
+function measured(p, q, ctr, text, off = 16) {
+  const u = unit(p, q), m0 = mid(p, q), n0 = [-u[1], u[0]], n = (ctr[0] - m0[0]) * n0[0] + (ctr[1] - m0[1]) * n0[1] > 0 ? [-n0[0], -n0[1]] : n0;
+  const a = along(p, n, off), b = along(q, n, off), tick = (c) => seg(along(c, n, -4), along(c, n, 4), 'arc');
+  return seg(a, b, 'arc') + tick(a) + tick(b) + label(along(mid(a, b), n, 9 + 4 * String(text).length * Math.abs(n[0])), text, 'ang');
+}
+// a side's length outside the triangle, beside the middle of the whole side pq (not one of its pieces), slid along the
+// side when it would crowd the name of a point on that side (written just below the point at `on`)
+function sideLength(p, q, ctr, text, on = null) {
+  const at = beside(p, q, ctr, -13), u = unit(p, q), from = on ? (at[0] - on[0]) * u[0] + (at[1] - on[1]) * u[1] : 99;
+  const slide = Math.abs(from) < 24 ? (from < 0 ? -24 : 24) - from : 0;
+  return label(along(at, u, slide), text, 'ang');
 }
 // world (y up) → picture: fits [x0, x1] × [y0, y1] into w × h with a margin, keeping the shape
 function frame([x0, x1], [y0, y1], w, h, pad = 30) {
@@ -171,6 +193,7 @@ const rootOf = (n, m = 1) => { const [p, q] = lowest(n, m); return fracSurd(1, q
 const times = (L, n, m) => { const [p, q] = lowest(n, m); return fracSurd(L, q, p * q); };        // L·√(n/m), simplified
 const deg = (v) => `${num(v, 1)}°`;
 const pt = ([x, y]) => `(${num(x)}, ${num(y)})`;
+const signed = (v) => (v < 0 ? `(${num(v)})` : num(v));   // a number to multiply by, a negative one in brackets
 const sides = (n) => `${n} side${n === 1 ? '' : 's'}`;
 const pick = (ctx, tag, lists, ok) => combo({ ...ctx, salt: `${ctx.salt}|${tag}` }, lists, ok);
 // labelled() needs four wrong answers with different values, none of them the right one
@@ -423,7 +446,7 @@ export const hardGeometry = {
           nameAt(pP, inside ? [pO, pA, pB] : [pO, pB], 'P'), nameAt(pO, [pP, pR, pF], 'O'), cornerName(pA, pO, 'A', [[inside ? pA : pP, pB], [pO, pP]]), cornerName(pB, pO, 'B', [[inside ? pA : pP, pB], [pO, pR]])]),
         answer: labelled(correct, wrongs),
         solution: inside
-          ? `Every chord through P is cut by P into two pieces with the same product, so find that product from the easiest chord, the diameter through P. Its pieces are ${r} − ${dd} = ${r - dd} and ${r} + ${dd} = ${r + dd}, so the product is ${r}² − ${dd}² = ${pw}. Our chord's pieces are x and ${k}x, so ${k}x² = ${pw}, x² = ${m} and x = ${xs}. The chord is x + ${k}x = ${k + 1}x = <b>${correct[1]}</b>.`
+          ? `Every chord through P is cut by P into two pieces with the same product, so find that product from the easiest chord, the diameter through P. Its pieces are ${r} − ${dd} = ${r - dd} and ${r} + ${dd} = ${r + dd}, so the product is ${r}² − ${dd}² = ${pw}. Our chord’s pieces are x and ${k}x, so ${k}x² = ${pw}, x² = ${m} and x = ${xs}. The chord is x + ${k}x = ${k + 1}x = <b>${correct[1]}</b>.`
           : `From a point outside, every line through P that meets the circle has the same product PA·PB, the square of the tangent from P. By Pythagoras (the radius to the point of tangency is perpendicular to the tangent), that is ${dd}² − ${r}² = ${pw}. Write PA = x; then AB = ${AB} and PB = ${k + 1}x, so ${k + 1}x² = ${pw}. So x² = ${m} and x = ${xs}, and AB = ${AB} = <b>${correct[1]}</b>.`,
         check: () => {
           // turn a line about P until the circle cuts it in the stated ratio, then measure (no power of a point)
@@ -454,6 +477,7 @@ export const hardGeometry = {
           ...(ask === 'centre' ? [seg(pE, pO, 'seg dash')] : []), ...[[pA, A], [pB, B], [pC, C], [pD, D]].map(([p, s]) => label(away(p, pO, 14), s)),
           label(eAt, E), nameAt(pO, [pE], 'O'), label(aAt, a, 'ang'), label(bAt, b, 'ang'), label(cAt, c, 'ang')]),
         answer: labelled(correct, wrongs),
+        tip: 'Power of a point gives the fourth piece; then, with the crossing at the origin and the chords on the axes, the centre sits over the middle of one chord and level with the middle of the other.',
         solution: ask === 'radius'
           ? `${start} The radius is its distance to ${B}, ${frac(a + b, 2)} across and ${frac(Math.abs(e - c), 2)} ${e > c ? 'down' : 'up'}: r² = ${half2(a + b)} + ${half2(Math.abs(e - c))} = ${frac(S, 4)}, which is the sum of the squares of the four pieces, divided by 4. So r = <b>${correct[1]}</b>.`
           : `${start} So the centre is ${frac(Math.abs(b - a), 2)} across and ${frac(Math.abs(e - c), 2)} ${e > c ? 'up' : 'down'} from ${E}, and their distance apart is √(${half2(Math.abs(b - a))} + ${half2(Math.abs(e - c))}) = <b>${correct[1]}</b>.`,
@@ -480,7 +504,7 @@ export const hardGeometry = {
           ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)), label([pD[0], pD[1] + 17], 'D'),
           label(beside(pB, pD, ctr, -13), p, 'ang'), label(beside(pD, pC, ctr, -13), q, 'ang')]),
         answer: choices(d, [ans, 1], positive([[ask === 'AB' ? AC : AB, 1], [P - BC, 2], [P * piece, BC], [P * (BC - piece), BC], [ans + piece, 1]]), showFrac),
-        solution: `By the angle bisector theorem, the bisector from A cuts BC in the same ratio as the two sides next to angle A: AB : AC = BD : DC = ${p} : ${q}. So AB = ${p}k and AC = ${q}k for some number k. The perimeter is AB + AC + BC = ${BC}k + ${BC} = ${P}, so ${BC}k = ${P - BC} and k = ${frac(...k)}. Then ${ask} = ${piece}k = <b>${showFrac([ans, 1])}</b>.`,
+        solution: `By the angle bisector theorem, the bisector from A cuts BC in the same ratio as the two sides next to angle A, so AB : AC = BD : DC = ${p} : ${q}. So AB = ${p}k and AC = ${q}k for some number k. BC = ${p} + ${q} = ${BC}, so the perimeter is AB + AC + BC = ${BC}k + ${BC} = ${P}, which gives ${BC}k = ${P - BC} and k = ${frac(...k)}. Then ${ask} = ${piece}k = <b>${showFrac([ans, 1])}</b>.`,
         check: () => {
           // keep BC and AB + AC as given and slide AB until the bisector from A lands BD = p from B (coordinates, no theorem)
           const sum = P - BC, bd = (s) => { const t = corners(BC, sum - s, s); return dist(t.B, bisect(t.A, t.B, t.C)); };
@@ -494,15 +518,15 @@ export const hardGeometry = {
       const [row] = pick(ctx, 'ab-length', [BISECTED], (rw) => enough(...lengthAnswers(rw)));
       const [a, b, c, bd, dc] = row, [correct, wrongs] = lengthAnswers(row), ad2 = b * c - bd * dc;
       const { A, B, C } = corners(a, b, c), T = fit([A, B, C], 380, 250, 34), [pA, pB, pC, pD] = [A, B, C, [bd, 0]].map(T), ctr = centre([pA, pB, pC]);
-      const under = bd > dc ? beside(pB, pD, ctr, -13) : beside(pD, pC, ctr, -13);   // BC's length, under its longer piece
       return {
         topic: 'Angle bisectors', rank: 16,
         text: `Triangle ABC has AB = ${c}, AC = ${b} and BC = ${a}. The bisector of angle A meets BC at D. How long is AD?`,
         figure: svg(380, 250, 'Triangle ABC with the bisector AD', [poly([pA, pB, pC]), seg(pA, pD, 'seg'), arcMark(pA, pB, pD, 30, '', true), arcMark(pA, pD, pC, 30, '', true),
           ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)), label([pD[0], pD[1] + 17], 'D'),
-          label(beside(pA, pB, ctr, -13), c, 'ang'), label(beside(pA, pC, ctr, -13), b, 'ang'), label(under, a, 'ang')]),
+          label(beside(pA, pB, ctr, -13), c, 'ang'), label(beside(pA, pC, ctr, -13), b, 'ang'), sideLength(pB, pC, ctr, a, pD)]),
         answer: labelled(correct, wrongs),
-        solution: `Start with the angle bisector theorem: D cuts BC in the ratio AB : AC = ${c} : ${b}, so BD = ${a}·${frac(c, b + c)} = ${bd} and DC = ${dc}. The bisector's own length comes from Stewart's theorem, which for a bisector boils down to AD² = AB·AC − BD·DC. (To see why, extend AD to meet the circle through A, B and C again at E; then triangles ABD and AEC are similar, so AB·AC = AD·AE = AD² + AD·DE, and AD·DE = BD·DC by power of a point). Here AD² = ${c}·${b} − ${bd}·${dc} = ${ad2}, so AD = <b>${correct[1]}</b>.`,
+        tip: 'Split BC with the angle bisector theorem first; the bisector’s own length then comes from AD² = AB·AC − BD·DC.',
+        solution: `By the angle bisector theorem, D cuts BC in the ratio AB : AC = ${c} : ${b}, so BD = ${a}·${c}/(${c} + ${b}) = ${bd} and DC = ${a} − ${bd} = ${dc}. The bisector’s own length comes from Stewart’s theorem, which for a bisector boils down to AD² = AB·AC − BD·DC. (To see why, extend AD to meet the circle through A, B and C again at E; then triangles ABD and AEC are similar, so AB·AC = AD·AE = AD² + AD·DE, and AD·DE = BD·DC by power of a point). Here AD² = ${c}·${b} − ${bd}·${dc} = ${ad2}, so AD = <b>${correct[1]}</b>.`,
         check: () => near(dist(A, bisect(A, B, C)), correct[0], 'AD'),
       };
     },
@@ -520,9 +544,9 @@ export const hardGeometry = {
           figure: svg(380, 260, 'Triangle ABC with the altitude AH and the bisector of angle B', [poly([pA, pB, pC]), seg(pA, pH, 'seg dash'), corner(pH, pB, pA), seg(pB, pE, 'seg'), dot(pP),
             arcMark(pB, pA, pE, 30, '', true), arcMark(pB, pE, pC, 30, '', true), ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)),
             label([pH[0], pH[1] + 17], 'H'), nameAt(pP, [pA, pH, pB, pE], 'P'), label(beside(pA, pB, ctr, -13), c1, 'ang'),
-            label(dist(pA, pE) > dist(pE, pC) ? beside(pA, pE, ctr, -13) : beside(pE, pC, ctr, -13), c2, 'ang')]),   // CA's length, clear of the bisector's end
+            sideLength(pA, pC, ctr, c2, pE), sideLength(pB, pC, ctr, a, pH)]),   // CA's length slid clear of the bisector's end
           answer: labelled(correct, wrongs),
-          solution: `H is on BC, so the bisector of angle B also bisects angle ABH of the right triangle ABH, and the angle bisector theorem in that triangle gives AP : PH = AB : BH. To find BH, use the altitude twice: AH² = AB² − BH² = AC² − HC², so BH² − HC² = ${c1}² − ${c2}² = ${num(c1 * c1 - c2 * c2)}. Dividing by BH + HC = ${a} gives BH − HC = ${num(p - q)}, and adding these two equations, 2·BH = ${2 * p}, so BH = ${p}. So AP : PH = AB : BH = ${chain(c1, p)}.`,
+          solution: `H is on BC, so the bisector of angle B also bisects angle ABH of the right triangle ABH, and the angle bisector theorem in that triangle gives AP : PH = AB : BH. To find BH, write AH² two ways, from the right triangles ABH and ACH, as AB² − BH² = AC² − HC², so BH² − HC² = ${c1}² − ${c2}² = ${num(c1 * c1 - c2 * c2)}. That is (BH − HC)(BH + HC), and BH + HC = BC = ${a}, so BH − HC = ${num(c1 * c1 - c2 * c2)} ÷ ${a} = ${num(p - q)}. Adding BH + HC = ${a} and BH − HC = ${num(p - q)} gives 2·BH = ${2 * p}, so BH = ${p}. So AP : PH = AB : BH = ${chain(c1, p)}.`,
           check: () => {
             // from the three sides alone: the foot of the altitude, the bisector of B, where they meet
             const t = corners(a, c2, c1), foot = project(t.A, t.B, t.C), Pp = meet([t.B, halfway(t.B, t.A, t.C)], [t.A, foot]);
@@ -539,8 +563,8 @@ export const hardGeometry = {
         text: `Triangle ABC has AB = ${c}, BC = ${a} and CA = ${b}. M is the midpoint of CA, and the bisector of angle A meets BM at P. What is BP : PM?`,
         figure: svg(380, 260, 'Triangle ABC with the median BM and the bisector of angle A', [poly([pA, pB, pC]), seg(pB, pM, 'seg dash'), seg(pA, pD, 'seg'), dot(pP),
           arcMark(pA, pB, pD, 28, '', true), arcMark(pA, pD, pC, 28, '', true), ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)),
-          label(away(pM, ctr, 14), 'M'), label([pD[0], pD[1] + 17], 'D'), nameAt(pP, [pA, pD, pB, pM], 'P'),
-          label(beside(pA, pB, ctr, -13), c, 'ang'), label(beside(pM, pC, ctr, -13), b, 'ang'), label(dist(pB, pD) > dist(pD, pC) ? beside(pB, pD, ctr, -13) : beside(pD, pC, ctr, -13), a, 'ang')]),
+          insideName(pM, [[pA, pB], [pB, pC]], 'M', [[pA, pD], [pB, pM]], [nameSpot(pP, [pA, pD, pB, pM])]), label([pD[0], pD[1] + 17], 'D'), nameAt(pP, [pA, pD, pB, pM], 'P'),
+          label(beside(pA, pB, ctr, -13), c, 'ang'), measured(pC, pA, ctr, b), sideLength(pB, pC, ctr, a, pD)]),
         answer: labelled(correct, wrongs),
         solution: `M is on side CA, so the bisector of angle BAC is also the bisector of angle BAM in triangle ABM. By the angle bisector theorem in that triangle, BP : PM = AB : AM. M is the midpoint of CA, so AM = ${frac(b, 2)}, and BP : PM = ${b % 2 ? `${c} : ${frac(b, 2)} = ${chain(2 * c, b)}` : chain(c, b / 2)}.`,
         check: () => {
@@ -561,9 +585,9 @@ export const hardGeometry = {
         text: `Triangle ABC has AB = ${c}, BC = ${a} and CA = ${b}. The bisector of angle A meets BC at D, and I is the incentre, where the three angle bisectors meet. How long is ${ask}?`,
         figure: svg(380, 260, 'Triangle ABC with its incircle and the bisectors from A and B', [poly([pA, pB, pC]), ring(pI, I[1] * T.s, 'arc'), seg(pA, pD, 'seg'), seg(pB, pE, 'seg dash'), dot(pI),
           ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)), label([pD[0], pD[1] + 17], 'D'), nameAt(pI, [pA, pD, pB, pE], 'I', 13),
-          label(beside(pA, pB, ctr, -13), c, 'ang'), label(dist(pA, pE) > dist(pE, pC) ? beside(pA, pE, ctr, -13) : beside(pE, pC, ctr, -13), b, 'ang'), label(bd > dc ? beside(pB, pD, ctr, -13) : beside(pD, pC, ctr, -13), a, 'ang')]),
+          label(beside(pA, pB, ctr, -13), c, 'ang'), sideLength(pA, pC, ctr, b, pE), sideLength(pB, pC, ctr, a, pD)]),
         answer: labelled(correct, wrongs),
-        solution: `Start with the bisector AD, which cuts BC in the ratio AB : AC = ${c} : ${b}, so BD = ${bd} and DC = ${dc}. Then AD² = AB·AC − BD·DC = ${c}·${b} − ${bd}·${dc} = ${ad2}, so AD = ${AD}. The incentre is also on the bisector of angle B, and in triangle ABD that line bisects the angle at B, so the angle bisector theorem there gives AI : ID = AB : BD = ${simplest(c, bd)}. So ${ask} is ${frac(ask === 'AI' ? c : bd, c + bd)} of AD, which is ${frac(ask === 'AI' ? c : bd, c + bd)}·${AD} = <b>${correct[1]}</b>.`,
+        solution: `Start with the bisector AD, which cuts BC in the ratio AB : AC = ${c} : ${b}, so BD = ${a}·${c}/(${c} + ${b}) = ${bd} and DC = ${a} − ${bd} = ${dc}. Then AD² = AB·AC − BD·DC = ${c}·${b} − ${bd}·${dc} = ${ad2}, so AD = ${AD}. The incentre is also on the bisector of angle B, and in triangle ABD that line bisects the angle at B, so the angle bisector theorem there gives AI : ID = AB : BD = ${simplest(c, bd)}. So ${ask} is ${frac(ask === 'AI' ? c : bd, c + bd)} of AD, which is ${frac(ask === 'AI' ? c : bd, c + bd)}·${AD} = <b>${correct[1]}</b>.`,
         check: () => {
           // the incentre as the crossing of two bisectors, from the three sides alone
           const t = corners(a, b, c), Ip = meet([t.A, halfway(t.A, t.B, t.C)], [t.B, halfway(t.B, t.A, t.C)]), Dp = bisect(t.A, t.B, t.C);
@@ -587,7 +611,7 @@ export const hardGeometry = {
         text: `Points A, B, C and D lie on a circle in that order, and the four arcs between neighbours, AB, BC, CD and DA, are in the ratio ${p} : ${q} : ${r} : ${s}. What is the ${ask} angle of quadrilateral ABCD?`,
         figure: svg(320, 300, 'Quadrilateral ABCD with its corners on a circle', [poly(pW), ring(pO, T.s), ...pW.map((pp, i) => label(away(pp, pO, 14), 'ABCD'[i]))]),
         answer: choices(d, ans, [...ang.filter((v) => v !== ans), edge / 2, edge, 180 - ans], deg),
-        solution: `The four arcs make up the whole circle, so one part of the ratio is 360° ÷ ${S} = ${u}°, and the arcs are AB = ${arcs[0]}°, BC = ${arcs[1]}°, CD = ${arcs[2]}° and DA = ${arcs[3]}°. An inscribed angle is half the arc it looks across, and the angle at each corner of ABCD looks across the two arcs that don't touch that corner. So ∠A = ½(${arcs[1]}° + ${arcs[2]}°) = ${deg(ang[0])}, ∠B = ½(${arcs[2]}° + ${arcs[3]}°) = ${deg(ang[1])}, ∠C = ½(${arcs[3]}° + ${arcs[0]}°) = ${deg(ang[2])} and ∠D = ½(${arcs[0]}° + ${arcs[1]}°) = ${deg(ang[3])}. (Opposite angles add up to 180°, as in every quadrilateral whose corners lie on a circle). The ${ask} is ∠${'ABCD'[at]} = <b>${deg(ans)}</b>.`,
+        solution: `The four arcs make up the whole circle, so one part of the ratio is 360° ÷ ${S} = ${u}°, and the arcs are AB = ${arcs[0]}°, BC = ${arcs[1]}°, CD = ${arcs[2]}° and DA = ${arcs[3]}°. An inscribed angle is half the arc it looks across, and the angle at each corner of ABCD looks across the two arcs that don’t touch that corner. So ∠A = ½(${arcs[1]}° + ${arcs[2]}°) = ${deg(ang[0])}, ∠B = ½(${arcs[2]}° + ${arcs[3]}°) = ${deg(ang[1])}, ∠C = ½(${arcs[3]}° + ${arcs[0]}°) = ${deg(ang[2])} and ∠D = ½(${arcs[0]}° + ${arcs[1]}°) = ${deg(ang[3])}. (Opposite angles add up to 180°, as in every quadrilateral whose corners lie on a circle). The ${ask} is ∠${'ABCD'[at]} = <b>${deg(ans)}</b>.`,
         check: () => {
           // the corners on the unit circle, and each corner's angle from vectors
           const inner = W.map((pp, i) => angleAt(W[(i + 3) % 4], pp, W[(i + 1) % 4]));
@@ -656,17 +680,18 @@ export const hardGeometry = {
         : ask === 'OAB' ? [seg(pO, pA, 'seg'), seg(pO, pB, 'seg'), arcMark(pA, pB, pO, 30, '', false, 'arc ext')]
           : [seg(pO, pA, 'seg'), seg(pA, pF, 'seg dash'), corner(pF, pC, pA), arcMark(pA, pF, pO, 34, '', false, 'arc ext'), label([pF[0], pF[1] + 16], 'F')];
       // the central angle on chord xy is twice the inscribed angle at z, and the isosceles triangle xOy gives ∠Oxy
-      const iso = (x, y, z, angle, last) => `The central angle ∠${x}O${y} stands on the same arc ${x}${y} as the inscribed angle ∠${x}${z}${y}, so it is twice as big: ∠${x}O${y} = ${2 * angle}°. O${x} and O${y} are both radii, so triangle ${x}O${y} is isosceles and its two base angles are equal: ∠O${x}${y} = (180° − ${2 * angle}°) ÷ 2 = ${last ? `<b>${deg(90 - angle)}</b>` : deg(90 - angle)}.`;
+      const iso = (x, y, z, angle, last) => `The central angle ∠${x}O${y} stands on the same arc ${x}${y} as the inscribed angle ∠${x}${z}${y}, so it is twice as big, ∠${x}O${y} = 2·${angle}° = ${2 * angle}°. O${x} and O${y} are both radii, so triangle ${x}O${y} is isosceles, and its two base angles are equal, so ∠O${x}${y} = (180° − ${2 * angle}°) ÷ 2 = ${last ? `<b>${deg(90 - angle)}</b>` : deg(90 - angle)}.`;
       return {
         topic: 'Angles in circles', rank: ask === 'OAF' ? 17 : 15,
         text: `In acute triangle ABC, ∠ABC = ${be}° and ∠ACB = ${ga}°. O is the centre of the circle through A, B and C${ask === 'OAF' ? ', and F is the foot of the altitude from A to BC' : ''}. What is the measure of ∠${ask}?`,
         figure: svg(330, 300, 'Triangle ABC in its circle, with centre O', [poly([pA, pB, pC]), ring(pO, T.s), ...lines, dot(pO), valueAt(pB, pA, pC, `${be}°`, ask === 'OAF' ? [] : [pO]), valueAt(pC, pB, pA, `${ga}°`, ask === 'OBC' ? [pO] : []),
           ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, pO, 14), s)), nameAt(pO, ask === 'OBC' ? [pB, pC] : [pA, ask === 'OAB' ? pB : pA], 'O', 13)]),
+        tip: 'A central angle is twice the inscribed angle on the same chord, and two radii make an isosceles triangle.',
         answer: choices(d, ans, ask === 'OBC' ? [al, 2 * al, 90 - be, 90 - ga, 180 - 2 * al] : ask === 'OAB' ? [90 - be, ga, 2 * ga, 90 - al, 180 - 2 * ga] : [Math.abs(be - ga) / 2, 2 * Math.abs(be - ga), 90 - be, 90 - ga, al / 2], deg),
         solution: ask === 'OBC'
           ? `First ∠BAC = 180° − ${be}° − ${ga}° = ${al}°. ${iso('B', 'C', 'A', al, true)}`
           : ask === 'OAB'
-            ? `Only ∠ACB matters here, because it is the inscribed angle on chord AB. ${iso('A', 'B', 'C', ga, true)}`
+            ? `Only ∠ACB matters here, because it is the inscribed angle on chord AB (∠ABC = ${be}° isn’t needed). ${iso('A', 'B', 'C', ga, true)}`
             : `In the right triangle ABF, ∠BAF = 90° − ${be}° = ${90 - be}°. ${iso('A', 'B', 'C', ga, false)} Both angles are measured from side AB, so the angle between AF and AO is ∠OAF = |${90 - be}° − ${90 - ga}°| = <b>${deg(ans)}</b>.`,
         check: () => {
           // the corners' own angles first, then the asked angle from vectors
@@ -693,7 +718,7 @@ export const hardGeometry = {
         figure: svg(380, 280, 'Triangle ABC on coordinate axes, cut by a line through A', [poly([pA, pB, pC]), ...axes, seg(pA, pP, 'seg'), dot(pP),
           ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)), nameAt(pP, [pA, pB, pC], 'P')]),
         answer: choices(d, ans, wrongs, showFrac),
-        solution: `The line meets BC at a point P, and the two pieces, triangles ABP and APC, have the same height, the distance from A to line BC. So their areas are in the ratio of their bases, BP : PC = ${m} : ${n}, which puts P ${frac(m, m + n)} of the way from B to C, at (${frac(n * B[0] + m * C[0], m + n)}, ${frac(n * B[1] + m * C[1], m + n)}). From A to P the run is ${frac(runN, m + n)} and the rise is ${frac(riseN, m + n)}. So the slope is ${frac(riseN, m + n)} ÷ ${frac(runN, m + n)} = <b>${showFrac(ans)}</b>.`,
+        solution: `The line meets BC at a point P, and the two pieces, triangles ABP and APC, have the same height, the distance from A to line BC. So their areas are in the ratio of their bases, BP : PC = ${m} : ${n}, which puts P ${frac(m, m + n)} of the way from B to C. From B to C, x changes by ${num(C[0] - B[0])} and y by ${num(C[1] - B[1])}, so P = (${num(B[0])} + ${frac(m, m + n)}·${signed(C[0] - B[0])}, ${num(B[1])} + ${frac(m, m + n)}·${signed(C[1] - B[1])}) = (${frac(n * B[0] + m * C[0], m + n)}, ${frac(n * B[1] + m * C[1], m + n)}). From A to P the run is ${frac(runN, m + n)} and the rise is ${frac(riseN, m + n)}. So the slope is ${frac(riseN, m + n)} ÷ ${frac(runN, m + n)} = <b>${showFrac(ans)}</b>.`,
         check: () => {
           // the line through A with that slope meets BC at Q; the shoelace areas of ABQ and AQC must be in the ratio m : n
           const Q = meet([A, [A[0] + ans[1], A[1] + ans[0]]], [B, C]);
@@ -715,7 +740,7 @@ export const hardGeometry = {
           figure: svg(380, 260, 'Triangle ABC cut by a line parallel to BC', [poly([pA, p1, p2]), poly([pA, pB, pC]), seg(p1, p2, 'seg'),
             ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)), label(beside(pB, pC, ctr, -14), L, 'ang')]),
           answer: labelled(correct, wrongs),
-          solution: `The line is parallel to BC, so it cuts off a triangle at A that is similar to ABC. Areas of similar figures go as the square of their lengths, so lengths go as the square root of the areas. The small triangle has ${p} of the ${p + q} equal parts of the whole area, so its sides are √(${frac(p, p + q)}) = ${share} of ABC's. The segment is that share of BC, ${share}·${L} = <b>${correct[1]}</b>.`,
+          solution: `The line is parallel to BC, so it cuts off a triangle at A that is similar to ABC. Areas of similar figures go as the square of their lengths, so lengths go as the square root of the areas. The small triangle has ${p} of the ${p + q} equal parts of the whole area, so its sides are √(${frac(p, p + q)}) = ${share} of ABC’s. The segment is that share of BC, ${share}·${L} = <b>${correct[1]}</b>.`,
           check: () => {
             // slide a level line down from A until the part above it has the right share of the area, then measure it
             const tri = [A, B, C], whole = shoelace(tri), y = solve((t) => shoelace(clip(tri, (pp) => pp[1] - t)) / whole - p / (p + q), 0, A[1]);
@@ -771,7 +796,7 @@ export const hardGeometry = {
         figure: svg(380, 290, `A triangle cut in half by the line ${c} = k`, [poly(piece.map(T)), poly(pV), seg(ends[0], ends[1], 'seg dash'),
           ...V.map((v, i) => label(at[i], pt(v), 'ang')), label(spots[pick2], `${c} = k`, 'ang', upright ? 'middle' : pick2 ? 'start' : 'end')]),
         answer: labelled(correct, wrongs),
-        solution: `Only the ${c}-coordinates matter here, and they are ${num(u1)}, ${num(u2)} and ${num(u3)}. The line ${c} = ${num(u2)} through the middle corner cuts the triangle into two triangles that share a side on that line, so their areas are in the ratio of their ${size}s, ${u2 - u1} : ${u3 - u2}, and the bigger one is ${side} it, so that is where k is. The piece ${side} ${c} = k is a triangle with its tip at ${c} = ${num(end)}, and as k moves, its side on the line and its ${size} ${gap} shrink together, so its area is ${frac(wide, u3 - u1)} of the whole times (${bracket}/${wide})². For half the whole, ${bracket}² = ${u3 - u1}·${wide}/2 = ${m}, so k = ${whole ? `${num(end)} ${high ? '−' : '+'} ${rt[1]} = ` : ''}<b>${correct[1]}</b>.`,
+        solution: `Only the ${c}-coordinates matter here, and they are ${num(u1)}, ${num(u2)} and ${num(u3)}. The line ${c} = ${num(u2)} through the middle corner cuts the triangle into two triangles that share a side on that line, so their areas are in the ratio of their ${size}s, ${u2 - u1} : ${u3 - u2}, and the bigger one is ${side} it, so that is where k is. The piece ${side} ${c} = k is a triangle with its tip at ${c} = ${num(end)}, and as k moves, its side on the line and its ${size} ${gap} shrink together, so its area is ${frac(wide, u3 - u1)} of the whole times (${bracket}/${wide})². For half the whole, ${frac(wide, u3 - u1)}·(${bracket}/${wide})² = ½, and multiplying both sides by ${u3 - u1}·${wide} gives ${bracket}² = ${u3 - u1}·${wide}/2 = ${m}, so k = ${whole ? `${num(end)} ${high ? '−' : '+'} ${rt[1]} = ` : ''}<b>${correct[1]}</b>.`,
         check: () => {
           // slide the line across until the piece on one side has half the area (shoelace on the clipped triangle)
           const all = shoelace(V), g = (t) => shoelace(clip(V, (pp) => (upright ? pp[0] : pp[1]) - t)) / all - 0.5;
@@ -788,7 +813,7 @@ export const hardGeometry = {
       const ans = of(parts[ask]), wrongs = ask === 'ABP' ? [of(parts.ABD), of(parts.BPD), of(parts.APE), of(parts.CDE), lowest(Tot, 4)] : [of(parts.CDE), of(parts.ABP), of(parts.BPD), of(parts.APE), of(parts.rest)];
       const A = [3.6, 7.4], B = [0, 0], C = [10, 0], D = along(B, [1, 0], (10 * m) / (m + n)), E = along(C, unit(C, A), (dist(C, A) * p) / (p + q)), P = meet([A, D], [B, E]);
       const T = fit([A, B, C], 380, 260, 32), [pA, pB, pC, pD, pE, pP] = [A, B, C, D, E, P].map(T), ctr = centre([pA, pB, pC]);
-      const start = `Use mass points to see how P cuts AD. For D to balance BC with BD : DC = ${m} : ${n}, the weights at B and C are in the ratio ${n} : ${m}, and for E to balance CA with CE : EA = ${p} : ${q}, the weights at C and A are in the ratio ${q} : ${p}. Scaled to agree at C, the weights are A = ${wA}, B = ${wB} and C = ${wC}, so D carries ${wB} + ${wC} = ${wD}, and AP : PD = ${simplest(wD, wA)}. Triangle ABD has base BD, ${frac(m, m + n)} of BC, and the same height as ABC, so its area is ${area(parts.ABD)}`;
+      const start = `Use mass points to see how P cuts AD. For D to balance BC with BD : DC = ${m} : ${n}, the weights at B and C are in the ratio ${n} : ${m}, and for E to balance CA with CE : EA = ${p} : ${q}, the weights at C and A are in the ratio ${q} : ${p}. Scaled to agree at C, the weights are A = ${wA}, B = ${wB} and C = ${wC}, so D carries ${wB} + ${wC} = ${wD}, and AP : PD = ${simplest(wD, wA)}. Triangle ABD has base BD, ${frac(m, m + n)} of BC, and the same height as ABC, so its area is ${frac(m, m + n)}·${Tot} = ${area(parts.ABD)}`;
       return {
         topic: 'Areas cut by a line', rank: ask === 'ABP' ? 18 : 19,
         text: `Triangle ABC has area ${Tot}. Point D is on side BC with BD : DC = ${m} : ${n}, and point E is on side CA with CE : EA = ${p} : ${q}. Segments AD and BE cross at P. What is the area of ${ask === 'ABP' ? 'triangle ABP' : 'quadrilateral PDCE'}?`,
@@ -797,7 +822,7 @@ export const hardGeometry = {
         answer: choices(d, ans, positive(wrongs), showFrac),
         solution: ask === 'ABP'
           ? `${start}. Triangle ABP shares the corner B with ABD, and its base AP is ${frac(wD, wD + wA)} of AD on the same line, so its area is ${frac(wD, wD + wA)}·${area(parts.ABD)} = <b>${area(parts.ABP)}</b>.`
-          : `${start}, and triangle ABP, which shares the corner B and has the base AP, ${frac(wD, wD + wA)} of AD, has ${frac(wD, wD + wA)} of that, ${area(parts.ABP)}. In the same way triangle ABE has ${frac(q, p + q)} of the whole area, ${area(parts.ABE)}, so BPD = ${area(parts.ABD)} − ${area(parts.ABP)} = ${area(parts.BPD)} and APE = ${area(parts.ABE)} − ${area(parts.ABP)} = ${area(parts.APE)}. What is left is PDCE = ${Tot} − ${area(parts.ABP)} − ${area(parts.BPD)} − ${area(parts.APE)} = <b>${area(parts.PDCE)}</b>.`,
+          : `${start}, and triangle ABP, which shares the corner B and has the base AP, ${frac(wD, wD + wA)} of AD, has ${frac(wD, wD + wA)} of that, ${frac(wD, wD + wA)}·${area(parts.ABD)} = ${area(parts.ABP)}. In the same way triangle ABE has base AE, ${frac(q, p + q)} of CA, and the same height from B, so its area is ${frac(q, p + q)}·${Tot} = ${area(parts.ABE)}. So BPD = ${area(parts.ABD)} − ${area(parts.ABP)} = ${area(parts.BPD)} and APE = ${area(parts.ABE)} − ${area(parts.ABP)} = ${area(parts.APE)}. What is left is PDCE = ${Tot} − ${area(parts.ABP)} − ${area(parts.BPD)} − ${area(parts.APE)} = <b>${area(parts.PDCE)}</b>.`,
         check: () => {
           // the same triangle in coordinates, P where the segments cross, and the region's share by the shoelace formula
           const region = ask === 'ABP' ? [A, B, P] : [P, D, C, E];

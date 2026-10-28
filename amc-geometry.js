@@ -167,6 +167,21 @@ function cut(S, U, A, Z) {
   return den && sT > 0 && sT < den && uT > 0 && uT < den ? { s: lowest(sT, den), u: lowest(uT, den) } : null;
 }
 const fracOf = (p) => frac(p[0], p[1]);
+// with N at (0, 0), the points of SU are (x0 + dx·s, H − H·s): how s comes out, written out, where SU meets the diagonal
+// KM (drop below K over H = distance across over W), the diagonal LN (height over H = distance across over W), or the
+// segment KT from K to T = (W, g) (drop below K = (H − g)/W of the distance across)
+function crossings(W, H, e, f) {
+  const x0 = W - e, dx = f - x0, co = (n) => (n === 1 ? '' : n);
+  const xs = dx === 0 ? `${x0}` : `${x0} ${dx < 0 ? '−' : '+'} ${co(Math.abs(dx))}s`;
+  // A·s = B + C·s, solved for s
+  const solve = (A, B, C) => `${A}s = ${B}${C ? ` ${C < 0 ? '−' : '+'} ${co(Math.abs(C))}s, so ${co(A - C)}s = ${B} and` : ', so'} s = ${frac(B, A - C)}`;
+  return {
+    point: `(${xs}, ${H} − ${co(H)}s)`, where: `such a point is ${co(H)}s below KL and ${xs} to the right of KN`,
+    KM: `On KM a point’s drop below K is the same share of ${H} as its distance across is of ${W}, so s = (${xs})/${W}. That gives ${solve(W, x0, dx)}`,
+    LN: `On LN a point’s height is the same share of ${H} as its distance across is of ${W}, so 1 − s = (${xs})/${W}. That gives ${W} − ${W}s = ${xs}, so ${co(W + dx)}s = ${e} and s = ${frac(e, W + dx)}`,
+    KT: (g) => `Line KT drops ${H - g} as it goes ${W} across, so where SU meets it, ${co(H)}s = ${H - g}(${xs})/${W}. That gives ${solve(W * H, (H - g) * x0, (H - g) * dx)}`,
+  };
+}
 function rectangleKLMN(W, H, e, f, lines, marks, w = 380, h = 280) {
   const T = frame([0, W], [0, H], w, h, 32), [K, L, M, N] = [[0, H], [W, H], [W, 0], [0, 0]].map(T), ctr = T([W / 2, H / 2]);
   const S = T([W - e, H]), U = T([f, 0]);
@@ -198,7 +213,7 @@ export const geometry = {
         figure: svg(360, 250, `Rectangle ${W}${X}${Y}${Z} with the perpendicular from ${X} to ${W}${Y}`, [
           poly([at[0], pF, at[3]]), poly(at), seg(at[0], at[2]), seg(at[1], pF, 'seg'), corner(pF, at[1], at[2]), ...marks, label(away(pF, at[1], 16), F)]),
         answer: choices(d, ans, [[a * b ** 3, 2 * c2], [a * b, 4], [a ** 3 * b, c2], [a * a * b * b, 2 * c2], [a * b, 2]], showFrac),
-        solution: `Put ${W} at (0, 0), ${X} at (${a}, 0), ${Y} at (${a}, ${b}) and ${Z} at (0, ${b}). Right triangles ${W}${F}${X} and ${W}${X}${Y} share the angle at ${W}, so ${W}${F} = ${W}${X}²/${W}${Y} = ${a * a}/${root(c2)}, and ${F} is ${W}${F}·${a}/${root(c2)} = ${frac(a ** 3, c2)} to the right of ${W}${Z}. Triangle ${W}${F}${Z} has base ${W}${Z} = ${b} and that much height, so its area is ½·${b}·${frac(a ** 3, c2)} = <b>${frac(...ans)}</b>.`,
+        solution: `Put ${W} at (0, 0), ${X} at (${a}, 0), ${Y} at (${a}, ${b}) and ${Z} at (0, ${b}), so the diagonal ${W}${Y} is √(${a}² + ${b}²) = ${root(c2)}. Right triangles ${W}${F}${X} and ${W}${X}${Y} share the angle at ${W}, so ${W}${F}/${W}${X} = ${W}${X}/${W}${Y}, and ${W}${F} = ${W}${X}²/${W}${Y} = ${a * a}/${root(c2)}. Over its whole length ${root(c2)} the diagonal goes ${a} to the right, so ${F}, ${W}${F} along it, is ${W}${F}·${a}/${root(c2)} = ${frac(a ** 3, c2)} to the right of ${W}${Z}. Triangle ${W}${F}${Z} has base ${W}${Z} = ${b} and that much height, so its area is ½·${b}·${frac(a ** 3, c2)} = <b>${frac(...ans)}</b>.`,
         check: () => near(shoelace([[0, 0], meet([[0, 0], [a, b]], [[a, 0], [a - b, a]]), [0, b]]), ans[0] / ans[1], 'area'),
       };
     },
@@ -244,7 +259,7 @@ export const geometry = {
           poly(at), seg(at[0], at[2]), seg(at[1], pF, 'seg'), seg(at[3], pG, 'seg'), corner(pF, at[1], at[2]), corner(pG, at[3], at[0]), ...marks,
           label(away(pF, at[1], 16), F), label(away(pG, at[3], 16), G)]),
         answer: choices(d, ans, [lowest(Math.abs(a - b), 1), lowest(a * b, c), lowest(Math.abs(a * a - b * b), 2 * c), lowest(c, 2), lowest((a - b) ** 2, c)], showFrac),
-        solution: `Similar right triangles give the distance of each foot from ${W} along the diagonal: ${W}${F} = ${W}${X}²/${W}${Y} = ${frac(a * a, c)}, and ${W}${G} = ${W}${Z}²/${W}${Y} = ${frac(b * b, c)} (${W}${Z} = ${X}${Y} = ${b}). Both are measured from ${W}, so ${F}${G} = |${a * a} − ${b * b}|/${c} = <b>${frac(...ans)}</b>.`,
+        solution: `The diagonal ${W}${Y} is √(${a}² + ${b}²) = ${c}. Similar right triangles give each foot’s distance from ${W} along it, a side squared over the diagonal. So ${W}${F} = ${W}${X}²/${W}${Y} = ${frac(a * a, c)}, and ${W}${G} = ${W}${Z}²/${W}${Y} = ${frac(b * b, c)} (${W}${Z} = ${X}${Y} = ${b}). Both are measured from ${W}, so ${F}${G} = |${a * a} − ${b * b}|/${c} = <b>${frac(...ans)}</b>.`,
         check: () => near(dist(meet([[0, 0], [a, b]], [[a, 0], [a - b, a]]), meet([[0, 0], [a, b]], [[0, b], [b, b - a]])), ans[0] / ans[1], 'FG'),
       };
     },
@@ -260,7 +275,7 @@ export const geometry = {
         text: `Triangle PQR has area ${T0}. Each side is extended past one end: PQ past Q to Q′, QR past R to R′, and RP past P to P′, each extension ${TIMES[`${p}/${q}`]} the side it extends. What is the area of triangle P′Q′R′?`,
         figure: extended(p / q),
         answer: choices(d, ans, [t * (p + q) ** 2, t * (2 * p + q) ** 2, 3 * cornerA, t * (q * q + 3 * p * p), t * (q * q + 2 * p * (p + q))]),
-        solution: `Look at triangle QQ′R′. At Q its sides are QQ′ = ${p === q ? '' : mT + '·'}PQ and QR′ = ${frac(p + q, q)}·QR, and the angle between them is the supplement of angle Q, which has the same sine. So its area is ${p === q ? '' : `${mT}·${frac(p + q, q)} = `}${frac(p * (p + q), q * q)} times the area of PQR, that is ${num(cornerA)}. The corner triangles at R and P are the same size, so P′Q′R′ has area ${T0} + 3·${num(cornerA)} = <b>${num(ans)}</b>.`,
+        solution: `Look at triangle QQ′R′. At Q its sides are QQ′ = ${p === q ? '' : mT + '·'}PQ and QR′ = ${frac(p + q, q)}·QR, and the angle between them is the supplement of angle Q, which has the same sine. So by area = ½·(side)·(side)·sin(angle), its area is ${p === q ? '' : `${mT}·${frac(p + q, q)} = `}${frac(p * (p + q), q * q)} times the area of PQR, that is ${frac(p * (p + q), q * q)}·${T0} = ${num(cornerA)}. The corner triangles at R and P have that same area, by the same argument, so P′Q′R′ has area ${T0} + 3·${num(cornerA)} = <b>${num(ans)}</b>.`,
         check: () => near(extendedArea(p / q, T0), ans, 'area'),
       };
     },
@@ -286,7 +301,7 @@ export const geometry = {
         text: `Triangle PQR has area ${T0}. Each side is extended past one end, PQ past Q to Q′, QR past R to R′ and RP past P to P′, every extension being the same number k times as long as the side it extends. Triangle P′Q′R′ has area ${T1}. What is k?`,
         figure: extended(p / q),
         answer: choices(d, lowest(p, q), [kk, lowest(p + q, q), lowest(2 * p, q), lowest(p, 2 * q), lowest(T1 - T0, T0), lowest(3 * p, q), lowest(p + 2 * q, 2 * q)], showFrac),
-        solution: `Each corner triangle, like QQ′R′, has sides k·PQ and (k + 1)·QR at Q, around an angle with the same sine as angle Q, so it has k(k + 1) times the area of PQR. So ${T1} = ${T0}·(1 + 3k(k + 1)), which gives k(k + 1) = ${frac(...kk)}. Then k = <b>${frac(p, q)}</b>, since ${frac(p, q)}·${frac(p + q, q)} = ${frac(p * (p + q), q * q)}.`,
+        solution: `Each corner triangle, like QQ′R′, has sides k·PQ and (k + 1)·QR at Q, around an angle with the same sine as angle Q, so it has k(k + 1) times the area of PQR. So ${T1} = ${T0}·(1 + 3k(k + 1)). Dividing by ${T0}, 1 + 3k(k + 1) = ${frac(T1, T0)}, so 3k(k + 1) = ${frac(T1 - T0, T0)} and k(k + 1) = ${frac(...kk)}. Then k = <b>${frac(p, q)}</b>, since ${frac(p, q)}·${frac(p + q, q)} = ${frac(p * (p + q), q * q)} (and k(k + 1) grows with k, so no other k works).`,
         check: () => { const c = kk[0] / kk[1], k = (-1 + Math.sqrt(1 + 4 * c)) / 2; return near(k, p / q, 'k') || near(extendedArea(k, T0), T1, 'area'); },
       };
     },
@@ -303,7 +318,8 @@ export const geometry = {
         figure: svg(340, 300, 'Square ABCD with its sides extended', [poly(ps), poly(pb), ...ps.map((pt, i) => seg(pt, pb[i], 'side dash')),
           ...'ABCD'.split('').map((n, i) => label(away(ps[i], g, 13), n)), ...'ABCD'.split('').map((n, i) => label(away(pb[i], g, 15), n + '′'))]),
         answer: choices(d, area, [s * s * (1 + m) ** 2, s * s * (1 + 2 * m) ** 2, s * s * (1 + 4 * m * (1 + m)), s * s * (1 + m * (1 + m)), s * s * 2 * m * (1 + m)]),
-        solution: `Each corner triangle, like BB′C′, has a right angle at the square's corner, with legs BB′ = ${num(leg1)} and BC′ = ${s} + ${num(leg1)} = ${num(leg2)}, so its area is ½·${num(leg1)}·${num(leg2)} = ${num((leg1 * leg2) / 2)}. A′B′C′D′ is the square plus four of them: ${s * s} + 4·${num((leg1 * leg2) / 2)} = <b>${num(area)}</b>.`,
+        tip: 'Each new corner piece is a right triangle: one leg is the extension, the other is a side plus its extension, and the big square is the old one plus four of them.',
+        solution: `Each corner triangle, like BB′C′, has a right angle at the square’s corner, with legs BB′ = ${p === q ? '' : `${q === 1 ? num(p, 0) : frac(p, q)}·${s} = `}${num(leg1)} and BC′ = ${s} + ${num(leg1)} = ${num(leg2)}, so its area is ½·${num(leg1)}·${num(leg2)} = ${num((leg1 * leg2) / 2)}. A′B′C′D′ is the square plus four of them: ${s * s} + 4·${num((leg1 * leg2) / 2)} = <b>${num(area)}</b>.`,
         check: () => near(shoelace(big), area, 'area'),
       };
     },
@@ -319,7 +335,7 @@ export const geometry = {
         text: `The points of space that are at most ${units(r)} from segment ${X}${Y} fill a solid with volume ${V}. How long is ${X}${Y}?`,
         figure: capsule(r, L, X, Y),
         answer: choices(d, [L, 1], [[3 * r * r * L + 4 * r ** 3, 3 * r * r], [3 * L + 2 * r, 3], [3 * L - 4 * r, 3], [L + 2 * r, 1]], showFrac),
-        solution: `The solid is a cylinder of radius ${r} around ${X}${Y}, with half a ball of radius ${r} on each end; the two halves make one whole ball. So ${V} = ${frac(4, 3)}π·${r}³ + π·${r}²·${X}${Y} = ${piShow(lowest(4 * r ** 3, 3))} + ${r * r}π·${X}${Y}, which gives ${X}${Y} = <b>${L}</b>.`,
+        solution: `The solid is a cylinder of radius ${r} around ${X}${Y}, with half a ball of radius ${r} on each end; the two halves make one whole ball. So ${V} = ${frac(4, 3)}π·${r}³ + π·${r}²·${X}${Y} = ${piShow(lowest(4 * r ** 3, 3))} + ${r * r}π·${X}${Y}. Taking away the ball leaves ${r * r}π·${X}${Y} = ${V} − ${piShow(lowest(4 * r ** 3, 3))} = ${piShow([r * r * L, 1])}, so ${X}${Y} = ${r * r * L} ÷ ${r * r} = <b>${L}</b>.`,
         check: () => near(capsuleVolume(r, L), (Math.PI * vp) / vq, 'volume'),
       };
     },
@@ -359,7 +375,7 @@ export const geometry = {
         text: `In a flat plane, the points that are at most ${units(r)} from a segment ${units(L)} long fill a region. What is the area of the region?`,
         figure: capsule(r, L, 'A', 'B'),
         answer: labelled(correct, [plusPi(2 * r * L, 2 * r * r), plusPi(r * L, r * r), [2 * r * L + 4 * r * r, num(2 * r * L + 4 * r * r, 0)], plusPi(4 * r * L, r * r), [r * r * L * Math.PI, piShow([r * r * L, 1])]]),
-        solution: `Along the segment the region is ${an(2 * r)} ${2 * r}-by-${L} rectangle, and around each end it is half a disc of radius ${r}; the two halves make one disc. Area: ${2 * r}·${L} + π·${r}² = <b>${correct[1]}</b>.`,
+        solution: `Along the segment the region is ${an(2 * r)} ${2 * r}-by-${L} rectangle (it reaches ${r} on each side of the segment), and around each end it is half a disc of radius ${r}; the two halves make one disc. Area: ${2 * r}·${L} + π·${r}² = <b>${correct[1]}</b>.`,
         check: () => near(gridArea([-r, L + r], [-r, r], (p) => toSegment(p, [0, 0], [L, 0]) <= r, 800), correct[0], 'area', 0.01),
       };
     },
@@ -376,7 +392,7 @@ export const geometry = {
         figure: svg(380, 280, 'A box with the octahedron joining the centres of its faces', [...parts,
           label([mid(at[0], at[1])[0], at[0][1] + 20], a, 'ang'), label([at[0][0] - 14, mid(at[0], at[4])[1]], b, 'ang'), label(mid(at[1], at[2]).map((v, i) => v + [14, 8][i]), c, 'ang')]),
         answer: choices(d, [abc, 6], [[abc, 3], [abc, 2], [abc, 12], [abc, 4], [abc, 8]], showFrac),
-        solution: `The segments joining opposite face centres have lengths ${a}, ${b} and ${c}, and they cross at right angles at the centre of the box. The plane of the first two cuts the octahedron into two pyramids, each with a rhombus base of diagonals ${a} and ${b} (area ½·${a}·${b} = ${num((a * b) / 2)}) and height ${frac(c, 2)}. Volume: 2·⅓·${num((a * b) / 2)}·${frac(c, 2)} = ${a}·${b}·${c}/6 = <b>${frac(abc, 6)}</b>.`,
+        solution: `The segments joining opposite face centres have lengths ${a}, ${b} and ${c}, and they cross at right angles at the centre of the box. The plane of the first two cuts the octahedron into two pyramids, each with a rhombus base of diagonals ${a} and ${b} (area ½·${a}·${b} = ${num((a * b) / 2)}) and height ${frac(c, 2)} (half of ${c}). Volume: 2·⅓·${num((a * b) / 2)}·${frac(c, 2)} = ${a}·${b}·${c}/6 = <b>${frac(abc, 6)}</b>.`,
         check: () => {
           // the 8 faces each take one corner from each pair of opposite face centres; add up the tetrahedra they make with the middle
           const X = [[0, b / 2, c / 2], [a, b / 2, c / 2]], Y = [[a / 2, 0, c / 2], [a / 2, b, c / 2]], Z = [[a / 2, b / 2, 0], [a / 2, b / 2, c]], O = [a / 2, b / 2, c / 2];
@@ -396,7 +412,7 @@ export const geometry = {
         figure: svg(380, 280, 'A box with the octahedron joining the centres of its faces', [...parts,
           label([mid(at[0], at[1])[0], at[0][1] + 20], a, 'ang'), label(mid(at[1], at[2]).map((v, i) => v + [12, 10][i]), b, 'ang'), label([at[2][0] + 14, mid(at[2], at[6])[1]], 'h', 'ang')]),
         answer: choices(d, c, [2 * c, lowest(c, 2), lowest(c, 3), 3 * c, lowest(2 * c, 3)], showFrac),
-        solution: `The octahedron is always a sixth of its box: two pyramids on a rhombus of area ½·${a}·${b}, each of height h/2, make 2·⅓·${frac(a * b, 2)}·${over('h', 2)} = ${over(`${a * b}h`, 6)}. So ${a * b}h/6 = ${frac(...V)}, and h = 6·${frac(...V)}/${a * b} = <b>${c}</b>.`,
+        solution: `Two pyramids on a rhombus of area ½·${a}·${b}, each of height h/2, make up the octahedron, so its volume is 2·⅓·${frac(a * b, 2)}·${over('h', 2)} = ${over(`${a * b}h`, 6)}, a sixth of the box. So ${a * b}h/6 = ${frac(...V)}, and h = 6·${frac(...V)}/${a * b} = <b>${c}</b>.`,
         check: () => {
           const X = [[0, b / 2, c / 2], [a, b / 2, c / 2]], Y = [[a / 2, 0, c / 2], [a / 2, b, c / 2]], Z = [[a / 2, b / 2, 0], [a / 2, b / 2, c]], O = [a / 2, b / 2, c / 2];
           let vol = 0;
@@ -414,7 +430,8 @@ export const geometry = {
         text: `The centres of the six faces of a cube with edge ${s} are the corners of a regular octahedron. What is the surface area of the octahedron?`,
         figure: svg(340, 280, 'A cube with the octahedron joining the centres of its faces', [...parts, label([mid(at[0], at[1])[0], at[0][1] + 20], s, 'ang')]),
         answer: labelled(correct, [surd(2 * s * s, 3), fracSurd(s * s, 2, 3), surd(s * s, 2), fracSurd(s * s, 4, 3), [s * s, num(s * s, 0)], surd(4 * s * s, 3)]),
-        solution: `Two neighbouring face centres are each ${s / 2} from the cube's centre, along perpendicular lines, so the octahedron's edge is √(${s / 2}² + ${s / 2}²) = ${surd(s / 2, 2)[1]}. Its 8 faces are equilateral triangles of area (√3/4)·(edge)² = (√3/4)·${(s * s) / 2}, so the surface area is 8·(√3/4)·${(s * s) / 2} = <b>${correct[1]}</b>.`,
+        tip: 'Find the octahedron’s edge first (two neighbouring face centres are half an edge from the cube’s centre, at right angles), then add up its 8 equilateral faces.',
+        solution: `Two neighbouring face centres are each ${s / 2} (half of ${s}) from the cube’s centre, along perpendicular lines, so the octahedron’s edge is √(${s / 2}² + ${s / 2}²) = ${surd(s / 2, 2)[1]}. Its 8 faces are equilateral triangles of area (√3/4)·(edge)² = (√3/4)·${(s * s) / 2}, so the surface area is 8·(√3/4)·${(s * s) / 2} = <b>${correct[1]}</b>.`,
         check: () => {
           const h = s / 2, X = [[-h, 0, 0], [h, 0, 0]], Y = [[0, -h, 0], [0, h, 0]], Z = [[0, 0, -h], [0, 0, h]];
           let area = 0;
@@ -433,7 +450,8 @@ export const geometry = {
         text: `A box measures ${a} by ${b} by ${c}, with its ${a}-by-${c} face at the front and its ${b}-by-${c} face on the right, so the two faces share an edge. How far apart are the centres of those two faces?`,
         figure: svg(380, 280, 'A box with the centres of two neighbouring faces joined', [...edges, seg(p1, p2, 'seg'), ring(p1, 3, 'seg'), ring(p2, 3, 'seg'), ...boxSides(at, a, b, c)]),
         answer: labelled(correct, [surd(1, a * a + b * b), fracSurd(1, 2, a * a + b * b + c * c), fracSurd(a + b, 2), fracSurd(1, 2, a * a + c * c), fracSurd(1, 2, b * b + c * c)]),
-        solution: `Both centres are halfway up the box. Seen from above, one is ${frac(a, 2)} from the shared edge along the ${a} side and the other is ${frac(b, 2)} from it along the ${b} side, at right angles. So they are √((${a}/2)² + (${b}/2)²) = √(${a * a + b * b})/2 = <b>${correct[1]}</b> apart.`,
+        tip: 'Both centres are halfway up, so look down from above: each is half a side from the shared edge, at right angles to the other.',
+        solution: `Both centres are halfway up the box. Seen from above, one is ${frac(a, 2)} from the shared edge along the ${a} side and the other is ${frac(b, 2)} from it along the ${b} side, at right angles. So they are √((${a}/2)² + (${b}/2)²) = √(${a * a + b * b}/4) = <b>${correct[1]}</b> apart.`,
         check: () => near(Math.hypot(a / 2 - a, 0 - b / 2, 0), correct[0], 'distance'),
       };
     },
@@ -454,7 +472,7 @@ export const geometry = {
           ...[at[1], at[2], at[7], at[4]].map((p) => seg(pM, p, 'seg')),
           ...boxLetters(at, ctr, 'F'), label(away(at[5], at[6], 14), 'F'), label(away(pM, top, 15), 'M'), ...boxSides(at, a, b, c)]),
         answer: choices(d, [abc, 3], [[abc, 6], [abc, 2], [2 * abc, 3], [abc, 1], [abc, 12]], showFrac),
-        solution: `BCHE is a rectangle with BC = ${b} and BE = √(${a}² + ${c}²) = ${BE}. Edge FG is parallel to it, so M is exactly as far from BCHE as F is, and that is the height from F to the diagonal BE in the ${a}-by-${c} rectangle ABFE: ${over(`${a}·${c}`, BE)}. So the volume is ⅓·${b}·${BE}·${over(`${a}·${c}`, BE)} = ${over(`${a}·${b}·${c}`, 3)} = <b>${frac(abc, 3)}</b>, wherever M is on FG.`,
+        solution: `BCHE is a rectangle with BC = ${b} and BE = √(${a}² + ${c}²) = ${BE}. Edge FG is parallel to it, so M is exactly as far from BCHE as F is. BC is at right angles to the face ABFE, so that distance is the height from F to the diagonal BE in the ${a}-by-${c} rectangle ABFE, and the area of triangle BFE taken two ways (½·${a}·${c} = ½·BE·height) makes it ${over(`${a}·${c}`, BE)}. So the volume is ⅓·${b}·${BE}·${over(`${a}·${c}`, BE)} = ${over(`${a}·${b}·${c}`, 3)} = <b>${frac(abc, 3)}</b>, wherever M is on FG.`,
         check: () => {
           const B = [a, 0, 0], C = [a, b, 0], E = [0, 0, c], H = [0, b, c];
           return near(tetra(M3, B, C, H) + tetra(M3, B, H, E), abc / 3, 'volume');
@@ -471,6 +489,7 @@ export const geometry = {
         figure: svg(380, 280, 'Box ABCDEFGH with the corner at A sliced off', [...edges, seg(at[1], at[3], 'seg'), seg(at[3], at[4], 'seg'), seg(at[4], at[1], 'seg'), ...boxLetters(at, ctr),
           label([mid(at[0], at[1])[0], at[0][1] + 20], a, 'ang'), label([at[0][0] - 14, mid(at[0], at[4])[1]], c, 'ang'), label(mid(at[1], at[2]).map((v, i) => v + [12, 10][i]), b, 'ang')]),
         answer: choices(d, ans, [lowest(abc, 3), lowest(abc, 2), lowest(abc, 12), [abc, 1], lowest(abc, 4)], showFrac),
+        tip: 'The piece cut off is a pyramid whose three edges at A meet at right angles: take half a face as its base and the third edge as its height.',
         solution: `The piece is the pyramid ABDE. Its base is the right triangle ABD, of area ½·${a}·${b}, and its height is AE = ${c}, so its volume is ⅓·½·${a}·${b}·${c} = ${over(`${a}·${b}·${c}`, 6)} = <b>${frac(...ans)}</b>.`,
         check: () => near(tetra([0, 0, 0], [a, 0, 0], [0, b, 0], [0, 0, c]), ans[0] / ans[1], 'volume'),
       };
@@ -486,7 +505,7 @@ export const geometry = {
           ...[at[1], at[2], at[7], at[4]].map((p) => seg(pM, p, 'seg')), ...boxLetters(at, ctr, 'F'), label(away(at[5], at[6], 14), 'F'), label(away(pM, top, 15), 'M'),
           label([mid(at[0], at[1])[0], at[0][1] + 20], a, 'ang'), label(mid(at[1], at[2]).map((v, i) => v + [12, 10][i]), b, 'ang')]),
         answer: choices(d, c, [2 * c, lowest(c, 3), lowest(2 * c, 3), 3 * c, lowest(c, 2)], showFrac),
-        solution: `FG is parallel to the base BCHE, so the pyramid's volume doesn't depend on where M is on FG; with M at F it works out to a third of the box: ${a}·${b}·CG/3. So ${a * b}·CG/3 = ${frac(...V)}, and CG = 3·${frac(...V)}/${a * b} = <b>${c}</b>.`,
+        solution: `FG is parallel to the base BCHE, so the pyramid’s volume doesn’t depend on where M is on FG; put M at F. The base has sides BC = ${b} and BE, and the height from F to BCHE is the height from F to BE in the rectangle ABFE, ${a}·CG/BE (twice the area of triangle BFE, divided by BE). So the volume is ⅓·${b}·BE·${a}·CG/BE = ${a}·${b}·CG/3, a third of the box. So ${a * b}·CG/3 = ${frac(...V)}, and CG = 3·${frac(...V)}/${a * b} = <b>${c}</b>.`,
         check: () => { const B = [a, 0, 0], C = [a, b, 0], E = [0, 0, c], H = [0, b, c]; return near(tetra(M3, B, C, H) + tetra(M3, B, H, E), V[0] / V[1], 'volume'); },
       };
     },
@@ -501,7 +520,7 @@ export const geometry = {
         figure: svg(380, 280, 'Box ABCDEFGH with the tetrahedron ACFH', [...edges, seg(A, C, 'seg dash'), seg(A, F, 'seg'), seg(A, H, 'seg'), seg(C, F, 'seg'), seg(C, H, 'seg'), seg(F, H, 'seg'),
           ...boxLetters(at, ctr), ...boxSides(at, a, b, c)]),
         answer: choices(d, ans, [lowest(abc, 6), lowest(abc, 2), lowest(2 * abc, 3), lowest(abc, 4), [abc, 1]], showFrac),
-        solution: `Taking the tetrahedron out of the box leaves four corner pieces, at B, D, E and G. Each is a pyramid like BACF: a right-triangle base with half the area of a face, and the third edge as its height, so each has volume ${a}·${b}·${c}/6. So ACFH has volume ${a}·${b}·${c} − 4·${over(`${a}·${b}·${c}`, 6)} = ${over(`${a}·${b}·${c}`, 3)} = <b>${frac(...ans)}</b>.`,
+        solution: `Taking the tetrahedron out of the box leaves four corner pieces, at B, D, E and G. Each is a pyramid like BACF, with a right-triangle base that is half a face and the third edge, at right angles to that face, as its height, so each has volume ⅓·½·${a}·${b}·${c} = ${a}·${b}·${c}/6. So ACFH has volume ${a}·${b}·${c} − 4·${over(`${a}·${b}·${c}`, 6)} = ${over(`${a}·${b}·${c}`, 3)} = <b>${frac(...ans)}</b>.`,
         check: () => near(tetra([0, 0, 0], [a, b, 0], [a, 0, c], [0, b, c]), ans[0] / ans[1], 'volume'),
       };
     },
@@ -519,7 +538,7 @@ export const geometry = {
         figure: svg(w, h, 'Two equal circles inside a larger circle, touching it at A and B', [
           ring(O, R * T.s), ring(T([-r, yc]), r * T.s), ring(T([r, yc]), r * T.s), seg(A, B, 'seg dash'), label(away(A, O, 14), 'A'), label(away(B, O, 14), 'B')]),
         answer: choices(d, ans, [[2 * r, 1], [2 * r * R, R + r], [2 * r * (R - r), R], [r * R, R - r], [2 * r * R, R - 2 * r]], showFrac),
-        solution: `Let O be the centre of the big circle and P, Q the centres of the small ones. P is on OA with OP = ${R} − ${r} = ${R - r}, Q is on OB with OQ = ${R - r}, and PQ = ${2 * r}. So triangle OAB is triangle OPQ enlarged by ${R}/${R - r}, and AB = ${2 * r}·${R}/${R - r} = <b>${frac(...ans)}</b>.`,
+        solution: `Let O be the centre of the big circle and P, Q the centres of the small ones. A circle touching the big one from inside has its centre on the line from O to the point of contact, so P is on OA with OP = ${R} − ${r} = ${R - r}, and Q is on OB with OQ = ${R - r}. The small circles touch each other, so PQ = ${r} + ${r} = ${2 * r}. So triangle OAB is triangle OPQ enlarged by ${R}/${R - r}, and AB = ${2 * r}·${R}/${R - r} = <b>${frac(...ans)}</b>.`,
         check: () => {
           const Pc = [-r, yc], Qc = [r, yc], ok = Math.abs(dist(Pc, [0, 0]) - (R - r)) < 1e-9 && Math.abs(dist(Pc, Qc) - 2 * r) < 1e-9;
           const Ap = Pc.map((v) => (v * R) / dist(Pc, [0, 0])), Bp = Qc.map((v) => (v * R) / dist(Qc, [0, 0]));
@@ -538,7 +557,7 @@ export const geometry = {
         figure: svg(w, h, 'Two equal circles inside a larger circle, touching it at A and B', [
           ring(O, R * T.s), ring(T([-r, yc]), r * T.s), ring(T([r, yc]), r * T.s), seg(A, B, 'seg dash'), label(away(A, O, 14), 'A'), label(away(B, O, 14), 'B')]),
         answer: choices(d, r, [R - r, lowest(AB[0], 2 * AB[1]), R - 2 * r, 2 * r, lowest(R, 2)], showFrac),
-        solution: `With O the big centre and P, Q the small centres, P and Q lie on OA and OB with OP = OQ = ${R} − r and PQ = 2r, so triangle OAB is OPQ enlarged by ${R}/(${R} − r), and AB = 2r·${R}/(${R} − r). Setting that equal to ${frac(...AB)}: ${2 * R * AB[1]}r = ${AB[0]}(${R} − r), so r = ${AB[0] * R}/${2 * R * AB[1] + AB[0]} = <b>${r}</b>.`,
+        solution: `With O the big centre and P, Q the small centres, P and Q lie on OA and OB with OP = OQ = ${R} − r and PQ = 2r, so triangle OAB is OPQ enlarged by ${R}/(${R} − r), and AB = 2r·${R}/(${R} − r). Setting that equal to ${frac(...AB)} and multiplying both sides by ${AB[1] === 1 ? '' : AB[1]}(${R} − r) gives ${2 * R * AB[1]}r = ${AB[0]}(${R} − r) = ${AB[0] * R} − ${AB[0]}r. So ${2 * R * AB[1] + AB[0]}r = ${AB[0] * R}, and r = ${AB[0] * R}/${2 * R * AB[1] + AB[0]} = <b>${r}</b>.`,
         check: () => {
           const Pc = [-r, yc], Qc = [r, yc], Ap = Pc.map((v) => (v * R) / dist(Pc, [0, 0])), Bp = Qc.map((v) => (v * R) / dist(Qc, [0, 0]));
           return near(dist(Ap, Bp), AB[0] / AB[1], 'AB') || near((AB[0] * R) / (2 * R * AB[1] + AB[0]), r, 'r');
@@ -556,7 +575,7 @@ export const geometry = {
         figure: svg(w, h, 'Two equal circles touching at T inside a larger circle with centre O', [
           ring(O, R * T.s), ring(T([-r, yc]), r * T.s), ring(T([r, yc]), r * T.s), seg(O, Tp, 'seg dash'), ring(O, 2.5, 'seg'), label([O[0] + 12, O[1] - 4], 'O'), label([Tp[0] + 11, Tp[1] - 12], 'T')]),
         answer: labelled(correct, [[R - 2 * r, num(R - 2 * r, 0)], surd(1, R * R - r * r), [R - r, num(R - r, 0)], surd(1, (R - r) ** 2 + r * r)]),
-        solution: `A circle touching the big one from inside has its centre ${R} − ${r} = ${R - r} from O, so the small centres P and Q are each ${R - r} from O. T is the midpoint of PQ (the circles touch there), so PT = ${r} and OT is perpendicular to PQ. By Pythagoras, OT = √(${R - r}² − ${r}²) = <b>${correct[1]}</b>.`,
+        solution: `A circle touching the big one from inside has its centre ${R} − ${r} = ${R - r} from O, so the small centres P and Q are each ${R - r} from O. T is the midpoint of PQ (the circles touch there), so PT = ${r}, and OT is perpendicular to PQ, because triangle OPQ is isosceles (OP = OQ). By Pythagoras, OT = √(${R - r}² − ${r}²) = <b>${correct[1]}</b>.`,
         check: () => { const Pc = [-r, yc], Qc = [r, yc]; return Math.abs(dist(Pc, [0, 0]) - (R - r)) > 1e-9 ? 'P placed wrong' : near(dist(mid(Pc, Qc), [0, 0]), correct[0], 'OT'); },
       };
     },
@@ -571,7 +590,7 @@ export const geometry = {
         text: `Three circles of radius ${r} each touch the other two, and all three touch the inside of a larger circle. What is the radius of the larger circle?`,
         figure: svg(w, h, 'Three equal circles inside a larger circle', [ring(T([0, 0]), R * T.s), ...centres.map((p) => ring(T(p), r * T.s))]),
         answer: labelled(correct, [[9 * k, num(9 * k, 0)], plusRoot(3 * k, 3 * k, 3), plusRoot(3 * k, k, 3), [6 * k, num(6 * k, 0)], plusRoot(6 * k, 2 * k, 3)]),
-        solution: `The three small centres form an equilateral triangle of side ${2 * r}, so they are ${2 * r}/√3 = ${surd(2 * k, 3)[1]} from its centre, which is also the centre of the large circle. Each small circle reaches ${r} further out, so the large radius is <b>${correct[1]}</b>.`,
+        solution: `The small circles touch, so their centres are ${r} + ${r} = ${2 * r} apart, and they form an equilateral triangle of side ${2 * r}. Its centre is two thirds of the way down its height, (√3/2)·${2 * r}, so the small centres are ⅔·(√3/2)·${2 * r} = ${2 * r}/√3 = ${surd(2 * k, 3)[1]} from it, which is also the centre of the large circle. Each small circle reaches ${r} further out, so the large radius is <b>${correct[1]}</b>.`,
         check: () => {
           if (centres.some((p, i) => Math.abs(dist(p, centres[(i + 1) % 3]) - 2 * r) > 1e-9)) return 'small circles not touching';
           return near(Math.max(...centres.map((p) => Math.hypot(...p) + r)), R, 'R');
@@ -595,7 +614,7 @@ export const geometry = {
         figure: svg(w, h, 'Right triangle PQR with segments from Q to the hypotenuse', [poly([pP, pQ, pR]), corner(pQ, pP, pR), seg(pQ, foot, 'seg dash'), seg(pQ, other, 'seg'),
           label(away(pP, ctr, 14), 'P'), label(away(pQ, ctr, 14), 'Q'), label(away(pR, ctr, 14), 'R'), label([pQ[0] - 14, mid(pQ, pP)[1]], a, 'ang'), label([mid(pQ, pR)[0], pQ[1] + 20], b, 'ang')]),
         answer: choices(d, count, [sideR, count + (hWhole ? 1 : -1), count - 2 + (hWhole ? 1 : 0), b - a + 1, count + 2]),
-        solution: `The shortest segment from Q to PR is the altitude, of length ${a}·${b}/PR = ${hText}${hWhole ? '' : ` ≈ ${num(hNum, 2)}`}. As its far end slides from the foot of the altitude to P, the length grows steadily from that to ${a}; sliding to R, it grows to ${b}. So the P side has ${low === a ? `just one whole-number segment (length ${a})` : `one segment of each whole-number length from ${low} to ${a} (${sideP} of them)`}, and the R side one of each from ${low} to ${b} (${sideR} of them): ${sideP} + ${sideR}${hWhole ? ` − 1 (the altitude itself, ${low} long, was counted on both sides)` : ''} = <b>${count}</b>.`,
+        solution: `The hypotenuse is PR = √(${a}² + ${b}²) = ${surd(1, c2)[1]}, and the shortest segment from Q to it is the altitude, of length ${a}·${b}/PR = ${a * b}/${Number.isInteger(c) ? c : `(${surd(1, c2)[1]})`} = ${hText}${hWhole ? '' : ` ≈ ${num(hNum, 2)}`}. As its far end slides from the foot of the altitude to P, the length grows steadily from that to ${a}; sliding to R, it grows to ${b}. So the P side has ${low === a ? `just one whole-number segment (length ${a})` : `one segment of each whole-number length from ${low} to ${a} (${sideP} of them)`}, and the R side one of each from ${low} to ${b} (${sideR} of them): ${sideP} + ${sideR}${hWhole ? ` − 1 (the altitude itself, ${low} long, was counted on both sides)` : ''} = <b>${count}</b>.`,
         check: () => {
           // points of PR at distance L from Q: |P + t(R − P)|² = L² is a quadratic in t; count its roots in [0, 1]
           let n = 0;
@@ -621,7 +640,7 @@ export const geometry = {
         figure: svg(w, h, 'Right triangle PQR with the altitude from Q', [poly([pP, pQ, pR]), corner(pQ, pP, pR), seg(pQ, foot, 'seg dash'),
           label(away(pP, ctr, 14), 'P'), label(away(pQ, ctr, 14), 'Q'), label(away(pR, ctr, 14), 'R'), label([pQ[0] - 14, mid(pQ, pP)[1]], a, 'ang'), label([mid(pQ, pR)[0], pQ[1] + 20], b, 'ang')]),
         answer: choices(d, ans, [count, ans - 1, ans + 1, Math.abs(b - a) + 1, Math.min(a, b) - low + 1]),
-        solution: `The shortest such segment is the altitude, ${hText}${hWhole ? '' : ` ≈ ${num((a * b) / c, 2)}`}. From its foot, the far end can slide to P (length ${a}) or to R (length ${b}), so every length from the altitude up to ${top} happens. The whole numbers in that range run from ${low} to ${top}: <b>${ans}</b> of them.`,
+        solution: `The hypotenuse is PR = √(${a}² + ${b}²) = ${surd(1, c2)[1]}, so the shortest such segment, the altitude, is ${a}·${b}/PR = ${a * b}/${Number.isInteger(c) ? c : `(${surd(1, c2)[1]})`} = ${hText}${hWhole ? '' : ` ≈ ${num((a * b) / c, 2)}`}. From its foot, the far end can slide to P (length ${a}) or to R (length ${b}), so every length from the altitude up to ${top} happens. The whole numbers in that range run from ${low} to ${top}: <b>${ans}</b> of them.`,
         check: () => {
           let n = 0;
           for (let L = 1; L <= top; L++) {
@@ -645,7 +664,7 @@ export const geometry = {
         figure: svg(w, h, 'Isosceles triangle ABC with segments from A to BC', [poly([pA, pB, pC]), seg(pA, foot, 'seg dash'), corner(foot, pC, pA), seg(pA, T([t * 0.55, 0]), 'seg'),
           label(away(pA, ctr, 14), 'A'), label(away(pB, ctr, 14), 'B'), label(away(pC, ctr, 14), 'C'), label(away(mid(pA, pB), ctr, 14), s, 'ang'), label(away(mid(pA, pC), ctr, 14), s, 'ang')]),
         answer: choices(d, count, [side, count + (hWhole ? 1 : -1), 2 * s - 2 * t, s, count + 2]),
-        solution: `The shortest segment from A is the height to BC, √(${s}² − ${t}²) = ${hS}${hWhole ? '' : ` ≈ ${num(Math.sqrt(h2), 2)}`}. On each side of its foot the lengths grow steadily from that up to ${s}, so each side has ${side === 1 ? `just one whole-number length, ${s}` : `the ${side} whole numbers from ${low} to ${s}`}: ${side} + ${side}${hWhole ? ` − 1 (the height itself, ${low} long, was counted on both sides)` : ''} = <b>${count}</b>.`,
+        solution: `The shortest segment from A to BC is the height, which meets BC at its midpoint, ${2 * t}/2 = ${t} from B, so its length is √(${s}² − ${t}²) = ${hS}${hWhole ? '' : ` ≈ ${num(Math.sqrt(h2), 2)}`}. On each side of its foot the lengths grow steadily from that up to ${s}, so each side has ${side === 1 ? `just one whole-number length, ${s}` : `the ${side} whole numbers from ${low} to ${s}`}: ${side} + ${side}${hWhole ? ` − 1 (the height itself, ${low} long, was counted on both sides)` : ''} = <b>${count}</b>.`,
         check: () => {
           // points B + u(C − B) at distance L from A: (2tu − t)² + h² = L²
           let n = 0;
@@ -675,7 +694,7 @@ export const geometry = {
         figure: svg(w, h, `The triangle cut off by ${eq}`, [poly([O, X, Y]), seg(T([-0.12 * s, 0]), T([1.15 * s, 0]), 'arc'), seg(T([0, -0.12 * t]), T([0, 1.15 * t]), 'arc'),
           seg(O, foot, 'seg dash'), corner(O, X, Y), label([X[0], X[1] + 20], s, 'ang'), label([Y[0] - 14, Y[1]], t, 'ang'), label([O[0] - 12, O[1] + 16], 'O')]),
         answer: choices(d, ans, [[s + t + hyp, 1], [s + t, 1], [(s + t) * hyp + 2 * s * t, hyp], [s * t + hyp * hyp, hyp], [s * t, hyp]], showFrac),
-        solution: `The line meets the axes at (${s}, 0) and (0, ${t}), so the triangle has legs ${s} and ${t} and hypotenuse √(${s}² + ${t}²) = ${hyp}. Two of the altitudes are the legs; the third, to the hypotenuse, is ${s}·${t}/${hyp} = ${frac(s * t, hyp)}. Total: ${s} + ${t} + ${frac(s * t, hyp)} = <b>${frac(...ans)}</b>.`,
+        solution: `Setting y = 0 gives x = ${(s * t) / g}/${t / g} = ${s}, and setting x = 0 gives y = ${(s * t) / g}/${s / g} = ${t}, so the line meets the axes at (${s}, 0) and (0, ${t}), and the triangle has legs ${s} and ${t} and hypotenuse √(${s}² + ${t}²) = ${hyp}. Two of the altitudes are the legs; the third, to the hypotenuse, is ${s}·${t}/${hyp} = ${frac(s * t, hyp)}. Total: ${s} + ${t} + ${frac(s * t, hyp)} = <b>${frac(...ans)}</b>.`,
         check: () => {
           const A = [[0, 0], [s, 0], [0, t]], area = shoelace(A), sides = [dist(A[0], A[1]), dist(A[1], A[2]), dist(A[2], A[0])];
           return near(sides.reduce((sum, side) => sum + (2 * area) / side, 0), ans[0] / ans[1], 'altitudes');
@@ -691,7 +710,7 @@ export const geometry = {
         text: `A triangle has sides ${x}, ${y} and ${z}. How long is its ${which} altitude?`,
         figure: triangleFigure(x, y, z, which === 'shortest'),
         answer: choices(d, ans, [lowest(2 * A, which === 'shortest' ? x : z), lowest(A, side), lowest(2 * A, y), lowest(4 * A, side), lowest(A, y)], showFrac),
-        solution: `Heron's formula: s = ${s}, so the area is √(${s}·${s - x}·${s - y}·${s - z}) = ${A}. An altitude is 2·area divided by its side, so the ${which} altitude goes to the ${which === 'shortest' ? 'longest' : 'shortest'} side, ${side}: 2·${A}/${side} = <b>${frac(...ans)}</b>.`,
+        solution: `By Heron’s formula, with s = (${x} + ${y} + ${z})/2 = ${s}, half the perimeter, the area is √(${s}·(${s} − ${x})·(${s} − ${y})·(${s} − ${z})) = √(${s}·${s - x}·${s - y}·${s - z}) = √${s * (s - x) * (s - y) * (s - z)} = ${A}. An altitude is 2·area divided by its side, so the ${which} altitude goes to the ${which === 'shortest' ? 'longest' : 'shortest'} side, ${side}, and it is 2·${A}/${side} = <b>${frac(...ans)}</b>.`,
         check: () => { const hs = altitudes(x, y, z); return near(which === 'shortest' ? Math.min(...hs) : Math.max(...hs), ans[0] / ans[1], 'altitude'); },
       };
     },
@@ -705,7 +724,7 @@ export const geometry = {
         text: `A triangle has sides ${x}, ${y} and ${z}, and its altitudes are h<sub>1</sub>, h<sub>2</sub> and h<sub>3</sub>. What is ${recip(1)} + ${recip(2)} + ${recip(3)}?`,
         figure: triangleFigure(x, y, z, false),
         answer: choices(d, ans, [lowest(2 * A, P), lowest(P, A), lowest(P, 4 * A), lowest(3, s), lowest(P + 1, 2 * A)], showFrac),
-        solution: `Each altitude is 2·area divided by its side, so 1/h is the side divided by 2·area, and the three add up to the perimeter divided by 2·area. Heron's formula (s = ${s}) gives the area √(${s}·${s - x}·${s - y}·${s - z}) = ${A}, so the sum is ${P}/(2·${A}) = <b>${frac(...ans)}</b>.`,
+        solution: `Each altitude is 2·area divided by its side, so 1/h is the side divided by 2·area, and the three add up to the perimeter divided by 2·area. The perimeter is ${x} + ${y} + ${z} = ${P}, so s, half of it, is ${s}, and Heron’s formula gives the area √(${s}·${s - x}·${s - y}·${s - z}) = √${s * (s - x) * (s - y) * (s - z)} = ${A}. So the sum is ${P}/(2·${A}) = <b>${frac(...ans)}</b>.`,
         check: () => near(altitudes(x, y, z).reduce((sum, h) => sum + 1 / h, 0), ans[0] / ans[1], 'sum'),
       };
     },
@@ -721,13 +740,13 @@ export const geometry = {
       const xy = '<span class="fr"><span>x</span><span>y</span></span>';
       return {
         topic: 'Squares in a right triangle', rank: 21,
-        text: `Two copies of a right triangle with sides ${a}, ${b} and ${c} each hold a square. In the first, a square of side x shares the triangle's right angle, and its far corner touches the hypotenuse. In the second, a square of side y has one side lying along the hypotenuse and its other two corners on the legs. What is ${xy}?`,
+        text: `Two copies of a right triangle with sides ${a}, ${b} and ${c} each hold a square. In the first, a square of side x shares the triangle’s right angle, and its far corner touches the hypotenuse. In the second, a square of side y has one side lying along the hypotenuse and its other two corners on the legs. What is ${xy}?`,
         figure: svg(520, 220, 'A square at the right angle of one triangle, and a square on the hypotenuse of another', ['<g/>',
           poly([[0, 0], [b, 0], [0, a]].map(T)), poly([[0, 0], [x, 0], [x, x], [0, x]].map(T), 'arc'),
           poly([[x0, 0], [x0 + c, 0], [x0 + foot, hgt]].map(T), 'side'), poly([[yl, 0], [yl + y, 0], [yl + y, y], [yl, y]].map(T), 'arc'),
           label(T([x / 2, x / 2]), 'x', 'ang'), label(T([yl + y / 2, y / 2]), 'y', 'ang')]),
         answer: choices(d, ans, [lowest(c * (a + b), c * c + a * b), [1, 1], lowest(a + b, c), lowest(c, a + b), lowest(c * c, c * c + a * b)], showFrac),
-        solution: `First square: with the legs along the axes, its far corner (x, x) is on the hypotenuse, so x/${b} + x/${a} = 1 and x = ${over(`${a}·${b}`, `${a} + ${b}`)} = ${frac(a * b, a + b)}. Second square: the altitude to the hypotenuse is h = ${a}·${b}/${c} = ${frac(a * b, c)}; at height y above the hypotenuse the triangle is ${c}(1 − y/h) wide, and that must be y, so y = ${c}h/(${c} + h) = ${frac(a * b * c, c * c + a * b)}. So ${xy} = ${frac(a * b, a + b)} ÷ ${frac(a * b * c, c * c + a * b)} = <b>${frac(...ans)}</b>.`,
+        solution: `For the first square, put the legs along the axes; its far corner (x, x) is on the hypotenuse, so x/${b} + x/${a} = 1. Multiplying by ${a}·${b} gives ${a}x + ${b}x = ${a * b}, so x = ${over(`${a}·${b}`, `${a} + ${b}`)} = ${frac(a * b, a + b)}. For the second square, the altitude to the hypotenuse is h = ${a}·${b}/${c} = ${frac(a * b, c)}. At height y above the hypotenuse the triangle is ${c}(1 − y/h) wide (similar triangles), and that must be y, so ${c} = y + ${c}y/h, which gives y = ${c}h/(${c} + h). Multiplying top and bottom by ${c}, y = ${a}·${b}·${c}/(${c}² + ${a}·${b}) = ${frac(a * b * c, c * c + a * b)}. So ${xy} = ${frac(a * b, a + b)} ÷ ${frac(a * b * c, c * c + a * b)} = <b>${frac(...ans)}</b>.`,
         check: () => {
           // grow each square until it no longer fits (bisection), measuring the triangle's width with line intersections
           const fits1 = (s) => s / b + s / a <= 1;
@@ -746,7 +765,8 @@ export const geometry = {
         text: `A right triangle has sides ${a}, ${b} and ${c}. A square sits in the corner at the right angle, with two of its sides along the legs and its far corner on the hypotenuse. How long is a side of the square?`,
         figure: cornerSquare(a, b),
         answer: choices(d, ans, [lowest(a * b, c), lowest(a + b, 4), lowest(a * b, 2 * (a + b)), lowest(a * b * c, c * c + a * b), lowest(c, 2)], showFrac),
-        solution: `Put the right angle at the origin, the leg ${b} along the x-axis and the leg ${a} along the y-axis; the hypotenuse is then the line x/${b} + y/${a} = 1. The square's far corner (s, s) is on it, so s/${b} + s/${a} = 1, which gives s = ${over(`${a}·${b}`, `${a} + ${b}`)} = <b>${frac(...ans)}</b>.`,
+        tip: 'With the legs along the axes, the square’s far corner is (s, s), and it has to lie on the hypotenuse’s line.',
+        solution: `Put the right angle at the origin, the leg ${b} along the x-axis and the leg ${a} along the y-axis; the hypotenuse is then the line x/${b} + y/${a} = 1 (its length, ${c}, isn’t needed). The square’s far corner (s, s) is on it, so s/${b} + s/${a} = 1. Multiplying by ${a}·${b} gives ${a}s + ${b}s = ${a * b}, so s = ${over(`${a}·${b}`, `${a} + ${b}`)} = <b>${frac(...ans)}</b>.`,
         check: () => { let lo = 0, hi = Math.max(a, b); for (let i = 0; i < 80; i++) { const m = (lo + hi) / 2; if (m / b + m / a <= 1) lo = m; else hi = m; } return near(lo, ans[0] / ans[1], 'side', 1e-9); },
       };
     },
@@ -759,7 +779,8 @@ export const geometry = {
         text: `A right triangle has sides ${a}, ${b} and ${c}. A square has one side lying along the hypotenuse and its other two corners on the legs. How long is a side of the square?`,
         figure: hypotenuseSquare(a, b, c),
         answer: choices(d, ans, [lowest(a * b, a + b), lowest(a * b, c), lowest(a * b * c, c * c + 2 * a * b), lowest(c, 2), lowest(a * b, 2 * c)], showFrac),
-        solution: `The altitude to the hypotenuse is h = ${a}·${b}/${c} = ${frac(a * b, c)}. At height s above the hypotenuse the triangle is ${c}(1 − s/h) wide (similar triangles), and the square needs that width to be s: s = ${c}h/(${c} + h) = <b>${frac(...ans)}</b>.`,
+        tip: 'Find the altitude h to the hypotenuse; at height s above the hypotenuse, similar triangles give the triangle’s width, and the square needs that width to be s.',
+        solution: `The altitude to the hypotenuse is h = ${a}·${b}/${c} = ${frac(a * b, c)}. At height s above the hypotenuse the triangle is ${c}(1 − s/h) wide (similar triangles), and the square needs that width to be s, so ${c} = s + ${c}s/h, which gives s = ${c}h/(${c} + h). Multiplying top and bottom by ${c}, s = ${a}·${b}·${c}/(${c}² + ${a}·${b}) = <b>${frac(...ans)}</b>.`,
         check: () => {
           const Lft = [[0, 0], [foot, hgt]], Rgt = [[c, 0], [foot, hgt]], width = (s) => meet([[0, s], [1, s]], Rgt)[0] - meet([[0, s], [1, s]], Lft)[0];
           let lo = 0, hi = hgt; for (let i = 0; i < 80; i++) { const m = (lo + hi) / 2; if (width(m) >= m) lo = m; else hi = m; }
@@ -773,10 +794,11 @@ export const geometry = {
       const ans = lowest(2 * a * b, (a + b) ** 2);
       return {
         topic: 'Squares in a right triangle', rank: 14,
-        text: `A right triangle has legs ${a} and ${b}. A square sits in the corner at the right angle, with two of its sides along the legs and its far corner on the hypotenuse. What fraction of the triangle's area does the square cover?`,
+        text: `A right triangle has legs ${a} and ${b}. A square sits in the corner at the right angle, with two of its sides along the legs and its far corner on the hypotenuse. What fraction of the triangle’s area does the square cover?`,
         figure: cornerSquare(a, b),
         answer: choices(d, ans, [lowest(a * b, (a + b) ** 2), lowest(a * b, a * a + b * b), lowest(2 * a * b, a * a + b * b), [1, 2], lowest(4 * a * b, (a + b) ** 2)], showFrac),
-        solution: `The square's far corner is on the hypotenuse, so its side is ${a}·${b}/(${a} + ${b}) = ${frac(a * b, a + b)}. Its area divided by the triangle's area ½·${a}·${b} is (${frac(a * b, a + b)})² ÷ ${num((a * b) / 2)} = ${over(`2·${a}·${b}`, `(${a} + ${b})²`)} = <b>${frac(...ans)}</b>.`,
+        tip: 'Find the square’s side first (its far corner (s, s) lies on the hypotenuse’s line), then compare s² with the triangle’s area.',
+        solution: `With the legs along the axes, the square’s far corner (s, s) is on the hypotenuse x/${b} + y/${a} = 1, so s/${b} + s/${a} = 1. Multiplying by ${a}·${b} gives ${a}s + ${b}s = ${a * b}, so its side is s = ${a}·${b}/(${a} + ${b}) = ${frac(a * b, a + b)}. Its area divided by the triangle’s area ½·${a}·${b} is (${frac(a * b, a + b)})² ÷ ${num((a * b) / 2)} = ${over(`2·${a}·${b}`, `(${a} + ${b})²`)} = <b>${frac(...ans)}</b>.`,
         check: () => { let lo = 0, hi = Math.max(a, b); for (let i = 0; i < 80; i++) { const m = (lo + hi) / 2; if (m / b + m / a <= 1) lo = m; else hi = m; } return near((lo * lo) / ((a * b) / 2), ans[0] / ans[1], 'fraction', 1e-9); },
       };
     },
@@ -797,7 +819,7 @@ export const geometry = {
           seg(T([a, V2[1] - 0.8]), T([a, V1[1] + 0.8])), seg(T([lo, b + lo / r3]), T([hi, b + hi / r3])), seg(T([lo, -lo / r3]), T([hi, -hi / r3])),
           label(T([0, 0]).map((v, i) => v + [-10, 14][i]), 'O'), label(T([a, V1[1] + 0.8]).map((v, i) => v + [-7, 6][i]), `x = ${a}`, 'ang', 'end')]),
         answer: labelled(correct, [[per / 3, `${b} + ${fracSurd(2 * a, 3, 3)[1]}`], [3 * b + a * r3, `${3 * b} + ${sA(a)}`], [3 * (a + b), num(3 * (a + b), 0)], [3 * b + 3 * a * r3, `${3 * b} + ${sA(3 * a)}`], [2 * b + 2 * a * r3, `${2 * b} + ${sA(2 * a)}`]]),
-        solution: `The line y = ${b} + ${k3}x rises at 30°, and x = ${a} stands at 90°, so they meet at 60°. The third side must make 60° with both, so it falls at 30°: y = −${k3}x. It meets x = ${a} at (${a}, −${fracSurd(a, 3, 3)[1]}), and the sloping line meets x = ${a} at (${a}, ${b} + ${fracSurd(a, 3, 3)[1]}), so each side is ${b} + ${fracSurd(2 * a, 3, 3)[1]}, and the perimeter is three times that: <b>${correct[1]}</b>.`,
+        solution: `The line y = ${b} + ${k3}x rises at 30° (its slope ${k3} is tan 30°), and the vertical line x = ${a} is at 90°, so they meet at 60°. The third side must make 60° with both, so it falls at 30°: y = −${k3}x. It meets x = ${a} at (${a}, −${fracSurd(a, 3, 3)[1]}), and the sloping line meets x = ${a} at (${a}, ${b} + ${fracSurd(a, 3, 3)[1]}), so each side is ${b} + ${fracSurd(2 * a, 3, 3)[1]}, and the perimeter is three times that: <b>${correct[1]}</b>.`,
         check: () => {
           const vert = [[a, 0], [a, 1]], up = [[0, b], [1, b + 1 / r3]], third = [[0, 0], [1, -1 / r3]];
           const P = [meet(vert, up), meet(vert, third), meet(up, third)], s = [dist(P[0], P[1]), dist(P[1], P[2]), dist(P[2], P[0])];
@@ -818,7 +840,7 @@ export const geometry = {
           seg(T([-xe - 1, 0]), T([xe + 1, 0]), 'arc'), seg(T([0, -0.8]), T([0, hh + 0.8]), 'arc'), seg(T([-xe - 1, hh]), T([xe + 1, hh])),
           label(T([0, 0]).map((v, i) => v + [12, 14][i]), 'O'), label(T([xe + 1, hh]).map((v, i) => v + [0, -10][i]), `y = ${hh}`, 'ang', 'end')]),
         answer: labelled(correct, [surd(hh, 3), [6 * hh, num(6 * hh, 0)], fracSurd(2 * hh, 3, 3), surd(3 * hh, 3), [3 * hh, num(3 * hh, 0)]]),
-        solution: `y = √3·x rises at 60° and y = −√3·x falls at 60°, so with the level line y = ${hh} they make a triangle whose angles are all 60°: it is equilateral. Its top side runs from x = −${hh}/√3 to x = ${hh}/√3, so each side is 2·${hh}/√3 = ${fracSurd(2 * hh, 3, 3)[1]}, and the perimeter is three times that: <b>${correct[1]}</b>.`,
+        solution: `y = √3·x rises at 60° (√3 is tan 60°) and y = −√3·x falls at 60°, so with the level line y = ${hh} they make a triangle whose angles are all 60°, an equilateral triangle. Its top side runs from x = −${hh}/√3 to x = ${hh}/√3, so each side is 2·${hh}/√3 = ${fracSurd(2 * hh, 3, 3)[1]}, and the perimeter is three times that: <b>${correct[1]}</b>.`,
         check: () => {
           const l1 = [[0, 0], [1, r3]], l2 = [[0, 0], [1, -r3]], l3 = [[0, hh], [1, hh]];
           const P = [meet(l1, l2), meet(l1, l3), meet(l2, l3)], s = [dist(P[0], P[1]), dist(P[1], P[2]), dist(P[2], P[0])];
@@ -848,8 +870,8 @@ export const geometry = {
       return {
         topic: 'Lines making an equilateral triangle', rank: 15,
         text: `Three lines enclose an equilateral triangle: the vertical line x = ${a}, a line y = c + ${k3}x for some number c > 0, and a third line through the origin. The perimeter of the triangle is ${per}. What is c?`,
-        answer: choices(d, b, [3 * b, b + a, 2 * b, b + 2 * a, Math.max(1, b - a)]),
-        solution: `The line y = c + ${k3}x rises at 30° and x = ${a} is vertical, so the third side falls at 30°: y = −${k3}x. On the line x = ${a} the two sloping lines are at y = c + ${fracSurd(a, 3, 3)[1]} and y = −${fracSurd(a, 3, 3)[1]}, so each side is c + ${fracSurd(2 * a, 3, 3)[1]} and the perimeter is 3c + ${sA(2 * a)}. So 3c = ${3 * b}, and c = <b>${b}</b>.`,
+        answer: choices(d, b, [3 * b, b + a, 2 * b, b + 2 * a, Math.max(1, b - a), 4 * b]),
+        solution: `The line y = c + ${k3}x rises at 30° and x = ${a} is vertical, so the third side falls at 30°: y = −${k3}x. On the line x = ${a} the two sloping lines are at y = c + ${fracSurd(a, 3, 3)[1]} and y = −${fracSurd(a, 3, 3)[1]}, so each side is c + ${fracSurd(2 * a, 3, 3)[1]} and the perimeter is 3c + ${sA(2 * a)}. That is ${per}, so 3c = ${3 * b}, and c = <b>${b}</b>.`,
         check: () => {
           const vert = [[a, 0], [a, 1]], up = [[0, b], [1, b + 1 / r3]], third = [[0, 0], [1, -1 / r3]];
           const P = [meet(vert, up), meet(vert, third), meet(up, third)], s = [dist(P[0], P[1]), dist(P[1], P[2]), dist(P[2], P[0])];
@@ -870,14 +892,14 @@ export const geometry = {
       };
       const [W, H, e, g, f] = combo(ctx, [[4, 5, 6, 7, 8], [3, 4, 5, 6], [1, 2, 3], [1, 2, 3], [1, 2, 3]],
         (W, H, e, g, f) => !(W === 5 && H === 4 && e === 1 && g === 1 && f === 2) && e < W && g < H && f < W && (solve(W, H, e, g, f)?.ratio[1] ?? 999) <= 150);
-      const { X, Y, ratio: rr } = solve(W, H, e, g, f);
+      const { X, Y, ratio: rr } = solve(W, H, e, g, f), cr = crossings(W, H, e, f);
       const pX = meet([[W - e, H], [f, 0]], [[0, H], [W, g]]), pY = meet([[W - e, H], [f, 0]], [[0, H], [W, 0]]);
       return {
         topic: 'Cutting a segment in a rectangle', rank: 19,
         text: `Rectangle KLMN has KL = ${W} and LM = ${H}. Point S is on side KL with SL = ${e}, point T is on side LM with MT = ${g}, and point U is on side MN with NU = ${f}. Segment SU crosses segment KT at X and diagonal KM at Y. What is <span class="fr"><span>XY</span><span>SU</span></span>?`,
         figure: rectangleKLMN(W, H, e, f, [[[0, H], [W, g]], [[0, H], [W, 0]]], [[[W, g], 'T', 13, 0], [pX, 'X', 12, -4], [pY, 'Y', -12, 4]]),
         answer: choices(d, rr, [X, Y, [rr[1] - rr[0], rr[1]], [2 * rr[0], rr[1]], [rr[0], rr[1] + 1]].map((v) => lowest(...v)), showFrac),
-        solution: `Put N at (0, 0): K = (0, ${H}), M = (${W}, 0), S = (${W - e}, ${H}), T = (${W}, ${g}) and U = (${f}, 0). Write the points of SU as S + s·(U − S), with s from 0 at S to 1 at U. Solving with the line KT gives s = ${fracOf(X)} at X, and with the line KM gives s = ${fracOf(Y)} at Y. So <span class="fr"><span>XY</span><span>SU</span></span> = |${fracOf(X)} − ${fracOf(Y)}| = <b>${fracOf(rr)}</b>.`,
+        solution: `Put N at (0, 0), so K = (0, ${H}), M = (${W}, 0), S = (${W - e}, ${H}), T = (${W}, ${g}) and U = (${f}, 0). Write the points of SU as S + s·(U − S) = ${cr.point}, with s from 0 at S to 1 at U; ${cr.where}. ${cr.KT(g)} at X. ${cr.KM} at Y. So <span class="fr"><span>XY</span><span>SU</span></span> = |${fracOf(X)} − ${fracOf(Y)}| = <b>${fracOf(rr)}</b>.`,
         check: () => { const Sp = [W - e, H], Up = [f, 0]; return near(dist(pX, pY) / dist(Sp, Up), rr[0] / rr[1], 'XY/SU', 1e-9); },
       };
     },
@@ -903,14 +925,14 @@ export const geometry = {
         return top ? { X: X.s, Y: Y.s, ratio: lowest(top, bot) } : null;
       };
       const [W, H, e, f] = combo(ctx, [[4, 5, 6, 7, 8], [3, 4, 5, 6], [1, 2, 3], [1, 2, 3, 4, 5, 6]], (W, H, e, f) => e < W && f < W && (solve(W, H, e, f)?.ratio[1] ?? 999) <= 150);
-      const { X, Y, ratio: rr } = solve(W, H, e, f);
+      const { X, Y, ratio: rr } = solve(W, H, e, f), cr = crossings(W, H, e, f);
       const pX = meet([[W - e, H], [f, 0]], [[W, H], [0, 0]]), pY = meet([[W - e, H], [f, 0]], [[0, H], [W, 0]]);
       return {
         topic: 'Cutting a segment in a rectangle', rank: 21,
         text: `Rectangle KLMN has KL = ${W} and LM = ${H}. Point S is on side KL with SL = ${e}, and point U is on side MN with NU = ${f}. Segment SU crosses the diagonal LN at X and the diagonal KM at Y. What is <span class="fr"><span>XY</span><span>SU</span></span>?`,
         figure: rectangleKLMN(W, H, e, f, [[[0, H], [W, 0]], [[W, H], [0, 0]]], [[pX, 'X', 13, -4], [pY, 'Y', -13, 4]]),
         answer: choices(d, rr, [X, Y, [rr[1] - rr[0], rr[1]], [2 * rr[0], rr[1]], [rr[0], rr[1] + 1]].map((v) => lowest(...v)), showFrac),
-        solution: `Put N at (0, 0): K = (0, ${H}), L = (${W}, ${H}), M = (${W}, 0), S = (${W - e}, ${H}) and U = (${f}, 0). Write the points of SU as S + s·(U − S), with s from 0 at S to 1 at U. Solving with the line LN gives s = ${fracOf(X)} at X, and with the line KM gives s = ${fracOf(Y)} at Y. So <span class="fr"><span>XY</span><span>SU</span></span> = |${fracOf(X)} − ${fracOf(Y)}| = <b>${fracOf(rr)}</b>.`,
+        solution: `Put N at (0, 0), so K = (0, ${H}), L = (${W}, ${H}), M = (${W}, 0), S = (${W - e}, ${H}) and U = (${f}, 0). Write the points of SU as S + s·(U − S) = ${cr.point}, with s from 0 at S to 1 at U; ${cr.where}. ${cr.LN} at X. ${cr.KM} at Y. So <span class="fr"><span>XY</span><span>SU</span></span> = |${fracOf(X)} − ${fracOf(Y)}| = <b>${fracOf(rr)}</b>.`,
         check: () => near(dist(pX, pY) / dist([W - e, H], [f, 0]), rr[0] / rr[1], 'XY/SU', 1e-9),
       };
     },
@@ -923,7 +945,7 @@ export const geometry = {
         text: `Rectangle KLMN has KL = ${W} and LM = ${H}. Point S is on side KL with SL = ${e}, and point U is on side MN with NU = ${f}. Segment SU crosses the diagonal KM at Y. What is the area of triangle KYS?`,
         figure: rectangleKLMN(W, H, e, f, [[[0, H], [W, 0]]], [[pY, 'Y', 13, -4]]),
         answer: choices(d, ans, [lowest(ks * H, 2), lowest(mu * mu * H, 2 * (ks + mu)), lowest(ks * H, 4), lowest(ks * ks * H, ks + mu), lowest(ks * mu * H, 2 * (ks + mu))], showFrac),
-        solution: `KS = ${ks} and MU = ${mu} lie on the parallel sides KL and MN, so triangles KYS and MYU are similar with ratio ${ks} : ${mu}. Their heights across the rectangle are in the same ratio and add up to LM = ${H}, so Y is ${H}·${ks}/${ks + mu} = ${fracOf(depth)} below KL. Triangle KYS has base KS = ${ks} and that height, so its area is ½·${ks}·${fracOf(depth)} = <b>${fracOf(ans)}</b>.`,
+        solution: `KS = ${W} − ${e} = ${ks} and MU = ${W} − ${f} = ${mu} lie on the parallel sides KL and MN, so triangles KYS and MYU are similar (vertical angles at Y, alternate angles at the ends) with ratio ${ks} : ${mu}. Their heights across the rectangle are in the same ratio and add up to LM = ${H}, so Y is ${H}·${ks}/(${ks} + ${mu}) = ${fracOf(depth)} below KL. Triangle KYS has base KS = ${ks} and that height, so its area is ½·${ks}·${fracOf(depth)} = <b>${fracOf(ans)}</b>.`,
         check: () => near(shoelace([[0, H], pY, [W - e, H]]), ans[0] / ans[1], 'area', 1e-9),
       };
     },
@@ -940,8 +962,8 @@ export const geometry = {
           ': one in the middle and six in a ring around it. Each cookie touches the ones next to it, and the six outer ones touch the edge of the dough. The leftover dough is rolled out, just as thick, into one more round cookie. What is the radius of that cookie?',
         figure,
         answer: labelled(correct, [fracSurd(3 * r, 2), surd(r, 3), [2 * r, num(2 * r, 0)], surd(r, 7)]),
-        solution: (given === 'dough' ? `The outer cookies' centres are two cookie radii from the middle, so the dough's radius is three cookie radii: each cookie has radius ${3 * r}/3 = ${r}. ` : `The outer cookies' centres are ${2 * r} from the middle, so the dough's radius is ${3 * r}. `) +
-          `The dough's area is π·${3 * r}² = ${9 * r * r}π and the cookies take 7·π·${r}² = ${7 * r * r}π, leaving ${2 * r * r}π. A round cookie of that area has radius √${2 * r * r} = <b>${correct[1]}</b>.`,
+        solution: (given === 'dough' ? `The outer cookies touch the middle one, so their centres are two cookie radii from the middle, and the dough reaches one more cookie radius past them. So the dough’s radius is three cookie radii, and each cookie has radius ${3 * r}/3 = ${r}. ` : `The outer cookies touch the middle one, so their centres are ${r} + ${r} = ${2 * r} from the middle, and the dough reaches ${r} further, so its radius is ${2 * r} + ${r} = ${3 * r}. `) +
+          `The dough’s area is π·${3 * r}² = ${9 * r * r}π and the cookies take 7·π·${r}² = ${7 * r * r}π, leaving ${2 * r * r}π. A round cookie of that area has radius √${2 * r * r} = <b>${correct[1]}</b>.`,
         check: () => {
           if (ring6.some((p, i) => Math.abs(dist(p, ring6[(i + 1) % 6]) - 2 * r) > 1e-9)) return 'outer cookies not touching';
           return near(Math.sqrt(flowerLeft(r) / Math.PI), correct[0], 'scrap radius', 0.01);
@@ -973,10 +995,10 @@ export const geometry = {
       for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) cookies.push([(2 * i + 1) * r, (2 * j + 1) * r]);
       return {
         topic: 'Cookies from a sheet of dough', rank: 12,
-        text: `A square sheet of dough, ${s} cm on each side, is cut into ${n} rows of ${n} equal round cookies, each touching its neighbors, with the outer cookies touching the edges of the sheet. What is the area of the leftover dough, in square centimeters?`,
+        text: `A square sheet of dough, ${s} cm on each side, is cut into ${n} rows of ${n} equal round cookies, each touching its neighbours, with the outer cookies touching the edges of the sheet. What is the area of the leftover dough, in square centimetres?`,
         figure: svg(280, 280, 'Round cookies cut from a square sheet of dough', [poly([[0, 0], [s, 0], [s, s], [0, s]].map(T)), ...cookies.map((c) => ring(T(c), r * T.s))]),
         answer: labelled(correct, [minusPi(s * s, (s * s) / 2), minusPi(s * s, (s * s) / 8), [(s * s * Math.PI) / 4, piShow([(s * s) / 4, 1])], [s * s, num(s * s, 0)]]),
-        solution: `Each cookie's diameter is ${s}/${n}, so its radius is ${frac(s, 2 * n)}, and the ${n * n} cookies cover ${n * n}·π·(${frac(s, 2 * n)})² = ${(s * s) / 4}π. (That is π/4 of the sheet whatever the number of rows.) The leftover is ${s}² − ${(s * s) / 4}π = <b>${correct[1]}</b>.`,
+        solution: `A row of ${n} cookies spans the sheet, so each cookie’s diameter is ${s}/${n}, its radius is ${frac(s, 2 * n)}, and the ${n * n} cookies cover ${n * n}·π·${s % (2 * n) ? `(${frac(s, 2 * n)})` : s / (2 * n)}² = ${(s * s) / 4}π. (That is π/4 of the sheet whatever the number of rows.) The leftover is ${s}² − ${(s * s) / 4}π = <b>${correct[1]}</b>.`,
         check: () => near(gridArea([0, s], [0, s], (p) => cookies.every((c) => dist(p, c) > r), 700), correct[0], 'leftover', 0.01),
       };
     },
@@ -989,7 +1011,7 @@ export const geometry = {
         text: `Seven equal round cookies are cut from a round sheet of dough: one in the middle and six in a ring around it, each touching the ones next to it, with the six outer ones touching the edge of the dough. The leftover dough is rolled out, just as thick, into one more round cookie, of radius ${scrap[1]}. What was the radius of the sheet of dough?`,
         figure,
         answer: choices(d, 3 * k, [2 * k, 4 * k, 6 * k, 2 * k + 1]),
-        solution: `With cookie radius r, the outer cookies' centres are 2r from the middle, so the dough's radius is 3r. The leftover is π(3r)² − 7πr² = 2πr², so the scrap cookie has radius r√2. Here r√2 = ${scrap[1]}, so r = ${k}, and the dough's radius is 3·${k} = <b>${3 * k}</b>.`,
+        solution: `With cookie radius r, the outer cookies’ centres are 2r from the middle, so the dough’s radius is 3r. The leftover is π(3r)² − 7πr² = 2πr², so the scrap cookie has radius r√2. Here r√2 = ${scrap[1]}, so r = ${k}, and the dough’s radius is 3·${k} = <b>${3 * k}</b>.`,
         check: () => near(Math.sqrt(flowerLeft(k) / Math.PI), scrap[0], 'scrap radius', 0.01),
       };
     },

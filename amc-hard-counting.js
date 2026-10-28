@@ -10,7 +10,7 @@ import { choices, surd, showFrac, range } from './amc-kit.js';
 // combo, with a name of its own for each kind of question, so no two kinds share a list of combinations
 const pick = (ctx, tag, lists, ok) => combo({ ...ctx, salt: `${ctx.salt}|${tag}` }, lists, ok);
 // a type with several kinds of question shows them in turn (starting from a kind that depends on where the topic sits
-// in the bank), and walks each kind's own combinations: pickKind(ctx, tag, kinds, lists, ok) gives [kind, …values]
+// in the bank), and walks each kind’s own combinations: pickKind(ctx, tag, kinds, lists, ok) gives [kind, …values]
 function pickKind(ctx, tag, kinds, lists, ok = () => true) {
   let h = 0;
   for (const ch of ctx.salt) h = (h * 31 + ch.charCodeAt(0)) % 1000003;
@@ -94,7 +94,7 @@ const absShift = (v, c) => (c ? `|${v} ${c > 0 ? '−' : '+'} ${Math.abs(c)}|` :
 const CENTERS = [[3, 2], [-2, 5], [4, -1], [1, 3], [-3, -2], [5, 4]];
 const ITEMS = ['marbles', 'stickers', 'apples', 'pencils', 'pebbles', 'cookies'];
 
-// rings of regions: R(c, n) colorings of a ring of n with c colors, neighbours different, written out as a formula
+// rings of regions: R(c, n) colorings of a ring of n with c colors, neighbors different, written out as a formula
 const R = (c, n) => (c - 1) ** n + (n % 2 ? -1 : 1) * (c - 1);
 const ringShown = (c, n) => `${c - 1}<sup>${n}</sup> ${n % 2 ? '−' : '+'} ${c - 1}`;
 const ringEdges = (n, from = 0) => range(0, n - 1).map((i) => [from + i, from + ((i + 1) % n)]);
@@ -145,7 +145,7 @@ const reachable = (h, cap, upTo) => { let r = new Set([0]); for (let i = 0; i < 
 const COLORS = ['black', 'white', 'gray', 'blue', 'brown'];
 
 // binomials, exactly: a power of a sum of terms [power of x, coefficient] multiplied out one factor at a time with
-// BigInt (a Map from each power of x to its coefficient), and Pascal's triangle built by additions alone
+// BigInt (a Map from each power of x to its coefficient), and Pascal’s triangle built by additions alone
 function expand(terms, n) {
   let poly = new Map([[0, 1n]]);
   for (let i = 0; i < n; i++) {
@@ -162,7 +162,7 @@ const xPow = (e) => (e === 1 ? 'x' : `x<sup>${e}</sup>`);
 const term = (c, e) => `${c === 1 ? '' : c === -1 ? '−' : num(c)}${xPow(e)}`;                 // 3x², x, −x³
 const plusMinus = (c, shown) => `${c < 0 ? '−' : '+'} ${shown}`;                             // + 2, − 3
 const overX = (c, e) => `<span class="fr"><span>${Math.abs(c)}</span><span>${xPow(e)}</span></span>`;
-const pow = (b, e) => (b < 0 ? `(${num(b)})<sup>${e}</sup>` : `${num(b)}<sup>${e}</sup>`);
+const pow = (b, e) => { const base = b < 0 ? `(${num(b)})` : num(b); return e === 1 ? base : `${base}<sup>${e}</sup>`; };   // no power of 1
 const nonzero = (xs) => xs.filter((v) => v !== 0);
 
 // ---------- drawing: an svg with the figure styles (side, dash, seg, arc, vx and ang labels) ----------
@@ -271,7 +271,7 @@ export const hardCounting = {
         solution: {
           line2: `${write}Let a(m) count the good strings of length m. A good string ends in 0 after any good string of length m − 1, or in 01 after any good string of length m − 2, so a(m) = a(m − 1) + a(m − 2), starting from a(1) = 2 and a(2) = 3. The counts go ${shownList(a.slice(1, n + 1))}, so there are <b>${num(ans)}</b>.`,
           line3: `${write}Let t(m) count the good strings of length m. A good string ends in 0, 01 or 011 (never 111), after a good string of length m − 1, m − 2 or m − 3, so t(m) = t(m − 1) + t(m − 2) + t(m − 3), starting from t(1) = 2, t(2) = 4 and t(3) = 7. The counts go ${shownList(t.slice(1, n + 1))}, so there are <b>${num(ans)}</b>.`,
-          ring2: `Split on ${S.thing} 1, which is the only thing that makes a circle harder than a row. If it is ${S.off}, ${S.thing}s 2 to ${n} form a row of ${n - 1} in which no two neighbours are both ${S.on}; if it is ${S.on}, ${S.thing}s 2 and ${n} must be ${S.off}, and ${S.thing}s 3 to ${n - 1} form a row of ${n - 3}. A row of m follows a(m) = a(m − 1) + a(m − 2) (its last ${S.thing} is ${S.off}, or ${S.on} with the one before it ${S.off}), and from a(1) = 2 and a(2) = 3 the rows of 1 to ${n - 1} give ${shownList(a.slice(1, n))}. So the circle has a(${n - 1}) + a(${n - 3}) = ${num(a[n - 1])} + ${num(a[n - 3])} = <b>${num(ans)}</b>.`,
+          ring2: `Split on ${S.thing} 1, which is the only thing that makes a circle harder than a row. If it is ${S.off}, ${S.thing}s 2 to ${n} form a row of ${n - 1} in which no two neighbors are both ${S.on}; if it is ${S.on}, ${S.thing}s 2 and ${n} must be ${S.off}, and ${S.thing}s 3 to ${n - 1} form a row of ${n - 3}. A row of m follows a(m) = a(m − 1) + a(m − 2) (its last ${S.thing} is ${S.off}, or ${S.on} with the one before it ${S.off}), and from a(1) = 2 and a(2) = 3 the rows of 1 to ${n - 1} give ${shownList(a.slice(1, n))}. So the circle has a(${n - 1}) + a(${n - 3}) = ${num(a[n - 1])} + ${num(a[n - 3])} = <b>${num(ans)}</b>.`,
         }[kind],
       };
     },
@@ -309,7 +309,7 @@ export const hardCounting = {
           mixed: `Let a(m) count the pavings of a 2 × m path, and look at how its first foot is covered. Either one brick lies across it, leaving a 2 × (m − 1) path, or the first two feet are covered by two bricks lying along the path or by one 2 × 2 tile, leaving a 2 × (m − 2) path. So a(m) = a(m − 1) + 2a(m − 2), starting from a(1) = 1 and a(2) = 3. The counts go ${shownList(a.slice(1, n + 1))}, so there are <b>${num(ans)}</b> pavings.`,
           some: `It is easier to count all the pavings and take away those with no 2 × 2 tile. The first foot is covered by a brick across it, by two bricks along it or by a 2 × 2 tile, so all the pavings follow a(m) = a(m − 1) + 2a(m − 2) from a(1) = 1 and a(2) = 3, which gives ${shownList(a.slice(1, n + 1))}. With bricks only there is no tile to choose, so b(m) = b(m − 1) + b(m − 2) from b(1) = 1 and b(2) = 2, which gives ${shownList(b.slice(1, n + 1))}. So ${num(a[n])} − ${num(b[n])} = <b>${num(ans)}</b> pavings use a 2 × 2 tile.`,
           colors: `Let p(m) count the coverings of a 1 × m strip, and look at the tile at its right end. It is a red or a blue square, leaving a 1 × (m − 1) strip, or a white tile, leaving a 1 × (m − 2) strip. So p(m) = 2p(m − 1) + p(m − 2), starting from p(1) = 2 and p(2) = 5 (four ways with two squares, one with a white tile). The counts go ${shownList(p.slice(1, n + 1))}, so there are <b>${num(ans)}</b> coverings.`,
-          rods: `Let r(m) count the fences m meters long, and look at the last panel. It is 2 or 3 meters wide, and what comes before it is a shorter fence built the same way, so r(m) = r(m − 2) + r(m − 3). Start from r(0) = 1 (the empty fence), r(1) = 0 and r(2) = 1, and the values from r(0) up are ${shownList(r.slice(0, n + 1))}. So there are <b>${num(ans)}</b> fences.`,
+          rods: `Let r(m) count the fences m meters long, and look at the last panel. It is 2 or 3 meters wide, and what comes before it is a shorter fence built the same way, so r(m) = r(m − 2) + r(m − 3). Start from r(0) = 1 (the empty fence), r(1) = 0 and r(2) = 1, and the values from r(0) to r(${n}) are ${shownList(r.slice(0, n + 1))}. So there are <b>${num(ans)}</b> fences.`,
         }[kind],
       };
     },
@@ -362,9 +362,9 @@ export const hardCounting = {
         text: {
           noAB: `How many strings of ${n} letters, each A, B or C, never have an A immediately followed by a B? (The pair AB may not appear anywhere: BBAC is fine, but CABC is not.)`,
           apart: `A signal is a row of ${n} flags, each red, white or blue, and a red flag may never be right next to a blue flag. How many signals are possible?`,
-          clumpy: `${Cap(WORDS[n])} beads, each red, green or blue, are threaded in a row. The row is called clumpy if every bead has at least one neighbour of its own color. How many clumpy rows are there? (The beads are in places 1 to ${n}, so a row and its reverse count separately.)`,
-          smooth4: `A number is called smooth if each of its digits is 1, 2, 3 or 4 and any two neighbouring digits differ by at most 1. For example, 1223 and 4343 are smooth, but 1243 is not. How many smooth ${n}-digit numbers are there?`,
-          smooth5: `A number is called smooth if each of its digits is 1, 2, 3, 4 or 5 and any two neighbouring digits differ by at most 1. For example, 1223 and 5454 are smooth, but 1243 is not. How many smooth ${n}-digit numbers are there?`,
+          clumpy: `${Cap(WORDS[n])} beads, each red, green or blue, are threaded in a row. The row is called clumpy if every bead has at least one neighbor of its own color. How many clumpy rows are there? (The beads are in places 1 to ${n}, so a row and its reverse count separately.)`,
+          smooth4: `A number is called smooth if each of its digits is 1, 2, 3 or 4 and any two neighboring digits differ by at most 1. For example, 1223 and 4343 are smooth, but 1243 is not. How many smooth ${n}-digit numbers are there?`,
+          smooth5: `A number is called smooth if each of its digits is 1, 2, 3, 4 or 5 and any two neighboring digits differ by at most 1. For example, 1223 and 5454 are smooth, but 1243 is not. How many smooth ${n}-digit numbers are there?`,
         }[kind],
         answer: choices(d, ans, {
           noAB: [3 ** n - (n - 1) * 3 ** (n - 2), tAB[n - 1], tAB[n + 1], apart[n]],
@@ -388,7 +388,7 @@ export const hardCounting = {
         solution: {
           noAB: `Keep track of how the strings end. Let t(m) count the good strings of length m and e(m) those that end in A. A good string can always be followed by A or C, but by B only if it does not end in A, so t(m) = 3t(m − 1) − e(m − 1). An A may follow anything, so e(m) = t(m − 1), and therefore t(m) = 3t(m − 1) − t(m − 2), starting from t(1) = 3 and t(2) = 8. The counts go ${shownList(tAB.slice(1, n + 1))}, so there are <b>${num(ans)}</b> strings.`,
           apart: `Keep two counts, w(m) for the good signals of m flags that end in white and c(m) for those that end in red or blue. A white flag can follow any flag, so w(m) = w(m − 1) + c(m − 1). A red flag can follow a white or a red one, and a blue flag a white or a blue one, so c(m) = 2w(m − 1) + c(m − 1). From w(1) = 1 and c(1) = 2 the pairs (w, c) go ${WC.slice(1, n + 1).map(([p, q]) => `(${num(p)}, ${num(q)})`).join(', ')}, so there are ${num(w)} + ${num(c)} = <b>${num(ans)}</b> signals.`,
-          clumpy: `Every bead has a neighbour of its own color exactly when every block of beads of one color has at least 2 beads. Let c(m) count the clumpy rows of m beads, and look at the last block. If it has 3 or more beads, removing the last bead leaves a clumpy row of m − 1; if it has exactly 2, removing both leaves a clumpy row of m − 2, and the last block can be either of the 2 colors other than that row's last color. So c(m) = c(m − 1) + 2c(m − 2), starting from c(2) = 3 and c(3) = 3. The counts go ${shownList(cl.slice(2, n + 1))}, so there are <b>${num(ans)}</b> clumpy rows.`,
+          clumpy: `Every bead has a neighbor of its own color exactly when every block of beads of one color has at least 2 beads. Let c(m) count the clumpy rows of m beads, and look at the last block. If it has 3 or more beads, removing the last bead leaves a clumpy row of m − 1; if it has exactly 2, removing both leaves a clumpy row of m − 2, and the last block can be either of the 2 colors other than that row’s last color. So c(m) = c(m − 1) + 2c(m − 2), starting from c(2) = 3 and c(3) = 3. The counts go ${shownList(cl.slice(2, n + 1))}, so there are <b>${num(ans)}</b> clumpy rows.`,
           smooth4: `Count by the last digit, using the symmetry that swaps each digit d with 5 − d. Let x(m) count the smooth m-digit numbers ending in 1 (as many as end in 4) and y(m) those ending in 2 (as many as end in 3). A final 1 can follow 1 or 2, and a final 2 can follow 1, 2 or 3, so x(m) = x(m − 1) + y(m − 1) and y(m) = x(m − 1) + 2y(m − 1). From x(1) = y(1) = 1 the pairs (x, y) go ${XYZ.map(([p, q]) => `(${num(p)}, ${num(q)})`).join(', ')}, so there are 2·${num(x)} + 2·${num(y)} = <b>${num(ans)}</b> smooth numbers.`,
           smooth5: `Count by the last digit, using the symmetry that swaps each digit d with 6 − d. Let x(m), y(m) and z(m) count the smooth m-digit numbers ending in 1, 2 and 3 (as many end in 5 as in 1, and in 4 as in 2). A final 1 follows 1 or 2, a final 2 follows 1, 2 or 3, and a final 3 follows 2, 3 or 4, so x(m) = x(m − 1) + y(m − 1), y(m) = x(m − 1) + y(m − 1) + z(m − 1) and z(m) = 2y(m − 1) + z(m − 1). From x(1) = y(1) = z(1) = 1 the triples (x, y, z) go ${XYZ.map(([p, q, s]) => `(${num(p)}, ${num(q)}, ${num(s)})`).join(', ')}, so there are 2·${num(x)} + 2·${num(y)} + ${num(z)} = <b>${num(ans)}</b> smooth numbers.`,
         }[kind],
@@ -447,7 +447,7 @@ export const hardCounting = {
         },
         solution: digits
           ? `Call the digits ${listing(letters)}, with a at least 1, and put a′ = a − 1, so that a′ + ${letters.slice(1).join(' + ')} = ${S} in whole numbers, with a′ at most 8 and the others at most 9. Without those limits, stars and bars gives C(${S + k - 1}, ${k - 1}) = ${num(terms[0])}. Take away the ways with a′ at 9 or more (give it 9 first), C(${S - 9 + k - 1}, ${k - 1}) = ${num(ta)}, and the ways with one of the other ${k - 1} digits at 10 or more, C(${S - 10 + k - 1}, ${k - 1}) = ${num(tb)} each. ${back.length ? `Two digits can be over at once, and those ways were taken away twice, so add back ${listing(back)}.` : `No two digits can be over at once, since that would need a′ + ${letters.slice(1).join(' + ')} to be at least 19.`} So the count is ${num(terms[0])} − ${num(ta)} − ${k - 1}·${num(tb)}${ua ? ` + ${num((k - 1) * ua)}` : ''}${ub ? ` + ${num(choose(k - 1, 2) * ub)}` : ''} = <b>${num(ans)}</b>.`
-          : `Without the limit, stars and bars gives C(${n + k - 1}, ${k - 1}) = ${num(terms[0])}. Take away the ways where one chosen ${who} is over the limit, by giving that ${who} ${cap + 1} first and sharing the other ${n - cap - 1} freely, which can happen in C(${n - cap - 1 + k - 1}, ${k - 1}) = ${num(one)} ways for each of the ${k} ${who}s. ${two ? `Two ${who}s can be over the limit at once, in C(${n - 2 * cap - 2 + k - 1}, ${k - 1}) = ${num(two)} way${two === 1 ? '' : 's'} for each of the ${choose(k, 2)} pairs, and those were taken away twice, so add them back.` : `No two ${who}s can be over the limit at once, since 2·${cap + 1} is more than ${n}.`} So the count is ${num(terms[0])} − ${k}·${num(one)}${two ? ` + ${choose(k, 2)}·${num(two)}` : ''} = <b>${num(ans)}</b>.`,
+          : `Without the limit, sharing ${n} among ${k} by stars and bars gives C(${n} + ${k - 1}, ${k - 1}) = C(${n + k - 1}, ${k - 1}) = ${num(terms[0])}. Take away the ways where one chosen ${who} is over the limit, by giving that ${who} ${cap + 1} first and sharing the other ${n - cap - 1} freely, which can happen in C(${n - cap - 1 + k - 1}, ${k - 1}) = ${num(one)} ways for each of the ${k} ${who}s. ${two ? `Two ${who}s can be over the limit at once, in C(${n - 2 * cap - 2 + k - 1}, ${k - 1}) = ${num(two)} way${two === 1 ? '' : 's'} for each of the ${choose(k, 2)} pairs, and those were taken away twice, so add them back.` : `No two ${who}s can be over the limit at once, since 2·${cap + 1} is more than ${n}.`} So the count is ${num(terms[0])} − ${k}·${num(one)}${two ? ` + ${choose(k, 2)}·${num(two)}` : ''} = <b>${num(ans)}</b>.`,
       };
     },
     // identical things in different boxes, with boxes used or left empty
@@ -486,7 +486,7 @@ export const hardCounting = {
         solution: {
           oneEmpty: `First choose the empty box, in ${k} ways. The ${n} balls then fill the other ${k - 1} boxes with none of them empty, so drop one ball into each of those first and share the other ${n - k + 1} freely. That is ${n - k + 1} stars and ${k - 2} bars, C(${n - 1}, ${k - 2}) = ${num(choose(n - 1, k - 2))} ways, so the count is ${k}·${num(choose(n - 1, k - 2))} = <b>${num(ans)}</b>.`,
           someEmpty: `Count the opposite and subtract. With no rule, ${n} stars and ${k - 1} bars give C(${n + k - 1}, ${k - 1}) = ${num(choose(n + k - 1, k - 1))} ways. With no jar empty, put one of the ${item} in each jar first and share the other ${n - k} freely, in C(${n - 1}, ${k - 1}) = ${num(T)} ways. So ${num(choose(n + k - 1, k - 1))} − ${num(T)} = <b>${num(ans)}</b> ways leave a jar empty.`,
-          more: `Since every pirate gets a coin, give each one coin first and share the other ${n - k} freely, so all the sharings number C(${n - 1}, ${k - 1}) = ${num(T)}. In those where ${A} and ${B} get the same number t, ${k === 3 ? `the third pirate gets the other ${n} − 2t, at least 1, so t is 1 to ${ts.at(-1)}, which is ${E} ways` : `the other two share ${n} − 2t with at least 1 each, in ${n} − 2t − 1 ways, so there are ${eqWays.join(' + ')} = ${E} such sharings`}. Swapping what ${A} and ${B} get pairs every other sharing where ${A} gets more with one where ${B} gets more, so exactly half of the rest have ${A} ahead, (${num(T)} − ${E})/2 = <b>${num(ans)}</b>.`,
+          more: `Since every pirate gets a coin, give each one coin first and share the other ${n - k} freely, so all the sharings number C(${n - 1}, ${k - 1}) = ${num(T)}. In those where ${A} and ${B} get the same number t, ${k === 3 ? `the third pirate gets the other ${n} − 2t, at least 1, so t is 1 to ${ts.at(-1)}, which is ${E} ways` : `the other two share ${n} − 2t with at least 1 each, in ${n} − 2t − 1 ways, so for t = 1 to ${ts.at(-1)} there are ${eqWays.join(' + ')} = ${E} such sharings`}. Swapping what ${A} and ${B} get pairs every other sharing where ${A} gets more with one where ${B} gets more, so exactly half of the rest have ${A} ahead, (${num(T)} − ${E})/2 = <b>${num(ans)}</b>.`,
         }[kind],
       };
     },
@@ -504,7 +504,7 @@ export const hardCounting = {
           terms: `When (${vars.join(' + ')})<sup>${n}</sup> is multiplied out and like terms are combined, how many different terms are there?`,
           terms1: `When (1 + ${xyz.join(' + ')})<sup>${n}</sup> is multiplied out and like terms are combined, how many different terms are there? (The constant term counts.)`,
           ups: shop
-            ? `An ice cream shop has ${n} flavors. A cup holds ${k} scoops, any flavors, repeats allowed, and the order of the scoops doesn't matter. How many different cups can ${name} order?`
+            ? `An ice cream shop has ${n} flavors. A cup holds ${k} scoops, any flavors, repeats allowed, and the order of the scoops doesn’t matter. How many different cups can ${name} order?`
             : `How many functions f from {${range(1, k).join(', ')}} to {1, 2, …, ${n}} satisfy ${range(1, k).map((i) => `f(${i})`).join(' ≤ ')}?`,
           gaps: `In how many ways can ${WORDS[k]} numbers be chosen from 1, 2, 3, …, ${n} so that ${g === 2 ? 'no two of the chosen numbers are consecutive' : 'any two of the chosen numbers differ by at least 3'}?`,
         }[kind],
@@ -546,7 +546,7 @@ export const hardCounting = {
         solution: {
           terms: `After combining, each term is ${vars.map((v, i) => `${v}<sup>${'pqrst'[i]}</sup>`).join('')} with whole-number exponents adding up to ${n}, and each such list of exponents does appear. So count the solutions of ${vars.map((_, i) => 'pqrst'[i]).join(' + ')} = ${n} in whole numbers. That is ${n} stars and ${k - 1} bars, C(${n + k - 1}, ${k - 1}) = <b>${num(ans)}</b>.`,
           terms1: `A term is ${xyz.map((v, i) => `${v}<sup>${'pqr'[i]}</sup>`).join('')} with ${xyz.map((_, i) => 'pqr'[i]).join(' + ')} at most ${n}, because the factor 1 is picked from the other brackets. Call the number of 1s picked s, so that ${xyz.map((_, i) => 'pqr'[i]).join(' + ')} + s = ${n} exactly, and every whole-number solution gives a different term. By stars and bars there are C(${n + k - 1}, ${k - 1}) = <b>${num(ans)}</b> terms.`,
-          ups: `${shop ? 'A cup' : 'Such an f'} is decided by how many ${shop ? 'scoops are of each flavor' : 'of the inputs go to each value'}, since ${shop ? 'order doesn\'t matter' : 'the values must then be listed from smallest to largest'}. So count whole-number solutions of n<sub>1</sub> + n<sub>2</sub> + ⋯ + n<sub>${n}</sub> = ${k}, one count for each ${shop ? 'flavor' : 'value'}. That is ${k} stars and ${n - 1} bars, C(${n + k - 1}, ${n - 1}) = <b>${num(ans)}</b>.`,
+          ups: `${shop ? 'A cup' : 'Such an f'} is decided by how many ${shop ? 'scoops are of each flavor' : 'of the inputs go to each value'}, since ${shop ? 'order doesn’t matter' : 'the values must then be listed from smallest to largest'}. So count whole-number solutions of n<sub>1</sub> + n<sub>2</sub> + ⋯ + n<sub>${n}</sub> = ${k}, one count for each ${shop ? 'flavor' : 'value'}. That is ${k} stars and ${n - 1} bars, C(${n + k - 1}, ${n - 1}) = <b>${num(ans)}</b>.`,
           gaps: `Think of the ${n - k} numbers not chosen as stars and the ${k} chosen ones as bars, in order from 1 to ${n}. The stars fall into ${k + 1} gaps, before, between and after the chosen numbers, and each of the ${k - 1} gaps between them needs at least ${g - 1}. Put ${g - 1} star${g > 2 ? 's' : ''} into each inner gap first, which leaves ${left} to share freely among the ${k + 1} gaps, in C(${left + k}, ${k}) = <b>${num(ans)}</b> ways.`,
         }[kind],
       };
@@ -586,8 +586,8 @@ export const hardCounting = {
         },
         solution: {
           ring: `The points with |x| + |y| = j form a diamond with corners (j, 0), (0, j), (−j, 0) and (0, −j). Each of its four sides runs from one corner to the next through j + 1 points, and the corners are shared, so it holds 4j points. Adding them up for j = ${p} to ${q} gives 4·(${range(p, q).join(' + ')}) = 4·${total(range(p, q))} = <b>${num(ans)}</b>.`,
-          offaxes: `By symmetry, count the points in one quarter and multiply by 4. In the quarter where x and y are both positive, a point is strictly inside when x + y ≤ ${p - 1}, and for each sum s from 2 to ${p - 1} there are s − 1 such points. That gives 1 + 2 + ⋯ + ${p - 2} = ${choose(p - 1, 2)} points, so there are 4·${choose(p - 1, 2)} = <b>${num(ans)}</b> in all.`,
-          square: `The vertices are ${p} units from ${pt(h, k)} straight across and straight up or down, so the square is the diamond ${absShift('x', h)} + ${absShift('y', k)} ≤ ${p}, and moving its center to (0, 0) doesn't change the count. Count row by row. The row t units above or below the center (with t from 0 to ${p}) holds 2(${p} − t) + 1 points, from ${2 * p + 1} in the middle down to 1 at the top and the bottom. So the total is ${rows.slice(0, 3).join(' + ')} + ⋯ + ${rows.slice(-3).join(' + ')} = ${2 * p + 1} + 2·(1 + 3 + ⋯ + ${2 * p - 1}) = ${2 * p + 1} + 2·${p * p} = <b>${num(ans)}</b>.`,
+          offaxes: `By symmetry, count the points in one quarter and multiply by 4. In the quarter where x and y are both positive, a point is strictly inside when x + y &lt; ${p}, that is x + y ≤ ${p - 1}, and for each sum s from 2 to ${p - 1} there are s − 1 such points. That gives 1 + 2 + ⋯ + ${p - 2} = ${choose(p - 1, 2)} points, so there are 4·${choose(p - 1, 2)} = <b>${num(ans)}</b> in all.`,
+          square: `The vertices are ${p} units from ${pt(h, k)} straight across and straight up or down, so the square is the diamond ${absShift('x', h)} + ${absShift('y', k)} ≤ ${p}, and moving its center to (0, 0) doesn’t change the count. Counting row by row, the row t units above or below the center (with t from 0 to ${p}) holds 2(${p} − t) + 1 points, from ${2 * p + 1} in the middle down to 1 at the top and the bottom. So the total is ${rows.slice(0, 3).join(' + ')} + ⋯ + ${rows.slice(-3).join(' + ')} = ${2 * p + 1} + 2·(1 + 3 + ⋯ + ${2 * p - 1}) = ${2 * p + 1} + 2·${p * p} = <b>${num(ans)}</b>.`,
         }[kind],
       };
     },
@@ -602,7 +602,7 @@ export const hardCounting = {
           : `How many points (x, y, z) with integer coordinates satisfy |x| + |y| + |z| ≤ ${n}?`,
         answer: choices(d, ans, [(2 * n + 1) * disk(n), total(layers), sphere(n), (2 * n + 1) ** 3, ans - sphere(n)]),
         check: () => { const c = lattice(3, n, (p) => total(p.map(Math.abs)) <= n); return c === ans ? '' : `counted ${c}, said ${ans}`; },
-        solution: `${solid ? `The octahedron is the solid |x| + |y| + |z| ≤ ${n}. ` : ''}Slice it into flat layers by the value of z. In the layer z = t the condition is |x| + |y| ≤ ${n} − |t|, a flat diamond, and a flat diamond |x| + |y| ≤ r holds 2r² + 2r + 1 points (rows of 1, 3, …, 2r + 1, …, 3, 1). The layers t = 0, ±1, ±2, …, ±${n} hold ${shownList(layers)} points, each one but the first twice (for t and −t). So the total is ${num(layers[0])} + 2·(${layers.slice(1).join(' + ')}) = <b>${num(ans)}</b>.`,
+        solution: `${solid ? `The octahedron is the solid |x| + |y| + |z| ≤ ${n}. Slice it` : `Slice the solid |x| + |y| + |z| ≤ ${n}`} into flat layers by the value of z. In the layer z = t the condition is |x| + |y| ≤ ${n} − |t|, a flat diamond, and a flat diamond |x| + |y| ≤ r holds 2r² + 2r + 1 points (rows of 1, 3, …, 2r + 1, …, 3, 1). The layers t = 0, ±1, ±2, …, ±${n} hold ${shownList(layers)} points, each one but the first twice (for t and −t). So the total is ${num(layers[0])} + 2·(${layers.slice(1).join(' + ')}) = <b>${num(ans)}</b>.`,
       };
     },
     // only the surface |x| + |y| + |z| = n, or only its points off the coordinate planes, or only those on them
@@ -625,6 +625,7 @@ export const hardCounting = {
           const c = lattice(3, n, (p) => total(p.map(Math.abs)) === n && (kind === 'surface' || (kind === 'nonzero') === p.every((v) => v !== 0)));
           return c === ans ? '' : `counted ${c}, said ${ans}`;
         },
+        tip: 'Count the absolute values first, with stars and bars, then the choices of signs, sorting the points by how many coordinates are 0.',
         solution: {
           surface: `Sort the points by how many coordinates are 0, and count the absolute values first, then the signs. With no coordinate 0, |x|, |y| and |z| are positive whole numbers adding up to ${n}, which by stars and bars happens in C(${n - 1}, 2) = ${in8} ways, each with 8 sign choices. With exactly one coordinate 0 (3 places for it), the other two absolute values are positive and add up to ${n} in ${n - 1} ways, each with 4 sign choices, which gives 12·${n - 1}; with two coordinates 0, the third is ±${n}, which gives 6 points. In all, 8·${in8} + 12·${n - 1} + 6 = <b>${num(ans)}</b>.`,
           nonzero: `Count the absolute values first, then the signs. With a = |x|, b = |y| and c = |z|, we need positive whole numbers with a + b + c = ${n}, which is choosing 2 of the ${n - 1} gaps between ${n} stars, C(${n - 1}, 2) = ${in8} ways. Each of those gives 2·2·2 = 8 points, one for each choice of signs, so there are 8·${in8} = <b>${num(ans)}</b>.`,
@@ -662,9 +663,9 @@ export const hardCounting = {
           return c === ans ? '' : `counted ${c}, said ${ans}`;
         },
         solution: {
-          skew2: `Count row by row. In the row y = t the condition is |x| ≤ ${n} − 2|t|, which needs |t| ≤ ${half} and then allows 2(${n} − 2|t|) + 1 values of x. The rows t = 0, ±1, …, ±${half} hold ${rows.join(', ')} points, each one but the first twice (for t and −t). So the total is ${rows[0]} + 2·(${rows.slice(1).join(' + ')}) = <b>${num(ans)}</b>.`,
+          skew2: `In each row y = t the condition is |x| ≤ ${n} − 2|t|, which needs |t| ≤ ${half} and then allows 2(${n} − 2|t|) + 1 values of x. The rows t = 0, ±1, …, ±${half} hold ${rows.join(', ')} points, each one but the first twice (for t and −t). So the total is ${rows[0]} + 2·(${rows.slice(1).join(' + ')}) = <b>${num(ans)}</b>.`,
           skew3: `Slice into flat layers by the value of z. In the layer z = t the condition is |x| + |y| ≤ ${n} − 2|t|, a flat diamond, which needs |t| ≤ ${half}, and a flat diamond |x| + |y| ≤ r holds 2r² + 2r + 1 points. The layers t = 0, ±1, …, ±${half} hold ${slabs.join(', ')} points, each one but the first twice. So the total is ${slabs[0]} + 2·(${slabs.slice(1).join(' + ')}) = <b>${num(ans)}</b>.`,
-          walk2: `Each move changes x + y by 1, so after ${n} moves x + y is ${n % 2 ? 'odd' : 'even'}, like ${n}, and the walker is at most ${n} moves from the start, so |x| + |y| ≤ ${n}. Every such point can be reached, by walking straight there in |x| + |y| moves and spending the spare moves going back and forth. The points with |x| + |y| = j number 4j (just 1 for j = 0), so the total is ${same.map((j) => (j ? 4 * j : 1)).join(' + ')} = <b>${num(ans)}</b>.`,
+          walk2: `Each move changes x + y by 1, so after ${n} moves x + y is ${n % 2 ? 'odd' : 'even'}, like ${n}, and the walker is at most ${n} moves from the start, so |x| + |y| ≤ ${n}. Every such point can be reached, by walking straight there in |x| + |y| moves and spending the spare moves going back and forth. The points with |x| + |y| = j number 4j (just 1 for j = 0), so adding them for j = ${listing(same)} gives ${same.map((j) => (j ? 4 * j : 1)).join(' + ')} = <b>${num(ans)}</b>.`,
           walk3: `Each move changes x + y + z by 1, so after ${n} moves |x| + |y| + |z| is ${n % 2 ? 'odd' : 'even'}, like ${n}, and at most ${n}; every such point can be reached by going straight there and spending the spare moves back and forth. The points with |x| + |y| + |z| = j number 4j² + 2 for j ≥ 1 (8·C(j − 1, 2) with no coordinate 0, 12(j − 1) with one, and 6 with two), and 1 for j = 0. Adding them for j = ${listing(same)} gives ${same.map(sphere).join(' + ')} = <b>${num(ans)}</b>.`,
         }[kind],
       };
@@ -688,7 +689,7 @@ export const hardCounting = {
           eachColoring(n, k, ringEdges(n).slice(0, n - 1), (col) => { row++; if (col[0] !== col[n - 1]) ring++; });
           return row - ring === ans && ring === R(k, n) ? '' : `counted ${row} − ${ring}, said ${ans}`;
         },
-        solution: `Color the row from one end, with ${k} choices for the first ${beads ? 'bead' : 'tile'} and ${k - 1} for each of the others, ${k}·${k - 1}<sup>${n - 1}</sup> = ${num(P)} ways. A good ring is just a good row whose two ends also differ, so the extra rows are exactly the good rows whose first and last ${beads ? 'beads' : 'tiles'} match. Glue those two matching ends into one, and what is left is a good ring of ${n - 1}; every good ring of ${n - 1} comes from exactly one such row. A ring of m with c colors, neighbours different, can be colored (c − 1)<sup>m</sup> + (−1)<sup>m</sup>(c − 1) ways, so the difference is ${ringShown(k, n - 1)} = <b>${num(ans)}</b>.`,
+        solution: `Color the row from one end, with ${k} choices for the first ${beads ? 'bead' : 'tile'} and ${k - 1} for each of the others, ${k}·${k - 1}<sup>${n - 1}</sup> = ${num(P)} ways. A good ring is just a good row whose two ends also differ, so the extra rows are exactly the good rows whose first and last ${beads ? 'beads' : 'tiles'} match. Glue those two matching ends into one, and what is left is a good ring of ${n - 1}; every good ring of ${n - 1} comes from exactly one such row. A ring of m with c colors, neighbors different, can be colored (c − 1)<sup>m</sup> + (−1)<sup>m</sup>(c − 1) ways, so the difference is ${ringShown(k, n - 1)} = <b>${num(ans)}</b>.`,
       };
     },
     // a color that may be used at most once (or exactly once)
@@ -708,8 +709,8 @@ export const hardCounting = {
           return c === ans ? '' : `counted ${c}, said ${ans}`;
         },
         solution: exactly
-          ? `First choose the ${flavor} wedge, in ${n} ways. The other ${n - 1} wedges form a row whose two end wedges both touch the ${flavor} one, but none of them may be ${flavor} anyway, so the only rule left is that neighbours in the row differ, using the other ${k - 1} flavors. Ice the row from one end, with ${k - 1} choices for the first wedge and then ${k - 2} for each of the next ${n - 2}, which gives ${k - 1}·${k - 2}<sup>${n - 2}</sup> = ${num(one)}. In all, ${n}·${num(one)} = <b>${num(ans)}</b>.`
-          : `Split on whether ${flavor} is used. Without it, the ${n} wedges form a ring iced with the other ${k - 1} flavors, and a ring of m with c flavors, neighbours different, can be iced (c − 1)<sup>m</sup> + (−1)<sup>m</sup>(c − 1) ways, here ${ringShown(k - 1, n)} = ${num(R(k - 1, n))}. With ${flavor} on one wedge (${n} choices), the other ${n - 1} wedges form a row that may not use ${flavor}, so the row is iced in ${k - 1}·${k - 2}<sup>${n - 2}</sup> = ${num(one)} ways. In all, ${num(R(k - 1, n))} + ${n}·${num(one)} = <b>${num(ans)}</b>.`,
+          ? `First choose the ${flavor} wedge, in ${n} ways. The other ${n - 1} wedges form a row whose two end wedges both touch the ${flavor} one, but none of them may be ${flavor} anyway, so the only rule left is that neighbors in the row differ, using the other ${k - 1} flavors. Ice the row from one end, with ${k - 1} choices for the first wedge and then ${k - 2} for each of the next ${n - 2}, which gives ${k - 1}·${k - 2}<sup>${n - 2}</sup> = ${num(one)}. In all, ${n}·${num(one)} = <b>${num(ans)}</b>.`
+          : `Split on whether ${flavor} is used. Without it, the ${n} wedges form a ring iced with the other ${k - 1} flavors, and a ring of m with c flavors, neighbors different, can be iced (c − 1)<sup>m</sup> + (−1)<sup>m</sup>(c − 1) ways, here ${ringShown(k - 1, n)} = ${num(R(k - 1, n))}. With ${flavor} on one wedge (${n} choices), the other ${n - 1} wedges form a row that may not use ${flavor}, so the row is iced in ${k - 1}·${k - 2}<sup>${n - 2}</sup> = ${num(one)} ways. In all, ${num(R(k - 1, n))} + ${n}·${num(one)} = <b>${num(ans)}</b>.`,
       };
     },
     // a window: a middle disk and an outer rim both touch every pane of the ring, but not each other
@@ -727,7 +728,7 @@ export const hardCounting = {
           eachColoring(n + 2, k, edges, () => { c++; });
           return c === ans ? '' : `counted ${c}, said ${ans}`;
         },
-        solution: `The disk and the rim each touch every pane but not each other, so split on whether they get the same color. Either way the panes form a ring that must avoid the colors of the disk and the rim, and a ring of m with c colors, neighbours different, can be colored (c − 1)<sup>m</sup> + (−1)<sup>m</sup>(c − 1) ways. If the disk and the rim match (${k} ways), the panes use the other ${k - 1} colors, in ${ringShown(k - 1, n)} = ${num(same)} ways. If they differ (${k}·${k - 1} = ${k * (k - 1)} ways), the panes use the other ${k - 2} colors, in ${ringShown(k - 2, n)} = ${num(diff)} ways${diff ? '' : ` (${k - 2} colors can't go around an odd ring)`}. In all, ${k}·${num(same)} + ${k * (k - 1)}·${num(diff)} = <b>${num(ans)}</b>.`,
+        solution: `The disk and the rim each touch every pane but not each other, so split on whether they get the same color. Either way the panes form a ring that must avoid the colors of the disk and the rim, and a ring of m with c colors, neighbors different, can be colored (c − 1)<sup>m</sup> + (−1)<sup>m</sup>(c − 1) ways. If the disk and the rim match (${k} ways), the panes use the other ${k - 1} colors, in ${ringShown(k - 1, n)} = ${num(same)} ways. If they differ (${k}·${k - 1} = ${k * (k - 1)} ways), the panes use the other ${k - 2} colors, in ${ringShown(k - 2, n)} = ${num(diff)} ways${diff ? '' : ` (${k - 2} colors can’t go around an odd ring)`}. In all, ${k}·${num(same)} + ${k * (k - 1)}·${num(diff)} = <b>${num(ans)}</b>.`,
       };
     },
     // no color more than n/2 − 1 times on an even ring: only every other piece can hold a color n/2 times
@@ -744,7 +745,7 @@ export const hardCounting = {
           eachColoring(n, k, ringEdges(n), (col) => { if (range(0, k - 1).every((v) => col.filter((x) => x === v).length < h)) c++; });
           return c === ans ? '' : `counted ${c}, said ${ans}`;
         },
-        solution: `Count all the good fillings, then take away the ones that use a kind too often. A ring of m with c kinds, neighbours different, can be filled (c − 1)<sup>m</sup> + (−1)<sup>m</sup>(c − 1) ways, here ${ringShown(k, n)} = ${num(all)}. Since neighbours differ, a kind can fill at most every other wedge, so it fills ${h} wedges only by taking all the odd-numbered wedges or all the even-numbered ones; then each of the other ${h} wedges touches only that kind and can hold any of the other ${k - 1}, which gives 2·${k - 1}<sup>${h}</sup> = ${num(once)} fillings for each of the ${k} kinds. A filling where two kinds both fill ${h} wedges, one on the odd wedges and one on the even, was taken away twice, and there are ${k}·${k - 1} = ${k * (k - 1)} of those, so add them back. That leaves ${num(all)} − ${k}·${num(once)} + ${k * (k - 1)} = <b>${num(ans)}</b>.`,
+        solution: `Count all the good fillings, then take away the ones that use a kind too often. A ring of m with c kinds, neighbors different, can be filled (c − 1)<sup>m</sup> + (−1)<sup>m</sup>(c − 1) ways, here ${ringShown(k, n)} = ${num(all)}. Since neighbors differ, a kind can fill at most every other wedge, so it fills ${h} wedges only by taking all the odd-numbered wedges or all the even-numbered ones. Then each of the other ${h} wedges touches only that kind and can hold any of the other ${k - 1}, which gives 2·${k - 1}<sup>${h}</sup> = ${num(once)} fillings for each of the ${k} kinds. A filling where two kinds both fill ${h} wedges, one on the odd wedges and one on the even, was taken away twice, and there are ${k}·${k - 1} = ${k * (k - 1)} of those, so add them back. That leaves ${num(all)} − ${k}·${num(once)} + ${k * (k - 1)} = <b>${num(ans)}</b>.`,
       };
     },
   ],
@@ -784,7 +785,7 @@ export const hardCounting = {
           return worst + 1 === ans && ans <= total(amounts) ? '' : `the worst take is ${worst}, said ${ans}`;
         },
         solution: {
-          pairs: `Look at the worst luck, the most socks ${name} can take while still having only ${k - 1} pair${k === 2 ? '' : 's'}. Each color can add at most one sock that isn't in a pair, so such a handful has at most ${2 * (k - 1)} socks in pairs and ${c} odd socks, ${2 * (k - 1) + c} in all; and that can happen, with ${k - 1} pair${k === 2 ? '' : 's'} and one odd sock of each color. The next sock matches one of the odd socks, so any ${ans} socks hold ${k} pairs, and the answer is <b>${ans}</b>.`,
+          pairs: `Look at the worst luck, the most socks ${name} can take while still having only ${k - 1} pair${k === 2 ? '' : 's'}. Each color can add at most one sock that isn’t in a pair, so such a handful has at most ${2 * (k - 1)} socks in pairs and ${c} odd socks, ${2 * (k - 1) + c} in all; and that can happen, with ${k - 1} pair${k === 2 ? '' : 's'} and one odd sock of each color. The next sock matches one of the odd socks, so any ${ans} socks hold ${k} pairs, and the answer is <b>${ans}</b>.`,
           same: `To have ${k} pairs of one color, ${name} needs ${2 * k} socks of that color. The worst luck takes ${2 * k - 1} socks of every color that has that many, and all the socks of any color that has fewer, which is ${have.map((a) => Math.min(a, 2 * k - 1)).join(' + ')} = ${ans - 1} socks with no color reaching ${2 * k}. Every sock left is of a color that already has ${2 * k - 1} out, so the next one completes it, and the answer is <b>${ans}</b>.`,
           gloves: `A matching pair needs a left and a right glove of one color, so the worst luck takes gloves of only one hand in each color, up to ${listing(have)} of the ${listing(colors)} ones, which is ${P} gloves with no match. That can happen, so ${P} gloves are not enough. With ${P + 1} gloves some color has more gloves out than it has left gloves (or right gloves), so it has both hands, and the answer is <b>${ans}</b>.`,
         }[kind],
@@ -851,8 +852,8 @@ export const hardCounting = {
           return most + 1 === ans ? '' : `the largest crowd with no ${k} together is ${most}, said ${ans}`;
         },
         solution: kind === 'reverse'
-          ? `Think of the ${h} ${label[1]} as boxes and the students as things put in them. Spreading ${N} students as evenly as possible gives ${N} = ${h}·${Math.floor(N / h)} + ${N % h}, so ${N % h} ${label[1]} get ${ans} students and the rest ${ans - 1}, and nobody can be sure of more than ${ans}. On the other hand, if every box had at most ${ans - 1}, there would be at most ${h}·${ans - 1} = ${h * (ans - 1)} students, fewer than ${N}. So some box always has at least ${ans}, and the answer is <b>${ans}</b>.`
-          : `${{ forward: `Think of the ${h} ${label[1]} as boxes and the people as things put in them.`, two: 'Each person falls into one of 12·7 = 84 boxes, one for each month and day of the week together.', leap: 'Counting February 29, there are 366 possible birthdays, and those are the boxes.' }[kind]} With ${k - 1} ${k === 2 ? 'person' : 'people'} in every box, ${boxes}·${k - 1} = ${num(boxes * (k - 1))} people can avoid having ${k} in the same box, so ${num(boxes * (k - 1))} are not enough. With one more, the boxes can't all hold ${k - 1} or fewer, so some box has at least ${k}, and the answer is <b>${num(ans)}</b>.`,
+          ? `Think of the ${h} ${label[1]} as boxes and the students as things put in them. Spreading ${N} students as evenly as possible gives ${N} = ${h}·${Math.floor(N / h)} + ${N % h}, so ${N % h === 1 ? `one of the ${label[1]} gets` : `${N % h} ${label[1]} get`} ${ans} students and the rest ${ans - 1}, and nobody can be sure of more than ${ans}. On the other hand, if every box had at most ${ans - 1}, there would be at most ${h}·${ans - 1} = ${h * (ans - 1)} students, fewer than ${N}. So some box always has at least ${ans}, and the answer is <b>${ans}</b>.`
+          : `${{ forward: `Think of the ${h} ${label[1]} as boxes and the people as things put in them.`, two: 'Each person falls into one of 12·7 = 84 boxes, one for each month and day of the week together.', leap: 'Counting February 29, there are 366 possible birthdays, and those are the boxes.' }[kind]} With ${k - 1} ${k === 2 ? 'person' : 'people'} in every box, ${boxes}·${k - 1} = ${num(boxes * (k - 1))} people can avoid having ${k} in the same box, so ${num(boxes * (k - 1))} are not enough. With one more, the boxes can’t all hold ${k - 1} or fewer, so some box has at least ${k}, and the answer is <b>${num(ans)}</b>.`,
       };
     },
     // points: in a square, on a circular track, or with integer coordinates and an integer midpoint
@@ -880,7 +881,7 @@ export const hardCounting = {
         rank = whole ? 17 : 16;
         text = `A circular running track is ${C} meters around. Some flags are planted on the track. What is the least number of flags that guarantees that two of them are ${strict ? 'less than' : 'at most'} ${L} meters apart, measured along the track?`;
         wrongs = [ans - 1, ans + 1, Math.floor(C / L), Math.ceil(C / L) + 1, Math.round(C / L)];
-        solution = `If ${q} flags are spaced evenly, every gap between neighbouring flags is ${frac(C, q)} meters, which is ${strict ? 'not less than' : 'more than'} ${L}, so ${q} flags are not enough. With ${ans} flags, the ${ans} gaps around the track add up to ${C} meters, so the smallest gap is at most ${frac(C, ans)} meters. That is ${strict ? 'less than' : 'at most'} ${L}${whole ? ` (the ${strict ? 'strict' : 'equal'} case is what makes the difference here)` : ''}, so the answer is <b>${ans}</b>.`;
+        solution = `If ${q} flags are spaced evenly, every gap between neighboring flags is ${frac(C, q)} meters, which is ${strict ? 'not less than' : 'more than'} ${L}, so ${q} flags are not enough. With ${ans} flags, the ${ans} gaps around the track add up to ${C} meters, so the smallest gap is at most ${frac(C, ans)} meters. That is ${strict ? 'less than' : 'at most'} ${L}${whole ? ` (the ${strict ? 'strict' : 'equal'} case is what makes the difference here)` : ''}, so the answer is <b>${ans}</b>.`;
         check = () => {
           // place flags one centimeter at a time, each as soon as it is far enough from the one before, and see how many fit
           const step = strict ? L * 100 : L * 100 + 1, around = C * 100;
@@ -910,7 +911,7 @@ export const hardCounting = {
   ],
 
   'Binomial coefficients': [
-    // one coefficient of (ax + b)^n, or the c that makes two neighbouring coefficients of (x + c)^n equal
+    // one coefficient of (ax + b)^n, or the c that makes two neighboring coefficients of (x + c)^n equal
     (d, ctx) => {
       const [kind, a, b, n, k] = pickKind(ctx, 'coef', ['coef', 'equal'], [[1, 2, 3], [-3, -2, -1, 1, 2, 3], range(5, 10), range(1, 8)], (kind, a, b, n, k) => (kind === 'equal'
         ? a === 1 && b === 1 && k <= n - 2 && gcd(n - k, k + 1) !== n - k
@@ -975,13 +976,14 @@ export const hardCounting = {
           const got = sumBig([...poly2].filter(([e]) => (e % 2 === 0) === (which === 'even')).map(([, c]) => c));
           return got === BigInt(ans) ? '' : `expanded to ${got}, said ${ans}`;
         },
+        tip: 'Put x = 1 and x = −1 into the expansion: their sum and their difference pick out the even and the odd coefficients.',
         solution: `Let P(x) = (${poly})<sup>${n}</sup>. Putting x = 1 adds up all the coefficients, and putting x = −1 adds the even-power ones and subtracts the odd-power ones, since (−1)<sup>m</sup> is 1 for even m and −1 for odd m. So P(1) ${which === 'even' ? '+' : '−'} P(−1) is twice the sum we want. Here P(1) = ${pow(kind === 'tri' ? 1 + b + a : a + b, n)} = ${num(P1)} and P(−1) = ${pow(kind === 'tri' ? 1 - b + a : b - a, n)} = ${num(Pm)}, so the sum is (${num(P1)} ${which === 'even' ? '+' : '−'} ${Pm < 0 ? `(${num(Pm)})` : num(Pm)})/2 = <b>${num(ans)}</b>.`,
       };
     },
-    // the hockey stick: a column of Pascal's triangle adds up to the entry below and to the right of its end
+    // the hockey stick: a column of Pascal’s triangle adds up to the entry below and to the right of its end
     (d, ctx) => {
       const [kind, k, n, a] = pickKind(ctx, 'stick', ['plain', 'late', 'products', 'coef'], [[2, 3, 4], range(10, 20), range(4, 9)], (kind, k, n, a) => ({
-        plain: a === 4 && n <= 18, late: a >= k + 2 && n <= 18 && a <= k + 5, products: k <= 3 && a === 4 && n <= 20 && n >= 12, coef: a >= k + 1 && n <= 16,
+        plain: a === 4 && n <= 18, late: a >= k + 2 && n <= 18 && a <= k + 5 && n >= a + 4, products: k <= 3 && a === 4 && n <= 20 && n >= 12, coef: a >= k + 1 && n <= 16 && n >= a + 4,
       })[kind]);
       const hockey = choose(n + 1, k + 1), late = hockey - choose(a, k + 1), prod = k === 2 ? 2 * choose(n + 2, 3) : 6 * choose(n + 3, 4);
       const ans = { plain: hockey, late, products: prod, coef: late }[kind];
@@ -1010,12 +1012,13 @@ export const hardCounting = {
           }[kind];
           return got === BigInt(ans) ? '' : `added up to ${got}, said ${ans}`;
         },
+        tip: 'Write each term as a binomial coefficient, see a column of Pascal’s triangle, and add it up with the hockey stick.',
         solution: {
           plain: `Count the ways to choose ${k + 1} numbers from 1 to ${n + 1} by the largest one chosen. If the largest is m + 1, the other ${k} come from 1 to m, in C(m, ${k}) ways, and m runs from ${k} to ${n}. So the sum counts every choice of ${k + 1} numbers from ${n + 1} exactly once, and it equals ${C(n + 1, k + 1)} = <b>${num(ans)}</b>.`,
           late: `Choosing ${k + 1} numbers from 1 to M + 1 and sorting by the largest shows that ${C(k, k)} + ${C(k + 1, k)} + ⋯ + C(M, ${k}) = C(M + 1, ${k + 1}), the hockey stick. The full sum up to ${C(n, k)} is ${C(n + 1, k + 1)} = ${num(hockey)}, and the terms left out, ${C(k, k)} to ${C(a - 1, k)}, add up to ${C(a, k + 1)} = ${num(choose(a, k + 1))}. So the sum is ${num(hockey)} − ${num(choose(a, k + 1))} = <b>${num(ans)}</b>.`,
           products: k === 2
-            ? `Each term m(m + 1) is 2·C(m + 1, 2), so the sum is 2·(${C(2, 2)} + ${C(3, 2)} + ⋯ + ${C(n + 1, 2)}). A column of Pascal's triangle adds up to the entry below and to the right of its end (choose 3 numbers from 1 to ${n + 2} and sort by the largest), so the bracket is ${C(n + 2, 3)} = ${num(choose(n + 2, 3))}. The sum is 2·${num(choose(n + 2, 3))} = <b>${num(ans)}</b>.`
-            : `Each term m(m + 1)(m + 2) is 6·C(m + 2, 3), so the sum is 6·(${C(3, 3)} + ${C(4, 3)} + ⋯ + ${C(n + 2, 3)}). A column of Pascal's triangle adds up to the entry below and to the right of its end (choose 4 numbers from 1 to ${n + 3} and sort by the largest), so the bracket is ${C(n + 3, 4)} = ${num(choose(n + 3, 4))}. The sum is 6·${num(choose(n + 3, 4))} = <b>${num(ans)}</b>.`,
+            ? `Each term m(m + 1) is 2·C(m + 1, 2), so the sum is 2·(${C(2, 2)} + ${C(3, 2)} + ⋯ + ${C(n + 1, 2)}). A column of Pascal’s triangle adds up to the entry below and to the right of its end (choose 3 numbers from 1 to ${n + 2} and sort by the largest), so the bracket is ${C(n + 2, 3)} = ${num(choose(n + 2, 3))}. The sum is 2·${num(choose(n + 2, 3))} = <b>${num(ans)}</b>.`
+            : `Each term m(m + 1)(m + 2) is 6·C(m + 2, 3), so the sum is 6·(${C(3, 3)} + ${C(4, 3)} + ⋯ + ${C(n + 2, 3)}). A column of Pascal’s triangle adds up to the entry below and to the right of its end (choose 4 numbers from 1 to ${n + 3} and sort by the largest), so the bracket is ${C(n + 3, 4)} = ${num(choose(n + 3, 4))}. The sum is 6·${num(choose(n + 3, 4))} = <b>${num(ans)}</b>.`,
           coef: `The coefficient of ${xPow(k)} in (1 + x)<sup>m</sup> is C(m, ${k}), so the answer is ${C(a, k)} + ${C(a + 1, k)} + ⋯ + ${C(n, k)}. By the hockey stick (choose ${k + 1} numbers and sort by the largest), ${C(k, k)} + ⋯ + ${C(n, k)} = ${C(n + 1, k + 1)} = ${num(hockey)}, and the missing start ${C(k, k)} + ⋯ + ${C(a - 1, k)} = ${C(a, k + 1)} = ${num(choose(a, k + 1))}. So the coefficient is ${num(hockey)} − ${num(choose(a, k + 1))} = <b>${num(ans)}</b>.`,
         }[kind],
       };

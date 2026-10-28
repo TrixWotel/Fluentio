@@ -37,7 +37,7 @@ const templates = [
       text: `Triangle ABC is isosceles with AB = AC, and ∠B = ${b}°. Find x, the size of ∠A.`,
       figure: triangle({ angles: { A: V, B: b, C: b }, labels: { A: 'x', B: deg(b) }, ticks: ['AB', 'AC'] }),
       answer: ans(V),
-      solution: `Base angles are equal, so ∠C = ∠B = ${b}°. x = 180° − 2 × ${b}° = <b>${V}°</b>.`,
+      solution: `Base angles are equal, so ∠C = ∠B = ${b}°. Then x = 180° − 2 × ${b}° = <b>${V}°</b>.`,
     };
   },
   // 4. right triangle: the other acute angle
@@ -70,20 +70,20 @@ const templates = [
       text: `In triangle ABC, ∠A = ${A}° and ∠B = ${B}°. Side BC is extended past C. Find x, the exterior angle at C.`,
       figure: triangle({ angles: { A, B, C: 180 - A - B }, labels: { A: deg(A), B: deg(B) }, ext: 'x' }),
       answer: ans(E),
-      solution: `The exterior angle equals the sum of the two opposite interior angles: x = ${A}° + ${B}° = <b>${E}°</b>. (Or: ∠C = ${180 - E}°, and x = 180° − ${180 - E}°.)`,
+      solution: `The exterior angle equals the sum of the two opposite interior angles: x = ${A}° + ${B}° = <b>${E}°</b>. (Or: ∠C = 180° − ${A}° − ${B}° = ${180 - E}°, and x = 180° − ${180 - E}° = ${E}°.)`,
     };
   },
   // 7. angles in a ratio
   (d, ctx) => {
     const RATIOS = [[1, 2, 3], [2, 3, 4], [1, 1, 2], [3, 4, 5], [1, 3, 5], [2, 3, 5], [1, 4, 5], [4, 5, 6], [2, 5, 8], [1, 2, 6], [5, 6, 7], [3, 5, 7], [1, 5, 6], [2, 2, 5], [3, 3, 4], [1, 3, 8], [2, 7, 9], [4, 5, 9], [1, 2, 2], [3, 4, 8]];
     const [ratio, ask] = combo(ctx, [RATIOS, ['largest', 'smallest']]), sum = ratio.reduce((a, b) => a + b), unit = 180 / sum, [p, q, r] = ratio;
-    const value = (ask === 'largest' ? Math.max(...ratio) : Math.min(...ratio)) * unit, lab = (k) => (k === 1 ? 'x' : `${k}x`);
+    const part = ask === 'largest' ? Math.max(...ratio) : Math.min(...ratio), value = part * unit, lab = (k) => (k === 1 ? 'x' : `${k}x`);
     return {
       topic: 'Angles in a ratio',
       text: `The angles of a triangle are in the ratio ${p} : ${q} : ${r}. What is the ${ask} angle?`,
       figure: triangle({ angles: { A: p * unit, B: q * unit, C: r * unit }, labels: { A: lab(p), B: lab(q), C: lab(r) } }),
       answer: ans(value),
-      solution: `Call the angles ${lab(p)}, ${lab(q)} and ${lab(r)}. They add to 180°: ${sum}x = 180°, so x = ${unit}°. The ${ask} angle is ${ask === 'largest' ? Math.max(...ratio) : Math.min(...ratio)} × ${unit}° = <b>${value}°</b>.`,
+      solution: `Call the angles ${lab(p)}, ${lab(q)} and ${lab(r)}. They add to 180°, so ${sum}x = 180° and x = ${unit}°. ${part === 1 ? `The ${ask} angle is x = <b>${value}°</b>.` : `The ${ask} angle is ${part}x = ${part} × ${unit}° = <b>${value}°</b>.`}`,
     };
   },
   // 8. angles as expressions in x
@@ -92,12 +92,13 @@ const templates = [
       (x, p, q) => { const A = x + p, B = 2 * x + q, C = 180 - A - B; return A >= 15 && B >= 15 && C - 3 * x >= -40 && C >= 15; });
     const A = x + p, B = 2 * x + q, C = 180 - A - B, r = C - 3 * x;
     const ex = (k, c) => `(${k === 1 ? '' : k}x ${c < 0 ? '−' : '+'} ${Math.abs(c)})°`;
+    const term = (k, c) => (c === 0 ? `${k}x` : `(${k === 1 ? '' : k}x ${c < 0 ? '−' : '+'} ${Math.abs(c)})`);   // (3x, not 3x + 0)
     return {
       topic: 'Angles in terms of x',
       text: `The angles of triangle ABC are ∠A = ${ex(1, p)}, ∠B = ${ex(2, q)} and ∠C = ${r === 0 ? '3x°' : ex(3, r)}. ${askX ? 'Find x.' : 'Find the size of ∠B.'}`,
       figure: triangle({ angles: { A, B, C }, labels: { A: ex(1, p), B: ex(2, q), C: r === 0 ? '3x°' : ex(3, r) } }),
       answer: askX ? { kind: 'number', value: x, unit: '', tol: { abs: 0.01 } } : ans(B),
-      solution: `Add them: (x ${p < 0 ? '−' : '+'} ${Math.abs(p)}) + (2x ${q < 0 ? '−' : '+'} ${Math.abs(q)}) + (3x ${r < 0 ? '−' : '+'} ${Math.abs(r)}) = 180, so 6x + ${p + q + r} = 180 and x = <b>${x}</b>.` + (askX ? '' : ` Then ∠B = 2·${x} ${q < 0 ? '−' : '+'} ${Math.abs(q)} = <b>${B}°</b>.`),
+      solution: `Add them: ${term(1, p)} + ${term(2, q)} + ${term(3, r)} = 180. Collecting the terms, ${p + q + r === 0 ? '6x = 180, so' : `6x + ${p + q + r} = 180, so 6x = ${180 - p - q - r} and`} x = ${askX ? `<b>${x}</b>` : x}.` + (askX ? '' : ` Then ∠B = 2 × ${x} ${q < 0 ? '−' : '+'} ${Math.abs(q)} = <b>${B}°</b>.`),
     };
   },
   // 9. isosceles with an exterior angle
@@ -108,7 +109,7 @@ const templates = [
       text: `Triangle ABC is isosceles with AB = AC. Side BC is extended past C, making an exterior angle of ${E}°. Find x, the size of ∠A.`,
       figure: triangle({ angles: { A: V, B: b, C: b }, labels: { A: 'x' }, ticks: ['AB', 'AC'], ext: deg(E) }),
       answer: ans(V),
-      solution: `∠C = 180° − ${E}° = ${b}° (angles on a straight line). The base angles are equal, so ∠B = ${b}° too. x = 180° − 2 × ${b}° = <b>${V}°</b>.`,
+      solution: `∠C = 180° − ${E}° = ${b}° (angles on a straight line). The base angles are equal, so ∠B = ${b}° too. Then x = 180° − 2 × ${b}° = <b>${V}°</b>.`,
     };
   },
   // 10. an angle bisector

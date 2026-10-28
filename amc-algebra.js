@@ -25,6 +25,8 @@ const tri = (n) => (n * (n + 1)) / 2;
 const less = (v, x) => `${v} ${x < 0 ? '+' : '−'} ${num(Math.abs(x))}`;     // v − x, written without a double minus
 const paren = (x) => (x < 0 ? `(${num(x)})` : num(x));
 const divisorsOf = (x) => range(1, x).filter((k) => x % k === 0);
+// where term N falls in a cycle of L terms counted from 1: the sum that shows it, and the matching term (1 to L)
+const place = (N, L) => (N % L ? [`${N} = ${L} · ${Math.floor(N / L)} + ${N % L}`, N % L] : [`${N} = ${L} · ${N / L}, a whole number of cycles`, L]);
 // a coefficient in front of x² (nothing for 1), and the same number standing alone
 const kText = (kp, kq) => (kq === 1 ? (kp === 1 ? '' : String(kp)) : frac(kp, kq));
 const kNum = (kp, kq) => showFrac(ratio(kp, kq));
@@ -79,7 +81,7 @@ export const algebra = {
           for (let i = 0; i < 200; i++) { t = p * (100 - s); s = q * (100 - t); }
           return Math.round(t + s) === ans ? '' : `the prices settle at ${t + s}% of A`;
         },
-        solution: `Call the two prices t and s. Then t = ${num(p)}(A − s) and s = ${num(q)}(A − t). Put the second into the first: t = ${num(p)}A − ${num(p * q, 4)}A + ${num(p * q, 4)}t, so t = ${frac(P * (100 - Q), 10000 - P * Q)} A. In the same way s = ${frac(Q * (100 - P), 10000 - P * Q)} A. Together they cost ${frac(100 * (P + Q) - 2 * P * Q, 10000 - P * Q)} A, which is about ${num(share, 2)}% of A: <b>${num(ans)}%</b> to the nearest percent.`,
+        solution: `Call the two prices t and s. Then t = ${num(p)}(A − s) and s = ${num(q)}(A − t). Put the second into the first: t = ${num(p)}A − ${num(p * q, 4)}A + ${num(p * q, 4)}t, so ${num(1 - p * q, 4)}t = ${num(p - p * q, 4)}A and t = ${frac(P * (100 - Q), 10000 - P * Q)} A. Then s = ${num(q)}(A − t) = ${num(q)} × ${frac(100 * (100 - P), 10000 - P * Q)} A = ${frac(Q * (100 - P), 10000 - P * Q)} A. Together they cost ${frac(100 * (P + Q) - 2 * P * Q, 10000 - P * Q)} A, which is ${Math.abs(share * 100 - Math.round(share * 100)) < 1e-6 ? '' : 'about '}${num(share, 2)}% of A, or <b>${num(ans)}%</b> to the nearest percent.`,
       };
     },
     // one percent after another: the second is a percent of what the first left
@@ -119,8 +121,8 @@ export const algebra = {
         topic: 'Percent of what is left', rank: 15,
         text: `${who} buys a ${big} and a ${small} out of an allowance. The ${big} costs ${P}% of what would be left of the allowance after buying only the ${small}, and the ${small} costs ${Q}% of what would be left after buying only the ${big}. Together they cost $${num(t + s)}. How many dollars is the allowance?`,
         answer: choices(d, A, [Math.round(((t + s) * 100) / (P + Q)), A + step, A - step, Math.round((t * 100) / P), 2 * (t + s)]),
-        check: () => (100 * t === P * (A - s) && 100 * s === Q * (A - t) ? '' : `the prices ${t} and ${s} don't fit an allowance of ${A}`),
-        solution: `Call the allowance A and the prices t and s. Then t = ${num(P / 100)}(A − s) and s = ${num(Q / 100)}(A − t). Solving these together gives t = ${frac(tn, D)}A and s = ${frac(sn, D)}A, so the two cost ${frac(tn + sn, D)} of A. That is $${num(t + s)}, so A = ${num(t + s)} ÷ ${frac(tn + sn, D)} = <b>${num(A)}</b>. (Check: the ${big} is $${num(t)} and the ${small} $${num(s)}.)`,
+        check: () => (100 * t === P * (A - s) && 100 * s === Q * (A - t) ? '' : `the prices ${t} and ${s} don’t fit an allowance of ${A}`),
+        solution: `Call the allowance A and the prices t and s. Then t = ${num(P / 100)}(A − s) and s = ${num(Q / 100)}(A − t). Put the second into the first: t = ${num(P / 100)}A − ${num((P * Q) / 10000, 4)}A + ${num((P * Q) / 10000, 4)}t, so ${num(D / 10000, 4)}t = ${num(tn / 10000, 4)}A and t = ${frac(tn, D)}A. Then s = ${num(Q / 100)}(A − t) = ${num(Q / 100)} × ${frac(100 * (100 - P), D)}A = ${frac(sn, D)}A, so the two cost ${frac(tn + sn, D)} of A. That is $${num(t + s)}, so A = ${num(t + s)} ÷ ${frac(tn + sn, D)} = <b>${num(A)}</b>. (Check: the ${big} is $${num(t)} and the ${small} $${num(s)}.)`,
       };
     },
   ],
@@ -134,10 +136,10 @@ export const algebra = {
       const [top, den] = parts(L, Y, N), other = (100 - L) * (100 - N);
       return {
         topic: 'Saying and meaning', rank: 11,
-        text: `At a ${place}, ${L}% of the ${who} truly like ${thing} and the rest do not. When asked, ${Y}% of those who like ${thing} say so, and the others claim they don't; ${N}% of those who don't like it say so, and the others claim they do. What fraction of the ${who} who say they don't like ${thing} actually like it?`,
+        text: `At a ${place}, ${L}% of the ${who} truly like ${thing} and the rest do not. When asked, ${Y}% of those who like ${thing} say so, and the others claim they don’t; ${N}% of those who don’t like it say so, and the others claim they do. What fraction of the ${who} who say they don’t like ${thing} actually like it?`,
         answer: choices(d, [top, den], [[top, 10000], [100 - Y, 100], [other, other + L * Y], [den - top, den], [L, 100]], showFrac),
         check: () => { const s = survey(L, Y, N); return s.likeSayNo * den === top * (s.likeSayNo + s.notSayNo) ? '' : `counted ${s.likeSayNo}/${s.likeSayNo + s.notSayNo}`; },
-        solution: `Picture 10,000 ${who}. ${num(100 * L)} like ${thing}, and ${num(top)} of them say they don't. ${num(100 * (100 - L))} don't like it, and ${num((100 - L) * N)} of them say so. So ${num(den)} say they don't like ${thing}, and ${num(top)} of those really do: ${num(top)}/${num(den)} = <b>${frac(top, den)}</b>.`,
+        solution: `Picture 10,000 ${who}. ${num(100 * L)} like ${thing}, and the ${100 - Y}% of them who say they don’t are ${num(top)}. ${num(100 * (100 - L))} don’t like it, and ${N}% of them, ${num((100 - L) * N)}, say so. So ${num(den)} say they don’t like ${thing}, and ${num(top)} of those really do: ${num(top)}/${num(den)} = <b>${frac(top, den)}</b>.`,
       };
     },
     // the other way round: of those who say yes, how many mean it
@@ -147,10 +149,10 @@ export const algebra = {
       const top = L * Y, liars = (100 - L) * (100 - N), den = top + liars;
       return {
         topic: 'Saying and meaning', rank: 10,
-        text: `At a ${place}, ${L}% of the ${who} truly like ${thing} and the rest do not. ${Y}% of those who like ${thing} say so when asked, and the others claim they don't; ${N}% of those who don't like it say so, and the others claim they do. What fraction of the ${who} who say they like ${thing} really do?`,
+        text: `At a ${place}, ${L}% of the ${who} truly like ${thing} and the rest do not. ${Y}% of those who like ${thing} say so when asked, and the others claim they don’t; ${N}% of those who don’t like it say so, and the others claim they do. What fraction of the ${who} who say they like ${thing} really do?`,
         answer: choices(d, [top, den], [[Y, 100], [L, 100], [top, 10000], [liars, den], [top, top + (100 - L) * N]], showFrac),
         check: () => { const s = survey(L, Y, N); return s.likeSayYes * den === top * (s.likeSayYes + s.notSayYes) ? '' : `counted ${s.likeSayYes}/${s.likeSayYes + s.notSayYes}`; },
-        solution: `Picture 10,000 ${who}. ${num(100 * L)} like ${thing}, and ${num(top)} of them say so. ${num(100 * (100 - L))} don't, and ${num(liars)} of those claim they do. So ${num(den)} say they like ${thing}, and ${num(top)} of them really do: ${num(top)}/${num(den)} = <b>${frac(top, den)}</b>.`,
+        solution: `Picture 10,000 ${who}. ${num(100 * L)} like ${thing}, and ${Y}% of them, ${num(top)}, say so. ${num(100 * (100 - L))} don’t, and the other ${100 - N}% of those, ${num(liars)}, claim they do. So ${num(den)} say they like ${thing}, and ${num(top)} of them really do: ${num(top)}/${num(den)} = <b>${frac(top, den)}</b>.`,
       };
     },
     // how many say yes, true or not
@@ -160,10 +162,10 @@ export const algebra = {
       const yes = (L * Y) / 100, fake = ((100 - L) * (100 - N)) / 100, say = yes + fake;
       return {
         topic: 'Saying and meaning', rank: 6,
-        text: `At a ${place}, ${L}% of the ${who} like ${thing}. Of those, ${Y}% say so when asked. Of the ${who} who don't like ${thing}, ${N}% say so and the rest claim they do. What percent of all the ${who} say they like ${thing}?`,
+        text: `At a ${place}, ${L}% of the ${who} like ${thing}. Of those, ${Y}% say so when asked. Of the ${who} who don’t like ${thing}, ${N}% say so and the rest claim they do. What percent of all the ${who} say they like ${thing}?`,
         answer: choices(d, say, [L, yes, (L * Y + (100 - L) * N) / 100, 100 - say, Y], (v) => `${num(v, 2)}%`),
         check: () => { const s = survey(L, Y, N); return Math.abs((s.likeSayYes + s.notSayYes) / 100 - say) < 1e-9 ? '' : `counted ${(s.likeSayYes + s.notSayYes) / 100}%`; },
-        solution: `Out of 100 ${who}, ${L} like ${thing} and ${num(yes, 2)} of them say so. The other ${100 - L} don't, and ${100 - N}% of those, ${num(fake, 2)}, claim they do. In all ${num(yes, 2)} + ${num(fake, 2)} = <b>${num(say, 2)}%</b> say they like it.`,
+        solution: `Out of 100 ${who}, ${L} like ${thing} and ${num(yes, 2)} of them say so. The other ${100 - L} don’t, and ${100 - N}% of those, ${num(fake, 2)}, claim they do. In all ${num(yes, 2)} + ${num(fake, 2)} = <b>${num(say, 2)}%</b> say they like it.`,
       };
     },
     // backward: from how many say yes to how many really like it
@@ -173,7 +175,7 @@ export const algebra = {
       const say = (L * Y + (100 - L) * (100 - N)) / 100;
       return {
         topic: 'Saying and meaning', rank: 13,
-        text: `At a ${place}, ${Y}% of the ${who} who like ${thing} say so when asked, and ${N}% of those who don't like it say so too (the others claim they do). In all, ${num(say, 2)}% of the ${who} say they like ${thing}. What percent of the ${who} really like ${thing}?`,
+        text: `At a ${place}, ${Y}% of the ${who} who like ${thing} say so when asked, and ${N}% of those who don’t like it say so too (the others claim they do). In all, ${num(say, 2)}% of the ${who} say they like ${thing}. What percent of the ${who} really like ${thing}?`,
         answer: choices(d, L, [say, Math.round((say * 100) / Y), 100 - L, Math.round(say - (100 - N)), Y], (v) => `${num(v, 2)}%`),
         check: () => { const fits = range(0, 100).filter((l) => Math.abs((l * Y + (100 - l) * (100 - N)) / 100 - say) < 1e-9); return fits.length === 1 && fits[0] === L ? '' : `fits: ${fits}`; },
         solution: `Say L% really like ${thing}. Then ${Y}% of that L% say so, and ${100 - N}% of the other (100 − L)% claim to: ${num(Y / 100, 2)}L + ${num((100 - N) / 100, 2)}(100 − L) = ${num(say, 2)}. That is ${num((Y + N - 100) / 100, 2)}L + ${100 - N} = ${num(say, 2)}, so L = <b>${L}%</b>.`,
@@ -190,7 +192,8 @@ export const algebra = {
         text: `${num(T)} ${things} are arranged in a triangle: 1 in the first row, 2 in the second row, 3 in the third, and so on, each row holding one more than the row before. How many rows are there?`,
         answer: choices(d, N, [N - 1, N + 1, N + 2, N - 2, Math.floor(Math.sqrt(T))]),
         check: () => { let rows = 0, used = 0; while (used < T) used += ++rows; return used === T && rows === N ? '' : `${rows} rows hold ${used}`; },
-        solution: `With N rows there are 1 + 2 + ⋯ + N = N(N + 1)/2 ${things}, so N(N + 1) = ${num(2 * T)}. That is a little more than N<sup>2</sup>, so N is just under √${num(2 * T)} ≈ ${num(Math.sqrt(2 * T), 1)}; and indeed ${N} · ${N + 1} = ${num(2 * T)}. There are <b>${N}</b> rows.`,
+        tip: 'With N rows there are N(N + 1)/2 of them: set that equal to the total, double it, and look for two consecutive numbers that multiply to it.',
+        solution: `With N rows there are 1 + 2 + ⋯ + N = N(N + 1)/2 ${things}, so N(N + 1)/2 = ${num(T)}. Doubling, N(N + 1) = 2 × ${num(T)} = ${num(2 * T)}. That is a little more than N<sup>2</sup>, so N is just under √${num(2 * T)} ≈ ${num(Math.sqrt(2 * T), 1)}: try N = ${N}. Indeed ${N} × ${N + 1} = ${num(2 * T)}, so ${N} rows hold ${N} × ${N + 1} ÷ 2 = ${num(T)} ${things}. There are <b>${N}</b> rows.`,
       };
     },
     // forward: the total for a number of rows
@@ -201,7 +204,7 @@ export const algebra = {
         text: `A display of ${things} has 1 in the top row, 2 in the next row, 3 in the next, and so on, with ${N} rows in all. How many ${things} are in the display?`,
         answer: choices(d, T, [N * N, tri(N - 1), N * (N + 1), tri(N + 1), Math.round((N * N) / 2)]),
         check: () => (range(1, N).reduce((s, r) => s + r, 0) === T ? '' : 'the rows add up differently'),
-        solution: `Add 1 + 2 + ⋯ + ${N} by pairing the first row with the last, the second with the second-to-last, and so on: each pair holds ${N + 1}, and there are ${N} rows, so the total is ${N} · ${N + 1}/2 = <b>${num(T)}</b>.`,
+        solution: `Write the rows 1 + 2 + ⋯ + ${N} forwards and then backwards, ${N} + ${N - 1} + ⋯ + 1, and add the two lists place by place, so that every pair adds to ${N + 1}. There are ${N} pairs, so twice the total is ${N} × ${N + 1} = ${num(N * (N + 1))}, and the total is ${num(N * (N + 1))} ÷ 2 = <b>${num(T)}</b>.`,
       };
     },
     // a band of rows in the middle of the stack
@@ -212,19 +215,20 @@ export const algebra = {
         text: `${things[0].toUpperCase() + things.slice(1)} are stacked in a triangle: 1 in the first row, 2 in the second row, 3 in the third, and so on. How many ${things} are in rows ${a} through ${b}, counting both of those rows?`,
         answer: choices(d, ans, [tri(b) - tri(a), tri(b), len * b, tri(b + 1) - tri(a), len * a]),
         check: () => (range(a, b).reduce((s, r) => s + r, 0) === ans ? '' : 'the rows add up differently'),
-        solution: `Rows ${a} through ${b} hold ${a} + ${a + 1} + ⋯ + ${b}, which is (1 + ⋯ + ${b}) − (1 + ⋯ + ${a - 1}) = ${num(tri(b))} − ${num(tri(a - 1))} = <b>${num(ans)}</b>. (Or: ${len} rows that average ${num((a + b) / 2, 1)} each.)`,
+        solution: `Rows ${a} through ${b} hold ${a} + ${a + 1} + ⋯ + ${b}, which is (1 + ⋯ + ${b}) − (1 + ⋯ + ${a - 1}) = ${b} × ${b + 1} ÷ 2 − ${a - 1} × ${a} ÷ 2 = ${num(tri(b))} − ${num(tri(a - 1))} = <b>${num(ans)}</b>. (Or: ${len} rows that average ${num((a + b) / 2, 1)} each hold ${len} × ${num((a + b) / 2, 1)} = ${num(ans)}.)`,
       };
     },
     // not a triangular number: what is left after the complete rows
     (d, ctx) => {
       const [N] = combo(ctx, [range(20, 70)]), things = d.pick(['marbles', 'coins', 'stones', 'beads']);
-      const left = d.int(1, N), T = tri(N) + left;      // fewer than N + 1 left, so row N + 1 can't be finished
+      const left = d.int(1, N), T = tri(N) + left;      // fewer than N + 1 left, so row N + 1 can’t be finished
       return {
         topic: 'Triangular numbers', rank: 10,
         text: `${num(T)} ${things} are laid out in rows: 1 in the first row, 2 in the second, 3 in the third, and so on, finishing as many complete rows as possible. How many ${things} are left over?`,
         answer: choices(d, left, [tri(N + 1) - T, left + N + 1, T - N * N, T - tri(N - 1)]),
         check: () => { let rows = 0, used = 0; while (used + rows + 1 <= T) used += ++rows; return T - used === left ? '' : `${T - used} left`; },
-        solution: `N complete rows use N(N + 1)/2. ${N} rows use ${num(tri(N))}, and ${N + 1} rows would need ${num(tri(N + 1))}, more than ${num(T)}. So ${N} rows are finished, and ${num(T)} − ${num(tri(N))} = <b>${left}</b> are left over.`,
+        tip: 'Find the most rows N whose total N(N + 1)/2 still fits, then take that total away from the number you have.',
+        solution: `N complete rows use N(N + 1)/2, which can be at most ${num(T)}, so N(N + 1) can be at most 2 × ${num(T)} = ${num(2 * T)}. Near √${num(2 * T)} ≈ ${num(Math.sqrt(2 * T), 1)}, ${N} × ${N + 1} = ${num(N * (N + 1))} fits, but ${N + 1} × ${N + 2} = ${num((N + 1) * (N + 2))} is too big. So ${N} rows are finished, using ${num(N * (N + 1))} ÷ 2 = ${num(tri(N))}, and ${num(T)} − ${num(tri(N))} = <b>${left}</b> are left over.`,
       };
     },
   ],
@@ -238,7 +242,7 @@ export const algebra = {
       return {
         topic: 'Geometric series', rank: 16,
         text: second
-          ? `The terms of an infinite geometric series add up to a positive number S, and the series' second term is ${t}. What is the smallest value S can have?`
+          ? `The terms of an infinite geometric series add up to a positive number S, and the series’ second term is ${t}. What is the smallest value S can have?`
           : `Every term of an infinite geometric series is positive, and its third term is ${t}. What is the smallest the sum of the whole series can be?`,
         answer: choices(d, ans, second ? [[2 * t, 1], [3 * t, 1], [8 * t, 1], [t, 1], [9 * t, 2]] : [[4 * t, 1], [8 * t, 1], [27 * t, 8], [9 * t, 2], [27 * t, 2]], showFrac),
         check: () => {
@@ -247,8 +251,8 @@ export const algebra = {
           return Math.abs(low - ans[0] / ans[1]) < 1e-4 * low ? '' : `a scan finds ${low}`;
         },
         solution: second
-          ? `Call the first term a and the ratio r (with −1 &lt; r &lt; 1). Then ar = ${t} and S = a/(1 − r) = ${t}/(r(1 − r)). For S to be positive, r must be between 0 and 1, where r(1 − r) is at most ${frac(1, 4)} (at r = ${frac(1, 2)}). So S is at least ${t} ÷ ${frac(1, 4)} = <b>${4 * t}</b>, reached when r = ${frac(1, 2)} and a = ${2 * t}.`
-          : `Call the first term a and the ratio r; every term is positive, so 0 &lt; r &lt; 1. Then ar<sup>2</sup> = ${t} and the sum is a/(1 − r) = ${t}/(r<sup>2</sup>(1 − r)). By AM–GM on r/2, r/2 and 1 − r, which add to 1, their product is at most (${frac(1, 3)})<sup>3</sup>; so r<sup>2</sup>(1 − r) is at most ${frac(4, 27)}, at r = ${frac(2, 3)}. The least sum is ${t} · ${frac(27, 4)} = <b>${frac(27 * t, 4)}</b>.`,
+          ? `Call the first term a and the ratio r (with −1 &lt; r &lt; 1). Then ar = ${t} and S = a/(1 − r) = ${t}/(r(1 − r)). For S to be positive, r must be between 0 and 1, and there r(1 − r) = ${frac(1, 4)} − (r − ${frac(1, 2)})<sup>2</sup> is at most ${frac(1, 4)} (at r = ${frac(1, 2)}). So S is at least ${t} ÷ ${frac(1, 4)} = <b>${4 * t}</b>, reached when r = ${frac(1, 2)} and a = ${2 * t}.`
+          : `Call the first term a and the ratio r; every term is positive, so 0 &lt; r &lt; 1. Then ar<sup>2</sup> = ${t} and the sum is a/(1 − r) = ${t}/(r<sup>2</sup>(1 − r)). By AM–GM on r/2, r/2 and 1 − r, which add to 1, their product r<sup>2</sup>(1 − r)/4 is at most (${frac(1, 3)})<sup>3</sup> = ${frac(1, 27)}, with equality when r/2 = 1 − r. So r<sup>2</sup>(1 − r) is at most ${frac(4, 27)}, at r = ${frac(2, 3)}, and the least sum is ${t} ÷ ${frac(4, 27)} = ${t} · ${frac(27, 4)} = <b>${frac(27 * t, 4)}</b>.`,
       };
     },
     // from the first term and the sum back to the ratio, and on to the second term
@@ -277,7 +281,7 @@ export const algebra = {
           for (let i = 1; i < 400; i++) { all += term; if (i % 2) odds += term; term *= r; }
           return Math.abs(all - S) < 1e-6 && Math.abs(odds - odd) < 1e-6 ? '' : `the sums come to ${all} and ${odds}`;
         },
-        solution: `Each term in an even position is the term before it times r, so the even-position terms add up to r · ${odd}. All the terms together: ${S} = ${odd} + ${odd}r, so r = (${S} − ${odd})/${odd} = <b>${frac(rp, rq)}</b>.`,
+        solution: `Each term in an even position is the term before it times r, so the even-position terms add up to r · ${odd}. So all the terms add up to ${odd} + ${odd}r = ${S}, and r = (${S} − ${odd})/${odd} = <b>${frac(rp, rq)}</b>.`,
       };
     },
     // a bouncing ball: down once, then up and down again for every bounce
@@ -308,7 +312,7 @@ export const algebra = {
           for (let i = 0; i < s + P; i++) { if (i >= s) sum += x; [x, y] = [y, (x + y) % m]; }
           return sum === total ? '' : `the terms add to ${sum}`;
         },
-        solution: `Each term depends only on the two before it, and there are only ${m * m} possible pairs of remainders, so the sequence must repeat. Listing it: ${cyc.join(', ')}, then 0, 1 again: a cycle of ${P} terms. Any ${P} terms in a row make up one full cycle, just started at a different place, so the sum is ${cyc.join(' + ')} = <b>${total}</b>.`,
+        solution: `Each term depends only on the two before it, and there are only ${m * m} possible pairs of remainders, so the sequence must repeat. Listing it: ${cyc.join(', ')}, and then 0, 1 again, so it repeats in a cycle of ${P} terms. Any ${P} terms in a row make up one full cycle, just started at a different place, so the sum is ${cyc.join(' + ')} = <b>${total}</b>.`,
       };
     },
     // one far term: where it falls in the cycle
@@ -333,7 +337,7 @@ export const algebra = {
         text: `${fibIntro(m, cyc)} How many of ${G(1)}, ${G(2)}, …, ${G(N)} are equal to 0?`,
         answer: choices(d, zeros, [Math.floor(N / P), zeros + 1, zeros - 1, Math.floor(N / m), Math.round(N / P) * (P / first) + 1]),
         check: () => { let [x, y] = [0, 1], count = 0; for (let i = 1; i <= N; i++) { [x, y] = [y, (x + y) % m]; if (x === 0) count++; } return count === zeros ? '' : `counted ${count}`; },
-        solution: `The sequence repeats every ${P} terms: ${cyc.join(', ')}. In that cycle the 0s sit at ${G(0)}${P / first > 1 ? `, ${range(1, P / first - 1).map((i) => G(i * first)).join(', ')}` : ''}: every ${first} terms. So among ${G(1)} to ${G(N)} the 0s are ${G(first)}, ${G(2 * first)}, …, and there are ⌊${N}/${first}⌋ = <b>${zeros}</b> of them.`,
+        solution: `The sequence repeats every ${P} terms: ${cyc.join(', ')}. ${P / first > 1 ? `In that cycle the 0s sit at ${G(0)}, ${range(1, P / first - 1).map((i) => G(i * first)).join(', ')}, every ${first} terms.` : `In that cycle the only 0 is ${G(0)}, so a 0 comes every ${first} terms.`} So among ${G(1)} to ${G(N)} the 0s are ${G(first)}, ${G(2 * first)}, …, and there are ⌊${N}/${first}⌋ = <b>${zeros}</b> of them.`,
       };
     },
     // a long sum from the start: full cycles, then part of one
@@ -346,7 +350,7 @@ export const algebra = {
         text: `${fibIntro(m, cyc)} What is ${G(0)} + ${G(1)} + ⋯ + ${G(N)}?`,
         answer: choices(d, ans, [full * total, ans + cyc[(N + 1) % P] + 1, Math.round(((N + 1) * total) / P) + 1, ans - 1, ans + 1]),
         check: () => { let [x, y] = [0, 1], sum = 0; for (let i = 0; i <= N; i++) { sum += x; [x, y] = [y, (x + y) % m]; } return sum === ans ? '' : `the sum is ${sum}`; },
-        solution: `The cycle ${cyc.join(', ')} has ${P} terms that add to ${total}. ${G(0)} to ${G(N)} is ${N + 1} terms: ${full} full cycles${rest.length ? ` and then ${rest.join(', ')}` : ''}. So the sum is ${full} · ${total}${rest.length ? ` + ${rest.reduce((x, y) => x + y, 0)}` : ''} = <b>${num(ans)}</b>.`,
+        solution: `The cycle ${cyc.join(', ')} has ${P} terms that add to ${total}. ${G(0)} to ${G(N)} is ${N + 1} terms, and ${N + 1} = ${P} · ${full}${rest.length ? ` + ${rest.length}` : ''}, so that is ${full} full cycles${rest.length === 1 ? ' and then one more term, 0' : rest.length ? ` and then the first ${rest.length} terms of the next, ${rest.join(', ')}` : ''}. So the sum is ${full} · ${total}${rest.length > 1 ? ` + (${rest.join(' + ')}) = ${num(full * total)} + ${rest.reduce((x, y) => x + y, 0)}` : ''} = <b>${num(ans)}</b>.`,
       };
     },
   ],
@@ -365,7 +369,8 @@ export const algebra = {
         text: `A function f on the positive integers has f(1) = ${num(f1)}, f(2) = ${num(f2)}, and f(n) = f(n − 1) − f(n − 2) + ${C}n for every n ≥ 3. What is f(${N})?`,
         answer: choices(d, ans, [c * (N + 1), c * N, ans + 1, ans - 1, ans + c, ans - c]),
         check: () => { let [x, y] = [f1, f2]; for (let n = 3; n <= N; n++) [x, y] = [y, y - x + c * n]; return y === ans ? '' : `f(${N}) is ${y}`; },
-        solution: `First, ${lin} itself obeys the rule: ${C}n − ${C}(n − 1) + ${C}n = ${lin}. So g(n) = f(n) − ${c === 1 ? '(n + 1)' : lin} follows g(n) = g(n − 1) − g(n − 2), which repeats every 6 terms: g(1) = ${num(g[1])}, g(2) = ${num(g[2])}, then ${[3, 4, 5, 6].map((i) => num(g[i])).join(', ')}, and back to ${num(g[1])}, ${num(g[2])}, …. Since ${N} = 6 · ${Math.floor((N - 1) / 6)} + ${r}, g(${N}) = g(${r}) = ${num(g[r])}, and f(${N}) = ${num(c * (N + 1))} ${g[r] < 0 ? '−' : '+'} ${num(Math.abs(g[r]))} = <b>${num(ans)}</b>.`,
+        tip: 'Find a simple expression in n that obeys the rule by itself, take it away from f(n), and what is left repeats in a short cycle.',
+        solution: `First, ${lin} itself obeys the rule, since ${C}n − ${C}(n − 1) + ${C}n = ${lin}. So g(n) = f(n) − ${c === 1 ? '(n + 1)' : lin} follows g(n) = g(n − 1) − g(n − 2), which repeats every 6 terms. It starts g(1) = ${num(f1)} − ${2 * c} = ${num(g[1])} and g(2) = ${num(f2)} − ${3 * c} = ${num(g[2])}, then goes ${[3, 4, 5, 6].map((i) => num(g[i])).join(', ')}, and back to ${num(g[1])}, ${num(g[2])}, …. Since ${place(N, 6)[0]}, g(${N}) = g(${r}) = ${num(g[r])}, and f(${N}) = ${c === 1 ? '' : c}(${N} + 1) + g(${N}) = ${num(c * (N + 1))} ${g[r] < 0 ? '−' : '+'} ${num(Math.abs(g[r]))} = <b>${num(ans)}</b>.`,
       };
     },
     // a(n) = a(n − 1) − a(n − 2) on its own: it repeats every 6 terms
@@ -377,7 +382,7 @@ export const algebra = {
         text: `A sequence has ${a(1)} = ${num(x)}, ${a(2)} = ${num(y)}, and ${a('n')} = ${a('n−1')} − ${a('n−2')} for every n ≥ 3. What is ${a(N)}?`,
         answer: choices(d, ans, [...vals.filter((v) => v !== ans), ans + 1]),
         check: () => { let [p, q] = [x, y]; for (let n = 3; n <= N; n++) [p, q] = [q, q - p]; return (N === 1 ? x : N === 2 ? y : q) === ans ? '' : `${a(N)} is ${q}`; },
-        solution: `Write out the first terms: ${vals.map(num).join(', ')}, and then ${num(x)}, ${num(y)} again, since each term depends only on the two before it. So the sequence repeats every 6 terms. ${N} = 6 · ${Math.floor((N - 1) / 6)} + ${((N - 1) % 6) + 1}, so ${a(N)} = ${a(((N - 1) % 6) + 1)} = <b>${num(ans)}</b>.`,
+        solution: `The first terms are ${vals.map(num).join(', ')}, and then ${num(x)}, ${num(y)} again. Each term depends only on the two before it, so the sequence repeats every 6 terms. ${place(N, 6)[0]}, so ${a(N)} = ${a(place(N, 6)[1])} = <b>${num(ans)}</b>.`,
       };
     },
     // b(n + 1) = 1/(1 − b(n)): it comes back after 3 steps
@@ -396,7 +401,7 @@ export const algebra = {
           const G = (x, y) => (y ? G(y, x % y) : x < 0n ? -x : x), g = G(p, q);
           return Number(p / g) === ans[0] && Number(q / g) === ans[1] ? '' : `${b(N)} is ${p}/${q}`;
         },
-        solution: `${b(2)} = 1/(1 − ${a < 0 ? `(${num(a)})` : num(a)}) = ${showFrac(vals[1])}, ${b(3)} = 1/(1 − ${after(vals[1])}) = ${showFrac(vals[2])}, and ${b(4)} = 1/(1 − ${after(vals[2])}) = ${num(a)} again. So the terms repeat every 3. ${N} = 3 · ${Math.floor((N - 1) / 3)} + ${((N - 1) % 3) + 1}, so ${b(N)} = ${b(((N - 1) % 3) + 1)} = <b>${showFrac(ans)}</b>.`,
+        solution: `${b(2)} = 1/(1 − ${a < 0 ? `(${num(a)})` : num(a)}) = ${showFrac(vals[1])}, ${b(3)} = 1/(1 − ${after(vals[1])}) = ${showFrac(vals[2])}, and ${b(4)} = 1/(1 − ${after(vals[2])}) = ${num(a)} again. So the terms repeat every 3. ${place(N, 3)[0]}, so ${b(N)} = ${b(place(N, 3)[1])} = <b>${showFrac(ans)}</b>.`,
       };
     },
     // f(n) = f(n − 1) + an + b: the steps add up (telescoping)
@@ -408,7 +413,7 @@ export const algebra = {
         text: `A function has f(1) = ${f1} and f(n) = f(n − 1) + ${step} for every n ≥ 2. What is f(${N})?`,
         answer: choices(d, ans, [ans - f1, f1 + A * tri(N) + B * N, f1 + A * (tri(N - 1) - 1) + B * (N - 2), ans + A * N + B, A * N * N + B * N]),
         check: () => { let f = f1; for (let n = 2; n <= N; n++) f += A * n + B; return f === ans ? '' : `f(${N}) is ${f}`; },
-        solution: `Each step adds ${step}, so f(${N}) is f(1) plus the sum of ${step} for n = 2 to ${N}. The numbers 2 to ${N} add to ${num(tri(N))} − 1 = ${num(tri(N) - 1)}, and there are ${N - 1} of them, so f(${N}) = ${f1} + ${A === 1 ? '' : `${A} · `}${num(tri(N) - 1)}${B ? ` ${B < 0 ? '−' : '+'} ${Math.abs(B) === 1 ? '' : `${Math.abs(B)} · `}${N - 1}` : ''} = <b>${num(ans)}</b>.`,
+        solution: `Each step adds ${step}, so f(${N}) is f(1) plus the sum of ${step} for n = 2 to ${N}. The numbers 1 to ${N} add to ${N} · ${N + 1}/2 = ${num(tri(N))}, so the numbers 2 to ${N} add to ${num(tri(N))} − 1 = ${num(tri(N) - 1)}, and there are ${N - 1} of them. So f(${N}) = ${f1} + ${A === 1 ? '' : `${A} · `}${num(tri(N) - 1)}${B ? ` ${B < 0 ? '−' : '+'} ${Math.abs(B) === 1 ? '' : `${Math.abs(B)} · `}${N - 1}` : ''}${A === 1 && Math.abs(B) <= 1 ? '' : ` = ${f1} + ${num(A * (tri(N) - 1))}${B ? ` ${B < 0 ? '−' : '+'} ${num(Math.abs(B) * (N - 1))}` : ''}`} = <b>${num(ans)}</b>.`,
       };
     },
   ],
@@ -435,7 +440,7 @@ export const algebra = {
           }
           return Number(b[0]) === p && Number(b[1]) === q ? '' : `the term is ${b[0]}/${b[1]}`;
         },
-        solution: `Turn the rule upside down: 1/${an('n')} = (2${an('n−2')} − ${an('n−1')})/(${an('n−2')}${an('n−1')}) = 2/${an('n−1')} − 1/${an('n−2')}. So the reciprocals go up by the same step each time: 1/${an(1)} = ${u}, 1/${an(2)} = ${frac(w, v)}, a step of ${frac(step, v)}. Then 1/${an(N)} = ${u} + ${N - 1} · ${frac(step, v)} = ${frac(u * v + (N - 1) * step, v)}, so ${an(N)} = ${frac(p, q)} and p + q = <b>${num(p + q)}</b>.`,
+        solution: `Turning the rule upside down gives 1/${an('n')} = (2${an('n−2')} − ${an('n−1')})/(${an('n−2')}${an('n−1')}) = 2/${an('n−1')} − 1/${an('n−2')}. That says 1/${an('n')} − 1/${an('n−1')} = 1/${an('n−1')} − 1/${an('n−2')}, so the reciprocals go up by the same step each time. Here 1/${an(1)} = ${u} and 1/${an(2)} = ${frac(w, v)}, a step of ${frac(step, v)}. Then 1/${an(N)} = ${u} + ${N - 1} · ${frac(step, v)} = ${frac(u * v + (N - 1) * step, v)}, so ${an(N)} = ${frac(p, q)} and p + q = ${p} + ${num(q)} = <b>${num(p + q)}</b>.`,
       };
     },
     // two terms of a sequence with arithmetic reciprocals: a third one
@@ -459,7 +464,7 @@ export const algebra = {
         text: `A sequence has ${a(1)} = ${frac(1, u)} and ${a('n+1')} = <span class="fr"><span>${a('n')}</span><span>1 + ${K}${a('n')}</span></span> for every n ≥ 1. Then ${a(N)} = 1/m. What is m?`,
         answer: choices(d, m, [u + N * k, u + (N - 2) * k, u * N * k, u + N - 1, k * N]),
         check: () => { let [p, q] = [1n, BigInt(u)]; for (let n = 1; n < N; n++) [p, q] = [p, q + BigInt(k) * p]; return p === 1n && Number(q) === m ? '' : `${a(N)} is ${p}/${q}`; },
-        solution: `Flip both sides: 1/${a('n+1')} = (1 + ${K}${a('n')})/${a('n')} = 1/${a('n')} + ${k}. So the reciprocals go up by ${k} each term, starting at ${u}: 1/${a(N)} = ${u} + ${N - 1} · ${k} = ${m}, and m = <b>${m}</b>.`,
+        solution: `Flipping both sides gives 1/${a('n+1')} = (1 + ${K}${a('n')})/${a('n')} = 1/${a('n')} + ${k}. So the reciprocals go up by ${k} each term, starting at 1/${a(1)} = ${u}: 1/${a(N)} = ${u} + ${N - 1} · ${k} = ${m}, and m = <b>${m}</b>.`,
       };
     },
     // a(n + 1) = a(n)/(1 + c·n·a(n)): the reciprocals go up by c, 2c, 3c, …
@@ -471,7 +476,7 @@ export const algebra = {
         text: `A sequence has ${a(1)} = ${frac(1, u)} and ${a('n+1')} = <span class="fr"><span>${a('n')}</span><span>1 + ${C}n${a('n')}</span></span> for every n ≥ 1. Then ${a(N)} = 1/m. What is m?`,
         answer: choices(d, m, [u + c * tri(N), u + c * (N - 1), c * tri(N - 1), u + c * tri(N - 2), m + 1]),
         check: () => { let [p, q] = [1n, BigInt(u)]; for (let n = 1; n < N; n++) q += BigInt(c * n) * p; return p === 1n && Number(q) === m ? '' : `${a(N)} is ${p}/${q}`; },
-        solution: `Flip both sides: 1/${a('n+1')} = 1/${a('n')} + ${C}n. So 1/${a(N)} = ${u} + ${C ? `${c} · ` : ''}(1 + 2 + ⋯ + ${N - 1}) = ${u} + ${C ? `${c} · ` : ''}${num(tri(N - 1))} = ${num(m)}, and m = <b>${num(m)}</b>.`,
+        solution: `Flipping both sides gives 1/${a('n+1')} = (1 + ${C}n${a('n')})/${a('n')} = 1/${a('n')} + ${C}n. So each step adds ${C}n, and from 1/${a(1)} = ${u} the steps for n = 1 to ${N - 1} add ${C ? `${c}(1 + 2 + ⋯ + ${N - 1}) = ${c} · ` : `1 + 2 + ⋯ + ${N - 1} = `}${N - 1} · ${N}/2 = ${num(c * tri(N - 1))}. So 1/${a(N)} = ${u} + ${num(c * tri(N - 1))} = ${num(m)}, and m = <b>${num(m)}</b>.`,
       };
     },
   ],
@@ -488,6 +493,12 @@ export const algebra = {
       const [m, n, s, x0, y0] = combo(ctx, [[-4, -3, -2, 2, 3, 4], [-3, -2, 2, 3, 4, 5], [-3, -2, -1, 2, 3], [-3, -2, -1, 1, 2, 3, 4], [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6]],
         (m, n, s, x0, y0) => !!solve(m, n, s, x0, y0) && !(m === -2 && n === 2 && s === -1 && x0 === 1 && y0 === -5));
       const { a, b, c } = solve(m, n, s, x0, y0);
+      // the working: b from the first equation, then b and c put into the third, which leaves one equation in a
+      const kb = ratio(-n, m), [gp, gq] = ratio(y0 * kb[0], kb[1]), cExpr = expr([x0, 'a'], [m * y0, '']);
+      const coefTxt = ([p, q]) => (q === 1 ? (p === 1 ? '' : p === -1 ? '−' : num(p)) : `${p < 0 ? '−' : ''}${frac(Math.abs(p), q)}`);
+      const lhs = `${num(n * x0)} ${gp < 0 ? '−' : '+'} ${coefTxt([Math.abs(gp), gq])}a`, rhs = s === 1 ? cExpr : `${s === -1 ? '−' : num(s)}(${cExpr})`;
+      const cleared = gq > 1 ? `, and multiplying both sides by ${gq} gives ${expr([gq * n * x0, ''], [gp, 'a'])} = ${expr([gq * s * x0, 'a'], [gq * s * m * y0, ''])}` : s === 1 ? '' : `, that is ${lhs} = ${expr([s * x0, 'a'], [s * m * y0, ''])}`;
+      const flip = gp - gq * s * x0 < 0 ? -1 : 1, A1 = flip * (gp - gq * s * x0), B1 = flip * (gq * s * m * y0 - gq * n * x0);
       return {
         topic: 'Perpendicular lines', rank: 10,
         text: `For some numbers a, b and c, the lines ${expr([1, 'ax'], [m, 'y'])} = c and ${expr([n, 'x'], [1, 'by'])} = ${expr([s, 'c'])} meet at a right angle at the point (${num(x0)}, ${num(y0)}). What is c?`,
@@ -497,9 +508,10 @@ export const algebra = {
           const M = [[x0, 0, -1, -m * y0], [0, y0, -s, -n * x0], [n, m, 0, 0]];
           const det = (r) => r[0][0] * (r[1][1] * r[2][2] - r[1][2] * r[2][1]) - r[0][1] * (r[1][0] * r[2][2] - r[1][2] * r[2][0]) + r[0][2] * (r[1][0] * r[2][1] - r[1][1] * r[2][0]);
           const D = det(M), Dc = det(M.map((row) => [row[0], row[1], row[3]]));
+          if (B1 / A1 !== a) return `the working gives a = ${B1 / A1}`;
           return D && Math.abs(Dc / D - c) < 1e-9 ? '' : `Cramer's rule gives c = ${Dc / D}`;
         },
-        solution: `Lines px + qy = r and p′x + q′y = r′ are perpendicular exactly when pp′ + qq′ = 0 (their slopes −p/q and −p′/q′ multiply to −1). Here that says ${expr([n, 'a'], [m, 'b'])} = 0. The point (${num(x0)}, ${num(y0)}) is on both lines: ${expr([x0, 'a'], [m * y0, ''])} = c and ${expr([n * x0, ''], [y0, 'b'])} = ${expr([s, 'c'])}. Solving these three equations gives a = ${num(a)}, b = ${num(b)} and c = <b>${num(c)}</b>.`,
+        solution: `Lines px + qy = r and p′x + q′y = r′ are perpendicular exactly when pp′ + qq′ = 0 (their slopes −p/q and −p′/q′ multiply to −1). Here that says ${expr([n, 'a'], [m, 'b'])} = 0. The point (${num(x0)}, ${num(y0)}) is on both lines, so ${expr([x0, 'a'], [m * y0, ''])} = c and ${expr([n * x0, ''], [y0, 'b'])} = ${expr([s, 'c'])}. From the first equation, b = ${coefTxt(kb)}a. Putting that and c = ${cExpr} into the third gives ${lhs} = ${rhs}${cleared}. So ${A1 === 1 ? '' : A1}a = ${num(B1)} and a = ${num(a)}. Then b = ${num(b)} and c = ${num(x0)}·${paren(a)} ${m * y0 < 0 ? '−' : '+'} ${num(Math.abs(m * y0))} = <b>${num(c)}</b>.`,
       };
     },
     // the perpendicular through a point: where it crosses the y-axis
@@ -516,7 +528,7 @@ export const algebra = {
           const t = -x1 / p, y = y1 + t * q, slope = q / p;
           return Math.abs(y - ans[0] / ans[1]) < 1e-9 && Math.abs(slope * (-p / q) + 1) < 1e-9 ? '' : `ℓ crosses at ${y}`;
         },
-        solution: `The line ${expr([p, 'x'], [q, 'y'])} = ${r} has slope ${frac(-p, q)}, so a line perpendicular to it has slope ${frac(q, p)} (the slopes multiply to −1). Through (${num(x1)}, ${num(y1)}), ℓ is ${less('y', y1)} = ${frac(q, p)}(${less('x', x1)}). At x = 0, y = ${num(y1)} − (${frac(q, p)})(${num(x1)}) = <b>${showFrac(ans)}</b>.`,
+        solution: `Solving ${expr([p, 'x'], [q, 'y'])} = ${r} for y shows that the line has slope ${frac(-p, q)}, so a line perpendicular to it has slope ${frac(q, p)} (the slopes multiply to −1). Through (${num(x1)}, ${num(y1)}), ℓ is ${y1 ? less('y', y1) : 'y'} = ${frac(q, p)}(${less('x', x1)}). At x = 0, y = ${num(y1)} − (${frac(q, p)})(${num(x1)}) = <b>${showFrac(ans)}</b>.`,
       };
     },
     // the coefficient that makes two lines perpendicular
@@ -536,13 +548,17 @@ export const algebra = {
           const kv = k[0] / k[1], s1 = which === 'x' ? -kv / b1 : -a1 / kv, s2 = -a2 / b2;
           return Math.abs(s1 * s2 + 1) < 1e-9 ? '' : `the slopes multiply to ${s1 * s2}`;
         },
-        solution: `Lines px + qy = r and p′x + q′y = r′ are perpendicular exactly when pp′ + qq′ = 0. Here that is ${which === 'x' ? `k · ${a2} + (${num(b1)})(${num(b2)}) = 0` : `(${num(a1)})(${num(a2)}) + k · ${paren(b2)} = 0`}, so k = ${showFrac(k)}. Answer: <b>${showFrac(k)}</b>. (The value that makes them parallel instead is ${showFrac(parallel)}.)`,
+        solution: `Lines px + qy = r and p′x + q′y = r′ are perpendicular exactly when pp′ + qq′ = 0. Here that is ${which === 'x' ? `k · ${a2} + (${num(b1)})(${num(b2)}) = 0, so ${a2 === 1 ? '' : a2}k = ${num(-b1 * b2)}` : `(${num(a1)})(${num(a2)}) + k · ${paren(b2)} = 0, so ${b2 === -1 ? '−' : num(b2)}k = ${num(-a1 * a2)}`} and k = <b>${showFrac(k)}</b>. (The value that makes them parallel instead is ${showFrac(parallel)}.)`,
       };
     },
     // the closest point of a line: where the perpendicular from the point meets it
     (d, ctx) => {
       const [m, b, f, s] = combo(ctx, [[-3, -2, -1, 1, 2, 3], range(-4, 4), range(-3, 4), [-3, -2, -1, 1, 2, 3]]);
       const F = [f, m * f + b], P = [f + s * m, m * f + b - s], ans = F[0] + F[1];
+      // the perpendicular through P, y − P₁ = −(1/m)(x − P₀), written without "x − 0" or a "1(…)"
+      const xPart = P[0] === 0 ? 'x' : `(${less('x', P[0])})`, yPart = P[1] === 0 ? 'y' : less('y', P[1]);
+      const perpRight = m === 1 ? `−${xPart}` : m === -1 ? (P[0] === 0 ? 'x' : less('x', P[0])) : `${frac(-1, m)}${xPart}`;
+      const perpLine = `${yPart} = ${perpRight}`;
       return {
         topic: 'Perpendicular lines', rank: 12,
         text: `What is the sum of the coordinates of the point on the line y = ${expr([m, 'x'], [b, ''])} that is closest to (${num(P[0])}, ${num(P[1])})?`,
@@ -554,7 +570,7 @@ export const algebra = {
           for (let t = -20; t <= 20; t += 0.001) { const dd = (t - P[0]) ** 2 + (m * t + b - P[1]) ** 2; if (dd < best) { best = dd; bx = t; } }
           return Math.abs(x + y - ans) < 1e-9 && Math.abs(bx - x) < 0.01 ? '' : `the closest point is (${x}, ${y})`;
         },
-        solution: `The closest point is where the perpendicular from (${num(P[0])}, ${num(P[1])}) meets the line. The line has slope ${num(m)}, so the perpendicular has slope ${frac(-1, m)}: ${less('y', P[1])} = ${frac(-1, m)}(${less('x', P[0])}). Setting ${expr([m, 'x'], [b, ''])} equal to that gives x = ${num(f)}, and then y = ${num(F[1])}. The sum is ${num(f)} + ${paren(F[1])} = <b>${num(ans)}</b>.`,
+        solution: `The closest point is where the perpendicular from (${num(P[0])}, ${num(P[1])}) meets the line. The line has slope ${num(m)}, so the perpendicular has slope ${frac(-1, m)}, and it is ${perpLine}. Where they meet, y = ${expr([m, 'x'], [b, ''])}, so ${expr([m, 'x'], [b - P[1], ''])} = ${perpRight}${Math.abs(m) === 1 ? `, and so 2x = ${num(P[0] - m * (b - P[1]))}` : `. Multiplying both sides by ${num(m)} gives ${expr([m * m, 'x'], [m * (b - P[1]), ''])} = ${expr([-1, 'x'], [P[0], ''])}, so ${m * m + 1}x = ${num(P[0] - m * (b - P[1]))}`}. That gives x = ${num(f)}, and then y = ${num(F[1])} on the line. The sum is ${num(f)} + ${paren(F[1])} = <b>${num(ans)}</b>.`,
       };
     },
   ],
@@ -575,7 +591,7 @@ export const algebra = {
           while (k * h ** 3 < area - 1e-9) h += 0.001;
           return Math.abs(2 * h - 2 * t) < 0.01 ? '' : `half-width ${h}`;
         },
-        solution: `QR is level, so Q and R are mirror images in the y-axis: Q = (−t, ${K}t<sup>2</sup>) and R = (t, ${K}t<sup>2</sup>) for some t > 0. The base QR is 2t long and the height from P up to it is ${K}t<sup>2</sup>, so the area is ½ · 2t · ${K}t<sup>2</sup> = ${K}t<sup>3</sup> = ${area}. That gives t<sup>3</sup> = ${t ** 3}, so t = ${t} and QR = <b>${2 * t}</b>.`,
+        solution: `QR is level, so Q and R are mirror images in the y-axis: Q = (−t, ${K}t<sup>2</sup>) and R = (t, ${K}t<sup>2</sup>) for some t > 0. The base QR is 2t long and the height from P up to it is ${K}t<sup>2</sup>, so the area is ½ · 2t · ${K}t<sup>2</sup> = ${K}t<sup>3</sup> = ${area}. ${K ? `That gives t<sup>3</sup> = ${t ** 3}, so t` : 'So t'} = ${t} and QR = <b>${2 * t}</b>.`,
       };
     },
     // forward: the area from the level side
@@ -588,7 +604,7 @@ export const algebra = {
         figure: parabolaFigure(k, t),
         answer: choices(d, area, [h, ratio(2 * kp * t ** 3, kq), ratio(kp * t ** 3, 2 * kq), ratio(4 * kp * t ** 3, kq), ratio(kp * t * t, 2 * kq)], showFrac),
         check: () => { const Q = [-t, k * t * t], R = [t, k * t * t], A = Math.abs(Q[0] * R[1] - R[0] * Q[1]) / 2; return Math.abs(A - area[0] / area[1]) < 1e-9 ? '' : `the shoelace area is ${A}`; },
-        solution: `QR is level, so Q and R are mirror images: Q = (−${t}, h) and R = (${t}, h), where h = ${K ? `${K} · ` : ''}${t}<sup>2</sup> = ${showFrac(h)}. The base QR is ${2 * t} and the height from P up to it is h, so the area is ½ · ${2 * t} · ${showFrac(h)} = <b>${showFrac(area)}</b>.`,
+        solution: `QR is level, so Q and R are mirror images in the y-axis, each ${t} from it: Q = (−${t}, h) and R = (${t}, h), where h = ${K ? `${K} · ` : ''}${t}<sup>2</sup> = ${showFrac(h)}. The base QR is ${2 * t} and the height from P up to it is h, so the area is ½ · ${2 * t} · ${showFrac(h)} = <b>${showFrac(area)}</b>.`,
       };
     },
     // an equilateral triangle with a corner at the vertex
@@ -673,7 +689,7 @@ export const algebra = {
         text: `As x ranges over all real numbers, what is the smallest value of ${[a, b, c].map((v) => (v === 0 ? 'x<sup>2</sup>' : sq(v))).join(' + ')}?`,
         answer: choices(d, ans, [at(b), a * a + b * b + c * c, ((c - a) ** 2) / 2, at(0), ans + 3]),
         check: () => { let low = Infinity; for (let x = a - 2; x <= c + 2; x += 1e-3) low = Math.min(low, at(x)); return Math.abs(low - ans) < 1e-4 ? '' : `a scan finds ${low}`; },
-        solution: `Expanded, this is ${expr([3, 'x<sup>2</sup>'], [-2 * (a + b + c), 'x'], [a * a + b * b + c * c, ''])}, a parabola that is lowest at x = ${num(2 * (a + b + c))}/6 = ${num(mean)}, the average of ${num(a)}, ${num(b)} and ${num(c)}. There the squares are ${num((a - mean) ** 2)}, ${num((b - mean) ** 2)} and ${num((c - mean) ** 2)}, so the least value is <b>${num(ans)}</b>.`,
+        solution: `Expanded, this is ${expr([3, 'x<sup>2</sup>'], [-2 * (a + b + c), 'x'], [a * a + b * b + c * c, ''])}, a parabola that is lowest at x = ${num(2 * (a + b + c))}/6 = ${num(mean)}, the average of ${num(a)}, ${num(b)} and ${num(c)}. There the squares are ${num((a - mean) ** 2)}, ${num((b - mean) ** 2)} and ${num((c - mean) ** 2)}, so the least value is ${num((a - mean) ** 2)} + ${num((b - mean) ** 2)} + ${num((c - mean) ** 2)} = <b>${num(ans)}</b>.`,
       };
     },
     // four factors in two pairs with the same sum, but not evenly spaced
@@ -734,7 +750,7 @@ export const algebra = {
           const G = (x, y) => (y ? G(y, x % y) : x), g = G(top, bottom);
           return Number(top / g) === ans[0] && Number(bottom / g) === ans[1] ? '' : `it is ${top / g}/${bottom / g}`;
         },
-        solution: `Take ${pow(b, n)} out of the top and the bottom: the top is ${pow(b, n)}(${p === 1 ? b : pow(b, p)} + 1) and the bottom is ${pow(b, n)}(${q === 1 ? b : pow(b, q)} − 1). The ${pow(b, n)} cancels, leaving ${b ** p + 1}/${b ** q - 1} = <b>${showFrac(ans)}</b>.`,
+        solution: `Take ${pow(b, n)} out of the top and the bottom, which leaves ${pow(b, n)}(${p === 1 ? b : pow(b, p)} + 1) on top and ${pow(b, n)}(${q === 1 ? b : pow(b, q)} − 1) below. The ${pow(b, n)} cancels, leaving ${b ** p + 1}/${b ** q - 1} = <b>${showFrac(ans)}</b>.`,
       };
     },
     // which power is largest (or smallest): give them all the same exponent
@@ -762,7 +778,7 @@ export const algebra = {
       const [kid, A, B] = d.shuffle(NAMES).slice(0, 3);
       return {
         topic: 'Age multiples', rank: 19,
-        text: `Today ${kid} turns 1, and it is also the birthday of both of ${kid}'s parents, ${A} and ${B}. ${A} is between ${lo} and ${lo + 9} years old, and ${B} is ${gap} years older than ${A}. Today is the first of exactly ${D} birthdays on which ${A}'s age is a whole-number multiple of ${kid}'s age. How old will ${B} be the next time ${B}'s age is a multiple of ${kid}'s age?`,
+        text: `Today ${kid} turns 1, and it is also the birthday of both of ${kid}’s parents, ${A} and ${B}. ${A} is between ${lo} and ${lo + 9} years old, and ${B} is ${gap} years older than ${A}. Today is the first of exactly ${D} birthdays on which ${A}’s age is a whole-number multiple of ${kid}’s age. How old will ${B} be the next time ${B}’s age is a multiple of ${kid}’s age?`,
         answer: choices(d, ans, [2 * (g + gap), g + gap + 2, g + z, ans + 1, g + 1 + gap]),
         check: () => {
           const fits = range(lo, lo + 9).filter((a) => range(0, 300).filter((y) => (a + y) % (1 + y) === 0).length === D);
@@ -770,7 +786,7 @@ export const algebra = {
           const b = fits[0] + gap, y = range(1, 300).find((y) => (b + y) % (1 + y) === 0);
           return b + y === ans ? '' : `${B} is ${b + y} then`;
         },
-        solution: `Let G be the gap between ${A}'s and ${kid}'s ages. When ${kid} is z, ${A} is z + G, which is a multiple of z exactly when z divides G. So the number of such birthdays is the number of divisors of G. ${A} is ${lo} to ${lo + 9}, so G is ${lo - 1} to ${lo + 8}, and the only number there with exactly ${D} divisors is ${g}. ${B}'s gap is ${g + gap}, and its smallest divisor above 1 is ${z}. So the next time is when ${kid} turns ${z}, and ${B} is then ${g + gap} + ${z} = <b>${ans}</b>.`,
+        solution: `Let G be the gap between ${A}’s and ${kid}’s ages. When ${kid} is z, ${A} is z + G, which is a multiple of z exactly when z divides G. So the number of such birthdays is the number of divisors of G. ${A} is ${lo} to ${lo + 9}, so G is ${lo - 1} to ${lo + 8}, and the only number there with exactly ${D} divisors is ${g}. ${B} is ${gap} years older, so ${B}’s gap is ${g} + ${gap} = ${g + gap}, and its smallest divisor above 1 is ${z}. So the next time is when ${kid} turns ${z}, and ${B} is then ${g + gap} + ${z} = <b>${ans}</b>.`,
       };
     },
     // how many times it happens: the number of divisors of the gap
@@ -779,7 +795,7 @@ export const algebra = {
       const [kid, A] = d.shuffle(NAMES).slice(0, 2), divs = divisorsOf(G), D = divs.length;
       return {
         topic: 'Age multiples', rank: 9,
-        text: `${A} is exactly ${G} years older than ${kid}, and they share a birthday. Counting from ${kid}'s 1st birthday on, on how many of ${kid}'s birthdays will ${A}'s age be a whole-number multiple of ${kid}'s age?`,
+        text: `${A} is exactly ${G} years older than ${kid}, and they share a birthday. Counting from ${kid}’s 1st birthday on, on how many of ${kid}’s birthdays will ${A}’s age be a whole-number multiple of ${kid}’s age?`,
         answer: choices(d, D, [D - 1, D + 1, D - 2, Math.floor(G / 2), 2 * D]),
         check: () => { const count = range(1, 500).filter((y) => (G + y) % y === 0).length; return count === D ? '' : `counted ${count}`; },
         solution: `When ${kid} is z, ${A} is z + ${G}, and z + ${G} is a multiple of z exactly when z divides ${G}. The divisors of ${G} are ${divs.join(', ')}, so it happens on <b>${D}</b> birthdays (the last one when ${kid} turns ${G}).`,
@@ -797,10 +813,10 @@ export const algebra = {
       const near = range(lo, lo + 9).filter((a) => a !== g + 1);
       return {
         topic: 'Age multiples', rank: 12,
-        text: `Today ${kid} turns 1, and it is also ${A}'s birthday. ${A} is between ${lo} and ${lo + 9} years old. Today is the first of exactly ${D} birthdays on which ${A}'s age is a whole-number multiple of ${kid}'s age. How old is ${A} today?`,
+        text: `Today ${kid} turns 1, and it is also ${A}’s birthday. ${A} is between ${lo} and ${lo + 9} years old. Today is the first of exactly ${D} birthdays on which ${A}’s age is a whole-number multiple of ${kid}’s age. How old is ${A} today?`,
         answer: choices(d, g + 1, [g, g + 2, ...d.shuffle(near)]),
         check: () => { const fits = range(lo, lo + 9).filter((a) => range(1, 300).filter((y) => (a - 1 + y) % y === 0).length === D); return fits.length === 1 && fits[0] === g + 1 ? '' : `fits: ${fits}`; },
-        solution: `The gap between their ages is ${A}'s age minus 1. ${A}'s age is a multiple of ${kid}'s exactly when ${kid}'s age divides that gap, so the gap has exactly ${D} divisors. The gap is between ${lo - 1} and ${lo + 8}, and the only number there with ${D} divisors is ${g} (${divisorsOf(g).join(', ')}). So ${A} is <b>${g + 1}</b>.`,
+        solution: `The gap between their ages is ${A}’s age minus 1. ${A}’s age is a multiple of ${kid}’s exactly when ${kid}’s age divides that gap, so the gap has exactly ${D} divisors. The gap is between ${lo - 1} and ${lo + 8}, and the only number there with ${D} divisors is ${g} (${divisorsOf(g).join(', ')}). So ${A} is <b>${g + 1}</b>.`,
       };
     },
     // when one age will be a set multiple of the other
@@ -812,6 +828,7 @@ export const algebra = {
         text: `${A} is ${P} years old and ${kid} is ${C}. In how many years will ${A} be exactly ${times} as old as ${kid}?`,
         answer: choices(d, y, [P - m * C, Math.round(P / m - C), y + 1, y - 1, Math.round((P - C) / m)]),
         check: () => { const yy = range(1, 100).find((t) => P + t === m * (C + t)); return yy === y ? '' : `it happens in ${yy} years`; },
+        tip: 'Write both ages y years from now, and set the older one equal to the multiple of the younger.',
         solution: `In y years ${A} is ${P} + y and ${kid} is ${C} + y. We need ${P} + y = ${m}(${C} + y), so ${P} − ${m * C} = ${m - 1}y and y = <b>${y}</b>. (Then ${A} is ${P + y} and ${kid} is ${C + y}.)`,
       };
     },

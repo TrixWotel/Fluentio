@@ -15,7 +15,45 @@ const svg = (w, h, label, body) => `<svg class="tri" viewBox="0 0 ${w} ${h}" rol
 const list = (items, and = 'and') => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} ${and} ${items.at(-1)}`);
 // a, a + 1, …, b, written out in full when it is short (1, 2 and 3, not 1, 2, …, 3); f writes each one
 const upto = (a, b, f = (v) => v, and = 'and') => (b - a <= 3 ? list(range(a, b).map(f), and) : `${f(a)}, ${f(a + 1)}, …, ${f(b)}`);
-// every ordering of 0 … n − 1 (Heap's algorithm), handed to f (one array, changed in place)
+// b to the power e, written without a power of 1 (10, not 10¹)
+const power = (b, e) => (e === 1 ? `${b}` : `${b}<sup>${e}</sup>`);
+// the chain o, 2o, 4o, … up to N
+const chainOf = (o, N) => { const c = []; for (let v = o; v <= N; v *= 2) c.push(v); return c.join(', '); };
+// the orders of six colored pieces with counts[i] of color i, written 6!/(3!·3!)
+const sixOrders = (counts) => { const f = counts.filter((c) => c > 1).map((c) => `${c}!`); return `6!/${f.length > 1 ? `(${f.join('·')})` : f[0]}`; };
+// why a symmetry keeps the paintings it does, with counts[i] pieces of color i: each of its cycles must be one color.
+// Two cycles of three (a turn by a third of a circle):
+const keptByThirds = (counts, colors, what) => (counts.length === 2 && counts[0] === 3 && counts[1] === 3
+  ? `Here that means one cycle ${colors[0]} and the other ${colors[1]}, either way round: 2`
+  : `That needs two colors with three ${what} each, so here it keeps none`);
+// three swapped pairs (a hexagon turned halfway, or flipped through the midpoints of two sides):
+function keptByPairs(counts, colors, what) {
+  const odd = counts.findIndex((c) => c % 2);
+  if (odd >= 0) return `${Cap(colors[odd])} has ${WORDS[counts[odd]]} ${counts[odd] === 1 ? what.replace(/s$/, '') : what}, which can’t fill whole pairs, so here it keeps none`;
+  if (counts.every((c) => c === 2)) return 'Here the three colors take one pair each, in 3! = 6 ways';
+  const big = counts.findIndex((c) => c === 4), small = counts.findIndex((c) => c === 2);
+  return `Here two pairs are ${colors[big]} and one is ${colors[small]}, with 3 choices for the ${colors[small]} pair: 3`;
+}
+// two swapped pairs and two pieces that stay put (a flip of the triangle, or of the hexagon through two corners):
+function keptByFlip(counts, colors, what) {
+  const cases = [];
+  counts.forEach((_, i) => counts.forEach((__, j) => {
+    if (j < i) return;
+    const left = counts.slice();
+    left[i] -= 2; left[j] -= 2;
+    if (left.some((v) => v < 0)) return;
+    const rest = left.flatMap((v, c) => Array(v).fill(c)), pairWays = i === j ? 1 : 2, restWays = rest[0] === rest[1] ? 1 : 2;
+    const pairs = i === j ? `both pairs ${colors[i]}` : `one pair ${colors[i]} and the other ${colors[j]}, either way round`;
+    const stay = rest[0] === rest[1] ? `the two ${what} that stay put both ${colors[rest[0]]}` : `the two ${what} that stay put ${colors[rest[0]]} and ${colors[rest[1]]}, either way round`;
+    cases.push({ text: `${pairs}, with ${stay}`, pairWays, restWays, ways: pairWays * restWays });
+  }));
+  const all = cases.reduce((s, c) => s + c.ways, 0);
+  if (!cases.length) return 'The two swapped pairs can’t both be filled with one color each, so here it keeps none';
+  if (counts.every((c) => c === 2)) return `Here the two pairs take two of the three colors, either way round, and the two ${what} that stay put take the third: 3·2 = 6`;
+  if (cases.length === 1) { const [c] = cases; return `Here that means ${c.text}: ${c.ways > 1 && c.pairWays > 1 && c.restWays > 1 ? '2·2 = ' : ''}${c.ways}`; }
+  return `Here that means ${cases.map((c) => `${c.text} (${c.ways} way${c.ways === 1 ? '' : 's'})`).join('; or ')}: ${all} in all`;
+}
+// every ordering of 0 … n − 1 (Heap’s algorithm), handed to f (one array, changed in place)
 function eachPerm(n, f) {
   const a = range(0, n - 1), c = Array(n).fill(0);
   f(a);
@@ -89,12 +127,18 @@ function league(r, pct) {
   }
   return { fits, whole };
 }
-// the setups with exactly one answer (the original problem's 2 : 1 and 40% is left out)
+// the setups with exactly one answer (the original problem’s 2 : 1 and 40% is left out)
 const LEAGUES = [2, 3, 4].flatMap((r) => [20, 25, 30, 40, 50, 60, 75, 80, 100].map((pct) => [r, pct])).filter(([r, pct]) => {
   if (r === 2 && pct === 40) return false;
   const { fits, whole } = league(r, pct), wholeFits = fits.filter((L) => (choose((r + 1) * L, 2) * 100) % (200 + pct) === 0);
   return fits.length > 0 && fits.every((L, i) => L === i + 1) && wholeFits.length === 1 && whole.length === 1 && whole[0] === wholeFits[0] && whole[0] >= 3;
 });
+// the ways to split 3, 4 or 5 horses into j groups that share a place, j = 1 to n, and why
+const SPLITS = {
+  3: ['all three together', 'a pair and a lone horse, C(3, 2) = 3 ways', 'all apart'],
+  4: ['all four together', 'three and one, 4 ways, or two pairs, 3 ways', 'one pair and two lone horses, C(4, 2) = 6 ways', 'all apart'],
+  5: ['all five together', 'four and one, 5 ways, or three and two, C(5, 3) = 10 ways', 'three and two lone horses, C(5, 3) = 10 ways, or two pairs and a lone horse, 5·3 = 15 ways', 'one pair and three lone horses, C(5, 2) = 10 ways', 'all apart'],
+};
 const COPRIME = [[3, 5], [3, 7], [4, 7], [5, 7], [3, 8], [5, 8], [4, 9], [5, 9], [7, 9], [3, 10], [7, 10], [5, 11], [6, 7], [4, 11]];
 
 export const counting = {
@@ -120,7 +164,7 @@ export const counting = {
         text: `At ${where}, each of the ${n} people there shakes hands exactly once with each of the others. How many handshakes take place?`,
         answer: choices(d, h, [n * (n - 1), n * n, h + n, choose(n - 1, 2), 2 * n]),
         check: () => { let c = 0; for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) c++; return c === h ? '' : `counted ${c}, said ${h}`; },
-        solution: `Each of the ${n} people shakes ${n - 1} hands, but that counts every handshake twice (once for each of the two people in it): ${n}·${n - 1}/2 = <b>${num(h)}</b>.`,
+        solution: `Each of the ${n} people shakes ${n - 1} hands, which makes ${n}·${n - 1} = ${num(n * (n - 1))} handshakes counted. But that counts every handshake twice, once for each of the two people in it, so there are ${num(n * (n - 1))}/2 = <b>${num(h)}</b>.`,
       };
     },
     // working back from the number of handshakes
@@ -131,7 +175,8 @@ export const counting = {
         text: `At a party, everyone shook hands exactly once with everyone else, and there were ${num(h)} handshakes in all. How many people were at the party?`,
         answer: choices(d, n, [n - 1, n + 1, Math.round(Math.sqrt(h)), Math.round(h / n), 2 * n]),
         check: () => { const fit = range(2, 200).filter((m) => choose(m, 2) === h); return fit.length === 1 && fit[0] === n ? '' : `people that fit: ${fit}`; },
-        solution: `With m people there are m(m − 1)/2 handshakes, so m(m − 1) = ${num(2 * h)}. That is two whole numbers in a row multiplied together, and ${n - 1}·${n} = ${num(2 * h)}, so there were <b>${n}</b> people.`,
+        tip: 'With m people there are m(m − 1)/2 handshakes: set that equal to the total, double it, and look for two numbers in a row that multiply to it.',
+        solution: `With m people there are m(m − 1)/2 handshakes, so m(m − 1)/2 = ${num(h)}. Doubling, m(m − 1) = 2·${num(h)} = ${num(2 * h)}, two whole numbers in a row multiplied together. That is a little less than m<sup>2</sup>, so m is just over √${num(2 * h)} ≈ ${num(Math.sqrt(2 * h), 1)}: try m = ${n}. Indeed ${n - 1}·${n} = ${num(2 * h)}, so there were <b>${n}</b> people.`,
       };
     },
     // two teams shake hands with each other, and the referees with every player
@@ -147,7 +192,7 @@ export const counting = {
           for (let i = 0; i < team.length; i++) for (let j = i + 1; j < team.length; j++) if ((team[i] === 'A' && team[j] === 'B') || (team[i] !== 'R') !== (team[j] !== 'R')) c++;
           return c === total ? '' : `counted ${c}, said ${total}`;
         },
-        solution: `Between the teams: ${p}·${q} = ${p * q} handshakes. The referees with the players: ${r}·${p + q} = ${r * (p + q)}. In all, ${p * q} + ${r * (p + q)} = <b>${num(total)}</b>.`,
+        solution: `Between the two teams there are ${p}·${q} = ${p * q} handshakes. Each of the ${r} referees shakes hands with all ${p} + ${q} = ${p + q} players, which makes ${r}·${p + q} = ${r * (p + q)}. In all, ${p * q} + ${r * (p + q)} = <b>${num(total)}</b>.`,
       };
     },
   ],
@@ -160,6 +205,15 @@ export const counting = {
       // forcing k of the n − 1 neighbor pairs together: if they form j runs, (n − k)! orders of the blocks, 2^j ways to flip them
       const terms = range(0, n - 1).map((k) => (k ? fact(n - k) * range(1, k).reduce((s, j) => s + choose(k - 1, j - 1) * choose(n - k, j) * 2 ** j, 0) : fact(n)));
       const ways = terms.reduce((s, t, k) => s + (k % 2 ? -t : t), 0), name = d.pick(['Ravi', 'Noor', 'Tess', 'Omar']);
+      // how the term for k comes out: the choices of k pairs sorted by how many runs they make, and the orders for each
+      const runs = (k) => range(1, k).map((j) => [j, choose(k - 1, j - 1) * choose(n - k, j)]).filter(([, c]) => c);
+      const orders = (k, j) => `${n - k}!·${power(2, j)} = ${fact(n - k) * 2 ** j}`, runWord = (j) => (j === 1 ? 'one run' : `${WORDS[j]} runs`);
+      const termWhy = (k) => {
+        const rs = runs(k);
+        if (rs.length === 1 && rs[0][1] === 1) return `For k = ${k}, the only choice makes ${runWord(rs[0][0])}, with ${orders(k, rs[0][0])} orders.`;
+        if (rs.length === 1) return `For k = ${k}, each of the ${rs[0][1]} choices makes ${runWord(rs[0][0])}, with ${orders(k, rs[0][0])} orders, so ${rs[0][1]}·${fact(n - k) * 2 ** rs[0][0]} = ${num(terms[k])}.`;
+        return `For k = ${k}, of the C(${n - 1}, ${k}) = ${choose(n - 1, k)} choices, ${list(rs.map(([j, c]) => `${c} make${c === 1 ? 's' : ''} ${runWord(j)} (${orders(k, j)} orders each)`))}, so ${rs.map(([j, c]) => num(c * fact(n - k) * 2 ** j)).join(' + ')} = ${num(terms[k])}.`;
+      };
       return {
         topic: 'Separated neighbors', rank: 10,
         text: `${name} has ${WORDS[n]} letter tiles: ${list(letters)}. In how many orders can the tiles be laid in a row so that no two tiles side by side are neighbors in the alphabet (like ${letters[1]} and ${letters[2]})?`,
@@ -171,7 +225,7 @@ export const counting = {
           const c = dp[(1 << n) - 1].reduce((s, v) => s + v, 0);
           return c === ways ? '' : `counted ${c}, said ${ways}`;
         },
-        solution: `Use inclusion–exclusion on the ${n - 1} pairs of alphabet neighbors. Forcing k of those pairs to sit together glues the tiles into blocks; a run of glued pairs is one block that can read forward or backward, so if the k pairs make j runs there are (${n} − k)!·2<sup>j</sup> orders. Adding over every choice of k pairs: ${terms.map((t, k) => `k = ${k} gives ${num(t)}`).join('; ')}. So the count is ${terms.map((t, k) => (k ? (k % 2 ? ' − ' : ' + ') : '') + num(t)).join('')} = <b>${num(ways)}</b>.`,
+        solution: `Use inclusion–exclusion on the ${n - 1} pairs of alphabet neighbors (${list(range(1, n - 1).map((i) => `${letters[i - 1]}${letters[i]}`))}). Forcing k of those pairs to sit together glues the tiles into blocks; a run of glued pairs is one block that can read forward or backward, so if the k pairs make j runs there are (${n} − k)!·2<sup>j</sup> orders. For each k, add these up over every choice of k pairs; inclusion–exclusion then adds the totals for even k and subtracts those for odd k. With no pairs forced (k = 0) there are ${n}! = ${num(terms[0])} orders. ${range(1, n - 1).map(termWhy).join(' ')} So the count is ${terms.map((t, k) => (k ? (k % 2 ? ' − ' : ' + ') : '') + num(t)).join('')} = <b>${num(ways)}</b>.`,
       };
     },
     // two people who must stand side by side
@@ -182,7 +236,7 @@ export const counting = {
         text: `${Cap(WORDS[n])} friends, ${list(names)}, line up in a row for a photo. In how many orders can they stand so that ${A} and ${B} are side by side?`,
         answer: choices(d, ways, [fact(n - 1), fact(n), fact(n) - ways, 2 * fact(n - 2), (n - 1) * fact(n - 2)]),
         check: () => { let c = 0; eachPerm(n, (a) => { if (Math.abs(a.indexOf(0) - a.indexOf(1)) === 1) c++; }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Glue ${A} and ${B} together into one block. Then ${n - 1} things line up, in ${n - 1}! = ${num(fact(n - 1))} orders, and the block can be ${A}–${B} or ${B}–${A}: 2·${num(fact(n - 1))} = <b>${num(ways)}</b>.`,
+        solution: `Glue ${A} and ${B} together into one block. Then ${n - 1} things line up, in ${n - 1}! = ${num(fact(n - 1))} orders, and the block can be ${A}–${B} or ${B}–${A}, so there are 2·${num(fact(n - 1))} = <b>${num(ways)}</b> orders.`,
       };
     },
     // two pairs of rivals, neither pair side by side
@@ -194,7 +248,7 @@ export const counting = {
         text: `${Cap(WORDS[n])} people, ${list(names)}, line up in a row. ${A} and ${B} are rivals, and so are ${C} and ${D}; no two rivals may stand side by side. In how many orders can they line up?`,
         answer: choices(d, ways, [all - 2 * one, all - one, all - 2 * one + both / 2, all - one + both, both]),
         check: () => { let c = 0; eachPerm(n, (a) => { if (Math.abs(a.indexOf(0) - a.indexOf(1)) !== 1 && Math.abs(a.indexOf(2) - a.indexOf(3)) !== 1) c++; }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Inclusion–exclusion. All orders: ${n}! = ${num(all)}. With ${A} next to ${B}: glue them, 2·${n - 1}! = ${num(one)}; the same for ${C} and ${D}. With both pairs glued: 2·2·${n - 2}! = ${num(both)}, which were subtracted twice. So ${num(all)} − 2·${num(one)} + ${num(both)} = <b>${num(ways)}</b>.`,
+        solution: `Use inclusion–exclusion, starting from all ${n}! = ${num(all)} orders. Gluing ${A} and ${B} into one block, which can face either way, gives 2·${n - 1}! = ${num(one)} orders with them side by side, and the same number have ${C} and ${D} side by side. Gluing both pairs gives 2·2·${n - 2}! = ${num(both)} orders, which were subtracted twice, so they are added back once. So ${num(all)} − 2·${num(one)} + ${num(both)} = <b>${num(ways)}</b>.`,
       };
     },
     // one pair together, another pair apart
@@ -206,7 +260,7 @@ export const counting = {
         text: `${Cap(WORDS[n])} children, ${list(names)}, stand in a line for the bus. ${A} and ${B} insist on standing side by side, but ${C} and ${D} refuse to. In how many orders can the children line up?`,
         answer: choices(d, ways, [one, one - both / 2, both, fact(n) - one, one + both]),
         check: () => { let c = 0; eachPerm(n, (a) => { if (Math.abs(a.indexOf(0) - a.indexOf(1)) === 1 && Math.abs(a.indexOf(2) - a.indexOf(3)) !== 1) c++; }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Glue ${A} and ${B} into a block: 2·${n - 1}! = ${num(one)} orders. Take away those where ${C} and ${D} are also side by side: glue them too, 2·2·${n - 2}! = ${num(both)}. So ${num(one)} − ${num(both)} = <b>${num(ways)}</b>.`,
+        solution: `Glue ${A} and ${B} into one block, which can face either way, so they stand side by side in 2·${n - 1}! = ${num(one)} orders. Take away the orders where ${C} and ${D} stand side by side too, found by gluing them as well, 2·2·${n - 2}! = ${num(both)}. So ${num(one)} − ${num(both)} = <b>${num(ways)}</b>.`,
       };
     },
   ],
@@ -240,7 +294,8 @@ export const counting = {
           }
           return best === least && least === 4 ? '' : `brute force says ${best}, said ${least}`;
         },
-        solution: `Write each number as an odd number times a power of 2. The ${size} odd numbers up to ${N} each start a chain (1, 2, 4, …; 3, 6, 12, …; and so on), and any two numbers in one chain divide each other, so ${name} takes exactly one number from every chain. Say the picks from the chains of 1, 3 and 9 are 2<sup>a</sup>, 3·2<sup>b</sup> and 9·2<sup>c</sup>. The first can't divide the second, so a > b; likewise b > c ≥ 0. So a ≥ 2 and b ≥ 1, which rules out 1, 2 and 3, while the choice ${list(example.map(String))} shows that 4 can be used. The answer is <b>4</b>.`,
+        tip: 'Write each number as an odd number times a power of 2: a set this big takes exactly one number from each chain, so ask what the chains of 1, 3 and 9 allow.',
+        solution: `Write each number as an odd number times a power of 2. The ${size} odd numbers up to ${N} each start a chain (${chainOf(1, N)}; ${chainOf(3, N)}; and so on), and any two numbers in one chain divide each other, so ${name} takes exactly one number from every chain. Say the picks from the chains of 1, 3 and 9 are 2<sup>a</sup>, 3·2<sup>b</sup> and 9·2<sup>c</sup>. The first can’t divide the second, so a > b; likewise b > c ≥ 0. So a ≥ 2 and b ≥ 1, which rules out 1, 2 and 3, while the choice ${list(example.map(String))} shows that 4 can be used. The answer is <b>4</b>.`,
       };
     },
     // the most numbers that can be picked
@@ -251,7 +306,7 @@ export const counting = {
         text: `What is the largest number of numbers that can be chosen from 1, 2, 3, …, ${N} so that no chosen number is a multiple of another chosen number?`,
         answer: choices(d, size, [Math.floor(N / 2), size + 1, size - 1, size + 2, odds(N).length + 1]),
         check: () => { const best = largest(N, (x, y) => x % y === 0 || y % x === 0); return best === size ? '' : `search found ${best}, said ${size}`; },
-        solution: `Write every number as an odd number times a power of 2. The odd numbers 1, 3, 5, … up to ${N} start ${size} chains (1, 2, 4, …; 3, 6, 12, …), and in a chain the smaller number always divides the larger, so at most one number per chain: at most ${size}. The numbers from ${low} to ${N} reach that, since any multiple of one of them, other than itself, is at least twice it and so bigger than ${N}. The answer is <b>${size}</b>.`,
+        solution: `Write every number as an odd number times a power of 2. The odd numbers 1, 3, 5, … up to ${N} start ${size} chains (${chainOf(1, N)}; ${chainOf(3, N)}; and so on), and in a chain the smaller number always divides the larger, so at most one number per chain: at most ${size}. The numbers from ${low} to ${N} reach that, since any multiple of one of them, other than itself, is at least twice it and so bigger than ${N}. The answer is <b>${size}</b>.`,
       };
     },
     // how many picks force a pair where one divides the other
@@ -262,7 +317,7 @@ export const counting = {
         text: `What is the smallest number k such that any k different numbers chosen from 1, 2, 3, …, ${N} must include two numbers where one is a multiple of the other?`,
         answer: choices(d, size + 1, [size, size + 2, Math.floor(N / 2), N - 1, odds(N).length + 2]),
         check: () => { const best = largest(N, (x, y) => x % y === 0 || y % x === 0); return best + 1 === size + 1 ? '' : `the biggest set without such a pair has ${best}`; },
-        solution: `The ${size} numbers from ${low} to ${N} have no such pair, so ${size} picks are not enough. But every number is an odd number times a power of 2, and there are only ${size} odd numbers up to ${N}, so any ${size + 1} numbers put two in the same chain (like 3, 6, 12, …), where the smaller divides the larger. So k = <b>${size + 1}</b>.`,
+        solution: `The ${size} numbers from ${low} to ${N} have no such pair, so ${size} picks are not enough. But every number is an odd number times a power of 2, and there are only ${size} odd numbers up to ${N}, so any ${size + 1} numbers put two in the same chain (like ${chainOf(3, N)}), where the smaller divides the larger. So k = <b>${size + 1}</b>.`,
       };
     },
   ],
@@ -300,7 +355,7 @@ export const counting = {
         },
         solution: n === 3
           ? `All three parallel gives N = 0, and all three through one point gives N = 1. If exactly two are parallel, the third crosses each of them: N = 2. Otherwise every two cross at different points: N = 3. ${ask === 'sum' ? 'So the sum is 0 + 1 + 2 + 3 = <b>6</b>.' : 'So N is 0, 1, 2 or 3: <b>4</b> values.'}`
-          : `All five parallel gives N = 0, and all five through one point gives N = 1. Otherwise N ≥ 4: if two or more lines are parallel, the other lines cross them in at least 4 different points; if no two are parallel, then either some point has 3 or more of the lines through it (and a line missing that point crosses those 3 lines in 3 more points), or all C(5, 2) = 10 crossings are different. Every value from 4 to 10 happens: four parallel lines and one more (4); four lines through a point and one more (5); three parallel lines crossed by two parallel lines (6); three parallel lines crossed by two lines meeting elsewhere (7); three lines through a point and two more (8); one parallel pair (9); nothing special (10). ${ask === 'sum' ? 'So the sum is 0 + 1 + 4 + 5 + 6 + 7 + 8 + 9 + 10 = <b>50</b>.' : 'So N is one of 0, 1, 4, 5, 6, 7, 8, 9 and 10: <b>9</b> values.'}`,
+          : `All five parallel gives N = 0, and all five through one point gives N = 1. In every other case N is at least 4. If two or more lines are parallel, the other lines cross them in at least 4 different points. If no two are parallel, then either some point has 3 or more of the lines through it (and a line missing that point crosses those 3 lines in 3 more points), or all C(5, 2) = 10 crossings are different. Every value from 4 to 10 happens. Four parallel lines and one more give 4; four lines through a point and one more give 5; three parallel lines crossed by two parallel lines give 6; three parallel lines crossed by two lines meeting elsewhere give 7. Three lines through a point and two more give 8, one parallel pair gives 9, and nothing special gives 10. ${ask === 'sum' ? 'So the sum is 0 + 1 + 4 + 5 + 6 + 7 + 8 + 9 + 10 = <b>50</b>.' : 'So N is one of 0, 1, 4, 5, 6, 7, 8, 9 and 10: <b>9</b> values.'}`,
       };
     },
     // the most crossing points n lines can have
@@ -311,7 +366,7 @@ export const counting = {
         text: `In a plane, ${n} straight lines are drawn. What is the greatest possible number of points where two of the lines cross?`,
         answer: choices(d, most, [n * (n - 1), n * n, most + n, choose(n - 1, 2), 2 * n]),
         check: () => { const c = crossings(range(1, n).map((i) => [i, i * i])); return c === most ? '' : `${n} lines in general position cross at ${c} points`; },
-        solution: `Two lines cross at most once, so there are at most as many crossings as pairs of lines: C(${n}, 2) = ${n}·${n - 1}/2 = ${num(most)}. That many happen when no two lines are parallel and no three pass through one point. The answer is <b>${num(most)}</b>.`,
+        solution: `Two lines cross at most once, so there are at most as many crossings as pairs of lines, C(${n}, 2) = ${n}·${n - 1}/2 = ${num(most)}. That many happen when no two lines are parallel and no three pass through one point. The answer is <b>${num(most)}</b>.`,
       };
     },
     // some of the lines parallel
@@ -333,7 +388,7 @@ export const counting = {
         text: `In a plane, ${n} straight lines are drawn, no two of them parallel. Exactly ${m} of the lines pass through one common point, and apart from that point, no three of the lines meet at a single point. How many points lie on two or more of the lines?`,
         answer: choices(d, N, [all, all - joined, all - m + 1, N + m - 1, all - joined - 1]),
         check: () => { const c = crossings([...range(1, m).map((s) => [s, 0]), ...range(m + 1, n).map((s) => [s, s ** 3 + 1])]); return c === N ? '' : `counted ${c}, said ${N}`; },
-        solution: `With no three lines meeting, the C(${n}, 2) = ${num(all)} pairs would cross at ${num(all)} different points. The C(${m}, 2) = ${joined} pairs among the ${m} lines through the common point all cross at that one point, so those ${joined} crossings count as just 1: ${num(all)} − ${joined} + 1 = <b>${num(N)}</b>.`,
+        solution: `With no three lines meeting, the C(${n}, 2) = ${num(all)} pairs would cross at ${num(all)} different points. The C(${m}, 2) = ${joined} pairs among the ${m} lines through the common point all cross at that one point, so those ${joined} crossings count as just 1. That leaves ${num(all)} − ${joined} + 1 = <b>${num(N)}</b> points.`,
       };
     },
   ],
@@ -345,6 +400,8 @@ export const counting = {
       const c = Math.sqrt(k), tops = range(1, M).map((a) => Math.floor(c * a));
       const sized = (extra) => range(1, M).map((s) => range(0, M - s).reduce((t, a) => t + Math.max(0, Math.floor(c * a) - s + 1 + extra), 0));
       const bySize = sized(0), count = bySize.reduce((s, v) => s + v, 0), loose = sized(1).reduce((s, v) => s + v, 0);
+      // for each size that fits, the choices of b for a = 1 … M − s added up
+      const sizeSums = range(1, M).filter((s) => bySize[s - 1]).map((s) => `side ${s} gives ${range(1, M - s).map((a) => Math.max(0, tops[a - 1] - s + 1)).join(' + ')} = ${bySize[s - 1]} (a from 1 to ${M - s})`);
       return {
         topic: 'Lattice squares', rank: 14,
         text: `The region R is bounded by the line y = x√${k}, the line y = −0.1 and the line x = ${M}.1. How many squares with sides parallel to the axes and all four corners at lattice points (points whose coordinates are integers) fit completely inside R?`,
@@ -357,7 +414,7 @@ export const counting = {
           }
           return t === count ? '' : `counted ${t}, said ${count}`;
         },
-        solution: `A square with bottom-left corner (a, b) and side s fits when b ≥ 0, a + s ≤ ${M}, and its top-left corner (a, b + s) is under the line: b + s &lt; a√${k}. At x = ${upto(1, M)} the line is at heights whose whole parts are ${tops.join(', ')}, so for each a there are ⌊a√${k}⌋ − s + 1 choices of b (when that is positive). By size: ${bySize.map((v, i) => `side ${i + 1}: ${v}`).filter((s, i) => bySize[i]).join(', ')}. In all, <b>${num(count)}</b> squares.`,
+        solution: `A square with bottom-left corner (a, b) and side s fits when b ≥ 0, a + s ≤ ${M}, and its top-left corner (a, b + s) is under the line, that is b + s &lt; a√${k}. At x = ${upto(1, M)} the line is at heights whose whole parts are ${tops.join(', ')}, so for each a there are ⌊a√${k}⌋ − s + 1 choices of b (when that is positive). By size, ${sizeSums.join('; ')}. In all, ${bySize.filter(Boolean).join(' + ')} = <b>${num(count)}</b> squares.`,
       };
     },
     // squares of every size in a rectangle of graph paper
@@ -373,7 +430,7 @@ export const counting = {
         figure: svg(Math.ceil(W + 20), Math.ceil(H + 20), `A ${n} by ${m} grid`, grid),
         answer: choices(d, count, [m * n, count - m * n, range(1, m).reduce((s, v) => s + v * v, 0), (m + 1) * (n + 1), count + m]),
         check: () => { let t = 0; for (let s = 1; s <= m; s++) for (let x = 0; x + s <= n; x++) for (let y = 0; y + s <= m; y++) t++; return t === count ? '' : `counted ${t}, said ${count}`; },
-        solution: `A square of side s can be placed with its left edge in ${n} − s + 1 places and its top edge in ${m} − s + 1 places. For s = ${upto(1, m)}: ${terms.join(' + ')} = <b>${num(count)}</b>.`,
+        solution: `A square of side s can be placed with its left edge in ${n} − s + 1 places and its top edge in ${m} − s + 1 places, so there are (${n + 1} − s)(${m + 1} − s) squares of side s. For s = ${upto(1, m)} that is ${terms.map((t, i) => `${n - i}·${m - i}`).join(' + ')} = ${terms.join(' + ')} = <b>${num(count)}</b>.`,
       };
     },
     // squares inside a right triangle
@@ -384,7 +441,7 @@ export const counting = {
         text: `How many squares with sides parallel to the axes and all four corners at lattice points lie inside the triangle with corners (0, 0), (${a}, 0) and (0, ${a})? (A square may touch the sides of the triangle.)`,
         answer: choices(d, count, [terms[0], count + terms[0], choose(a + 1, 2), choose(a, 2), count - 1]),
         check: () => { let t = 0; for (let s = 1; s <= a; s++) for (let x = 0; x <= a; x++) for (let y = 0; y <= a; y++) if (x + s + y + s <= a) t++; return t === count ? '' : `counted ${t}, said ${count}`; },
-        solution: `A square of side s with its bottom-left corner at (x, y) fits exactly when x ≥ 0, y ≥ 0 and its top-right corner is on or under the line x + y = ${a}, that is x + y ≤ ${a} − 2s. The lattice points with x, y ≥ 0 and x + y ≤ t number (t + 1)(t + 2)/2. For s = ${upto(1, Math.floor(a / 2))}: ${terms.join(' + ')} = <b>${num(count)}</b>.`,
+        solution: `A square of side s with its bottom-left corner at (x, y) fits exactly when x ≥ 0, y ≥ 0 and its top-right corner is on or under the line x + y = ${a}, that is x + y ≤ ${a} − 2s. The lattice points with x, y ≥ 0 and x + y ≤ t number (t + 1)(t + 2)/2. For s = ${upto(1, Math.floor(a / 2))} the limit t = ${a} − 2s is ${upto(1, Math.floor(a / 2), (s) => a - 2 * s)}, so the count is ${terms.join(' + ')} = <b>${num(count)}</b>.`,
       };
     },
     // lattice points under a steep line
@@ -396,7 +453,8 @@ export const counting = {
         text: `How many points (x, y) with whole-number coordinates satisfy 1 ≤ x ≤ ${M}, y ≥ 0 and y &lt; x√${k}?`,
         answer: choices(d, count, [count - M, count + M, tops.reduce((s, v) => s + v, 0) - M, count + 1]),
         check: () => { let t = 0; for (let x = 1; x <= M; x++) for (let y = 0; y * y < k * x * x; y++) t++; return t === count ? '' : `counted ${t}, said ${count}`; },
-        solution: `${k} isn't a perfect square, so x√${k} is never a whole number, and for each x the allowed y are 0, 1, …, ⌊x√${k}⌋: that is ⌊x√${k}⌋ + 1 of them. For x = 1 to ${M} the whole parts are ${tops.join(', ')}, so the count is ${tops.map((v) => v + 1).join(' + ')} = <b>${num(count)}</b>.`,
+        tip: 'Count column by column: for each whole number x, count the whole numbers y from 0 up to the last one under the line.',
+        solution: `${k} isn’t a perfect square, so x√${k} is never a whole number, and for each x the allowed y are 0, 1, …, ⌊x√${k}⌋, which is ⌊x√${k}⌋ + 1 of them. For x = 1 to ${M} the whole parts are ${tops.join(', ')}, so the count is ${tops.map((v) => v + 1).join(' + ')} = <b>${num(count)}</b>.`,
       };
     },
   ],
@@ -415,7 +473,7 @@ export const counting = {
         figure: svg(300, 176, 'Six disks in a triangle', '<title>Six disks in a triangle</title>' + DISKS.map(([x, y]) => `<circle class="side" cx="${x}" cy="${y}" r="29"/>`).join('')),
         answer: choices(d, ways, [all.length / 6, all.length / 3, all.length / 2, all.length, ways + 2].filter(Number.isInteger)),
         check: () => { const avg = SYMMETRIES.reduce((s, p) => s + fixed(p), 0) / 6; return avg === ways ? '' : `Burnside gives ${avg}, said ${ways}`; },
-        solution: `With the triangle held still there are ${all.length} paintings. The triangle has 6 symmetries: leaving it alone, two turns (by 120° and 240°) and three flips. By Burnside's lemma, the number of different paintings is the average number of paintings that each symmetry leaves unchanged. Leaving it alone keeps all ${all.length}. A turn moves the corner disks around in a cycle of three and the edge disks in another, so it keeps only paintings with all corners one color and all edge disks one color: ${turnFix}. A flip swaps two pairs of disks and keeps two disks in place: it keeps ${flipFix}. Average: (${all.length} + 2·${turnFix} + 3·${flipFix})/6 = <b>${ways}</b>.`,
+        solution: `With the triangle held still there are ${sixOrders(counts)} = ${all.length} paintings. The triangle has 6 symmetries, namely leaving it alone, two turns (by 120° and 240°) and three flips. By Burnside’s lemma, the number of different paintings is the average number of paintings that each symmetry leaves unchanged. Leaving it alone keeps all ${all.length}. A turn moves the three corner disks around in a cycle and the three edge disks in another, so all corners must be one color and all edge disks one color. ${keptByThirds(counts, colors, 'disks').replace('one cycle', 'the corners').replace('the other', 'the edge disks')}. A flip swaps two pairs of disks and keeps two disks in place, so each swapped pair must be one color. ${keptByFlip(counts, colors, 'disks')}. Average: (${all.length} + 2·${turnFix} + 3·${flipFix})/6 = ${all.length + 2 * turnFix + 3 * flipFix}/6 = <b>${ways}</b>.`,
       };
     },
     // beads on the corners of a square frame, any colors
@@ -432,7 +490,7 @@ export const counting = {
           const got = orbits(all, dihedral(4, flips));
           return got === ways ? '' : `counted ${got}, said ${ways}`;
         },
-        solution: `Use Burnside's lemma: average, over the ${flips ? 8 : 4} symmetries of the frame, the number of paintings each one leaves unchanged. Leaving it alone: ${k}<sup>4</sup> = ${k ** 4}. Turning by 90° or 270° moves every corner to the next, so all four beads must match: ${k} each. Turning by 180° swaps opposite corners: ${k}<sup>2</sup> = ${k * k}. ${flips ? `The two flips across a diagonal keep two corners and swap the other two: ${k}<sup>3</sup> = ${k ** 3} each; the two flips across the middle swap two pairs: ${k * k} each. Average: (${k ** 4} + 2·${k} + ${k * k} + 2·${k ** 3} + 2·${k * k})/8 = <b>${num(ways)}</b>.` : `Average: (${k ** 4} + 2·${k} + ${k * k})/4 = <b>${num(ways)}</b>.`}`,
+        solution: `By Burnside’s lemma, the number of different paintings is the average, over the ${flips ? 8 : 4} symmetries of the frame, of the number of paintings each one leaves unchanged. Leaving it alone: ${k}<sup>4</sup> = ${num(k ** 4)}. Turning by 90° or 270° moves every corner to the next, so all four beads must match: ${k} each. Turning by 180° swaps opposite corners, so each opposite pair must match: ${k}<sup>2</sup> = ${k * k}. ${flips ? `The two flips across a diagonal keep two corners and swap the other two, so they keep ${k}<sup>3</sup> = ${k ** 3} paintings each; the two flips across the middle swap two pairs, so they keep ${k}<sup>2</sup> = ${k * k} each. Average: (${num(k ** 4)} + 2·${k} + ${k * k} + 2·${k ** 3} + 2·${k * k})/8 = ${num(8 * ways)}/8 = <b>${num(ways)}</b>.` : `Average: (${num(k ** 4)} + 2·${k} + ${k * k})/4 = ${num(4 * ways)}/4 = <b>${num(ways)}</b>.`}`,
       };
     },
     // the corners of a hexagon with fixed numbers of each color
@@ -448,7 +506,7 @@ export const counting = {
         figure: beads(6, 'A regular hexagon with a bead at each corner'),
         answer: choices(d, ways, [all.length, all.length / 6, all.length / 12, ways + 1, ways - 1, flips ? orbits(all, dihedral(6, false)) : orbits(all, dihedral(6, true))].filter((v) => Number.isInteger(v) && v > 0)),
         check: () => (sum / perms.length === ways ? '' : `Burnside gives ${sum / perms.length}, said ${ways}`),
-        solution: `With the hexagon held still there are ${all.length} paintings. By Burnside's lemma, the number of different paintings is the average number that each symmetry leaves unchanged. Leaving it alone: ${f0}. Turning by 60° or 300°: ${f60} each. By 120° or 240°: ${f120} each. By 180°: ${f180}.${flips ? ` Flipping across a line through two opposite corners (3 flips): ${fc} each. Across a line through the midpoints of two opposite sides (3 flips): ${fe} each.` : ''} Average: ${sum}/${perms.length} = <b>${ways}</b>.`,
+        solution: `With the hexagon held still there are ${sixOrders(counts)} = ${all.length} paintings. By Burnside’s lemma, the number of different paintings is the average number that each symmetry leaves unchanged, and a painting is unchanged when each cycle of corners the symmetry moves around is one color. Leaving it alone keeps all ${f0}. Turning by 60° or 300° moves all six corners around in one cycle, so it keeps only paintings in a single color, and here none. Turning by 120° or 240° makes two cycles of three corners. ${keptByThirds(counts, colors, 'corners')}. Turning by 180° swaps the three pairs of opposite corners. ${keptByPairs(counts, colors, 'corners')}.${flips ? ` Each of the 3 flips across a line through two opposite corners keeps those two corners and swaps two pairs. ${keptByFlip(counts, colors, 'corners')}. Each of the 3 flips across a line through the midpoints of two opposite sides swaps three pairs. ${keptByPairs(counts, colors, 'corners')}.` : ''} Average: (${f0} + 2·${f60} + 2·${f120} + ${f180}${flips ? ` + 3·${fc} + 3·${fe}` : ''})/${perms.length} = ${sum}/${perms.length} = <b>${ways}</b>.`,
       };
     },
   ],
@@ -464,6 +522,10 @@ export const counting = {
         return { E, touching, apart, one: 2 * E * fact(n - 2), both: 8 * apart * fact(n - 4), ways: fact(n) - 4 * E * fact(n - 2) + 8 * apart * fact(n - 4) };
       };
       const c = count([...sideBySide, ...behind]), rowsOnly = count(sideBySide).ways, ways = c.ways;
+      // the seats sorted by how many close neighbors they have, for the pairs of close pairs that share a seat
+      const deg = range(0, n - 1).map((v) => [...sideBySide, ...behind].filter((e) => e.includes(v)).length);
+      const byDeg = [...new Set(deg)].sort((x, y) => x - y).map((g) => [g, deg.filter((x) => x === g).length]);
+      const degText = list(byDeg.map(([g, cnt], i) => (i ? `${cnt} ${cnt === 1 ? 'has' : 'have'} ${g}` : `${cnt} seat${cnt === 1 ? ' has' : 's have'} ${g} close neighbors`)));
       return {
         topic: 'Seating with rules', rank: 18,
         text: `Two pairs of twins and ${WORDS[n - 4]} other children ride in a minibus with ${WORDS[rows]} rows of ${WORDS[cols]} seats. No child may sit right beside his or her twin in the same row, and no child may sit directly behind his or her twin. In how many ways can the ${n} children be seated?`,
@@ -474,10 +536,10 @@ export const counting = {
           eachPerm(n, (a) => { if (close.every(([u, v]) => (a[u] >> 1 !== a[v] >> 1) || a[u] > 3)) t++; });
           return t === ways ? '' : `counted ${t}, said ${ways}`;
         },
-        solution: `Call two seats close if they are side by side in a row or one directly behind the other: ${rows}·${cols - 1} + ${cols}·${rows - 1} = ${c.E} close pairs. Use inclusion–exclusion. With no rules there are ${n}! = ${num(fact(n))} seatings. The first twins in a close pair: ${c.E}·2·${n - 2}! = ${num(c.one)} seatings, and the same for the second twins. Both: the two close pairs can't share a seat; of the C(${c.E}, 2) = ${choose(c.E, 2)} pairs of close pairs, ${c.touching} share a seat, leaving ${c.apart}. Either set of twins can take either pair, each set sits 2 ways round, and the rest ${n - 4}! ways: 2·${c.apart}·2·2·${n - 4}! = ${num(c.both)}. So ${num(fact(n))} − 2·${num(c.one)} + ${num(c.both)} = <b>${num(ways)}</b>.`,
+        solution: `Call two seats close if they are side by side in a row or one directly behind the other. There are ${rows}·${cols - 1} = ${rows * (cols - 1)} side-by-side pairs and ${cols}·${rows - 1} = ${cols * (rows - 1)} pairs one behind the other, ${c.E} close pairs in all. Use inclusion–exclusion, starting from the ${n}! = ${num(fact(n))} seatings with no rules. The first twins sit in a close pair in ${c.E}·2·${n - 2}! = ${num(c.one)} seatings (a close pair, the twins either way round in it, and the others anywhere), and the same goes for the second twins. When both sets of twins sit in close pairs, the two close pairs can’t share a seat. A seat with d close neighbors is shared by C(d, 2) pairs of close pairs, and here ${degText}, so ${byDeg.map(([g, cnt]) => `${cnt}·${choose(g, 2)}`).join(' + ')} = ${c.touching} of the C(${c.E}, 2) = ${choose(c.E, 2)} pairs of close pairs share a seat, leaving ${c.apart}. Either set of twins can take either of those two close pairs, each set sits 2 ways round, and the other children sit in ${n - 4}! ways, so there are 2·${c.apart}·2·2·${n - 4}! = ${num(c.both)} such seatings. So ${num(fact(n))} − 2·${num(c.one)} + ${num(c.both)} = <b>${num(ways)}</b>.`,
       };
     },
-    // two people who won't sit next to each other in a row
+    // two people who won’t sit next to each other in a row
     (d, ctx) => {
       const [n] = combo(ctx, [range(5, 9)]), [A, B] = d.shuffle(NAMES), all = fact(n), next = 2 * fact(n - 1), ways = all - next;
       return {
@@ -485,7 +547,7 @@ export const counting = {
         text: `${Cap(WORDS[n])} people, including ${A} and ${B}, sit in a row of ${n} chairs at a concert. ${A} and ${B} refuse to sit next to each other. In how many ways can the ${n} people be seated?`,
         answer: choices(d, ways, [all, next, all - fact(n - 1), all - 2 * fact(n - 2), fact(n - 1)]),
         check: () => { let c = 0; eachPerm(n, (a) => { if (Math.abs(a.indexOf(0) - a.indexOf(1)) !== 1) c++; }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Count everything and take away the bad seatings. All seatings: ${n}! = ${num(all)}. With ${A} and ${B} together: glue them into one block, which sits with the other ${n - 2} people in ${n - 1}! ways, and the block can be either way round: 2·${num(fact(n - 1))} = ${num(next)}. So ${num(all)} − ${num(next)} = <b>${num(ways)}</b>.`,
+        solution: `Count everything and take away the bad seatings. All seatings: ${n}! = ${num(all)}. With ${A} and ${B} together, glue them into one block, which sits with the other ${n - 2} people in ${n - 1}! = ${num(fact(n - 1))} ways, and the block can be either way round, so there are 2·${num(fact(n - 1))} = ${num(next)} such seatings. So ${num(all)} − ${num(next)} = <b>${num(ways)}</b>.`,
       };
     },
     // a round table, where turning the table changes nothing
@@ -501,8 +563,8 @@ export const counting = {
           return c === ways ? '' : `counted ${c}, said ${ways}`;
         },
         solution: together
-          ? `Since turning the table doesn't matter, seat ${A} first. Then ${B} takes one of the 2 seats beside ${A}, and the other ${n - 2} people fill the remaining seats in ${n - 2}! ways: 2·${num(fact(n - 2))} = <b>${num(ways)}</b>.`
-          : `Since turning the table doesn't matter, seat ${A} first; the others then fill the ${n - 1} remaining seats in ${n - 1}! = ${num(round)} ways. ${B} is next to ${A} if ${B} takes one of the 2 seats beside ${A}, and the other ${n - 2} people then sit in ${n - 2}! ways: 2·${num(fact(n - 2))} = ${num(side)}. So ${num(round)} − ${num(side)} = <b>${num(ways)}</b>.`,
+          ? `Since turning the table doesn’t matter, seat ${A} first. Then ${B} takes one of the 2 seats beside ${A}, and the other ${n - 2} people fill the remaining seats in ${n - 2}! = ${num(fact(n - 2))} ways, so there are 2·${num(fact(n - 2))} = <b>${num(ways)}</b> seatings.`
+          : `Since turning the table doesn’t matter, seat ${A} first; the others then fill the ${n - 1} remaining seats in ${n - 1}! = ${num(round)} ways. ${B} is next to ${A} when ${B} takes one of the 2 seats beside ${A}, and the other ${n - 2} people then sit in ${n - 2}! = ${num(fact(n - 2))} ways, so 2·${num(fact(n - 2))} = ${num(side)} seatings have them side by side. So ${num(round)} − ${num(side)} = <b>${num(ways)}</b>.`,
       };
     },
     // boys and girls alternating in a row
@@ -514,8 +576,8 @@ export const counting = {
         answer: choices(d, ways, b === g ? [ways / 2, fact(b + g), fact(b) + fact(g), 4 * fact(b) * fact(g)] : [2 * ways, fact(b + g), fact(b) + fact(g), choose(b + g, b)]),
         check: () => { let c = 0; eachPerm(b + g, (a) => { if (a.every((x, i) => !i || (x < b) !== (a[i - 1] < b))) c++; }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
         solution: b === g
-          ? `The row can start with a boy or with a girl: 2 patterns. In each, the ${b} boys fill their places in ${b}! ways and the ${g} girls theirs in ${g}! ways: 2·${fact(b)}·${fact(g)} = <b>${num(ways)}</b>.`
-          : `With ${b} boys and ${g} girls the row must start and end with a boy (boy, girl, boy, …, boy): only 1 pattern. The boys fill their places in ${b}! ways and the girls in ${g}! ways: ${fact(b)}·${fact(g)} = <b>${num(ways)}</b>.`,
+          ? `The row can start with a boy or with a girl: 2 patterns. In each, the ${b} boys fill their places in ${b}! = ${fact(b)} ways and the ${g} girls theirs in ${g}! = ${fact(g)} ways, so there are 2·${fact(b)}·${fact(g)} = <b>${num(ways)}</b> lineups.`
+          : `With ${b} boys and ${g} girls the row must start and end with a boy (boy, girl, boy, …, boy): only 1 pattern. The boys fill their places in ${b}! = ${fact(b)} ways and the girls in ${g}! = ${fact(g)} ways, so there are ${fact(b)}·${fact(g)} = <b>${num(ways)}</b> lineups.`,
       };
     },
   ],
@@ -530,7 +592,7 @@ export const counting = {
         text: `${name} writes the numbers 1 through 9 in a 3 × 3 grid, one in each square, so that every two consecutive numbers (1 and 2, 2 and 3, …, 8 and 9) are in squares that share a side. The four corner squares hold numbers that add up to ${S}. What number is in the center square?`,
         answer: choices(d, center, range(1, 9).filter((v) => v !== center)),
         check: () => { const centers = new Set(SNAKES.filter((g) => g[0] + g[2] + g[6] + g[8] === S).map((g) => g[4])); return centers.size === 1 && centers.has(center) ? '' : `centers found: ${[...centers].join(', ')}`; },
-        solution: `Color the grid like a checkerboard: the four corners and the center are one color (5 squares) and the other 4 squares the other color. Consecutive numbers are in squares that share a side, so the colors alternate along 1, 2, …, 9. Five of the nine numbers are on the first color, so they must be 1, 3, 5, 7 and 9. The corners and center together hold 1 + 3 + 5 + 7 + 9 = 25, so the center is 25 − ${S} = <b>${center}</b>.`,
+        solution: `Color the grid like a checkerboard, so that the four corners and the center are one color (5 squares) and the other 4 squares the other color. Consecutive numbers are in squares that share a side, so the colors alternate along 1, 2, …, 9, and the odd numbers 1, 3, 5, 7, 9 all get one color and the even numbers 2, 4, 6, 8 the other. Only the first color has five squares, so the five odd numbers fill the corners and the center. Together they hold 1 + 3 + 5 + 7 + 9 = 25, so the center is 25 − ${S} = <b>${center}</b>.`,
       };
     },
     // the center fixes the corners
@@ -554,7 +616,7 @@ export const counting = {
         text: `The numbers 1 through 9 are written in a 3 × 3 grid, one per square, so that consecutive numbers are always in squares that share a side. Where in the grid can the number ${x} be?`,
         answer: labelled(right, KINDS.filter((k) => k !== right)),
         check: () => { const k = new Set(SNAKES.map((g) => SQUARE_KIND(g.indexOf(x)))); const want = x % 2 ? ['corner', 'center'] : ['edge']; return want.every((w) => k.has(w)) && k.size === want.length ? '' : `${x} found in ${[...k]}`; },
-        solution: `Color the grid like a checkerboard: corners and center one color (5 squares), edge squares the other (4). Consecutive numbers alternate colors, and the 5-square color must take the five odd numbers. ${x % 2 ? `${x} is odd, so it is in a corner or the center, and both really happen in some grids. So <b>${right[1]}</b>.` : `${x} is even, so it must be in one of the 4 edge squares: <b>${right[1]}</b>.`}`,
+        solution: `Color the grid like a checkerboard, with the corners and the center one color (5 squares) and the edge squares the other (4). Consecutive numbers alternate colors, and the 5-square color must take the five odd numbers. ${x % 2 ? `${x} is odd, so it is in a corner or the center, and both really happen in some grids. So <b>${right[1]}</b>.` : `${x} is even, so it must be in one of the 4 edge squares, and every edge square really happens in some grids. So <b>${right[1]}</b>.`}`,
       };
     },
   ],
@@ -583,7 +645,7 @@ export const counting = {
           });
           return total === all && home === back && opposite === far && fixedStart === 3 && fixedFar === 1 ? '' : `walks ${total}, back ${home}, far ${opposite}`;
         },
-        solution: `The first edge can be any of 3 and the second any of 2, and by symmetry these 6 starts all finish the same number of ways. Fixing them (along one face), there are exactly 3 ways to finish visiting every corner, so there are 6·3 = ${all} walks. ${{ back: `A 7-edge walk ends an odd number of edges from the start: at one of its 3 neighbors, or at the far corner. Of the 3 finishes for each start, exactly 1 ends at the far corner, so 6 walks end there and ${all} − 6 = <b>${back}</b> end one edge from home.`, all: `So the answer is <b>${all}</b>.`, far: `Of the 3 finishes for each start, exactly 1 ends at the far corner, so 6·1 = <b>${far}</b> walks end there.` }[ask]}`,
+        solution: `The first edge can be any of 3 and the second any of 2, and by symmetry these 6 starts all finish the same number of ways. Say the beetle goes A → B → C around the bottom face, where D is the fourth corner of that face and A′, B′, C′ and D′ are the corners above A, B, C and D. If it goes on to D, it must climb to D′ and then go around the top face either way, ending at C′ or at A′. If it climbs from C to C′ instead, the only way to finish is C′ → B′ → A′ → D′ → D. So each start has exactly 3 finishes, and there are 6·3 = ${all} walks. ${{ back: `A 7-edge walk ends an odd number of edges from the start, so at one of its 3 neighbors or at the far corner (C′ above). Of the 3 finishes for each start, exactly 1 ends at the far corner, so 6 walks end there and ${all} − 6 = <b>${back}</b> end one edge from home.`, all: `So the answer is <b>${all}</b>.`, far: `Of the 3 finishes for each start, exactly 1 ends at the far corner (C′ above), so 6·1 = <b>${far}</b> walks end there.` }[ask]}`,
       };
     },
     // shortest routes along the edges of a box of little cubes
@@ -595,6 +657,7 @@ export const counting = {
         text: `A box is built from little cubes, ${a} by ${b} by ${c}. An ant crawls along the edges of the little cubes from one corner of the box to the opposite corner, always along a shortest route. How many shortest routes are there?`,
         answer: choices(d, routes, [fact(n), choose(n, a), (a + 1) * (b + 1) * (c + 1), routes / 2, 6].filter((v) => Number.isInteger(v) && v !== routes)),
         check: () => { const ways = (x, y, z) => (x < 0 || y < 0 || z < 0 ? 0 : x + y + z === 0 ? 1 : ways(x - 1, y, z) + ways(x, y - 1, z) + ways(x, y, z - 1)); const w = ways(a, b, c); return w === routes ? '' : `counted ${w}, said ${routes}`; },
+        tip: 'A shortest route is a string of steps in the three directions: count the different orders of those steps.',
         solution: `A shortest route takes ${a} step${a > 1 ? 's' : ''} along the first direction, ${b} along the second and ${c} along the third, in some order. The number of orders of ${n} steps with ${a}, ${b} and ${c} of each kind is ${n}!/(${a}!·${b}!·${c}!) = <b>${num(routes)}</b>.`,
       };
     },
@@ -609,7 +672,7 @@ export const counting = {
         text: `A bug sits at a corner of a cube and crawls along exactly ${L} edges, one after another; it may go back along an edge it has already used. How many different walks end ${target ? 'at the corner of the cube farthest from where it started' : 'back at the corner where it started'}?`,
         answer: choices(d, ways, [3 ** L, ways * 3, Math.round(3 ** L / 8), ways + 3, ways - 3].filter((v) => v > 0)),
         check: () => { const walk = (at, left) => (left === 0 ? (at === (target ? 7 : 0) ? 1 : 0) : [1, 2, 4].reduce((s, b) => s + walk(at ^ b, left - 1), 0)); const w = walk(0, L); return w === ways ? '' : `counted ${w}, said ${ways}`; },
-        solution: `Group the corners by how many edges they are from the start: the start, its 3 neighbors, the 3 corners two edges away, and the far corner. From the start every edge leads to a neighbor; from a neighbor, 1 edge goes back and 2 go two away; from a corner two away, 2 edges come back to neighbors and 1 goes to the far corner; from the far corner all 3 go two away. Counting the walks that end at each distance (start, neighbors, two away, far) after each step: ${rows.slice(1).map((r, i) => `after ${i + 1}: ${r.join(', ')}`).join('; ')}. So <b>${num(ways)}</b> walks end ${target ? 'at the far corner' : 'back at the start'}.`,
+        solution: `Group the corners by how many edges they are from the start, namely the start, its 3 neighbors, the 3 corners two edges away, and the far corner. From the start every edge leads to a neighbor; from a neighbor, 1 edge goes back and 2 go two away; from a corner two away, 2 edges come back to neighbors and 1 goes to the far corner; from the far corner all 3 go two away. So if (a, b, c, e) count the walks that end at each distance (start, neighbors, two away, far), one more step turns them into (b, 3a + 2c, 2b + 3e, c). Starting from (1, 0, 0, 0), the counts go ${rows.slice(1).map((r, i) => `(${r.map((v) => num(v)).join(', ')}) after ${i + 1} step${i ? 's' : ''}`).join('; ')}. So <b>${num(ways)}</b> walks end ${target ? 'at the far corner' : 'back at the start'}.`,
       };
     },
     // segments joining the corners
@@ -620,7 +683,8 @@ export const counting = {
         text: `Every pair of corners of a cube is joined by a straight segment. How many of these segments ${{ edges: 'are edges of the cube', faces: 'are diagonals of the faces of the cube', inside: 'pass through the inside of the cube', notEdges: 'are not edges of the cube' }[what]}?`,
         answer: choices(d, value, [4, 6, 8, 12, 16, 24, 28].filter((v) => v !== value)),
         check: () => { const by = [0, 0, 0, 0]; for (let p = 0; p < 8; p++) for (let q = p + 1; q < 8; q++) by[[1, 2, 4].filter((b) => (p ^ q) & b).length]++; const got = { edges: by[1], faces: by[2], inside: by[3], notEdges: by[2] + by[3] }[what]; return got === value ? '' : `counted ${got}`; },
-        solution: `A cube has 8 corners, so there are C(8, 2) = 28 segments. 12 of them are the cube's edges. Each of the 6 faces has 2 diagonals: 12. The remaining 28 − 12 − 12 = 4 join opposite corners through the inside. ${{ edges: 'So <b>12</b>.', faces: 'So <b>12</b>.', inside: 'So <b>4</b>.', notEdges: 'So 28 − 12 = <b>16</b> are not edges.' }[what]}`,
+        tip: 'Sort the segments by where they run: along an edge, across a face, or through the inside of the cube.',
+        solution: `A cube has 8 corners, so there are C(8, 2) = 28 segments. The cube has 12 edges, and each of its 6 faces has 2 diagonals, which makes 6·2 = 12 face diagonals. The remaining 28 − 12 − 12 = 4 join opposite corners through the inside. ${{ edges: 'So <b>12</b> of the segments are edges.', faces: 'So <b>12</b> of the segments are diagonals of the faces.', inside: 'So <b>4</b> of the segments pass through the inside.', notEdges: 'So 28 − 12 = <b>16</b> are not edges.' }[what]}`,
       };
     },
   ],
@@ -656,7 +720,7 @@ export const counting = {
           }
           return c === ways ? '' : `counted ${c}, said ${ways}`;
         },
-        solution: `Paint the regions from left to right, in the order their left edges come (top row first at the far left). The first region has ${k} choices. The first region of the other row touches it: ${k - 1} choices. Every later region touches exactly two regions already painted: the one just left of it in its own row, and the one in the other row across from where it starts. Those two touch each other, so they use two different colors and leave ${k - 2} choices. In all, ${k}·${k - 1}·${k - 2}<sup>${n - 2}</sup> = <b>${num(ways)}</b>.`,
+        solution: `Paint the regions from left to right, in the order their left edges come (top row first at the far left). The first region has ${k} choices. The first region of the other row touches it: ${k - 1} choices. Every later region touches exactly two regions already painted, the one just left of it in its own row and the one in the other row across from where it starts. Those two touch each other, so they use two different colors and leave ${k - 2} choices for each of the ${n - 2} later regions. In all, ${k}·${k - 1}·${k - 2}<sup>${n - 2}</sup> = <b>${num(ways)}</b>.`,
       };
     },
     // the stripes of a flag
@@ -682,7 +746,7 @@ export const counting = {
         figure: wheel(n, 0, `A circle cut into ${n} wedges`),
         answer: choices(d, ways, [k * (k - 1) ** (n - 1), k * (k - 1) * (k - 2) ** (n - 2), (k - 1) ** n, ways / n, k ** n].filter(Number.isInteger)),
         check: () => { let c = 0; for (let code = 0; code < k ** n; code++) { const col = range(0, n - 1).map((i) => Math.floor(code / k ** i) % k); if (col.every((v, i) => v !== col[(i + 1) % n])) c++; } return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Number the wedges 1 to ${n} around the table. Painting them in order with each wedge different from the one before gives ${k}·${k - 1}<sup>${n - 1}</sup> paintings, but some of those have wedge ${n} the same color as wedge 1. Merging wedges 1 and ${n} turns each of those into a good painting of a ring with one wedge fewer. So a ring of m wedges has R(m) = ${k}·${k - 1}<sup>m − 1</sup> − R(m − 1) paintings, starting from R(2) = ${k}·${k - 1} = ${R[2]}: ${range(3, n).map((m) => `R(${m}) = ${num(R[m])}`).join(', ')}. That is (${k} − 1)<sup>${n}</sup> + (−1)<sup>${n}</sup>(${k} − 1) = <b>${num(ways)}</b>.`,
+        solution: `Number the wedges 1 to ${n} around the table. Painting them in order with each wedge different from the one before gives ${k}·${k - 1}<sup>${n - 1}</sup> paintings, but some of those have wedge ${n} the same color as wedge 1. Merging wedges 1 and ${n} turns each of those into a good painting of a ring with one wedge fewer. So a ring of m wedges has R(m) = ${k}·${k - 1}<sup>m − 1</sup> − R(m − 1) paintings, starting from R(2) = ${k}·${k - 1} = ${R[2]}. Then ${range(3, n).map((m) => `R(${m}) = ${k}·${k - 1}<sup>${m - 1}</sup> − ${num(R[m - 1])} = ${num(R[m])}`).join(', ')}. That is (${k} − 1)<sup>${n}</sup> + (−1)<sup>${n}</sup>(${k} − 1) = <b>${num(ways)}</b>.`,
       };
     },
     // a center circle with a ring of panes around it
@@ -706,13 +770,13 @@ export const counting = {
       const p = (e) => 5 ** e, lo = 10 ** (k - 1), hi = 10 ** k - 1;
       const R = {
         even5: { what: 'only even digits and are multiples of 5', ways: 4 * p(k - 2), wrong: [p(k - 1), 4 * p(k - 1), 8 * p(k - 2), 4 ** (k - 1)],
-          why: `A multiple of 5 ends in 0 or 5, and 5 is odd, so the last digit is 0. The first digit is 2, 4, 6 or 8 (4 ways) and each of the ${k - 2} digits between can be 0, 2, 4, 6 or 8 (5 ways each): 4·5<sup>${k - 2}</sup>` },
+          why: `A multiple of 5 ends in 0 or 5, and 5 is odd, so the last digit is 0. The first digit is 2, 4, 6 or 8 (4 ways), and ${k === 3 ? 'the digit between can be 0, 2, 4, 6 or 8 (5 ways)' : `each of the ${k - 2} digits between can be 0, 2, 4, 6 or 8 (5 ways each)`}, so the count is 4·${power(5, k - 2)}` },
         odd5: { what: 'only odd digits and are multiples of 5', ways: p(k - 1), wrong: [p(k), 4 * p(k - 1), p(k - 2), 2 * p(k - 1)],
-          why: `A multiple of 5 ends in 0 or 5, and 0 is even, so the last digit is 5. Each of the other ${k - 1} digits is 1, 3, 5, 7 or 9: 5<sup>${k - 1}</sup>` },
+          why: `A multiple of 5 ends in 0 or 5, and 0 is even, so the last digit is 5. Each of the other ${k - 1} digits is 1, 3, 5, 7 or 9 (5 ways each), so the count is 5<sup>${k - 1}</sup>` },
         even4: { what: 'only even digits and are multiples of 4', ways: 12 * p(k - 2), wrong: [p(k - 1), 2 * p(k - 1), 8 * p(k - 2), 15 * p(k - 2)],
-          why: `Whether a number is a multiple of 4 depends on its last two digits, 10a + b. With a even, 10a is a multiple of 4, so b must be: b is 0, 4 or 8 (3 ways). The first digit is 2, 4, 6 or 8 (4 ways) and the ${k - 2} digits after it, before the last, can be any of the 5 even digits: 4·5<sup>${k - 2}</sup>·3` },
+          why: `Whether a number is a multiple of 4 depends on its last two digits, 10a + b. With a even, 10a is a multiple of 20, and so of 4, so b must be a multiple of 4 too, and the even digits that are multiples of 4 are 0, 4 and 8 (3 ways). The first digit is 2, 4, 6 or 8 (4 ways), and ${k === 3 ? 'the digit after it, before the last, can be any of the 5 even digits' : `the ${k - 2} digits after it, before the last, can each be any of the 5 even digits`}, so the count is 4·${power(5, k - 2)}·3` },
         odd25: { what: 'only odd digits and are multiples of 25', ways: p(k - 2), wrong: [2 * p(k - 2), p(k - 1), 4 * p(k - 2), p(k - 3)],
-          why: `A multiple of 25 ends in 00, 25, 50 or 75, and only 75 uses odd digits. The other ${k - 2} digits are any of 1, 3, 5, 7, 9: 5<sup>${k - 2}</sup>` },
+          why: `A multiple of 25 ends in 00, 25, 50 or 75, and only 75 uses odd digits. ${k === 3 ? 'The other digit can be 1, 3, 5, 7 or 9, so the count is' : `Each of the other ${k - 2} digits can be 1, 3, 5, 7 or 9, so the count is 5<sup>${k - 2}</sup> =`}` },
       }[rule];
       return {
         topic: 'Digit rules', rank: 6,
@@ -724,7 +788,7 @@ export const counting = {
           for (let x = lo; x <= hi; x++) if (x % m === 0 && String(x).split('').every((ch) => (+ch % 2 === 0) === even)) c++;
           return c === R.ways ? '' : `counted ${c}, said ${R.ways}`;
         },
-        solution: `${R.why} = <b>${num(R.ways)}</b>.`,
+        solution: `${R.why}${R.why.endsWith('is') || R.why.endsWith('=') ? '' : ' ='} <b>${num(R.ways)}</b>.`,
       };
     },
     // all digits different
@@ -738,8 +802,8 @@ export const counting = {
         answer: choices(d, ways, odd ? [5 * 9 * mid.reduce((p, v) => p * v, 1), 9 * later.reduce((p, v) => p * v, 1) / 2, 5 * 10 ** (k - 1), 4 * 8 * mid.reduce((p, v) => p * v, 1)] : [9 * 10 ** (k - 1), 10 * later.reduce((p, v) => p * v, 1), 9 ** k, 9 * later.reduce((p, v) => p * v, 1) - 9]),
         check: () => { let c = 0; for (let x = 10 ** (k - 1); x < 10 ** k; x++) { const s = String(x); if (new Set(s).size === k && (!odd || x % 2)) c++; } return c === ways ? '' : `counted ${c}, said ${ways}`; },
         solution: odd
-          ? `Choose the last digit first: 1, 3, 5, 7 or 9 (5 ways). The first digit can't be 0 or the last digit: 8 ways.${k > 2 ? ` Each middle digit is any digit not used yet: ${mid.join('·')}.` : ''} So 5·8${k > 2 ? '·' + mid.join('·') : ''} = <b>${num(ways)}</b>.`
-          : `The first digit can be 1 to 9 (9 ways), and each later digit is any digit not used yet: 9${later.map((v) => '·' + v).join('')} = <b>${num(ways)}</b>.`,
+          ? `The last digit must be odd, so choose it first (1, 3, 5, 7 or 9): 5 ways. The first digit can’t be 0 or the last digit: 8 ways.${k > 2 ? ` ${k === 3 ? 'The middle digit is any digit not used yet, 0 included: 8 ways' : `The two middle digits are any digits not used yet, 0 included, in ${mid.join(' and then ')} ways`}.` : ''} So there are 5·8${k > 2 ? '·' + mid.join('·') : ''} = <b>${num(ways)}</b>.`
+          : `The first digit can be 1 to 9 (9 ways). After it, 0 is allowed too, so the second digit can be any of the 10 digits except the first (9 ways)${k > 2 ? `, the third any of the 8 not used yet${k > 3 ? ', and the fourth any of the 7 left' : ''}` : ''}. So there are 9${later.map((v) => '·' + v).join('')} = <b>${num(ways)}</b>.`,
       };
     },
     // at least one copy of a digit
@@ -750,7 +814,7 @@ export const counting = {
         text: `How many ${k}-digit numbers contain the digit ${digit} at least once?`,
         answer: choices(d, ways, [10 ** (k - 1), k * 10 ** (k - 1), all - 9 ** k, k * 9 ** (k - 1), none]),
         check: () => { let c = 0; for (let x = 10 ** (k - 1); x < 10 ** k; x++) if (String(x).includes(String(digit))) c++; return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Count the ones without a ${digit} and subtract. There are 9·10<sup>${k - 1}</sup> = ${num(all)} numbers with ${k} digits. With no ${digit}: the first digit has 8 choices (not 0, not ${digit}) and each other digit 9 (not ${digit}): 8·9<sup>${k - 1}</sup> = ${num(none)}. So ${num(all)} − ${num(none)} = <b>${num(ways)}</b>.`,
+        solution: `Count the ones without a ${digit} and subtract. There are 9·${power(10, k - 1)} = ${num(all)} numbers with ${k} digits. With no ${digit}: the first digit has 8 choices (not 0, not ${digit}) and ${k === 2 ? 'the other digit' : 'each other digit'} 9 (not ${digit}): 8·${power(9, k - 1)} = ${num(none)}. So ${num(all)} − ${num(none)} = <b>${num(ways)}</b>.`,
       };
     },
     // palindromes
@@ -762,7 +826,7 @@ export const counting = {
         text: `A palindrome reads the same forward and backward, like 4774 or 12321. How many ${k}-digit palindromes ${{ all: 'are there', five: 'are multiples of 5', even: 'are even' }[kind]}?`,
         answer: choices(d, ways, [9 * 10 ** half, 10 ** half, 9 * free, 5 * free, 2 * free, 4 * 10 ** half].filter((v) => v !== ways)),
         check: () => { let c = 0; for (let x = 10 ** (k - 1); x < 10 ** k; x++) { const s = String(x); if (s === [...s].reverse().join('') && (kind === 'all' || (kind === 'five' ? x % 5 === 0 : x % 2 === 0))) c++; } return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `A ${k}-digit palindrome is fixed by its first ${half} digits, since the rest mirror them. ${{ all: `The first digit is 1 to 9 and ${half - 1 === 1 ? 'the other one is' : `the other ${half - 1} are`} anything: 9·10<sup>${half - 1}</sup>`, five: `A multiple of 5 ends in 0 or 5; the last digit equals the first, which can't be 0, so the first and last digit are 5, and ${half - 1 === 1 ? 'the other free digit is' : `the other ${half - 1} free digits are`} anything: 10<sup>${half - 1}</sup>`, even: `An even number ends in an even digit, and the last digit equals the first, which can't be 0: 2, 4, 6 or 8. ${half - 1 === 1 ? 'The other free digit is' : `The other ${half - 1} free digits are`} anything: 4·10<sup>${half - 1}</sup>` }[kind]} = <b>${num(ways)}</b>.`,
+        solution: `A ${k}-digit palindrome is fixed by its first ${half} digits, since the rest mirror them. ${{ all: `The first digit is 1 to 9 and ${half - 1 === 1 ? 'the other one is' : `the other ${half - 1} are`} anything: 9·${power(10, half - 1)}`, five: `A multiple of 5 ends in 0 or 5. The last digit equals the first, which can’t be 0, so the first and last digits are 5. ${half - 1 === 1 ? 'The other free digit is anything (10 ways), so the count is' : `The other ${half - 1} free digits are anything: 10<sup>${half - 1}</sup>`}`, even: `An even number ends in an even digit, and the last digit equals the first, which can’t be 0: 2, 4, 6 or 8. ${half - 1 === 1 ? 'The other free digit is' : `The other ${half - 1} free digits are`} anything: 4·${power(10, half - 1)}` }[kind]}${kind === 'five' && half === 2 ? '' : ' ='} <b>${num(ways)}</b>.`,
       };
     },
   ],
@@ -777,13 +841,26 @@ export const counting = {
         if (pos.every((p, i) => ((i + 1 < pos.length ? pos[i + 1] : pos[0] + m) - p) % 2)) byCount[pos.length]++;
       }
       const ways = 2 + byCount.reduce((s, v) => s + v, 0);
-      const parts = byCount.map((v, t) => (v ? `${t} across: ${v}` : '')).filter(Boolean);
+      // the same choices of lines sorted by the gaps between them, going around the table: { t: { '1, 3': ways } }
+      const byGaps = {};
+      for (let mask = 1; mask < 1 << m; mask++) {
+        const pos = range(0, m - 1).filter((i) => (mask >> i) & 1), gaps = pos.map((p, i) => (i + 1 < pos.length ? pos[i + 1] : pos[0] + m) - p);
+        if (gaps.every((g) => g % 2)) { const key = list(gaps.sort((x, y) => x - y).map(String)); (byGaps[pos.length] ??= {})[key] = (byGaps[pos.length][key] ?? 0) + 1; }
+      }
+      const parts = range(1, m).filter((t) => byCount[t]).map((t) => {
+        const kinds = Object.entries(byGaps[t]), head = `${Cap(WORDS[t])} line${t === 1 ? '' : 's'}:`;
+        if (t === 1) return `${head} the gap is ${m}, ${m} ways.`;
+        if (t === m) return `${head} every gap is 1, 1 way.`;
+        if (kinds.length === 1) return `${head} gaps ${kinds[0][0]}, ${kinds[0][1]} ways.`;
+        return `${head} gaps ${kinds.map(([g, c]) => `${g} (${c} ways)`).join(' or ')}, ${byCount[t]} ways in all.`;
+      });
       return {
         topic: 'Pairing friends', rank: 17,
         text: `At a dinner, ${n} guests sit evenly spaced around a round table. Each guest is friends with exactly three of the others: the two guests on either side and the guest sitting directly opposite. In how many ways can all ${n} guests be split into ${m} pairs so that the two guests in every pair are friends?`,
         answer: choices(d, ways, [ways - 2, ways - 1, ways + 1, ways + 2, m + 2, 2 * m]),
         check: () => { const c = pairings(range(0, n - 1), (i, j) => [1, n - 1, m].includes((j - i + n) % n)); return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Every pair is two neighbors or two guests sitting opposite. With no one paired across the table, the pairs go around the circle: 2 ways. Otherwise, the guests in across-pairs split the others into arcs, and each arc must pair off with neighbors, so each arc needs an even number of guests (then it pairs up in exactly one way). Numbering the ${m} lines across the table in order, this means the chosen lines are an odd number of steps apart, all the way around. Counting the choices by how many lines are used: ${parts.join('; ')}. In all, 2 + ${byCount.filter(Boolean).join(' + ')} = <b>${ways}</b>.`,
+        tip: 'Sort the pairings by which pairs sit across the table: the guests between two such pairs must pair off with their neighbors.',
+        solution: `Every pair is two neighbors or two guests sitting opposite. With no one paired across the table, the pairs go around the circle: 2 ways. Otherwise, the guests in across-pairs split the others into arcs, and each arc must pair off with neighbors, so each arc needs an even number of guests (then it pairs up in exactly one way). Number the ${m} lines across the table in order around it. Then the chosen lines must be an odd number of steps apart, all the way around. With t of them, the t gaps between neighboring chosen lines (the last back to the first included) are odd and add up to ${m}. ${parts.join(' ')} In all, 2 + ${byCount.filter(Boolean).join(' + ')} = <b>${ways}</b>.`,
       };
     },
     // any pairs at all
@@ -794,7 +871,7 @@ export const counting = {
         text: `A coach splits the ${n} players of a team into ${n / 2} practice pairs. In how many ways can this be done? (Only who is paired with whom matters.)`,
         answer: choices(d, ways, [fact(n) / 2 ** (n / 2), fact(n), choose(n, 2), ways * fact(n / 2) / 2, ways * 2].filter(Number.isInteger)),
         check: () => { const c = pairings(range(0, n - 1), () => true); return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Take the tallest player: there are ${n - 1} choices for a partner. Then the tallest player not yet paired has ${n - 3} choices, and so on: ${factors.join('·')} = <b>${num(ways)}</b>.`,
+        solution: `Take the tallest player, who can be paired with any of the other ${n - 1}. Then the tallest player not yet paired has ${n - 3} choice${n - 3 === 1 ? '' : 's'} of partner${n > 4 ? ', and so on' : ''}, so there are ${factors.join('·')} = <b>${num(ways)}</b> ways.`,
       };
     },
     // pairs of desks in two rows
@@ -807,10 +884,10 @@ export const counting = {
         text: `A class of ${2 * n} students sits in two rows of ${n}, each student in the back row directly behind one in the front row. They split into pairs, and the two students in a pair must sit side by side in the same row or one directly behind the other. In how many ways can they pair up?`,
         answer: choices(d, ways, [2 ** (n - 1), T[n - 1], T[n + 1] ?? T[n] + T[n - 1], n + 1, 2 * n]),
         check: () => { const c = pairings(range(0, 2 * n - 1), (p, q) => { const [rp, cp, rq, cq] = [p % 2, p >> 1, q % 2, q >> 1]; return (rp === rq && Math.abs(cp - cq) === 1) || (cp === cq && rp !== rq); }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Look at the left end. Either the two students in the first column pair up (front with back), leaving two rows of ${n - 1}, or the front-left student pairs with the one beside them, and then the back-left student must too, leaving two rows of ${n - 2}. So T(m) = T(m − 1) + T(m − 2), with T(1) = 1 and T(2) = 2: ${range(1, n).map((m) => T[m]).join(', ')}. So T(${n}) = <b>${ways}</b>.`,
+        solution: `Let T(m) count the ways for two rows of m, and look at the left end. Either the two students in the first column pair up (front with back), leaving two rows of m − 1, or the front-left student pairs with the one beside them, and then the back-left student must too, leaving two rows of m − 2. So T(m) = T(m − 1) + T(m − 2), with T(1) = 1 and T(2) = 2, which gives ${range(1, n).map((m) => T[m]).join(', ')} for m = 1 to ${n}. So T(${n}) = <b>${ways}</b>.`,
       };
     },
-    // couples who mustn't be paired with each other
+    // couples who mustn’t be paired with each other
     (d, ctx) => {
       const [m] = combo(ctx, [[2, 3, 4, 5]]), terms = range(0, m).map((j) => choose(m, j) * doubleFact(2 * m - 2 * j - 1)), ways = terms.reduce((s, t, j) => s + (j % 2 ? -t : t), 0);
       return {
@@ -818,7 +895,8 @@ export const counting = {
         text: `${Cap(WORDS[m])} married couples come to a dance class, and the teacher splits all ${2 * m} people into ${m} pairs so that nobody is paired with their own partner. In how many ways can this be done? (Only who is paired with whom matters.)`,
         answer: choices(d, ways, [doubleFact(2 * m - 1), doubleFact(2 * m - 1) - m, terms[0] - terms[1], ways + 1, fact(m)].filter((v) => v > 0)),
         check: () => { const c = pairings(range(0, 2 * m - 1), (p, q) => p >> 1 !== q >> 1); return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Use inclusion–exclusion. All pairings of ${2 * m} people: ${num(terms[0])}. If j chosen couples are kept together, the other ${2 * m} − 2j people pair up freely; there are C(${m}, j) ways to choose the couples. Adding and subtracting: ${terms.map((t, j) => (j ? (j % 2 ? ' − ' : ' + ') : '') + num(t)).join('')} = <b>${num(ways)}</b>.`,
+        tip: 'Count all the pairings, then use inclusion–exclusion on the couples who end up paired together.',
+        solution: `Use inclusion–exclusion. All pairings of ${2 * m} people number ${odds(2 * m - 1).reverse().join('·')} = ${num(terms[0])} (the first person has ${2 * m - 1} choices of partner, the next person not yet paired ${2 * m - 3}, and so on). If j chosen couples are kept together, the other ${2 * m} − 2j people pair up freely, in (${2 * m - 1} − 2j)·(${2 * m - 3} − 2j)·⋯·1 ways, and there are C(${m}, j) ways to choose the couples. Adding and subtracting, the count is ${num(terms[0])}${terms.slice(1).map((t, i) => `${i % 2 ? ' + ' : ' − '}C(${m}, ${i + 1})·${doubleFact(2 * m - 2 * i - 3)}`).join('')} = ${terms.map((t, j) => (j ? (j % 2 ? ' − ' : ' + ') : '') + num(t)).join('')} = <b>${num(ways)}</b>.`,
       };
     },
   ],
@@ -848,7 +926,8 @@ export const counting = {
           }
           return seen.size === 1 && seen.has(Q[1]) ? '' : `possible answers: ${[...seen].join(', ')}`;
         },
-        solution: `Work out how each type answers. A Knight says yes, no, no. A Knave lies every time: yes, yes, no. A Joker who starts with the truth says no, no, no, and a Joker who starts with a lie says yes, yes, yes. So the first question's ${y1} yeses come from Knights, Knaves and lying-first Jokers; the second's ${y2} from Knaves and lying-first Jokers; the third's ${y3} from lying-first Jokers only. ${Q[3]}`,
+        tip: 'Work out the three answers each kind of contestant gives, then see which kinds each count of yeses takes in.',
+        solution: `Work out how each type answers. A Knight says yes, no, no. A Knave lies every time: yes, yes, no. A Joker who starts with the truth says no, no, no, and a Joker who starts with a lie says yes, yes, yes. So the first question’s ${y1} yeses come from Knights, Knaves and lying-first Jokers; the second’s ${y2} from Knaves and lying-first Jokers; the third’s ${y3} from lying-first Jokers only. ${Q[3]}`,
       };
     },
     // a line of islanders, each claiming at least so many knaves
@@ -914,7 +993,9 @@ export const counting = {
           const c = teams(range(0, J + S - 1));
           return c === ways ? '' : `counted ${c}, said ${ways}`;
         },
-        solution: `First split the ${J} ${pp} into ${g} groups of ${a}: ${J}!/((${a}!)<sup>${g}</sup>·${g}!) = ${num(split)} ways (dividing by ${g}! because the groups come in no order). Now the groups are different from each other, so hand out the ${S} ${qq}, ${b} to each group: ${S}!/(${b}!)<sup>${g}</sup> = ${num(deal)} ways. In all, ${num(split)}·${num(deal)} = <b>${num(ways)}</b>.`,
+        solution: a === 1
+          ? `Each team gets exactly one of the ${J} ${pp}, so they start ${WORDS[g]} teams that are different from each other. Now hand out the ${S} ${qq}, ${b} to each team, in ${S}!/(${b}!)<sup>${g}</sup> = ${num(deal)} ways (choose ${b} for the first team, then ${b} of the rest for the next, and so on). So there are <b>${num(ways)}</b> ways.`
+          : `First split the ${J} ${pp} into ${g} groups of ${a}, in ${J}!/((${a}!)<sup>${g}</sup>·${g}!) = ${num(split)} ways (dividing by ${g}! because the groups come in no order). Now the groups are different from each other, so hand out the ${S} ${qq}, ${b} to each group, in ${b === 1 ? `${S}! = ${num(deal)}` : `${S}!/(${b}!)<sup>${g}</sup> = ${num(deal)}`} ways. In all, ${num(split)}·${num(deal)} = <b>${num(ways)}</b>.`,
       };
     },
     // everyone into groups of the same size
@@ -926,7 +1007,7 @@ export const counting = {
         text: `A club of ${n} hikers splits up into ${WORDS[a]} groups of ${s} for a trail race. Only who is with whom matters, not the order of the groups. In how many ways can the groups be formed?`,
         answer: choices(d, ways, [labeled, choose(n, s), fact(n) / fact(a), ways * 2, choose(n, s) * choose(n - s, s)].filter(Number.isInteger)),
         check: () => { const groups = (left) => { if (!left.length) return 1; const [p, ...rest] = left; let t = 0; const pick = (i, chosen) => { if (chosen.length === s - 1) { t += groups(rest.filter((x) => !chosen.includes(x))); return; } for (let j = i; j < rest.length; j++) pick(j + 1, [...chosen, rest[j]]); }; pick(0, []); return t; }; const c = groups(range(0, n - 1)); return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `If the groups had names (first group, second group, …), there would be ${n}!/(${s}!)<sup>${a}</sup> = ${num(labeled)} ways: choose ${s} people for each group in turn. The groups have no names, so every split was counted once for each of the ${a}! orders of the groups: ${num(labeled)}/${fact(a)} = <b>${num(ways)}</b>.`,
+        solution: `If the groups had names (first group, second group, …), choosing ${s} people for each group in turn would give ${n}!/(${s}!)<sup>${a}</sup> = ${num(labeled)} ways. The groups have no names, so every split was counted once for each of the ${a}! = ${fact(a)} orders of the groups, and there are ${num(labeled)}/${fact(a)} = <b>${num(ways)}</b> ways.`,
       };
     },
     // a committee with at least one girl
@@ -937,7 +1018,7 @@ export const counting = {
         text: `A class has ${b} boys and ${g} girls. In how many ways can a committee of ${k} be chosen that includes at least one girl?`,
         answer: choices(d, ways, [all, g * choose(b + g - 1, k - 1), all - choose(g, k), none, g * choose(b, k - 1)].filter((v) => v !== ways)),
         check: () => { let c = 0; for (let m = 0; m < 1 << (b + g); m++) { let bits = 0, girls = 0; for (let i = 0; i < b + g; i++) if ((m >> i) & 1) { bits++; if (i >= b) girls++; } if (bits === k && girls) c++; } return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Count all committees and take away the ones with no girl. All: C(${b + g}, ${k}) = ${num(all)}. All boys: C(${b}, ${k}) = ${num(none)}. So ${num(all)} − ${num(none)} = <b>${num(ways)}</b>.`,
+        solution: `Count all committees and take away the ones with no girl. There are C(${b + g}, ${k}) = ${num(all)} committees in all, and C(${b}, ${k}) = ${num(none)} of them are all boys. So ${num(all)} − ${num(none)} = <b>${num(ways)}</b> include at least one girl.`,
       };
     },
     // a team with a captain
@@ -948,7 +1029,8 @@ export const counting = {
         text: `From a club of ${n} members, a team of ${k} is picked, and then one member of the team is named captain. How many different teams with a captain are possible?`,
         answer: choices(d, ways, [choose(n, k), n * choose(n, k), choose(n, k) + k, n * choose(n - 1, k), k * choose(n, k - 1)].filter((v) => v !== ways)),
         check: () => { let c = 0; for (let m = 0; m < 1 << n; m++) { let bits = 0; for (let i = 0; i < n; i++) if ((m >> i) & 1) bits++; if (bits === k) c += k; } return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Choose the team: C(${n}, ${k}) = ${num(choose(n, k))} ways; then any of its ${k} members can be captain: ${k}·${num(choose(n, k))} = <b>${num(ways)}</b>. (Choosing the captain first gives the same: ${n}·C(${n - 1}, ${k - 1}).)`,
+        tip: 'Pick the team first and then its captain from inside it, and multiply the numbers of choices.',
+        solution: `Choose the team in C(${n}, ${k}) = ${num(choose(n, k))} ways; then any of its ${k} members can be captain, so there are ${k}·${num(choose(n, k))} = <b>${num(ways)}</b> teams with a captain. (Choosing the captain first gives the same, ${n}·C(${n - 1}, ${k - 1}) = ${n}·${num(choose(n - 1, k - 1))} = ${num(ways)}.)`,
       };
     },
   ],
@@ -975,8 +1057,8 @@ export const counting = {
           return best === most ? '' : `search found ${best}, said ${most}`;
         },
         solution: twice
-          ? `Let m be the largest chosen number. For each x &lt; m/2, at most one of x and m − x can be chosen (their sum is m), and m/2 can't be chosen (m/2 + m/2 = m). So besides m there are at most ⌊(m − 1)/2⌋ numbers, ⌈m/2⌉ in all, which is at most ⌈${N}/2⌉ = ${most}. The odd numbers 1, 3, 5, … reach it, since two odd numbers always add to an even one: <b>${most}</b>.`
-          : `Let m be the largest chosen number. For each x &lt; m/2, at most one of x and m − x can be chosen (their sum is m); now m/2 is allowed, since it would have to be added to itself. That leaves at most ⌊${N}/2⌋ + 1 = ${most} numbers. The numbers from ${Math.ceil(N / 2)} to ${N} reach it, since two different ones add to more than ${N}: <b>${most}</b>.`,
+          ? `Let m be the largest chosen number. For each x &lt; m/2, at most one of x and m − x can be chosen (their sum is m), and m/2 can’t be chosen (m/2 + m/2 = m). So besides m there are at most ⌊(m − 1)/2⌋ numbers, ⌈m/2⌉ in all, which is at most ⌈${N}/2⌉ = ${most}. The ${most} odd numbers 1, 3, 5, …, ${2 * most - 1} reach it, since two odd numbers (or one added to itself) always make an even number, which isn’t chosen: <b>${most}</b>.`
+          : `Let m be the largest chosen number. For each x &lt; m/2, at most one of x and m − x can be chosen (their sum is m); now m/2 is allowed, since it would have to be added to itself. So below m there are at most ⌊m/2⌋ chosen numbers (one from each pair, and m/2 when m is even), ⌊m/2⌋ + 1 with m, which is at most ⌊${N}/2⌋ + 1 = ${most}. The ${most} numbers from ${Math.ceil(N / 2)} to ${N} reach it, since two different ones add to more than ${N}: <b>${most}</b>.`,
       };
     },
     // pairs whose sum stays in range
@@ -987,7 +1069,8 @@ export const counting = {
         text: `In how many ways can two different numbers be chosen from 1, 2, 3, …, ${N} so that their sum is also at most ${N}?`,
         answer: choices(d, ways, [choose(N, 2), Math.floor((N * N) / 4), ways + Math.floor(N / 2), choose(N - 1, 2), ways - 1]),
         check: () => { let c = 0; for (let x = 1; x <= N; x++) for (let y = x + 1; y <= N; y++) if (x + y <= N) c++; return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Count by the sum s = 3, 4, …, ${N}. A sum s comes from the pairs (1, s − 1), (2, s − 2), …, with the smaller number below s/2: that is ⌊(s − 1)/2⌋ pairs. Adding them: ${terms.join(' + ')} = <b>${num(ways)}</b>.`,
+        tip: 'Sort the pairs by their sum, count the pairs with each sum, and add those counts up.',
+        solution: `Count by the sum s = 3, 4, …, ${N}. A sum s comes from the pairs (1, s − 1), (2, s − 2), …, with the smaller number below s/2, so from ⌊(s − 1)/2⌋ pairs. Adding these for s = 3 to ${N} gives ${terms.join(' + ')} = <b>${num(ways)}</b>.`,
       };
     },
     // no two chosen numbers adding up to a target
@@ -999,7 +1082,7 @@ export const counting = {
         text: `What is the largest number of numbers that can be chosen from 1, 2, 3, …, ${N} so that no two different chosen numbers add up to ${T}?`,
         answer: choices(d, most, [free, pairs.length, most + 1, Math.ceil(N / 2), most - 1].filter((v) => v !== most)),
         check: () => { const best = largest(N, (x, y) => x + y === T); return best === most ? '' : `search found ${best}, said ${most}`; },
-        solution: `The pairs of different numbers that add up to ${T} are ${pairs.map(([x, y]) => `(${x}, ${y})`).join(', ')}: ${pairs.length} pairs, and at most one number from each can be chosen. The other ${free} numbers belong to no pair and can all be chosen. So the most is ${free} + ${pairs.length} = <b>${most}</b>.`,
+        solution: `The pairs of different numbers that add up to ${T} are ${pairs.map(([x, y]) => `(${x}, ${y})`).join(', ')}, which makes ${pairs.length} pairs, and at most one number from each can be chosen. ${free ? `The other ${free === 1 ? 'number' : `${free} numbers`}, ${list(range(1, N).filter((x) => !pairs.some((p) => p.includes(x))).map(String))}, belong${free === 1 ? 's' : ''} to no pair and can ${free === 1 ? 'be chosen too' : 'all be chosen'}. So the most is ${free} + ${pairs.length} = <b>${most}</b>.` : `Every number from 1 to ${N} is in one of these pairs, so the most is <b>${most}</b>.`}`,
       };
     },
     // no chosen number twice another
@@ -1012,7 +1095,7 @@ export const counting = {
         text: `What is the largest number of numbers that can be chosen from 1, 2, 3, …, ${N} so that no chosen number is exactly twice another chosen number?`,
         answer: choices(d, most, [Math.ceil(N / 2), Math.floor(N / 2), most + 1, most - 1, Math.ceil((2 * N) / 3) + 1].filter((v) => v !== most)),
         check: () => { const best = largest(N, (x, y) => x === 2 * y || y === 2 * x); return best === most ? '' : `search found ${best}, said ${most}`; },
-        solution: `Split the numbers into chains, each an odd number followed by its doubles: a number and its double are always next to each other in one chain. From a chain of length L, at most ⌈L/2⌉ can be chosen (no two neighbors), and every other one works. The chains longer than one are ${shown.join('; ')}, and the other ${chains.filter((c) => c.length === 1).length} odd numbers stand alone (1 each). In all, <b>${most}</b>.`,
+        solution: `Split the numbers into chains, each an odd number followed by its doubles, so that a number and its double are always next to each other in one chain. From a chain of length L, at most ⌈L/2⌉ can be chosen (no two neighbors), and every other one works. The chains longer than one are ${shown.join('; ')}, and the other ${chains.filter((c) => c.length === 1).length} odd numbers (${list(chains.filter((c) => c.length === 1).map((c) => String(c[0])))}) stand alone, 1 each. In all, ${chains.filter((c) => c.length > 1).map((c) => Math.ceil(c.length / 2)).join(' + ')} + ${chains.filter((c) => c.length === 1).length} = <b>${most}</b>.`,
       };
     },
   ],
@@ -1037,7 +1120,7 @@ export const counting = {
           }
           return w - u === diff && u === up && w === down ? '' : `counted ${w} − ${u}, said ${diff}`;
         },
-        solution: `A climber with j digits is j different digits from 1 to 9 written in increasing order (0 can never appear: it can't lead, and nothing smaller can come before it), so there are C(9, j). A slider with j digits is any j different digits from 0 to 9 written in decreasing order (0 can only go last), so there are C(10, j). The difference C(10, j) − C(9, j) = C(9, j − 1) counts the sliders ending in 0. ${upTo ? `For lengths 2 to ${k}: ${range(2, k).map((j) => choose(9, j - 1)).join(' + ')} = <b>${num(diff)}</b>.` : `With j = ${k}: ${choose(10, k)} − ${choose(9, k)} = <b>${num(diff)}</b>.`}`,
+        solution: `A climber with j digits is j different digits from 1 to 9 written in increasing order (0 can never appear, since it can’t lead and nothing smaller can come before it), so there are C(9, j). A slider with j digits is any j different digits from 0 to 9 written in decreasing order (0 can only go last), so there are C(10, j). The difference C(10, j) − C(9, j) = C(9, j − 1) counts the sliders ending in 0. ${upTo ? `For lengths 2 to ${k} that is ${range(2, k).map((j) => `C(9, ${j - 1})`).join(' + ')} = ${range(2, k).map((j) => choose(9, j - 1)).join(' + ')} = <b>${num(diff)}</b>.` : `With j = ${k} that is C(10, ${k}) − C(9, ${k}) = ${choose(10, k)} − ${choose(9, k)} = <b>${num(diff)}</b>.`}`,
       };
     },
     // digits that never go down (or never go up)
@@ -1049,8 +1132,8 @@ export const counting = {
         answer: choices(d, ways, up ? [choose(9, k), choose(k + 9, 9), 9 ** k / 2, choose(k + 8, 8) - 1].filter(Number.isInteger) : [choose(10, k), choose(k + 9, 9), choose(k + 8, 8), choose(k + 9, 9) - 2]),
         check: () => { let c = 0; for (let x = 10 ** (k - 1); x < 10 ** k; x++) { const s = String(x); if ([...s].every((ch, i) => !i || (up ? ch >= s[i - 1] : ch <= s[i - 1]))) c++; } return c === ways ? '' : `counted ${c}, said ${ways}`; },
         solution: up
-          ? `Such a number is fixed by how many of each digit it uses, and 0 can't appear (it would have to come first). So it is a choice of ${k} digits from 1 to 9 with repeats allowed, written in order: by stars and bars, C(${k} + 8, 8) = <b>${num(ways)}</b>.`
-          : `Choose ${k} digits from 0 to 9 with repeats allowed and write them in decreasing order: by stars and bars, C(${k} + 9, 9) = ${num(choose(k + 9, 9))} choices. Only the choice of all zeros fails, since a number can't start with 0: ${num(choose(k + 9, 9))} − 1 = <b>${num(ways)}</b>.`,
+          ? `Such a number is fixed by how many of each digit it uses, and 0 can’t appear (it would have to come first). So it is a choice of ${k} digits from 1 to 9 with repeats allowed, written in order. By stars and bars (${k} stars for the digits and 8 bars between the 9 kinds of digit) there are C(${k} + 8, 8) = C(${k + 8}, 8) = <b>${num(ways)}</b>.`
+          : `Such a number is a choice of ${k} digits from 0 to 9 with repeats allowed, written in decreasing order. By stars and bars (${k} stars for the digits and 9 bars between the 10 kinds of digit) there are C(${k} + 9, 9) = C(${k + 9}, 9) = ${num(choose(k + 9, 9))} choices. Only the choice of all zeros fails, since a number can’t start with 0, so there are ${num(choose(k + 9, 9))} − 1 = <b>${num(ways)}</b>.`,
       };
     },
     // climbers that end in a given digit
@@ -1082,6 +1165,7 @@ export const counting = {
     (d, ctx) => {
       const [[r, pct], ask] = combo(ctx, [LEAGUES, ['games', 'players', 'leftWins']]);
       const { fits, whole: [L] } = league(r, pct), X = fits.at(-1), n = (r + 1) * L, G = choose(n, 2), WR = (G * 100) / (200 + pct), WL = G - WR;
+      const p = 100 / gcd(100, 200 + pct), q = (200 + pct) / gcd(100, 200 + pct);   // the right-handers won p/q of the games
       const value = { games: G, players: n, leftWins: WL }[ask];
       const wrong = { games: [choose((r + 1) * (L + 1), 2), choose((r + 1) * (L - 1), 2), WL, WR, choose(r * L, 2) + choose(L, 2)], players: [L, r * L, n + r + 1, n - r - 1, 2 * n], leftWins: [WR, G, WL + L, WL - L, choose(L, 2) + r * L * L] }[ask];
       return {
@@ -1096,7 +1180,7 @@ export const counting = {
           }
           return ok.length === 1 && ok[0] === value ? '' : `answers possible: ${ok.join(', ')}`;
         },
-        solution: `Say there are L left-handers and ${r}L right-handers: ${r + 1}L players and C(${r + 1}L, 2) games. Every game has a winner, and the left-handers won ${(100 + pct) / 100} times as many as the right-handers, so the right-handers won ${frac(100, 200 + pct)} of all the games. They certainly won the C(${r}L, 2) games among themselves, and ${frac(100, 200 + pct)}·C(${r + 1}L, 2) ≥ C(${r}L, 2) only holds for L ≤ ${X}. Of L = ${upto(1, X)}, only L = ${L} makes the numbers of wins whole: ${n} players, ${num(G)} games, ${num(WR)} won by right-handers and ${num(WL)} by left-handers. ${{ games: `So <b>${num(G)}</b> games were played.`, players: `So there were <b>${n}</b> players.`, leftWins: `So the left-handers won <b>${num(WL)}</b> games.` }[ask]}`,
+        solution: `Say there are L left-handers and ${r}L right-handers, so there are ${r + 1}L players and C(${r + 1}L, 2) games. Every game has a winner, and the left-handers won ${(100 + pct) / 100} times as many as the right-handers, so for every ${p} games the right-handers won, the left-handers won ${q - p}, and the right-handers won ${frac(p, q)} of all the games. They certainly won the C(${r}L, 2) games among themselves, so ${frac(p, q)}·C(${r + 1}L, 2) ≥ C(${r}L, 2). Writing C(m, 2) as m(m − 1)/2 and multiplying by ${2 * q}/L, this says ${p}·${r + 1}(${r + 1}L − 1) ≥ ${q}·${r}(${r}L − 1), that is ${p * (r + 1) ** 2}L − ${p * (r + 1)} ≥ ${q * r * r}L − ${q * r}, so L ≤ ${X}. The right-handers’ wins, ${frac(p, q)}·C(${r + 1}L, 2), must also be a whole number, so C(${r + 1}L, 2) must be a multiple of ${q}. For L = ${upto(1, X)} it is ${list(fits.map((l) => num(choose((r + 1) * l, 2))))}, and only ${num(G)} is, at L = ${L}. That gives ${n} players, ${num(G)} games, ${num(WR)} won by right-handers and ${num(WL)} by left-handers. ${{ games: `So <b>${num(G)}</b> games were played.`, players: `So there were <b>${n}</b> players.`, leftWins: `So the left-handers won <b>${num(WL)}</b> games.` }[ask]}`,
       };
     },
     // how many games a round robin has
@@ -1107,7 +1191,7 @@ export const counting = {
         text: `In a chess club tournament, each of the ${n} players plays every other player exactly once. How many games are played in all?`,
         answer: choices(d, G, [n * (n - 1), n * n, G + n, choose(n - 1, 2), (n - 1) * (n - 1)]),
         check: () => { let c = 0; for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) c++; return c === G ? '' : `counted ${c}, said ${G}`; },
-        solution: `Every game is a pair of players, so count the pairs: ${n}·${n - 1}/2 = <b>${num(G)}</b> (each player plays ${n - 1} games, and every game has two players in it).`,
+        solution: `Each of the ${n} players plays ${n - 1} games, and adding up every player’s games gives ${n}·${n - 1} = ${num(n * (n - 1))}. But every game has two players in it, so each game was counted twice, and there are ${num(n * (n - 1))}/2 = <b>${num(G)}</b> games.`,
       };
     },
     // home and away
@@ -1118,7 +1202,7 @@ export const counting = {
         text: `In a soccer league of ${n} teams, every team plays every other team twice, once at home and once away. How many games are played in the season?`,
         answer: choices(d, G, [choose(n, 2), n * n, 2 * n * n, G / 2 + n, 2 * (n - 1)]),
         check: () => { let c = 0; for (let home = 0; home < n; home++) for (let away = 0; away < n; away++) if (home !== away) c++; return c === G ? '' : `counted ${c}, said ${G}`; },
-        solution: `Each game has a home team and an away team, and every ordered pair of different teams plays once: ${n} choices of home team and ${n - 1} of away team, ${n}·${n - 1} = <b>${num(G)}</b>. (That is twice C(${n}, 2) = ${choose(n, 2)}.)`,
+        solution: `Each game has a home team and an away team, and every ordered pair of different teams plays once. There are ${n} choices of home team and then ${n - 1} of away team, so there are ${n}·${n - 1} = <b>${num(G)}</b> games. (That is twice the C(${n}, 2) = ${choose(n, 2)} pairs of teams.)`,
       };
     },
     // everyone wins the same number of games
@@ -1129,7 +1213,7 @@ export const counting = {
         text: `In a round-robin tournament with ${n} players, everyone plays everyone else once, no game ends in a tie, and every player wins the same number of games. How many games does each player win?`,
         answer: choices(d, w, [n - 1, (n + 1) / 2, n, G / 2, w - 1].filter((v) => Number.isInteger(v) && v !== w)),
         check: () => { const wins = Array(n).fill(0); for (let i = 0; i < n; i++) for (let j = 1; j <= w; j++) wins[i]++; const games = n * w; return games === G && wins.every((v) => v === w) ? '' : `circle gives ${games} games`; },
-        solution: `There are C(${n}, 2) = ${G} games, each with one winner, so ${G} wins are shared equally by ${n} players: ${G}/${n} = <b>${w}</b>. (It can happen: seat the players in a circle and let each one beat the ${w} players after them.)`,
+        solution: `There are C(${n}, 2) = ${G} games, each with one winner, so ${G} wins are shared equally by ${n} players, ${G}/${n} = <b>${w}</b> each. (It can happen, for example when the players sit in a circle and each one beats the ${w} players after them.)`,
       };
     },
   ],
@@ -1156,7 +1240,7 @@ export const counting = {
           }
           return c === ways ? '' : `counted ${c}, said ${ways}`;
         },
-        solution: `${exactly ? '' : `With no tie there are ${n}! = ${num(fact(n))} orders. `}A tie of exactly k cars: choose the k cars in C(${n}, k) ways, then treat them as one car, so ${n} − k + 1 “cars” finish in (${n} − k + 1)! orders. For k = ${range(2, n).join(', ')} that gives ${tie.map((t) => num(t)).join(', ')}. In all, ${exactly ? '' : `${num(fact(n))} + `}${tie.map((t) => num(t)).join(' + ')} = <b>${num(ways)}</b>.`,
+        solution: `${exactly ? '' : `With no tie there are ${n}! = ${num(fact(n))} orders. `}For a tie of exactly k cars, choose the k cars in C(${n}, k) ways, then treat them as one car, so ${n} − k + 1 “cars” finish in (${n} − k + 1)! orders. That gives ${range(2, n).map((k, i) => `C(${n}, ${k})·${n - k + 1}! = ${choose(n, k)}·${num(fact(n - k + 1))} = ${num(tie[i])} for k = ${k}`).join('; ')}. In all, ${exactly ? '' : `${num(fact(n))} + `}${tie.map((t) => num(t)).join(' + ')} = <b>${num(ways)}</b>.`,
       };
     },
     // one runner ahead of another
@@ -1167,7 +1251,8 @@ export const counting = {
         text: `${Cap(WORDS[n])} runners, including ${A} and ${B}, run a race, and there are no ties. In how many of the possible finishing orders does ${A} finish ahead of ${B}?`,
         answer: choices(d, ways, [fact(n), fact(n - 1), fact(n) - fact(n - 1), fact(n - 2), ways + fact(n - 2)]),
         check: () => { let c = 0; eachPerm(n, (a) => { if (a.indexOf(0) < a.indexOf(1)) c++; }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Swapping ${A} and ${B} turns every order with ${A} ahead into one with ${B} ahead, and back, so exactly half of the ${n}! = ${num(fact(n))} orders have ${A} ahead: <b>${num(ways)}</b>.`,
+        tip: 'Pair each finishing order with the one where the two runners swap places.',
+        solution: `Swapping ${A} and ${B} turns every order with ${A} ahead into one with ${B} ahead, and back, so the two kinds of order come in pairs. So exactly half of the ${n}! = ${num(fact(n))} orders have ${A} ahead, ${num(fact(n))}/2 = <b>${num(ways)}</b>.`,
       };
     },
     // gold, silver and bronze
@@ -1178,7 +1263,8 @@ export const counting = {
         text: `In a race of ${n} swimmers, gold, silver and bronze medals go to the first three, and there are no ties. In how many ways can the three medals be given out?`,
         answer: choices(d, ways, [choose(n, 3), n ** 3, n * (n - 1), 3 * n, ways / 2]),
         check: () => { let c = 0; for (let g = 0; g < n; g++) for (let s = 0; s < n; s++) for (let b = 0; b < n; b++) if (g !== s && s !== b && g !== b) c++; return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Gold can go to any of ${n} swimmers, then silver to any of the other ${n - 1}, then bronze to any of the remaining ${n - 2}: ${n}·${n - 1}·${n - 2} = <b>${num(ways)}</b>. (The order matters, since gold and silver are different medals.)`,
+        tip: 'Hand out the medals one at a time, gold first, and multiply the numbers of choices.',
+        solution: `Gold can go to any of ${n} swimmers, then silver to any of the other ${n - 1}, then bronze to any of the remaining ${n - 2}, so there are ${n}·${n - 1}·${n - 2} = <b>${num(ways)}</b> ways. (The order matters, since gold and silver are different medals.)`,
       };
     },
     // any ties at all
@@ -1195,7 +1281,7 @@ export const counting = {
           for (let code = 0; code < n ** n; code++) { const place = range(0, n - 1).map((i) => Math.floor(code / n ** i) % n), seen = new Set(place); if ([...seen].every((v) => v < seen.size)) c++; }
           return c === ways ? '' : `counted ${c}, said ${ways}`;
         },
-        solution: `Sort the results by how many different finishing places there are, j. Splitting the ${n} horses into j groups that share a place can be done in S(${n}, j) ways (${range(1, n).map((j) => `S(${n}, ${j}) = ${S(n, j)}`).join(', ')}), and the groups can finish in j! orders. Adding j!·S(${n}, j) over j = 1 to ${n}: ${terms.join(' + ')} = <b>${num(ways)}</b>.`,
+        solution: `Sort the results by how many different finishing places there are, j. Splitting the ${n} horses into j groups that share a place can be done in S(${n}, j) ways, and the groups can finish in j! orders. Here S(${n}, 1) = 1 (all ${WORDS[n]} together) and S(${n}, ${n}) = 1 (all apart). ${range(2, n - 1).map((j) => `S(${n}, ${j}) = ${S(n, j)}: ${SPLITS[n][j - 1]}.`).join(' ')} Adding j!·S(${n}, j) over j = 1 to ${n} gives ${range(1, n).map((j) => `${fact(j)}·${S(n, j)}`).join(' + ')} = ${terms.join(' + ')} = <b>${num(ways)}</b>.`,
       };
     },
   ],
@@ -1214,7 +1300,7 @@ export const counting = {
           for (let p = 0; p < m; p++) { let h = 0; for (let x = p * B + 1; x <= (p + 1) * B; x++) if (x % k === 0) h++; if (h === ask) c++; }
           return c === value ? '' : `counted ${c}, said ${value}`;
         },
-        solution: `Any ${B} consecutive numbers hold one or two multiples of ${k}, since ${k} &lt; ${B} &lt; ${2 * k}. From 1 to ${num(N)} there are ⌊${N}/${k}⌋ = ${total} multiples of ${k}, spread over ${m} piles. If x piles hold two, then ${m} + x = ${total}, so x = ${twos}. ${ask === 2 ? `So <b>${twos}</b> piles hold two multiples.` : `The other ${m} − ${twos} = <b>${value}</b> piles hold one.`}`,
+        solution: `Any ${B} consecutive numbers hold one or two multiples of ${k}, since ${k} &lt; ${B} &lt; ${2 * k}. From 1 to ${num(N)} there are ⌊${num(N)}/${k}⌋ = ${total} multiples of ${k}, spread over ${m} piles. Every pile holds at least one, so if x piles hold two, the piles hold ${m} + x multiples in all, and ${m} + x = ${total} gives x = ${twos}. ${ask === 2 ? `So <b>${twos}</b> piles hold two multiples.` : `The other ${m} − ${twos} = <b>${value}</b> piles hold one.`}`,
       };
     },
     // multiples between two numbers
@@ -1237,7 +1323,7 @@ export const counting = {
         text: `A theater has ${m} rows of ${B} seats, numbered 1 to ${num(N)} row by row: the first row has seats 1 to ${B}, the second ${B + 1} to ${2 * B}, and so on. How many rows have no seat whose number is a multiple of ${k}?`,
         answer: choices(d, value, [hit, value - 1, value + 1, m - Math.floor(m / k), Math.round(N / k / 2)].filter((v) => v !== value)),
         check: () => { let c = 0; for (let r = 0; r < m; r++) { let h = 0; for (let x = r * B + 1; x <= (r + 1) * B; x++) if (x % k === 0) h++; if (!h) c++; } return c === value ? '' : `counted ${c}, said ${value}`; },
-        solution: `A row covers only ${B} consecutive numbers, fewer than ${k}, so it holds at most one multiple of ${k}, and each multiple is in a different row. There are ⌊${N}/${k}⌋ = ${hit} multiples of ${k} up to ${num(N)}, so ${hit} rows have one and ${m} − ${hit} = <b>${value}</b> rows have none.`,
+        solution: `A row covers only ${B} consecutive numbers, fewer than ${k}, so it holds at most one multiple of ${k}, and each multiple is in a different row. There are ⌊${num(N)}/${k}⌋ = ${hit} multiples of ${k} up to ${num(N)}, so ${hit} rows have one and ${m} − ${hit} = <b>${value}</b> rows have none.`,
       };
     },
     // numbers with a given remainder
@@ -1248,7 +1334,7 @@ export const counting = {
         text: `How many whole numbers from 1 to ${N} leave a remainder of ${r} when divided by ${k}?`,
         answer: choices(d, value, [Q, value + 1, Math.floor(N / k), Math.ceil(N / k) + 1].filter((v) => v !== value)),
         check: () => { let c = 0; for (let x = 1; x <= N; x++) if (x % k === r) c++; return c === value ? '' : `counted ${c}, said ${value}`; },
-        solution: `They are ${r}, ${r + k}, ${r + 2 * k}, …: the numbers ${k}q + ${r} with ${k}q + ${r} ≤ ${N}. So q runs from 0 to ⌊(${N} − ${r})/${k}⌋ = ${Q}, which is ${Q} + 1 = <b>${value}</b> numbers.`,
+        solution: `They are ${r}, ${r + k}, ${r + 2 * k}, …, the numbers ${k}q + ${r} with ${k}q + ${r} ≤ ${N}. So q runs from 0 to ⌊(${N} − ${r})/${k}⌋ = ${Q}, which is ${Q} + 1 = <b>${value}</b> numbers.`,
       };
     },
   ],
@@ -1266,21 +1352,21 @@ export const counting = {
         text: `A post office sells only ${a}-cent and ${b}-cent stamps. In how many ways can exactly ${num(N)} cents of postage be made? (Only how many stamps of each kind are used matters, not their order.)`,
         answer: choices(d, ways, [ways - 1, ways + 1, Math.floor(N / (a * b)), Y, Math.floor(N / (a * b)) + 1]),
         check: () => { let c = 0; for (let y = 0; b * y <= N; y++) for (let x = 0; a * x + b * y <= N; x++) if (a * x + b * y === N) c++; return c === ways ? '' : `counted ${c}, said ${ways}`; },
-        solution: `Say y of the stamps are ${b}-cent. The other ${num(N)} − ${b}y cents must be a multiple of ${a}, which happens exactly when ${y0 === 0 ? `y is a multiple of ${a}` : a === 2 ? 'y is odd' : `y is ${y0} more than a multiple of ${a}`}. Also ${b}y ≤ ${num(N)}, so y ≤ ${Y}. So y is ${y0}, ${y0 + a}, ${y0 + 2 * a}, …, ${last}: that is (${last} − ${y0})/${a} + 1 = <b>${num(ways)}</b> ways.`,
+        solution: `Say y of the stamps are ${b}-cent. The other ${num(N)} − ${b}y cents must be a multiple of ${a}, which happens exactly when ${y0 === 0 ? `y is a multiple of ${a}` : a === 2 ? 'y is odd' : `y is ${y0} more than a multiple of ${a}`}. Also ${b}y ≤ ${num(N)}, so y ≤ ${Y}. So y is ${y0}, ${y0 + a}, ${y0 + 2 * a}, …, ${last} (the largest such y up to ${Y}), which makes (${last} − ${y0})/${a} + 1 = <b>${num(ways)}</b> ways.`,
       };
     },
-    // the largest amount that can't be made
+    // the largest amount that can’t be made
     (d, ctx) => {
       const [[a, b]] = combo(ctx, [COPRIME]), g = a * b - a - b;
       return {
         topic: 'Making postage', rank: 13,
         text: `A machine sells only ${a}-cent and ${b}-cent stamps. What is the largest amount of postage, in cents, that cannot be made exactly with these stamps?`,
         answer: choices(d, g, [a * b, a * b - 1, g - 1, g + a, a + b]),
-        check: () => { const can = Array(a * b + 1).fill(false); can[0] = true; for (let x = 1; x <= a * b; x++) can[x] = (x >= a && can[x - a]) || (x >= b && can[x - b]); const top = can.lastIndexOf(false); return top === g ? '' : `largest that can't be made: ${top}`; },
-        solution: `Group the amounts by their remainder when divided by ${a}. Since ${a} and ${b} share no factor, using ${upto(0, a - 1, String, 'or')} of the ${b}-cent stamps (${upto(0, a - 1, (j) => j * b, 'or')} cents) gives every remainder exactly once, and that is the smallest amount with its remainder that can be made; adding ${a}-cent stamps then reaches every larger amount with the same remainder. So the largest amount that can't be made is ${a} below the biggest of these: ${(a - 1) * b} − ${a} = <b>${g}</b>.`,
+        check: () => { const can = Array(a * b + 1).fill(false); can[0] = true; for (let x = 1; x <= a * b; x++) can[x] = (x >= a && can[x - a]) || (x >= b && can[x - b]); const top = can.lastIndexOf(false); return top === g ? '' : `largest that can’t be made: ${top}`; },
+        solution: `Group the amounts by their remainder when divided by ${a}. Since ${a} and ${b} share no factor, using ${upto(0, a - 1, String, 'or')} of the ${b}-cent stamps (${upto(0, a - 1, (j) => j * b, 'or')} cents) gives every remainder exactly once. Each of those is the smallest amount with its remainder that can be made, and adding ${a}-cent stamps then reaches every larger amount with the same remainder. So the largest amount that can’t be made is ${a} below the biggest of these: ${(a - 1) * b} − ${a} = <b>${g}</b>.`,
       };
     },
-    // how many amounts can't be made
+    // how many amounts can’t be made
     (d, ctx) => {
       const [[a, b]] = combo(ctx, [COPRIME]), gaps = range(1, a - 1).map((j) => Math.floor((j * b) / a)), count = (a - 1) * (b - 1) / 2;
       return {
@@ -1288,7 +1374,7 @@ export const counting = {
         text: `With an unlimited supply of ${a}-cent and ${b}-cent stamps, how many whole-number amounts of postage, in cents, cannot be made at all?`,
         answer: choices(d, count, [a * b - a - b, (a - 1) * (b - 1), count + 1, a + b, count - 1]),
         check: () => { const can = Array(a * b + 1).fill(false); can[0] = true; let c = 0; for (let x = 1; x <= a * b; x++) { can[x] = (x >= a && can[x - a]) || (x >= b && can[x - b]); if (!can[x]) c++; } return c === count ? '' : `counted ${c}, said ${count}`; },
-        solution: `For each nonzero remainder when dividing by ${a}, the smallest amount with that remainder that can be made is j·${b} cents, where j is ${upto(1, a - 1, String, 'or')}; the amounts below it with the same remainder can't be made, and there are ⌊j·${b}/${a}⌋ of them. Adding them up: ${gaps.join(' + ')} = <b>${count}</b>, which is (${a} − 1)(${b} − 1)/2.`,
+        solution: `For each nonzero remainder when dividing by ${a}, the smallest amount with that remainder that can be made is j·${b} cents, where j is ${upto(1, a - 1, String, 'or')}; the amounts below it with the same remainder can’t be made, and there are ⌊j·${b}/${a}⌋ of them. For j = ${upto(1, a - 1)} that is ${list(gaps.map((g, i) => `⌊${(i + 1) * b}/${a}⌋ = ${g}`))}, and adding them up gives ${gaps.join(' + ')} = <b>${count}</b>, which is (${a} − 1)(${b} − 1)/2.`,
       };
     },
     // the fewest stamps for an amount

@@ -224,7 +224,7 @@ export const amcLearning = {
       idea: 'Each term depends only on the two before it, and there are only so many possible pairs of remainders, so the sequence must start repeating, and it returns to 0, 1. Once you know the cycle, everything is about where a term falls in it: a far term is the term at its position mod the cycle length; a long sum is full cycles plus a part of one; and a block exactly one cycle long always adds up to one cycle. The 0s come at regular spacing (every multiple of the first place a 0 appears after the start). For example, mod 3 the remainders run 0, 1, 1, 2, 0, 2, 2, 1, then repeat: a cycle of 8 that adds up to 9, with 0s every 4 terms.',
       how: [
         'Write out the remainders until the pair 0, 1 appears again; the terms before it are one cycle.',
-        'Note the cycle\'s length P and its sum.',
+        'Note the cycle’s length P and its sum.',
         'For one far term, divide its index by P and use the remainder.',
         'For a long sum, count the full cycles and add the leftover terms; for 0s, count the multiples of their spacing.',
       ],
@@ -287,7 +287,7 @@ export const amcLearning = {
       spot: '"Perpendicular", "meet at a right angle", or "the point of the line closest to" a given point: use slopes that multiply to −1, or pp′ + qq′ = 0 for lines px + qy = r and p′x + q′y = r′.',
       idea: 'For a line written px + qy = r, the slope is −p/q. Two lines are perpendicular when their slopes multiply to −1, which for lines in this form is the same as pp′ + qq′ = 0. So a perpendicular line through a point has the negative reciprocal slope, and the point of a line closest to a given point is where the perpendicular from that point meets the line. With unknown coefficients, the perpendicular condition plus "the point is on both lines" gives the equations you need.',
       how: [
-        'Find each line\'s slope (−p/q for px + qy = r), or use pp′ + qq′ = 0 directly.',
+        'Find each line’s slope (−p/q for px + qy = r), or use pp′ + qq′ = 0 directly.',
         'For a perpendicular through a point, use the negative reciprocal slope in y − y<sub>1</sub> = m(x − x<sub>1</sub>).',
         'For the closest point, intersect the line with the perpendicular through the given point.',
         'For unknown coefficients, solve the perpendicular condition together with the point on each line.',
@@ -366,14 +366,14 @@ export const amcLearning = {
       ],
       watch: [
         'Answering the added constant itself and forgetting what the square takes away.',
-        'Pairing factors whose x-terms don\'t match.',
+        'Pairing factors whose x-terms don’t match.',
         'For a sum of squares, putting x at the middle number instead of the average.',
       ],
       tip: 'Turn the expression into a square plus a constant: pair the factors so they share the same x-term, or go to the middle.',
     },
     'Ratios of big powers': {
       spot: 'A fraction made of sums of huge powers, "the greatest integer that does not exceed" it, or "which of these powers is the largest": factor out the biggest (or smallest) power, or give every power the same exponent.',
-      idea: 'When one base is bigger, its powers swamp the other\'s, so a ratio of sums is close to the bigger base raised to the gap in exponents. Pulling that power out of the top shows exactly how far off it is: with plus signs the ratio is a little below the power, with minus signs a little above. With a single base, take the smallest power out of the top and the bottom and it cancels. To compare big powers, rewrite them with the same exponent and compare the bases. For example, (3¹⁰ + 2¹⁰)/(3⁸ + 2⁸) ≈ 9 − 0.19, so its floor is 8, and 2³⁰⁰ = 8¹⁰⁰ is less than 3²⁰⁰ = 9¹⁰⁰.',
+      idea: 'When one base is bigger, its powers swamp the other’s, so a ratio of sums is close to the bigger base raised to the gap in exponents. Pulling that power out of the top shows exactly how far off it is: with plus signs the ratio is a little below the power, with minus signs a little above. With a single base, take the smallest power out of the top and the bottom and it cancels. To compare big powers, rewrite them with the same exponent and compare the bases. For example, (3¹⁰ + 2¹⁰)/(3⁸ + 2⁸) ≈ 9 − 0.19, so its floor is 8, and 2³⁰⁰ = 8¹⁰⁰ is less than 3²⁰⁰ = 9¹⁰⁰.',
       how: [
         'Find the gap between the exponents and the bigger base to that power.',
         'Rewrite the top as that power times the bottom, plus or minus a leftover, and check the leftover part is less than 1.',
@@ -395,9 +395,9 @@ export const amcLearning = {
     },
     'Age multiples': {
       spot: '"On how many birthdays is the parent’s age a multiple of the child’s", "the next time that happens", or "in how many years will one be m times as old": the age gap never changes, so use the divisors of the gap, or solve P + y = m(C + y).',
-      idea: 'If a parent is G years older than the child, then when the child is z the parent is z + G, and z + G is a multiple of z exactly when z divides G. So "how many birthdays when the parent\'s age is a multiple" means "how many divisors G has", and "the next time" means "the next divisor of the gap". When a set multiple is asked for, like "twice as old", the gap stays the same while both ages grow, so write the two ages in y years and solve. For example, with a gap of 12 it happens when the child is 1, 2, 3, 4, 6 and 12: six birthdays.',
+      idea: 'If a parent is G years older than the child, then when the child is z the parent is z + G, and z + G is a multiple of z exactly when z divides G. So "how many birthdays when the parent’s age is a multiple" means "how many divisors G has", and "the next time" means "the next divisor of the gap". When a set multiple is asked for, like "twice as old", the gap stays the same while both ages grow, so write the two ages in y years and solve. For example, with a gap of 12 it happens when the child is 1, 2, 3, 4, 6 and 12: six birthdays.',
       how: [
-        'Turn each parent\'s age into an age gap with the child (the child is 1 today, so the gap is the parent\'s age minus 1).',
+        'Turn each parent’s age into an age gap with the child (the child is 1 today, so the gap is the parent’s age minus 1).',
         'Count divisors of the gap for "how many times", or use the count to find which gap in the range fits.',
         'For the next time, find the smallest divisor of the gap above 1: the parent is then the gap plus that age.',
         'For "m times as old in y years", solve P + y = m(C + y).',
@@ -409,11 +409,11 @@ export const amcLearning = {
         'A number has an odd number of divisors exactly when it is a perfect square.',
       ],
       watch: [
-        'Using the parent\'s age instead of the age gap.',
-        'Answering the child\'s age, or the gap, instead of the parent\'s age.',
+        'Using the parent’s age instead of the age gap.',
+        'Answering the child’s age, or the gap, instead of the parent’s age.',
         'Forgetting that today counts, since 1 divides every gap.',
       ],
-      tip: 'The gap between two ages never changes: a parent\'s age is a multiple of the child\'s exactly when the child\'s age divides that gap.',
+      tip: 'The gap between two ages never changes: a parent’s age is a multiple of the child’s exactly when the child’s age divides that gap.',
     },
     // harder: problems 15 to 25
     'Roots without solving': {
@@ -1154,7 +1154,7 @@ export const amcLearning = {
     // ---------- counting ----------
     'Digit rules': {
       spot: '“How many k-digit numbers” with a rule about their digits (all different, at least one 7, only odd digits, a palindrome) or a divisibility rule: fill the places one at a time, the most restricted first, and multiply the choices.',
-      idea: 'Fill the number place by place and multiply the choices, deciding the most restricted place first: the last digit or two when a divisibility rule applies, and always remembering that the first digit can\'t be 0. “At least one” is easier as everything minus “none”, and a palindrome is fixed by its first half, since the rest mirrors it. For example, 3-digit numbers with at least one 5: 900 − 8·9·9 = 900 − 648 = 252.',
+      idea: 'Fill the number place by place and multiply the choices, deciding the most restricted place first: the last digit or two when a divisibility rule applies, and always remembering that the first digit can’t be 0. “At least one” is easier as everything minus “none”, and a palindrome is fixed by its first half, since the rest mirrors it. For example, 3-digit numbers with at least one 5: 900 − 8·9·9 = 900 − 648 = 252.',
       how: [
         'Divisibility: a multiple of 5 ends in 0 or 5; for a multiple of 4, the last two digits make a multiple of 4. Decide the ending first.',
         'All digits different: 9 choices for the first digit (not 0), then 9, 8, 7, … for the places after it.',
@@ -1170,7 +1170,7 @@ export const amcLearning = {
       watch: [
         'The first digit can never be 0: with only even digits it has 4 choices (2, 4, 6, 8), not 5.',
         'Counting “at least one 7” by adding cases counts numbers with two 7s more than once; use the complement.',
-        'A palindrome\'s last digit equals its first, so it can\'t be 0 either.',
+        'A palindrome’s last digit equals its first, so it can’t be 0 either.',
       ],
       tip: 'Decide the most restricted digit first, multiply the choices, and count “at least one” as everything minus none.',
     },
@@ -1192,7 +1192,7 @@ export const amcLearning = {
       ],
       watch: [
         'n(n − 1) without halving counts each handshake twice.',
-        'Handshakes between two separate groups are a·b; don\'t halve those.',
+        'Handshakes between two separate groups are a·b; don’t halve those.',
         'Strangers also shake hands with one another: C(b, 2) more.',
         'Working backward, double the number of handshakes before looking for n(n − 1).',
       ],
@@ -1310,11 +1310,11 @@ export const amcLearning = {
     },
     'Making postage': {
       spot: 'Two stamp (or coin) values and "the largest amount that can’t be made", "how many amounts can’t be made", "in how many ways", or "the fewest stamps": fix the number of one kind and let the other follow, and remember ab − a − b.',
-      idea: 'Once you decide how many stamps of one kind to use, the other kind is forced, if it works at all, and the good choices form an arithmetic sequence you can count. For two stamp values a and b with no common factor, the amounts that can\'t be made run out: the largest is ab − a − b, and exactly (a − 1)(b − 1)/2 amounts can\'t be made. With 3- and 5-cent stamps, 1, 2, 4 and 7 can\'t be made: 4 amounts, the largest 7. For the fewest stamps, use as many of the larger stamp as you can.',
+      idea: 'Once you decide how many stamps of one kind to use, the other kind is forced, if it works at all, and the good choices form an arithmetic sequence you can count. For two stamp values a and b with no common factor, the amounts that can’t be made run out: the largest is ab − a − b, and exactly (a − 1)(b − 1)/2 amounts can’t be made. With 3- and 5-cent stamps, 1, 2, 4 and 7 can’t be made: 4 amounts, the largest 7. For the fewest stamps, use as many of the larger stamp as you can.',
       how: [
         'Ways to make N: let y be the number of b-cent stamps; the y that leave a multiple of a form y, y + a, y + 2a, … up to b·y ≤ N. Count them: (last − first)/a + 1.',
-        'Largest amount that can\'t be made: ab − a − b (a and b sharing no factor).',
-        'How many amounts can\'t be made: (a − 1)(b − 1)/2.',
+        'Largest amount that can’t be made: ab − a − b (a and b sharing no factor).',
+        'How many amounts can’t be made: (a − 1)(b − 1)/2.',
         'Fewest stamps: start with ⌊N/b⌋ stamps of b cents and count down until the rest is a multiple of a.',
       ],
       facts: [
@@ -1328,7 +1328,7 @@ export const amcLearning = {
         'The largest unmakeable amount is ab − a − b, not ab − 1 or ab.',
         'These formulas need a and b to share no factor.',
       ],
-      tip: 'Fix the number of stamps of one kind and let the other follow; for what can\'t be made, remember ab − a − b and (a − 1)(b − 1)/2.',
+      tip: 'Fix the number of stamps of one kind and let the other follow; for what can’t be made, remember ab − a − b and (a − 1)(b − 1)/2.',
     },
     'Rising and falling digits': {
       spot: 'Numbers whose digits strictly rise or fall ("climbers", "sliders"), or never go down: such a number is just its set of digits, so count sets with C(9, k) or C(10, k), or with stars and bars when digits may repeat.',
@@ -1348,7 +1348,7 @@ export const amcLearning = {
       watch: [
         'Letting a rising number use 0: it would have to be the first digit.',
         'Repeats allowed is stars and bars, not C(9, k).',
-        'A climber needs at least two digits, so the empty set of smaller digits doesn\'t count.',
+        'A climber needs at least two digits, so the empty set of smaller digits doesn’t count.',
       ],
       tip: 'Think of each number as the set (or, with repeats, the multiset) of its digits, and ask whether 0 can be one of them.',
     },
@@ -1392,7 +1392,7 @@ export const amcLearning = {
       watch: [
         'In a ring, the last region touches the first: k·(k − 1)<sup>n − 1</sup> is too many.',
         'Giving a region k − 1 choices when it touches two painted regions of different colors.',
-        'In a wheel, the ring can\'t use the middle\'s color.',
+        'In a wheel, the ring can’t use the middle’s color.',
       ],
       tip: 'Paint in an order where each region touches painted ones, and for a ring, correct for the last region touching the first.',
     },
@@ -1413,7 +1413,7 @@ export const amcLearning = {
       ],
       watch: [
         'A Knave asked “Are you a Knave?” says no, because the true answer is yes.',
-        'Tokens are not people: count each type\'s yes answers.',
+        'Tokens are not people: count each type’s yes answers.',
         'With “exactly i”, rule out the case where everyone is a knave.',
       ],
       tip: 'Ask which statements can be true at the same time, and let the number of knaves decide who is telling the truth.',
@@ -1446,7 +1446,7 @@ export const amcLearning = {
         'Most points: C(n, 2), with no parallels and no three lines through one point.',
         'A family of k parallel lines: subtract C(k, 2).',
         'm lines through one common point: subtract C(m, 2) and add back 1 for the shared point.',
-        'All possible values: list the extremes, build the middle values by mixing parallel families and shared points, and prove which small values can\'t happen.',
+        'All possible values: list the extremes, build the middle values by mixing parallel families and shared points, and prove which small values can’t happen.',
       ],
       facts: [
         'n lines cross in at most C(n, 2) points: when no two are parallel and no three meet at a point.',
@@ -1533,7 +1533,7 @@ export const amcLearning = {
       how: [
         'Single round robin: C(n, 2) = n(n − 1)/2 games. Home and away: n(n − 1).',
         'Equal wins: C(n, 2) wins shared by n players, (n − 1)/2 each (so n is odd).',
-        'Left- and right-handers: with L left-handers and r·L right-handers, write the games and the right-handers\' share of them in terms of L.',
+        'Left- and right-handers: with L left-handers and r·L right-handers, write the games and the right-handers’ share of them in terms of L.',
         'The right-handers win at least the C(rL, 2) games among themselves; that caps L, and among the allowed L keep the one that makes every number of wins whole.',
       ],
       facts: [
@@ -1544,7 +1544,7 @@ export const amcLearning = {
       ],
       watch: [
         'n(n − 1) counts every single-round-robin game twice.',
-        'Answer what is asked: total games, players, or one side\'s wins.',
+        'Answer what is asked: total games, players, or one side’s wins.',
         'Forgetting the games among the right-handers, which force them a minimum number of wins.',
       ],
       tip: 'A game is a pair of players with one winner: count pairs for games, and add up wins to get the number of games.',
@@ -1573,10 +1573,10 @@ export const amcLearning = {
     },
     'Seating with rules': {
       spot: 'People in a row or around a table with rules like "must sit together", "refuse to sit next to each other", or "boys and girls alternate": glue a pair into a block, subtract the seatings that break a rule, or seat one person first at a round table.',
-      idea: 'Most seating rules come down to three tools. Glue people who must sit together into a block (it can face 2 ways). Count everything and subtract the seatings that break a rule, using inclusion–exclusion when two rules can both be broken. At a round table where turning doesn\'t matter, seat one person first to fix the table, so n people sit in (n − 1)! ways. For 5 people at a round table with two of them side by side: seat one, the other takes one of the 2 seats beside them, and the last 3 sit in 3! ways: 2·6 = 12.',
+      idea: 'Most seating rules come down to three tools. Glue people who must sit together into a block (it can face 2 ways). Count everything and subtract the seatings that break a rule, using inclusion–exclusion when two rules can both be broken. At a round table where turning doesn’t matter, seat one person first to fix the table, so n people sit in (n − 1)! ways. For 5 people at a round table with two of them side by side: seat one, the other takes one of the 2 seats beside them, and the last 3 sit in 3! ways: 2·6 = 12.',
       how: [
         'Row, two people apart: n! − 2·(n − 1)!.',
-        'Round table: seat one person to fix the table; the others fill the rest in (n − 1)! ways, and that person\'s neighbors are 2 particular seats.',
+        'Round table: seat one person to fix the table; the others fill the rest in (n − 1)! ways, and that person’s neighbors are 2 particular seats.',
         'Boys and girls alternating: the row starts with either group if the numbers are equal (2 patterns) or with the bigger group (1 pattern); then order each group in its places.',
         'Twins kept apart in rows of seats: count the close pairs of seats, then all − (first twins close) − (second twins close) + (both close), using only close pairs that share no seat in the last count.',
       ],
@@ -1588,16 +1588,16 @@ export const amcLearning = {
       ],
       watch: [
         'At a round table, n! counts each seating n times, once for every turn.',
-        'With equal numbers of boys and girls, don\'t forget the factor 2 for who starts.',
+        'With equal numbers of boys and girls, don’t forget the factor 2 for who starts.',
         'Forgetting that a glued pair can sit either way round.',
       ],
       tip: 'Glue, subtract, or fix one person at a round table: pick the tool that makes the rule easy.',
     },
     'Colorings up to symmetry': {
       spot: '"Two paintings count as the same if turning (or flipping) carries one onto the other": use Burnside’s lemma, averaging over the symmetries the number of paintings each one leaves unchanged.',
-      idea: 'When paintings that turn or flip into each other count as the same, use Burnside\'s lemma: the number of different paintings is the average, over all the symmetries, of how many paintings each symmetry leaves exactly unchanged. A symmetry moves the positions around in cycles, and a painting stays the same only when every cycle is one color. With k colors free, a symmetry with c cycles keeps k<sup>c</sup> paintings. Four beads on a square with 2 colors, turns only: (16 + 2 + 4 + 2)/4 = 6.',
+      idea: 'When paintings that turn or flip into each other count as the same, use Burnside’s lemma: the number of different paintings is the average, over all the symmetries, of how many paintings each symmetry leaves exactly unchanged. A symmetry moves the positions around in cycles, and a painting stays the same only when every cycle is one color. With k colors free, a symmetry with c cycles keeps k<sup>c</sup> paintings. Four beads on a square with 2 colors, turns only: (16 + 2 + 4 + 2)/4 = 6.',
       how: [
-        'List the symmetries: a triangle has 6 (doing nothing, 2 turns, 3 flips), a square 8 and a hexagon 12; use only the turns when flips don\'t count.',
+        'List the symmetries: a triangle has 6 (doing nothing, 2 turns, 3 flips), a square 8 and a hexagon 12; use only the turns when flips don’t count.',
         'For each symmetry, find the cycles it moves the positions in: on a square, a quarter turn is one cycle of 4 and a half turn two cycles of 2.',
         'Count the paintings it keeps: k<sup>(number of cycles)</sup> with k free colors, or the ways to fill whole cycles with the required number of each color.',
         'Add the counts over all the symmetries and divide by how many there are.',
@@ -1617,7 +1617,7 @@ export const amcLearning = {
     },
     'Paths on a cube': {
       spot: 'A bug crawling along the edges of a cube, shortest routes through a box of little cubes, or segments joining a cube’s corners: use the symmetry, the two-coloring of the corners, and counting by distance from the start.',
-      idea: 'Use the cube\'s symmetry and its two-coloring. Color the corners in two colors so that every edge joins different colors: a walk changes color at every step, so after an odd number of edges it can\'t be back at the start, and after 7 edges it is on a neighbor of the start or the far corner. For walks that may repeat, group the corners by distance from the start (1, 3, 3 and 1 corners at distances 0, 1, 2, 3) and track how many walks are at each distance after each step. Shortest routes in an a × b × c box are the orders of a + b + c steps: (a + b + c)!/(a!·b!·c!).',
+      idea: 'Use the cube’s symmetry and its two-coloring. Color the corners in two colors so that every edge joins different colors: a walk changes color at every step, so after an odd number of edges it can’t be back at the start, and after 7 edges it is on a neighbor of the start or the far corner. For walks that may repeat, group the corners by distance from the start (1, 3, 3 and 1 corners at distances 0, 1, 2, 3) and track how many walks are at each distance after each step. Shortest routes in an a × b × c box are the orders of a + b + c steps: (a + b + c)!/(a!·b!·c!).',
       how: [
         'Walks through every corner once: fix the first two edges (3·2 = 6 equally good starts), list the finishes from there, and multiply.',
         'Walks of a given length: from distance 0 all 3 edges go to distance 1; from 1, 1 edge goes back and 2 go on; from 2, 2 go back and 1 goes on; from 3, all 3 go back. Update the counts step by step.',
@@ -1686,7 +1686,7 @@ export const amcLearning = {
     },
     'Lattice points in a diamond': {
       spot: 'When you count points with integer coordinates where |x| + |y| ≤ n (a square turned 45°), where |x| + |y| + |z| ≤ n or = n (an octahedron), or the places a walker can reach with moves along the grid.',
-      idea: 'Slice the region into rows or layers you can count. In the plane, the row y = t of |x| + |y| ≤ n holds 2(n − |t|) + 1 points, so the whole diamond holds 1 + 3 + ⋯ + (2n + 1) + ⋯ + 3 + 1 = 2n² + 2n + 1. In space, the layer z = t of |x| + |y| + |z| ≤ n is a flat diamond of size n − |t|, so add those up. The surface |x| + |y| + |z| = n is easier by absolute values and signs: positive values adding to n by stars and bars, then 2 signs for each coordinate that isn\'t 0. For n = 3 that is 6 points with two zeros, 24 with one zero and 8 with none, 38 in all, which is 4·3² + 2.',
+      idea: 'Slice the region into rows or layers you can count. In the plane, the row y = t of |x| + |y| ≤ n holds 2(n − |t|) + 1 points, so the whole diamond holds 1 + 3 + ⋯ + (2n + 1) + ⋯ + 3 + 1 = 2n² + 2n + 1. In space, the layer z = t of |x| + |y| + |z| ≤ n is a flat diamond of size n − |t|, so add those up. The surface |x| + |y| + |z| = n is easier by absolute values and signs: positive values adding to n by stars and bars, then 2 signs for each coordinate that isn’t 0. For n = 3 that is 6 points with two zeros, 24 with one zero and 8 with none, 38 in all, which is 4·3² + 2.',
       how: [
         'Decide how to slice: rows y = t for a flat region, layers z = t for a solid one.',
         'Count one slice from the condition that is left (|x| ≤ n − 2|t|, or a flat diamond of size n − |t|).',
@@ -1702,7 +1702,7 @@ export const amcLearning = {
       watch: [
         'Forgetting that each layer other than t = 0 comes twice (t and −t), or counting t = 0 twice.',
         'Giving 2 signs to a coordinate that is 0.',
-        'A walk of exactly n moves can\'t end where |x| + |y| has the wrong parity.',
+        'A walk of exactly n moves can’t end where |x| + |y| has the wrong parity.',
       ],
       tip: 'Slice the region into rows or layers whose points you can count, and use symmetry to add them up.',
     },
@@ -1710,9 +1710,9 @@ export const amcLearning = {
       spot: 'When regions around a circle (wedges of a cake, beads of a loop, panes of a window) are colored so that neighbours differ, especially with something extra: a middle piece that touches them all, a color that may be used only so often, or a row to compare with.',
       idea: 'A row of n regions is easy: k choices for the first and k − 1 for each next one, k(k − 1)<sup>n − 1</sup>. A ring is a row whose two ends must also differ. The rows whose ends match become, after gluing the two ends into one region, exactly the rings of n − 1, and that leads to R(n) = (k − 1)<sup>n</sup> + (−1)<sup>n</sup>(k − 1) for a ring of n. For 3 colors and 4 wedges: 2<sup>4</sup> + 2 = 18. A piece that touches every region of the ring (a middle disk, an outer rim) takes its color away from the whole ring, so color it first and use R with fewer colors.',
       how: [
-        'Color the pieces that touch everything first; when two of them don\'t touch each other, split into cases (same color or not).',
+        'Color the pieces that touch everything first; when two of them don’t touch each other, split into cases (same color or not).',
         'Count the ring with the colors that are left: (c − 1)<sup>n</sup> + (−1)<sup>n</sup>(c − 1) for c colors.',
-        'A color allowed at most once: split on whether it is used; if it is, the rest of the ring is a row whose ends don\'t touch each other.',
+        'A color allowed at most once: split on whether it is used; if it is, the rest of the ring is a row whose ends don’t touch each other.',
         'A color allowed only so often: count all colorings, take away the ones that use it too often, and add back any taken away twice.',
       ],
       facts: [
@@ -1722,7 +1722,7 @@ export const amcLearning = {
       ],
       watch: [
         'Using the row count for a ring: the last region touches the first.',
-        'Forgetting that two pieces that don\'t touch (the middle and the rim) may share a color.',
+        'Forgetting that two pieces that don’t touch (the middle and the rim) may share a color.',
         'On a ring of n a color can fill at most every other region, so it fills n/2 regions in only 2 ways.',
       ],
       tip: 'Color whatever touches everything first, then count the ring with the colors that are left using (c − 1)<sup>n</sup> + (−1)<sup>n</sup>(c − 1).',
@@ -1750,12 +1750,12 @@ export const amcLearning = {
     },
     'Binomial coefficients': {
       spot: 'When a question asks for one coefficient or the constant term of a power like (2x − 3)<sup>7</sup>, for a sum of some of its coefficients, or for a sum like C(3, 3) + C(4, 3) + ⋯ + C(12, 3).',
-      idea: 'Multiplying out (A + B)<sup>n</sup>, each term picks A or B from every bracket, so the term with A from n − j brackets and B from j appears C(n, j) times: C(n, j)A<sup>n − j</sup>B<sup>j</sup>. For a constant term, work out the power of x in that term and set it to 0. For sums of coefficients, put in x = 1 (all of them) and x = −1 (even ones minus odd ones). A column of Pascal\'s triangle adds up to the entry below and right of its end, C(k, k) + ⋯ + C(n, k) = C(n + 1, k + 1), because choices of k + 1 numbers from 1 to n + 1 can be sorted by their largest number. For example, the x<sup>2</sup> coefficient of (2x − 1)<sup>4</sup> is C(4, 2)·2<sup>2</sup>·(−1)<sup>2</sup> = 24.',
+      idea: 'Multiplying out (A + B)<sup>n</sup>, each term picks A or B from every bracket, so the term with A from n − j brackets and B from j appears C(n, j) times: C(n, j)A<sup>n − j</sup>B<sup>j</sup>. For a constant term, work out the power of x in that term and set it to 0. For sums of coefficients, put in x = 1 (all of them) and x = −1 (even ones minus odd ones). A column of Pascal’s triangle adds up to the entry below and right of its end, C(k, k) + ⋯ + C(n, k) = C(n + 1, k + 1), because choices of k + 1 numbers from 1 to n + 1 can be sorted by their largest number. For example, the x<sup>2</sup> coefficient of (2x − 1)<sup>4</sup> is C(4, 2)·2<sup>2</sup>·(−1)<sup>2</sup> = 24.',
       how: [
         'Write the general term C(n, j)·(first)<sup>n − j</sup>·(second)<sup>j</sup>, keeping each number with its sign.',
         'Find j from the power of x you want; for a constant term, set the power of x to 0.',
         'For sums of coefficients use P(1) and P(−1): the even powers give (P(1) + P(−1))/2 and the odd powers (P(1) − P(−1))/2.',
-        'For a sum down a column of Pascal\'s triangle use the hockey stick, and subtract the part of the column that is missing at the top.',
+        'For a sum down a column of Pascal’s triangle use the hockey stick, and subtract the part of the column that is missing at the top.',
       ],
       facts: [
         'Term of (A + B)<sup>n</sup>: C(n, j)A<sup>n − j</sup>B<sup>j</sup>, and the exponents add up to n.',
@@ -1839,12 +1839,12 @@ export const amcLearning = {
     },
     'Choices in common': {
       spot: 'Two people each choosing several items at random from the same list, and a question about how many items both chose: fix the first person’s choice, then count the second person’s.',
-      idea: 'Fix the first person\'s choice: by symmetry it doesn\'t matter which one it is. Then count the second person\'s equally likely choices, C(n, k), and the ones that do what is asked. Exactly j in common: C(k, j)·C(n − k, k − j). At least one: use the opposite, no overlap at all, C(n − k, k). All inside the first list: C(m, k). And for the expected overlap, use linearity: each of the second person\'s b items is on the first list with probability a/n, so the expected overlap is ab/n. For example, with 6 films and lists of 2, sharing exactly 1 has probability C(2, 1)·C(4, 1)/C(6, 2) = 8/15.',
+      idea: 'Fix the first person’s choice: by symmetry it doesn’t matter which one it is. Then count the second person’s equally likely choices, C(n, k), and the ones that do what is asked. Exactly j in common: C(k, j)·C(n − k, k − j). At least one: use the opposite, no overlap at all, C(n − k, k). All inside the first list: C(m, k). And for the expected overlap, use linearity: each of the second person’s b items is on the first list with probability a/n, so the expected overlap is ab/n. For example, with 6 films and lists of 2, sharing exactly 1 has probability C(2, 1)·C(4, 1)/C(6, 2) = 8/15.',
       how: [
-        'Fix the first person\'s list.',
+        'Fix the first person’s list.',
         'Count every possible second list: C(n, k).',
         'Count the good second lists: shared ones from inside, the rest from outside the first list; or use the opposite for "at least one".',
-        'For an expected number in common, multiply the second list\'s size by the chance that one of its items is on the first list.',
+        'For an expected number in common, multiply the second list’s size by the chance that one of its items is on the first list.',
       ],
       facts: [
         'Lists of k from n with exactly j in common: C(k, j)·C(n − k, k − j)/C(n, k).',
@@ -1910,7 +1910,7 @@ export const amcLearning = {
         'Find the chance that each player wins a single round: the first a, the next (1 − a)·b, and so on, each only after everyone before has missed.',
         'With no limit, only these endings matter: a player wins with probability (their ending)/(sum of all endings).',
         'For a fair game, set the two endings equal and solve for the unknown chance.',
-        'With a limit of n rounds, add (the player\'s ending) × (1 + r + r² + ⋯), stopping after n terms, where r is the chance a whole round has no winner.',
+        'With a limit of n rounds, add (the player’s ending) × (1 + r + r² + ⋯), stopping after n terms, where r is the chance a whole round has no winner.',
       ],
       facts: [
         'The first player (chance a) beats the second (chance b) with probability a/(a + (1 − a)b), which is a/(1 − (1 − a)(1 − b)).',
@@ -1920,7 +1920,7 @@ export const amcLearning = {
       ],
       watch: [
         'Using b instead of (1 − a)·b: the second player only throws if the first one missed.',
-        'Answering with a player\'s chance on a single try: going first, or getting extra tries, changes the overall chance.',
+        'Answering with a player’s chance on a single try: going first, or getting extra tries, changes the overall chance.',
         'With a time limit, using the no-limit answer: the game can end with nobody winning.',
       ],
       tip: 'Compare the chances that each player wins a single round; a restart changes nothing.',
@@ -1971,7 +1971,7 @@ export const amcLearning = {
     },
     'Remainders by chance': {
       spot: 'A whole number chosen at random and "the probability that N<sup>e</sup> − 1 (or N² + k, or a product ab) is a multiple of m": only remainders matter, so test each remainder from 0 to m − 1.',
-      idea: 'When the numbers run over a whole number of blocks of m, every remainder mod m is equally likely, and a question about remainders only depends on the remainder. So test each remainder r from 0 to m − 1 and count the ones that work. Shortcuts help: Fermat\'s little theorem says r<sup>p−1</sup> leaves remainder 1 mod a prime p (for r not 0), so exponents can be cut down mod p − 1; the powers of a base mod m go round a cycle that ends at 1; and for a product ab to be a multiple of m, each remainder x of a allows gcd(x, m) remainders for b. For example, N² + 1 is a multiple of 5 for N ≡ 2 or 3: 2/5.',
+      idea: 'When the numbers run over a whole number of blocks of m, every remainder mod m is equally likely, and a question about remainders only depends on the remainder. So test each remainder r from 0 to m − 1 and count the ones that work. Shortcuts help: Fermat’s little theorem says r<sup>p−1</sup> leaves remainder 1 mod a prime p (for r not 0), so exponents can be cut down mod p − 1; the powers of a base mod m go round a cycle that ends at 1; and for a product ab to be a multiple of m, each remainder x of a allows gcd(x, m) remainders for b. For example, N² + 1 is a multiple of 5 for N ≡ 2 or 3: 2/5.',
       how: [
         'Check that the range splits evenly into blocks of m, so every remainder is equally likely.',
         'Reduce the question to remainders: work with r instead of N (and r, s for two numbers).',
@@ -2030,7 +2030,7 @@ export const amcLearning = {
       watch: [
         'Using only the outer circle of a ring, or counting four whole circles instead of four quarter circles.',
         'For two arrival times, using w/T: the good region is a band, not a strip of width w.',
-        'Forgetting to check that the shape fits inside the region (or that pieces don\'t overlap).',
+        'Forgetting to check that the shape fits inside the region (or that pieces don’t overlap).',
       ],
       tip: 'Turn the random choices into a random point in a shape, then compare areas.',
     },
@@ -2190,7 +2190,7 @@ export const amcLearning = {
     },
     'Altitudes of a triangle': {
       spot: '"The altitudes" of a triangle (their total, the shortest or longest, or the sum of their reciprocals) when its sides are known or a line cuts it off with the axes: find the area, then every altitude is 2·area/side.',
-      idea: 'Every altitude comes from the area: the altitude to a side is 2·area/side, so the longest altitude goes to the shortest side. A line that crosses both axes cuts off a right triangle with its right angle at the origin, and two of its three altitudes are the legs themselves, since each leg is perpendicular to the other; the third, to the hypotenuse, is (leg × leg)/hypotenuse. When only the three sides are known, Heron\'s formula gives the area: with s half the perimeter, area = √(s(s − a)(s − b)(s − c)). The reciprocal of each altitude is side/(2·area), so the three reciprocals add up to perimeter/(2·area), which is s/area.',
+      idea: 'Every altitude comes from the area: the altitude to a side is 2·area/side, so the longest altitude goes to the shortest side. A line that crosses both axes cuts off a right triangle with its right angle at the origin, and two of its three altitudes are the legs themselves, since each leg is perpendicular to the other; the third, to the hypotenuse, is (leg × leg)/hypotenuse. When only the three sides are known, Heron’s formula gives the area: with s half the perimeter, area = √(s(s − a)(s − b)(s − c)). The reciprocal of each altitude is side/(2·area), so the three reciprocals add up to perimeter/(2·area), which is s/area.',
       how: [
         'For a line and the axes: find the intercepts (set y = 0, then x = 0); those are the legs, and the hypotenuse is √(leg² + leg²).',
         'Two altitudes are the legs; the third is (leg × leg)/hypotenuse. Add all three.',
@@ -2213,7 +2213,7 @@ export const amcLearning = {
     },
     'Segments to the hypotenuse': {
       spot: '"How many segments from a corner to the opposite side have a whole-number length": find the shortest one, the altitude, then count the whole numbers on each side of its foot.',
-      idea: 'Slide a point along the hypotenuse from one end to the other and watch its distance from the right-angle corner: it starts at one leg\'s length, shrinks to the altitude h = (leg × leg)/hypotenuse at the foot of the altitude, then grows to the other leg\'s length. Lengths change smoothly, so on each side of the foot every length between h and that leg happens exactly once. Count the whole numbers in each range; if h is itself a whole number, that one segment sits on both sides, so count it once. If the question asks for different lengths rather than segments, a length that happens on both sides counts once, so just count the whole numbers from h up to the longer leg. In an isosceles triangle the shortest segment from the apex is its height, √(side² − (base/2)²), and both sides of its foot run up to the same length.',
+      idea: 'Slide a point along the hypotenuse from one end to the other and watch its distance from the right-angle corner: it starts at one leg’s length, shrinks to the altitude h = (leg × leg)/hypotenuse at the foot of the altitude, then grows to the other leg’s length. Lengths change smoothly, so on each side of the foot every length between h and that leg happens exactly once. Count the whole numbers in each range; if h is itself a whole number, that one segment sits on both sides, so count it once. If the question asks for different lengths rather than segments, a length that happens on both sides counts once, so just count the whole numbers from h up to the longer leg. In an isosceles triangle the shortest segment from the apex is its height, √(side² − (base/2)²), and both sides of its foot run up to the same length.',
       how: [
         'Find the shortest segment: the altitude h = ab/c in a right triangle, or the height √(side² − (base/2)²) from the apex of an isosceles one.',
         'On one side of its foot the lengths run from h up to the first side: count the whole numbers in that range.',
@@ -2236,13 +2236,13 @@ export const amcLearning = {
     },
     'Perpendicular to a diagonal': {
       spot: 'A rectangle with a perpendicular dropped from a corner onto a diagonal, and a question about its length, where its foot lands, or a triangle it cuts off: use the area two ways and the similar right triangles.',
-      idea: 'Put the rectangle on axes with W = (0, 0), X = (a, 0), Y = (a, b) and Z = (0, b), and drop the perpendicular from X to the diagonal WY, meeting it at F. Its length comes from the area of triangle WXY worked out two ways: ½·a·b = ½·WY·XF, so XF = ab/WY. The right triangles WFX and WXY share the angle at W, so they are similar, which gives WF = a²/WY; in the same way FY = b²/WY, so F splits the diagonal in the ratio a² : b². Measured from the same corner, the feet of two perpendiculars are a difference of two such distances apart. For an area like triangle WFZ, the height is how far F is from the side the triangle stands on: WZ lies along the y-axis, so it is F\'s x-coordinate, WF·(a/WY) = a³/(a² + b²).',
+      idea: 'Put the rectangle on axes with W = (0, 0), X = (a, 0), Y = (a, b) and Z = (0, b), and drop the perpendicular from X to the diagonal WY, meeting it at F. Its length comes from the area of triangle WXY worked out two ways: ½·a·b = ½·WY·XF, so XF = ab/WY. The right triangles WFX and WXY share the angle at W, so they are similar, which gives WF = a²/WY; in the same way FY = b²/WY, so F splits the diagonal in the ratio a² : b². Measured from the same corner, the feet of two perpendiculars are a difference of two such distances apart. For an area like triangle WFZ, the height is how far F is from the side the triangle stands on: WZ lies along the y-axis, so it is F’s x-coordinate, WF·(a/WY) = a³/(a² + b²).',
       how: [
         'Find the diagonal: WY = √(a² + b²).',
         'The perpendicular from X has length XF = ab/WY (the area of triangle WXY, taken with the diagonal as its base).',
         'Its foot is WF = a²/WY from W and FY = b²/WY from Y, so WF : FY = a² : b².',
         'A perpendicular from Z lands b²/WY from W, so the two feet are |a² − b²|/WY apart.',
-        'For triangle WFZ, the height to WZ is F\'s x-coordinate a³/(a² + b²), so its area is ½·b·a³/(a² + b²).',
+        'For triangle WFZ, the height to WZ is F’s x-coordinate a³/(a² + b²), so its area is ½·b·a³/(a² + b²).',
       ],
       facts: [
         'In a right triangle with legs a and b and hypotenuse c, the altitude to the hypotenuse is ab/c.',
@@ -2251,7 +2251,7 @@ export const amcLearning = {
         'The foot of the perpendicular from (a, 0) to the line from (0, 0) to (a, b) is (a³/(a² + b²), a²b/(a² + b²)).',
       ],
       watch: [
-        'Using WF as the height: the height to base WZ is F\'s horizontal distance from WZ.',
+        'Using WF as the height: the height to base WZ is F’s horizontal distance from WZ.',
         'Giving a : b as the ratio: the pieces of the diagonal are in the ratio of the squares, a² : b².',
         'Measuring the two feet from different ends of the diagonal before subtracting.',
         'Swapping the two side lengths: check which side is a and which is b.',
@@ -2260,7 +2260,7 @@ export const amcLearning = {
     },
     'Squares in a right triangle': {
       spot: 'A square inside a right triangle, either in the right-angle corner or standing on the hypotenuse: use similar triangles (or the hypotenuse’s line x/a + y/b = 1) to find its side.',
-      idea: 'The two squares sit differently, so find each one separately. With the legs on the axes, the hypotenuse is the line x/a + y/b = 1, and a square in the right-angle corner has its far corner (x, x) on that line, so x = ab/(a + b). For a square standing on the hypotenuse, use the altitude h = ab/c: cuts parallel to the hypotenuse shrink evenly from width c at the bottom to 0 at height h (similar triangles), so the width at height y is c(1 − y/h), and the square needs that width to equal y, which gives y = ch/(c + h). The corner square covers x² out of the triangle\'s ½ab, a fraction that simplifies to 2ab/(a + b)².',
+      idea: 'The two squares sit differently, so find each one separately. With the legs on the axes, the hypotenuse is the line x/a + y/b = 1, and a square in the right-angle corner has its far corner (x, x) on that line, so x = ab/(a + b). For a square standing on the hypotenuse, use the altitude h = ab/c: cuts parallel to the hypotenuse shrink evenly from width c at the bottom to 0 at height h (similar triangles), so the width at height y is c(1 − y/h), and the square needs that width to equal y, which gives y = ch/(c + h). The corner square covers x² out of the triangle’s ½ab, a fraction that simplifies to 2ab/(a + b)².',
       how: [
         'Square at the right angle: solve x/a + x/b = 1, so x = ab/(a + b).',
         'Square on the hypotenuse: find the altitude h = ab/c.',
@@ -2278,7 +2278,7 @@ export const amcLearning = {
         'Flipping the ratio: the question asks for x divided by y.',
         'Comparing sides instead of areas: the fraction covered uses x², not x.',
       ],
-      tip: 'Handle the squares separately: one has a corner on the hypotenuse, the other stands on it, and similar triangles give each side.',
+      tip: 'Put the legs on the axes: a square in the right-angle corner has its far corner (s, s) on the hypotenuse’s line, and a square standing on the hypotenuse needs the triangle’s width at its height to equal its side.',
     },
     'Lines making an equilateral triangle': {
       spot: 'Lines with slopes like √3, −√3 or √3/3, together with a vertical or horizontal line, enclosing a triangle: turn each slope into an angle, and when the angles are all 60°, use the equilateral triangle’s height and side.',
@@ -2307,7 +2307,7 @@ export const amcLearning = {
       idea: 'Look at one of the three new corner triangles, say the one at Q. Its two sides at Q are the extension (m times PQ) and QR plus its own extension ((1 + m) times QR), and the angle between them is the supplement of angle Q. Supplementary angles have the same sine, so by area = ½·(side)·(side)·sin(angle) that corner triangle has m(1 + m) times the area of the original. The three corners are alike, so the big triangle has area T + 3·m(1 + m)·T. For example, extending each side by 3 times itself gives T + 3·3·4·T = 37T. Working backward, divide the big area by 1 + 3m(1 + m), or, knowing both areas, solve for m. A square works the same way, only more simply: each of its four corner triangles is right-angled, with legs m·s and (1 + m)·s.',
       how: [
         'Pick one corner triangle; its sides at the shared vertex are m × one side and (1 + m) × the next side.',
-        'Its angle there is supplementary to the triangle\'s angle, so it has the same sine, and its area is m(1 + m) times the original\'s.',
+        'Its angle there is supplementary to the triangle’s angle, so it has the same sine, and its area is m(1 + m) times the original’s.',
         'The big triangle is the original plus three corners: (1 + 3m(1 + m))·T.',
         'Given the big area, divide by 1 + 3m(1 + m); given both areas, set 1 + 3m(1 + m) equal to their ratio and solve for m (try small numbers).',
         'For a square of side s: the square plus four right-triangle corners, each ½·ms·(1 + m)s.',
@@ -2345,7 +2345,7 @@ export const amcLearning = {
       watch: [
         'Giving one of the s-values instead of the difference between them.',
         'Measuring from the wrong corner: SL is measured from L, MT from M and NU from N.',
-        'Using SL and NU in the ratio instead of KS and MU, the pieces at the diagonal\'s ends.',
+        'Using SL and NU in the ratio instead of KS and MU, the pieces at the diagonal’s ends.',
       ],
       tip: 'Parametrize SU from 0 to 1 and subtract the two parameter values; for a ratio on a diagonal, look for similar triangles.',
     },
@@ -2371,13 +2371,13 @@ export const amcLearning = {
         'Using R instead of R − r for OP: the small centre is inside, R − r from O.',
         'For three circles, forgetting to add the small radius to the distance from O to a small centre.',
       ],
-      tip: 'Draw lines from the big circle\'s centre through each small centre to the contact points, and use similar triangles or Pythagoras.',
+      tip: 'Draw lines from the big circle’s centre through each small centre to the contact points, and use similar triangles or Pythagoras.',
     },
     'Cookies from a sheet of dough': {
       spot: 'Round cookies cut from a sheet of dough, and one more cookie rolled out from the scraps: find the dough’s size in terms of the cookies, then compare areas (scraps = dough − cookies).',
-      idea: 'Every version is the same bookkeeping: the dough\'s area minus the cookies\'. In the flower pattern the outer cookies touch the middle one, so their centres are 2r from the centre, and they reach r further to the edge of the dough: the dough\'s radius is 3r (or, the other way round, each cookie\'s radius is a third of the dough\'s). The scraps are π(3r)² − 7πr² = 2πr², and rolled out just as thick, the scrap cookie has that same area, so its radius is √(2r²) = r√2. Two cookies of radii p and q that touch each other and the edge fill a dough of radius p + q, and leave π((p + q)² − p² − q²) = 2πpq. In a square sheet of side a cut into n rows of n cookies, each cookie has diameter a/n, and together they cover π/4 of the square, whatever n is.',
+      idea: 'Every version is the same bookkeeping: the dough’s area minus the cookies’. In the flower pattern the outer cookies touch the middle one, so their centres are 2r from the centre, and they reach r further to the edge of the dough: the dough’s radius is 3r (or, the other way round, each cookie’s radius is a third of the dough’s). The scraps are π(3r)² − 7πr² = 2πr², and rolled out just as thick, the scrap cookie has that same area, so its radius is √(2r²) = r√2. Two cookies of radii p and q that touch each other and the edge fill a dough of radius p + q, and leave π((p + q)² − p² − q²) = 2πpq. In a square sheet of side a cut into n rows of n cookies, each cookie has diameter a/n, and together they cover π/4 of the square, whatever n is.',
       how: [
-        'Relate the radii: in the flower the dough\'s radius is 3 times a cookie\'s; with two cookies side by side, the dough\'s diameter is the sum of their diameters.',
+        'Relate the radii: in the flower the dough’s radius is 3 times a cookie’s; with two cookies side by side, the dough’s diameter is the sum of their diameters.',
         'Leftover area = dough minus cookies: for the flower, π(3r)² − 7πr² = 2πr².',
         'A scrap cookie of that area has radius √(leftover/π): r√2 for the flower. Given the scrap cookie, work backward to r, then to the dough.',
         'For a square sheet of side a with n rows of n cookies: each radius is a/(2n), and the leftover is a² − πa²/4.',
@@ -2389,11 +2389,11 @@ export const amcLearning = {
         'Equal circles in a square grid cover π/4 of the square, however many rows there are.',
       ],
       watch: [
-        'Taking the dough\'s radius as 2r: the outer cookies stick out a further r past their centres.',
+        'Taking the dough’s radius as 2r: the outer cookies stick out a further r past their centres.',
         'Forgetting the square root at the end, or comparing radii instead of areas.',
         'Using a/n as the radius in a square sheet: it is the diameter.',
       ],
-      tip: 'Find the dough\'s size in terms of a cookie\'s, then compare areas: dough minus cookies.',
+      tip: 'Find the dough’s size in terms of a cookie’s, then compare areas: dough minus cookies.',
     },
     'Points near a segment': {
       spot: '"All the points within r of a segment", in space or in a plane: picture a cylinder (or a rectangle) along the segment with half a ball (or half a disc) on each end.',
@@ -2401,7 +2401,7 @@ export const amcLearning = {
       how: [
         'Picture the solid: a cylinder of radius r along the segment, with a half ball on each end.',
         'Volume = πr²·L + (4/3)πr³; given the volume, subtract the ball and divide by πr² to find L.',
-        'Surface area = 2πr·L + 4πr²: the cylinder\'s side plus one whole sphere (the cylinder\'s flat ends are inside).',
+        'Surface area = 2πr·L + 4πr²: the cylinder’s side plus one whole sphere (the cylinder’s flat ends are inside).',
         'In a plane: a 2r-by-L rectangle plus one whole disc, 2rL + πr².',
       ],
       facts: [
@@ -2413,14 +2413,14 @@ export const amcLearning = {
       watch: [
         'Leaving out the rounded ends, or counting two whole balls instead of two halves.',
         'Mixing up the powers: the cylinder uses r², the ball uses r³.',
-        'Adding the cylinder\'s two flat ends to the surface: the half spheres cover them.',
+        'Adding the cylinder’s two flat ends to the surface: the half spheres cover them.',
         'Making the flat rectangle r wide instead of 2r: the region reaches r on both sides of the segment.',
       ],
       tip: 'Split the shape into a straight middle (a cylinder, or a rectangle in a plane) and round ends that together make one ball, sphere or disc.',
     },
     'Pyramid in a box': {
       spot: 'A pyramid or tetrahedron whose corners are corners of a box (or a point on an edge), with its volume or a missing edge: slide the apex to an easier spot, or cut corner pieces off the box.',
-      idea: 'The rectangle BCHE cuts through the box from edge BC to edge EH. Edge FG is parallel to that rectangle, so every point of FG is the same distance from it: the apex can slide along FG without changing the height, and the answer doesn\'t depend on where M is. Put the apex at F. In the face ABFE, the height from F to the diagonal BE is AB·BF/BE, while the base BCHE has sides BC and BE, so BE cancels and the volume is ⅓·AB·BC·CG: a third of the box. Corners work the same way: the plane through the three corners next to a corner cuts off a pyramid with a right-triangle base (half a face) and the third edge as its height, ⅙ of the box. The tetrahedron on four corners with no two on an edge, like ACFH, is the box with four such corners taken off: abc − 4·abc/6 = abc/3.',
+      idea: 'The rectangle BCHE cuts through the box from edge BC to edge EH. Edge FG is parallel to that rectangle, so every point of FG is the same distance from it: the apex can slide along FG without changing the height, and the answer doesn’t depend on where M is. Put the apex at F. In the face ABFE, the height from F to the diagonal BE is AB·BF/BE, while the base BCHE has sides BC and BE, so BE cancels and the volume is ⅓·AB·BC·CG: a third of the box. Corners work the same way: the plane through the three corners next to a corner cuts off a pyramid with a right-triangle base (half a face) and the third edge as its height, ⅙ of the box. The tetrahedron on four corners with no two on an edge, like ACFH, is the box with four such corners taken off: abc − 4·abc/6 = abc/3.',
       how: [
         'Notice that FG is parallel to the base BCHE, so moving M along FG keeps the same height; put M at F.',
         'The base has sides BC and BE = √(AB² + CG²), and the height from F to BE is AB·CG/BE.',
@@ -2435,7 +2435,7 @@ export const amcLearning = {
         'The tetrahedron on four corners of a box with no two on an edge has volume abc/3.',
       ],
       watch: [
-        'Forgetting the ⅓ in a pyramid\'s volume, or the ½ in a triangular base.',
+        'Forgetting the ⅓ in a pyramid’s volume, or the ½ in a triangular base.',
         'Thinking the position of M matters: anywhere on FG gives the same height.',
         'Taking off fewer than four corners for ACFH: there is one at each of B, D, E and G.',
       ],
@@ -2443,7 +2443,7 @@ export const amcLearning = {
     },
     'Octahedron in a box': {
       spot: '"The centres of the six faces of a box (or cube)" as the corners of an octahedron: split it into two pyramids on a rhombus whose diagonals are as long as two of the box’s edges.',
-      idea: 'The segments joining opposite face centres have lengths a, b and c, the box\'s dimensions, and they cross at right angles at the centre of the box. Two of them are the diagonals of a rhombus with area ½·a·b, and that rhombus cuts the octahedron into two pyramids, each of height c/2. So the volume is 2·⅓·(ab/2)·(c/2) = abc/6: one sixth of the box, whatever its shape. Two neighbouring face centres are a/2 and b/2 from the centre of the box along perpendicular lines, so by Pythagoras they are √((a/2)² + (b/2)²) apart. In a cube of edge e that distance, e/√2, is the edge of a regular octahedron, whose 8 faces are equilateral triangles of area (√3/4)·(edge)².',
+      idea: 'The segments joining opposite face centres have lengths a, b and c, the box’s dimensions, and they cross at right angles at the centre of the box. Two of them are the diagonals of a rhombus with area ½·a·b, and that rhombus cuts the octahedron into two pyramids, each of height c/2. So the volume is 2·⅓·(ab/2)·(c/2) = abc/6: one sixth of the box, whatever its shape. Two neighbouring face centres are a/2 and b/2 from the centre of the box along perpendicular lines, so by Pythagoras they are √((a/2)² + (b/2)²) apart. In a cube of edge e that distance, e/√2, is the edge of a regular octahedron, whose 8 faces are equilateral triangles of area (√3/4)·(edge)².',
       how: [
         'Join opposite face centres: three perpendicular segments of lengths a, b and c through the centre of the box.',
         'Two of them are the diagonals of a rhombus of area ab/2, which splits the octahedron into two pyramids of height c/2.',
@@ -2461,9 +2461,9 @@ export const amcLearning = {
         'Using a full a-by-b rectangle as the base instead of the rhombus inside it: that doubles the answer.',
         'Using the wrong pyramid fraction: a pyramid is ⅓ of base × height.',
         'Using whole edges instead of half edges for the distance between face centres.',
-        'Taking the cube\'s edge as the octahedron\'s edge: it is e/√2.',
+        'Taking the cube’s edge as the octahedron’s edge: it is e/√2.',
       ],
-      tip: 'Split the octahedron into two pyramids sharing a rhombus whose diagonals are two of the box\'s dimensions.',
+      tip: 'Join opposite face centres: three perpendicular segments as long as the box’s edges, two of which span a rhombus that splits the octahedron into two pyramids; neighbouring face centres are half-edges apart at right angles.',
     },
     // harder: problems 15 to 25
     'Power of a point': {
@@ -2491,16 +2491,16 @@ export const amcLearning = {
     },
     'Angle bisectors': {
       spot: 'When a line cuts an angle of a triangle in half and you need a length along it, the pieces it makes on the far side, or where it crosses an altitude, a median or another bisector (the incentre).',
-      idea: 'The bisector from A cuts the far side BC in the ratio of the two sides next to A: BD : DC = AB : AC. (Triangles ABD and ADC have the same height from A, so their areas are in the ratio BD : DC; working the same areas out as ½·AB·AD and ½·AC·AD times the sine of the same half angle gives AB : AC.) That one fact does most of the work, and it keeps working inside smaller triangles: if H or M lies on a side of the angle, the same line still bisects the angle of triangle ABH or ABM, so it cuts AH or BM in the ratio of that triangle\'s sides. The bisector\'s own length comes from AD² = AB·AC − BD·DC. For example, with AB = 6, AC = 9 and BC = 10, BD = 4 and DC = 6, so AD² = 54 − 24 = 30. The incentre I is where the bisector from B crosses AD, so AI : ID = AB : BD, which works out to (AB + AC) : BC.',
+      idea: 'The bisector from A cuts the far side BC in the ratio of the two sides next to A: BD : DC = AB : AC. (Triangles ABD and ADC have the same height from A, so their areas are in the ratio BD : DC; working the same areas out as ½·AB·AD and ½·AC·AD times the sine of the same half angle gives AB : AC.) That one fact does most of the work, and it keeps working inside smaller triangles: if H or M lies on a side of the angle, the same line still bisects the angle of triangle ABH or ABM, so it cuts AH or BM in the ratio of that triangle’s sides. The bisector’s own length comes from AD² = AB·AC − BD·DC. For example, with AB = 6, AC = 9 and BC = 10, BD = 4 and DC = 6, so AD² = 54 − 24 = 30. The incentre I is where the bisector from B crosses AD, so AI : ID = AB : BD, which works out to (AB + AC) : BC.',
       how: [
         'Write BD : DC = AB : AC, so BD = BC·AB/(AB + AC), and use whatever else is given (a perimeter, a difference) to find the scale.',
-        'For the bisector\'s length, find BD and DC first, then use AD² = AB·AC − BD·DC.',
+        'For the bisector’s length, find BD and DC first, then use AD² = AB·AC − BD·DC.',
         'When the bisector meets another segment, find the smaller triangle in which it is still a bisector, and use the theorem there: AP : PH = AB : BH, or BP : PM = AB : AM.',
         'For the incentre on AD, use the bisector from B in triangle ABD: AI : ID = AB : BD, so AI is AB/(AB + BD) of AD.',
       ],
       facts: [
         'BD : DC = AB : AC.',
-        'AD² = AB·AC − BD·DC (Stewart\'s theorem for a bisector).',
+        'AD² = AB·AC − BD·DC (Stewart’s theorem for a bisector).',
         'With I the incentre, AI : ID = (AB + AC) : BC.',
       ],
       watch: [
@@ -2512,10 +2512,10 @@ export const amcLearning = {
     },
     'Angles in circles': {
       spot: 'When points lie on a circle (the corners of an inscribed or regular polygon, a triangle with its circumcentre) and you need an angle: at a corner, between two crossing chords, at the centre, or where two lines meet outside the circle.',
-      idea: 'Measure everything by arcs. An inscribed angle is half the arc it looks across, and a central angle equals its arc, so ∠BOC = 2∠BAC. Two chords crossing inside make an angle of half the sum of the arc it cuts off and the arc its vertical angle cuts off; two secants, or a secant and a tangent, meeting outside make half the difference of the far arc and the near arc. Both come from a triangle\'s outside angle: if chords AC and BD cross at X, then ∠AXB = ∠XBC + ∠XCB = ½ arc CD + ½ arc AB. In a regular n-gon every side cuts off 360°/n, so arcs become a count of sides, and with the circumcentre the radii make isosceles triangles: ∠BOC = 2∠A gives ∠OBC = 90° − ∠A.',
+      idea: 'Measure everything by arcs. An inscribed angle is half the arc it looks across, and a central angle equals its arc, so ∠BOC = 2∠BAC. Two chords crossing inside make an angle of half the sum of the arc it cuts off and the arc its vertical angle cuts off; two secants, or a secant and a tangent, meeting outside make half the difference of the far arc and the near arc. Both come from a triangle’s outside angle: if chords AC and BD cross at X, then ∠AXB = ∠XBC + ∠XCB = ½ arc CD + ½ arc AB. In a regular n-gon every side cuts off 360°/n, so arcs become a count of sides, and with the circumcentre the radii make isosceles triangles: ∠BOC = 2∠A gives ∠OBC = 90° − ∠A.',
       how: [
         'Turn everything into arcs: the circle is 360°, an inscribed angle doubles to its arc, and each side of a regular n-gon is 360°/n.',
-        'Look at where the angle\'s corner is: on the circle (half the arc), inside (half the sum of two arcs) or outside (half of far minus near).',
+        'Look at where the angle’s corner is: on the circle (half the arc), inside (half the sum of two arcs) or outside (half of far minus near).',
         'Pick the arcs the angle opens onto, not the ones next to its corner; at a crossing, add the arc of the vertical angle.',
         'With the centre O, use ∠BOC = 2∠A and the isosceles triangle BOC, whose base angles are each 90° − ∠A.',
       ],
@@ -2533,17 +2533,17 @@ export const amcLearning = {
     },
     'Areas cut by a line': {
       spot: 'When a line through a corner, a line parallel to a side, a vertical or horizontal line, or two crossing segments cut a figure, and the areas of the pieces are given or asked for.',
-      idea: 'Two facts do the work. Triangles with the same height have areas in the ratio of their bases: so a line from a corner cuts the far side in the same ratio as the two areas, and pieces made by segments that cross inside a triangle can be found one shared height at a time (mass points say how the crossing point cuts each segment). And similar figures have areas in the ratio of the squares of their lengths: so a line parallel to a side that cuts off the fraction f of a triangle\'s area leaves a small triangle with sides √f times as long. For example, cutting off half the area takes a line about 0.71 of the base long, not half of it. The squares also explain why the segment halving a trapezoid with parallel sides a and b is √((a² + b²)/2) long, and where a vertical line must go to halve a triangle: past the middle corner, the piece at the tip has an area that grows as the square of its width.',
+      idea: 'Two facts do the work. Triangles with the same height have areas in the ratio of their bases: so a line from a corner cuts the far side in the same ratio as the two areas, and pieces made by segments that cross inside a triangle can be found one shared height at a time (mass points say how the crossing point cuts each segment). And similar figures have areas in the ratio of the squares of their lengths: so a line parallel to a side that cuts off the fraction f of a triangle’s area leaves a small triangle with sides √f times as long. For example, cutting off half the area takes a line about 0.71 of the base long, not half of it. The squares also explain why the segment halving a trapezoid with parallel sides a and b is √((a² + b²)/2) long, and where a vertical line must go to halve a triangle: past the middle corner, the piece at the tip has an area that grows as the square of its width.',
       how: [
         'Line through a corner: the two pieces share a height, so the far side is cut in the ratio of the areas; find that point (part of the way from one end to the other) and then the slope.',
         'Line parallel to a side: the piece at the tip is similar to the whole, so its lengths are the square root of its share of the area.',
-        'Vertical or horizontal line: the line through the middle corner splits the area in the ratio of the widths on each side, which shows which side the halving line is on; then the tip piece\'s area is its share times (its width over the full width on that side)², set equal to half.',
-        'Two segments crossing: mass points give how the crossing point cuts each one, shared heights give each triangle\'s area, and the last piece is what is left.',
+        'Vertical or horizontal line: the line through the middle corner splits the area in the ratio of the widths on each side, which shows which side the halving line is on; then the tip piece’s area is its share times (its width over the full width on that side)², set equal to half.',
+        'Two segments crossing: mass points give how the crossing point cuts each one, shared heights give each triangle’s area, and the last piece is what is left.',
       ],
       facts: [
         'Same height: the areas are in the ratio of the bases.',
         'Similar figures: area ratio = (length ratio)².',
-        'The segment parallel to a trapezoid\'s parallel sides a and b that halves its area is √((a² + b²)/2) long.',
+        'The segment parallel to a trapezoid’s parallel sides a and b that halves its area is √((a² + b²)/2) long.',
       ],
       watch: [
         'Forgetting the square root: cutting off a quarter of the area at the tip takes half the length, not a quarter.',
@@ -2592,10 +2592,10 @@ export const amcLearning = {
       watch: [
         'Adding the radii for a circle that is inside an arc (subtract), or subtracting for one that is outside (add).',
         'Using the side of the square as the radius of the semicircle drawn on it: the radius is half the side.',
-        'Forgetting the ½ in a semicircle\'s area.',
+        'Forgetting the ½ in a semicircle’s area.',
         'Keeping the wrong root of a quadratic, such as the whole square instead of the smaller one.',
       ],
-      tip: 'Put the square on coordinates and write "distance between centres = sum (or difference) of the radii" for each arc the circle touches.',
+      tip: 'Put the figure on coordinates and turn every touch into a distance: centres R + r apart from outside, R − r from inside, and a corner on an arc exactly R from its centre.',
     },
     'Cutting a cone': {
       spot: 'When a cone or a pyramid is cut by a plane parallel to its base, or holds water standing point up or point down, the piece at the tip is a smaller copy of the whole solid.',
@@ -2605,7 +2605,7 @@ export const amcLearning = {
         'Find its scale k, its height divided by the whole height; it holds k³ of the volume.',
         'Get every other piece by subtracting: the frustum, or a slice between two cuts, is the difference of two similar solids.',
         'Going the other way, from a share of the volume to a height, take a cube root: k = ∛(share).',
-        'For a frustum\'s surface, find the slant height from a right triangle with the height and how far each side steps in.',
+        'For a frustum’s surface, find the slant height from a right triangle with the height and how far each side steps in.',
       ],
       facts: [
         'Similar solids with scale k: lengths ×k, areas ×k², volumes ×k³.',
@@ -2616,13 +2616,13 @@ export const amcLearning = {
         'Using k or k² for a ratio of volumes instead of k³.',
         'Giving small : whole when the question asks for small : rest.',
         'After turning a cone over, measuring from the wrong end: point up, the empty part is the small cone at the top.',
-        'Using the frustum\'s height as the height of its slanted faces.',
+        'Using the frustum’s height as the height of its slanted faces.',
       ],
       tip: 'Find the small copy at the apex and its scale k; it has k³ of the volume.',
     },
     'Reflections and shortest paths': {
       spot: 'When a path has to touch a line on the way, bounces off walls or mirrors, or goes over the faces of a box, unfold it so that it becomes a straight line.',
-      idea: 'Reflecting part of a path in the line it touches doesn\'t change its length. So a walk that touches a river and then goes to B is as long as a walk to B\'s mirror image across the river, and the shortest one is the straight segment: from a point 3 m from the bank to the bank and on to a point 5 m from it, 6 m further along, the shortest walk is √(6² + 8²) = 10. A bouncing ball or a light ray works the same way: reflect the table or the mirrors instead of the path, and the ray goes straight on through the copies, one bounce for each line it crosses. On a box, unfold the faces a route crosses into a flat net; the route is a straight line on the net, and you compare the different nets.',
+      idea: 'Reflecting part of a path in the line it touches doesn’t change its length. So a walk that touches a river and then goes to B is as long as a walk to B’s mirror image across the river, and the shortest one is the straight segment: from a point 3 m from the bank to the bank and on to a point 5 m from it, 6 m further along, the shortest walk is √(6² + 8²) = 10. A bouncing ball or a light ray works the same way: reflect the table or the mirrors instead of the path, and the ray goes straight on through the copies, one bounce for each line it crosses. On a box, unfold the faces a route crosses into a flat net; the route is a straight line on the net, and you compare the different nets.',
       how: [
         'Reflect the end point in each line the path must touch, or reflect the table or the mirrors instead of a bouncing path.',
         'Draw the straight segment in the unfolded picture, and find its length with Pythagoras, or count the lines it crosses: each crossing is one bounce.',
@@ -2640,7 +2640,7 @@ export const amcLearning = {
         'Using m·n instead of lcm(m, n) for the billiard table.',
         'On a box, trying only one unfolding: the shortest route can cross more faces than you expect.',
       ],
-      tip: 'Reflect instead of bouncing, and the shortest path becomes a straight line.',
+      tip: 'Reflect (or unfold) instead of bouncing or folding, so the path becomes a straight line.',
     },
   },
 };

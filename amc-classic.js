@@ -1,5 +1,5 @@
 // The 12 classic AMC 10 topics, each with several kinds of question on the same idea (a different unknown, a different
-// setup, working backward), so practising a topic isn't the same question with new numbers. Each topic is a list of
+// setup, working backward), so practising a topic isn’t the same question with new numbers. Each topic is a list of
 // forms that family() in amc-kit.js takes turns through, and every form checks its answer a second way.
 import { combo, num, frac, gcd, lcm, choose } from '../kit/bank.js';
 import { ord, range, choices, showFrac } from './amc-kit.js';
@@ -15,6 +15,13 @@ const countPairs = (ok) => { let c = 0; for (let x = 1; x <= 6; x++) for (let y 
 const committees = (n, k, ok) => { let c = 0; for (let mask = 0; mask < 1 << n; mask++) { let bits = 0; for (let i = 0; i < n; i++) if (mask & (1 << i)) bits++; if (bits === k && ok(mask)) c++; } return c; };
 const hours = (v) => { const [p, q] = v, g = gcd(p, q); const P = p / g, Q = q / g; return Q === 1 ? `${P} hour${P === 1 ? '' : 's'}` : P > Q ? `${Math.floor(P / Q)} ${frac(P % Q, Q)} hours` : `${frac(P, Q)} hour`; };
 const pt = ([x, y]) => `(${num(x)}, ${num(y)})`;
+const paren = (x) => (x < 0 ? `(${num(x)})` : num(x));       // a number, in brackets when it is negative
+const listing = (xs) => (xs.length < 2 ? String(xs[0]) : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);
+const money = (v) => `$${Math.abs(v - Math.round(v)) < 1e-9 ? num(Math.round(v), 0) : v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+// where the exponent e falls in a cycle of L powers (b¹ first): the sum that shows it, and its place from 1 to L
+const spot = (e, L) => (e % L ? [`${e} = ${L}·${Math.floor(e / L)} + ${e % L}`, e % L] : [`${e} = ${L}·${e / L}, a whole number of cycles`, L]);
+// the number of ways two dice make the sum t (2 to 12)
+const ways = (t) => 6 - Math.abs(t - 7);
 // two class averages (70 to 91 and 60 to 94, at least 4 apart) whose combined average is a whole number
 const averagePairs = (a, b) => range(70, 91).flatMap((x) => range(60, 94).filter((y) => Math.abs(y - x) >= 4 && (a * x + b * y) % (a + b) === 0).map((y) => [x, y]));
 const pw = (p, e) => (e === 0 ? '' : e === 1 ? `${p}` : `${p}<sup>${e}</sup>`);
@@ -43,7 +50,7 @@ export const classic = named({
       return {
         rank: 5,
         text: `In an arithmetic sequence, the ${ord(i)} term is ${num(t(i))} and the ${ord(j)} term is ${num(t(j))}. What is the ${ord(n)} term?`,
-        answer: choices(d, t(n), [t(n) + dd, t(n) - dd, t(i) + (n - i + 1) * dd, t(n) + 2 * dd]),
+        answer: choices(d, t(n), [t(n) + dd, t(n) - dd, t(i) + (n - i + 1) * dd, t(n) + 2 * dd, t(n) - 2 * dd]),
         check: () => { let v = t(i); const step = (t(j) - t(i)) / (j - i); for (let k = i; k < n; k++) v += step; return v === t(n) ? '' : `walked to ${v}`; },
         solution: `The common difference is (${num(t(j))} − ${t(i) < 0 ? `(${num(t(i))})` : num(t(i))}) / (${j} − ${i}) = ${num(dd)}. Then the ${ord(n)} term is the ${ord(i)} term plus ${n - i} steps: ${num(t(i))} + ${n - i}·(${num(dd)}) = <b>${num(t(n))}</b>.`,
       };
@@ -69,6 +76,7 @@ export const classic = named({
         text: `What is the sum of the first ${n} terms of the arithmetic sequence ${a}, ${a + dd}, ${a + 2 * dd}, …?`,
         answer: choices(d, S, [n * (a + last), n * last, S + last + dd, S - last]),
         check: () => { let s = 0; for (let k = 0; k < n; k++) s += a + k * dd; return s === S ? '' : `summed ${s}`; },
+        tip: 'Find the last term first (n terms take n − 1 steps), then the sum is the number of terms times the average of the first and last.',
         solution: `The ${ord(n)} term is ${a} + ${n - 1}·${dd} = ${last}. The sum is the number of terms times the average of the first and last: ${n}·(${a} + ${last})/2 = <b>${num(S)}</b>.`,
       };
     },
@@ -97,7 +105,7 @@ export const classic = named({
         text: `What is the remainder when ${b}<sup>${k}</sup> is divided by ${m}?`,
         answer: choices(d, r, d.shuffle(range(0, m - 1)).filter((x) => x !== r)),
         check: () => (powMod(b, k, m) === r ? '' : 'remainder wrong'),
-        solution: `Powers of ${b} mod ${m} repeat: ${cyc.join(', ')}, then start over (a cycle of ${cyc.length}). ${k} = ${cyc.length}·${Math.floor((k - 1) / cyc.length)} + ${((k - 1) % cyc.length) + 1}, so ${b}<sup>${k}</sup> leaves the same remainder as ${b}<sup>${((k - 1) % cyc.length) + 1}</sup>: <b>${r}</b>.`,
+        solution: `The powers of ${b} leave the remainders ${cyc.join(', ')} mod ${m}, and then start over, a cycle of ${cyc.length}. ${spot(k, cyc.length)[0]}, so ${b}<sup>${k}</sup> leaves the same remainder as ${b}<sup>${spot(k, cyc.length)[1]}</sup>: <b>${r}</b>.`,
       };
     },
     // the remainder of a sum of two big powers
@@ -110,7 +118,8 @@ export const classic = named({
         text: `What is the remainder when ${b}<sup>${e}</sup> + ${c}<sup>${f}</sup> is divided by ${m}?`,
         answer: choices(d, r, [(rb * rc) % m, rb, rc, ...d.shuffle(range(0, m - 1))]),
         check: () => ((powMod(b, e, m) + powMod(c, f, m)) % m === r ? '' : 'remainder wrong'),
-        solution: `Remainders can be added, so find each one. Powers of ${b} mod ${m} cycle through ${cb.join(', ')} (length ${cb.length}), so ${b}<sup>${e}</sup> leaves ${rb}. Powers of ${c} cycle through ${cc.join(', ')} (length ${cc.length}), so ${c}<sup>${f}</sup> leaves ${rc}. The sum leaves ${rb} + ${rc} = ${rb + rc}, which is ${r} more than a multiple of ${m}: <b>${r}</b>.`,
+        solution: `Remainders can be added, so find each one. Powers of ${b} mod ${m} cycle through ${cb.join(', ')} (length ${cb.length}), and ${spot(e, cb.length)[0]}, so ${b}<sup>${e}</sup> leaves the same as ${b}<sup>${spot(e, cb.length)[1]}</sup>, which is ${rb}. Powers of ${c} mod ${m} cycle through ${cc.join(', ')} (length ${cc.length}), and ${spot(f, cc.length)[0]}, so ${c}<sup>${f}</sup> leaves the same as ${c}<sup>${spot(f, cc.length)[1]}</sup>, which is ${rc}. `
+          + (rb + rc < m ? `The sum leaves ${rb} + ${rc} = <b>${r}</b>.` : r === 0 ? `The sum leaves ${rb} + ${rc} = ${m}, a multiple of ${m}, so the remainder is <b>0</b>.` : `The sum leaves ${rb} + ${rc} = ${rb + rc} = ${m} + ${r}, so the remainder is <b>${r}</b>.`),
       };
     },
     // how many exponents make a multiple
@@ -122,7 +131,7 @@ export const classic = named({
         text: `For how many integers k with 1 ≤ k ≤ ${N} is ${b}<sup>k</sup> − 1 a multiple of ${m}?`,
         answer: choices(d, count, [Math.floor(N / (m - 1)), count + 1, count - 1, Math.floor(N / m), Math.floor(N / (o + 1))]),
         check: () => { let c = 0, v = 1; for (let k = 1; k <= N; k++) { v = (v * b) % m; if (v === 1) c++; } return c === count ? '' : `counted ${c}`; },
-        solution: `Powers of ${b} mod ${m} go ${cyc.join(', ')}: they first come back to 1 at ${b}<sup>${o}</sup>, and then every ${o} steps. So ${b}<sup>k</sup> − 1 is a multiple of ${m} exactly when k is a multiple of ${o}, and there are ⌊${N}/${o}⌋ = <b>${count}</b> of those up to ${N}.`,
+        solution: `Powers of ${b} mod ${m} go ${cyc.join(', ')}. They first come back to 1 at ${b}<sup>${o}</sup>, and then every ${o} steps. So ${b}<sup>k</sup> − 1 is a multiple of ${m} exactly when k is a multiple of ${o}, and there are ⌊${N}/${o}⌋ = <b>${count}</b> of those up to ${N}.`,
       };
     },
     // the smallest exponent that gives 1
@@ -151,7 +160,7 @@ export const classic = named({
         text: `How many positive divisors does ${num(N, 0)} have?`,
         answer: choices(d, count, [a * b * Math.max(c, 1), count - 2, a + b + c + 1, (a + 1) * (b + 1), count + (a + 1)]),
         check: () => (tau(N) === count ? '' : `counted ${tau(N)}`),
-        solution: `${num(N, 0)} = ${fac}. A divisor picks each prime's power from 0 up to its exponent, so there are ${[a, b, c].filter((e) => e).map((e) => `(${e} + 1)`).join(' · ')} = <b>${count}</b> divisors.`,
+        solution: `${num(N, 0)} = ${fac}. A divisor picks each prime’s power from 0 up to its exponent, so there are ${[a, b, c].filter((e) => e).map((e) => `(${e} + 1)`).join(' · ')} = <b>${count}</b> divisors.`,
       };
     },
     // the odd or the even divisors
@@ -163,7 +172,7 @@ export const classic = named({
         text: `How many of the positive divisors of ${num(N, 0)} are ${odd ? 'odd' : 'even'}?`,
         answer: choices(d, value, [odd ? evens : odds, total, total / 2, value + 1, (a + 1) * b * c]),
         check: () => { let k = 0; for (let i = 1; i <= N; i++) if (N % i === 0 && i % 2 === (odd ? 1 : 0)) k++; return k === value ? '' : `counted ${k}`; },
-        solution: `${num(N, 0)} = 2${a > 1 ? `<sup>${a}</sup>` : ''}·${q}${b > 1 ? `<sup>${b}</sup>` : ''}·${r}${c > 1 ? `<sup>${c}</sup>` : ''}. An odd divisor takes no 2 at all, which leaves (${b} + 1)(${c} + 1) = ${odds} choices. ${odd ? `So <b>${odds}</b> are odd.` : `An even one takes 2 to a power from 1 to ${a}: ${a}·${odds} = <b>${evens}</b>.`}`,
+        solution: `${num(N, 0)} = 2${a > 1 ? `<sup>${a}</sup>` : ''}·${q}${b > 1 ? `<sup>${b}</sup>` : ''}·${r}${c > 1 ? `<sup>${c}</sup>` : ''}. An odd divisor takes no 2 at all, which leaves (${b} + 1)(${c} + 1) = ${odds} choices${odd ? `, so <b>${odds}</b> are odd.` : `. An even one takes 2 to a power from 1 to ${a}: ${a}·${odds} = <b>${evens}</b>.`}`,
       };
     },
     // the divisors that are multiples of a given number
@@ -189,7 +198,7 @@ export const classic = named({
         text: `What is the smallest positive integer that has exactly ${D} positive divisors?`,
         answer: choices(d, best, others),
         check: () => { let n = 1; while (tau(n) !== D) n++; return n === best ? '' : `found ${n}`; },
-        solution: `The number of divisors of 2<sup>a</sup>·3<sup>b</sup>·5<sup>c</sup>⋯ is (a + 1)(b + 1)(c + 1)⋯, so write ${D} as such a product and put the biggest powers on the smallest primes: ${options.map(([v, e]) => `${writeOf(e)} = ${num(v, 0)}`).join('; ')}. The smallest is <b>${num(best, 0)}</b>.`,
+        solution: `The number of divisors of 2<sup>a</sup>·3<sup>b</sup>·5<sup>c</sup>⋯ is (a + 1)(b + 1)(c + 1)⋯, so write ${D} as such a product and put the biggest powers on the smallest primes: ${options.map(([v, e]) => `${e.length === 1 ? `${D} itself` : `${D} = ${e.map((x) => x + 1).join('·')}`} gives ${writeOf(e)} = ${num(v, 0)}`).join('; ')}. The smallest is <b>${num(best, 0)}</b>.`,
       };
     },
   ],
@@ -202,26 +211,34 @@ export const classic = named({
       const ok = (x, y) => (kind === 'equal' ? x + y === s : kind === 'atleast' ? x + y >= s : (x + y) % s === 0);
       const count = countPairs(ok);
       const phrase = kind === 'equal' ? `the sum is ${s}` : kind === 'atleast' ? `the sum is at least ${s}` : `the sum is a multiple of ${s}`;
-      const having = kind === 'equal' ? `a sum of ${s}` : kind === 'atleast' ? `a sum of at least ${s}` : `a sum that is a multiple of ${s}`;
+      // the sums that work (or, for "at least" a small number, the ones that fail), each with its number of ways
+      const bySums = (ts) => (ts.length === 1 ? `a sum of ${ts[0]} comes up in ${ways(ts[0])} way${ways(ts[0]) === 1 ? '' : 's'}`
+        : `the sums ${listing(ts)} come up in ${ts.map(ways).join(' + ')} = ${ts.reduce((x, t) => x + ways(t), 0)} ways`);
+      const pairs = range(1, 6).filter((x) => s - x >= 1 && s - x <= 6).map((x) => `(${x}, ${s - x})`);
+      const cap = (t) => t[0].toUpperCase() + t.slice(1);
+      const how = kind === 'equal' ? `A sum of ${s} comes ${count === 1 ? `only from ${pairs[0]}` : `from ${listing(pairs)}, ${count} of them`}.`
+        : kind === 'atleast' && s <= 7 ? `It is quicker to count the ones that fail, with a sum below ${s}. ${cap(bySums(range(2, s - 1)))}, so 36 − ${36 - count} = ${count} have a sum of at least ${s}.`
+          : kind === 'atleast' ? `${cap(bySums(range(s, 12)))}, so ${count} of them have a sum of at least ${s}.`
+            : `The multiples of ${s} that two dice can make are ${listing(range(2, 12).filter((t) => t % s === 0))}, and ${bySums(range(2, 12).filter((t) => t % s === 0))}.`;
       return {
         rank: 10,
         text: `Two fair six-sided dice are rolled. What is the probability that ${phrase}?`,
         answer: choices(d, [count, 36], [[count + 1, 36], [Math.max(count - 1, 1), 36], [count, 21], [36 - count, 36], [count, 30]].filter(([p, q]) => p <= q), showFrac),
         check: () => { let c = 0; for (let x = 1; x <= 6; x++) for (let y = 1; y <= 6; y++) if (ok(y, x)) c++; return c === count ? '' : `counted ${c}`; },
-        solution: `There are 36 equally likely outcomes, and ${count} of them have ${having}. Probability = ${count}/36 = <b>${frac(count, 36)}</b>.`,
+        solution: `There are 36 equally likely outcomes. ${how} Probability = ${count}/36 = <b>${frac(count, 36)}</b>.`,
       };
     },
     // the product of two dice
     (d, ctx) => {
       const PRODUCT = [
-        ['the product is even', (x, y) => (x * y) % 2 === 0, 'only odd × odd is odd, and there are 3·3 = 9 of those, so 36 − 9'],
-        ['the product is odd', (x, y) => (x * y) % 2 === 1, 'both dice must be odd: 3·3'],
-        ['the product is a multiple of 3', (x, y) => (x * y) % 3 === 0, 'it fails only when neither die is 3 or 6: 4·4 = 16, so 36 − 16'],
-        ['the product is a multiple of 4', (x, y) => (x * y) % 4 === 0, 'a 4 on either die, or two even numbers (2s and 6s): list them'],
-        ['the product is a multiple of 6', (x, y) => (x * y) % 6 === 0, 'the pair needs a factor 2 and a factor 3 between them: list them'],
-        ['the product is a perfect square', (x, y) => Number.isInteger(Math.sqrt(x * y)), 'the 6 doubles, plus 1 and 4 both ways'],
-        ['the product is greater than 12', (x, y) => x * y > 12, 'list them: 3·5, 3·6, 4·4, 4·5, 4·6, 5·5, 5·6, 6·6 and the reverses'],
-        ['the product is less than 10', (x, y) => x * y < 10, 'count die by die: a 1 goes with anything, a 2 with 1 to 4, and so on'],
+        ['the product is even', (x, y) => (x * y) % 2 === 0, 'Only odd × odd is odd, and there are 3·3 = 9 of those, so 36 − 9 = 27 products are even'],
+        ['the product is odd', (x, y) => (x * y) % 2 === 1, 'Both dice must be odd, 1, 3 or 5, so there are 3·3 = 9 such pairs'],
+        ['the product is a multiple of 3', (x, y) => (x * y) % 3 === 0, 'It misses a factor 3 only when neither die is 3 or 6, in 4·4 = 16 pairs, so 36 − 16 = 20 pairs work'],
+        ['the product is a multiple of 4', (x, y) => (x * y) % 4 === 0, 'A 4 on at least one die works, in 36 − 5·5 = 11 pairs, and so do two dice that are each 2 or 6, in 2·2 = 4 more, so 11 + 4 = 15 pairs work'],
+        ['the product is a multiple of 6', (x, y) => (x * y) % 6 === 0, 'A 6 on at least one die works, in 36 − 5·5 = 11 pairs; without a 6, one die must be 3 and the other 2 or 4, in 2·2 = 4 more pairs, so 11 + 4 = 15 pairs work'],
+        ['the product is a perfect square', (x, y) => Number.isInteger(Math.sqrt(x * y)), 'The squares come from the 6 doubles and from 1·4 and 4·1, so 6 + 2 = 8 pairs work'],
+        ['the product is greater than 12', (x, y) => x * y > 12, 'They are 3·5, 3·6, 4·4, 4·5, 4·6, 5·5, 5·6 and 6·6, and the 5 of these with two different numbers also come the other way round, so 8 + 5 = 13 pairs work'],
+        ['the product is less than 10', (x, y) => x * y < 10, 'Going die by die, a 1 on the first die goes with any of the 6, a 2 with 1 to 4, a 3 with 1 to 3, a 4 with 1 or 2, and a 5 or a 6 only with 1, so 6 + 4 + 3 + 2 + 1 + 1 = 17 pairs work'],
       ];
       const [[phrase, ok, how]] = combo(ctx, [PRODUCT]);
       const count = countPairs(ok);
@@ -230,7 +247,7 @@ export const classic = named({
         text: `Two fair six-sided dice are rolled and the two numbers are multiplied. What is the probability that ${phrase}?`,
         answer: choices(d, [count, 36], [[36 - count, 36], [count, 21], [count + 2, 36], [Math.max(count - 2, 1), 36], [count + 4, 36]].filter(([p, q]) => p <= q), showFrac),
         check: () => { let c = 0; for (let n = 0; n < 36; n++) if (ok(1 + Math.floor(n / 6), 1 + (n % 6))) c++; return c === count ? '' : `counted ${c}`; },
-        solution: `Count the ordered pairs (first die, second die) out of 36 (${how}): ${count} of them. Probability = ${count}/36 = <b>${frac(count, 36)}</b>.`,
+        solution: `Count the ordered pairs (first die, second die) out of the 36. ${how}. Probability = ${count}/36 = <b>${frac(count, 36)}</b>.`,
       };
     },
     // how far apart the two dice are
@@ -245,26 +262,27 @@ export const classic = named({
         check: () => { let c = 0; for (let x = 1; x <= 6; x++) for (let y = 1; y <= 6; y++) if (mode === 'exactly' ? x - y === k || y - x === k : x - y >= k || y - x >= k) c++; return c === count ? '' : `counted ${c}`; },
         solution: k === 0
           ? `The pairs (1, 1), (2, 2), …, (6, 6) are 6 of the 36 equally likely outcomes. Probability = 6/36 = <b>${frac(6, 36)}</b>.`
-          : `A difference of exactly j happens in 6 − j ways in each order, so 2(6 − j) ways. ${mode === 'exactly' ? `For j = ${k}: ${count}.` : `Add these up for j = ${k} to 5: ${count}.`} Probability = ${count}/36 = <b>${frac(count, 36)}</b>.`,
+          : `A difference of exactly j happens in 6 − j ways in each order, so in 2(6 − j) ways. ${mode === 'exactly' || k === 5 ? `For j = ${k} that is 2(6 − ${k}) = ${count} ways.` : `Adding these for j = ${k} to 5 gives ${range(k, 5).map((j) => 2 * (6 - j)).join(' + ')} = ${count} ways.`} Probability = ${count}/36 = <b>${frac(count, 36)}</b>.`,
       };
     },
     // the largest or smallest of three dice
     (d, ctx) => {
       const [which, m] = combo(ctx, [['largest', 'smallest'], [2, 3, 4, 5]]);
       const t = which === 'largest' ? m : 7 - m, count = t ** 3 - (t - 1) ** 3;
+      const faces = (lo, hi) => (lo === hi ? `${lo}` : hi === lo + 1 ? `${lo} or ${hi}` : `${lo} to ${hi}`);
       return {
         rank: 12,
         text: `Three fair six-sided dice are rolled. What is the probability that the ${which} of the three numbers is exactly ${m}?`,
         answer: choices(d, [count, 216], [[t ** 3, 216], [1, 6], [3 * (t - 1) ** 2, 216], [(t - 1) ** 3, 216], [count + 6, 216]], showFrac),
         check: () => { let c = 0; for (let x = 1; x <= 6; x++) for (let y = 1; y <= 6; y++) for (let z = 1; z <= 6; z++) if ((which === 'largest' ? Math.max(x, y, z) : Math.min(x, y, z)) === m) c++; return c === count ? '' : `counted ${c}`; },
-        solution: `The ${which} number is ${which === 'largest' ? 'at most' : 'at least'} ${m} when all three dice are: ${t}<sup>3</sup> = ${t ** 3} of the 216 outcomes. ${which === 'largest' ? `At most ${m - 1}` : `At least ${m + 1}`}: ${t - 1}<sup>3</sup> = ${(t - 1) ** 3}. So exactly ${m}: ${t ** 3} − ${(t - 1) ** 3} = ${count}, a probability of <b>${frac(count, 216)}</b>.`,
+        solution: `The ${which} number is ${which === 'largest' ? 'at most' : 'at least'} ${m} when every die shows ${faces(which === 'largest' ? 1 : m, which === 'largest' ? m : 6)}, which happens in ${t}<sup>3</sup> = ${t ** 3} of the 216 outcomes. It is ${which === 'largest' ? `at most ${m - 1}` : `at least ${m + 1}`} when every die shows ${faces(which === 'largest' ? 1 : m + 1, which === 'largest' ? m - 1 : 6)}, in ${t - 1}<sup>3</sup> = ${(t - 1) ** 3} outcomes. So it is exactly ${m} in ${t ** 3} − ${(t - 1) ** 3} = ${count} outcomes, a probability of <b>${frac(count, 216)}</b>.`,
       };
     },
   ],
 
   // ---------- counting committees ----------
   'Counting committees': [
-    // two people who won't serve together
+    // two people who won’t serve together
     (d, ctx) => {
       const [n, k] = combo(ctx, [range(7, 14), [3, 4, 5]]), total = choose(n, k), both = choose(n - 2, k - 2), good = total - both;
       const [P1, P2] = d.pick([['Alex', 'Blake'], ['Casey', 'Drew'], ['Emery', 'Finn'], ['Gray', 'Harper'], ['Jordan', 'Kai']]);
@@ -273,7 +291,7 @@ export const classic = named({
         text: `A club has ${n} members. A committee of ${k} is chosen, but ${P1} and ${P2} refuse to serve together. How many different committees are possible?`,
         answer: choices(d, good, [total, choose(n - 2, k), total - choose(n - 2, k - 1), choose(n - 1, k), good - both]),
         check: () => { const c = committees(n, k, (mask) => (mask & 3) !== 3); return c === good ? '' : `counted ${c}`; },
-        solution: `All committees: C(${n}, ${k}) = ${total}. Committees with both ${P1} and ${P2}: choose the other ${k - 2} from ${n - 2}, C(${n - 2}, ${k - 2}) = ${both}. Allowed: ${total} − ${both} = <b>${good}</b>.`,
+        solution: `There are C(${n}, ${k}) = ${num(total, 0)} committees in all. The ones with both ${P1} and ${P2} choose the other ${k - 2} member${k === 3 ? '' : 's'} from the remaining ${n - 2}, in C(${n - 2}, ${k - 2}) = ${num(both, 0)} ways. So ${num(total, 0)} − ${num(both, 0)} = <b>${num(good, 0)}</b> committees are allowed.`,
       };
     },
     // at least one from a group
@@ -285,7 +303,7 @@ export const classic = named({
         text: `A team of ${k} is chosen from ${b} boys and ${g} girls. How many different teams include at least one girl?`,
         answer: choices(d, value, [g * choose(b + g - 1, k - 1), total, g * choose(b, k - 1), total - choose(g, k), value - g]),
         check: () => { const c = committees(b + g, k, (mask) => mask >> b !== 0); return c === value ? '' : `counted ${c}`; },
-        solution: `Count the teams with no girl and take them away. All teams: C(${b + g}, ${k}) = ${total}. All boys: C(${b}, ${k}) = ${none}. At least one girl: ${total} − ${none} = <b>${value}</b>. (Choosing "one girl, then anyone" counts some teams more than once.)`,
+        solution: `Count the teams with no girl and take them away. All teams: C(${b + g}, ${k}) = ${total}. All boys: C(${b}, ${k}) = ${none}. So ${total} − ${none} = <b>${value}</b> teams have at least one girl. (Choosing "one girl, then anyone" counts some teams more than once.)`,
       };
     },
     // a committee and its chair
@@ -297,7 +315,8 @@ export const classic = named({
         text: `From a club of ${n} members, a committee of ${k} is chosen, and then one of those ${k} is named its chair. In how many ways can this be done?`,
         answer: choices(d, value, [choose(n, k), choose(n, k) * (k - 1), choose(n, k) + k, n * choose(n, k), choose(n, k) * k * (k - 1)]),
         check: () => { const c = committees(n, k, () => true) * k, other = n * choose(n - 1, k - 1); return c === value && other === value ? '' : `counted ${c}`; },
-        solution: `There are C(${n}, ${k}) = ${choose(n, k)} committees, and each has ${k} choices of chair: ${choose(n, k)}·${k} = <b>${num(value, 0)}</b>. (Or choose the chair first, ${n} ways, then the other ${k - 1} from ${n - 1}: ${n}·C(${n - 1}, ${k - 1}), the same.)`,
+        tip: 'Count in two steps, first the committee and then its chair from among its members, and multiply.',
+        solution: `There are C(${n}, ${k}) = ${num(choose(n, k), 0)} committees, and each has ${k} choices of chair: ${num(choose(n, k), 0)}·${k} = <b>${num(value, 0)}</b>. (Or choose the chair first, in ${n} ways, then the other ${k - 1} members from the remaining ${n - 1}, which gives ${n}·C(${n - 1}, ${k - 1}) = ${n}·${choose(n - 1, k - 1)}, the same.)`,
       };
     },
     // two particular members: both, exactly one, or neither
@@ -312,10 +331,10 @@ export const classic = named({
         answer: choices(d, value, [...Object.values(counts), choose(n, k), choose(n - 2, k - 1), choose(n - 1, k - 1)]),
         check: () => { const c = committees(n, k, (mask) => { const has = (mask & 1) + ((mask >> 1) & 1); return mode === 'both' ? has === 2 : mode === 'exactly one' ? has === 1 : has === 0; }); return c === value ? '' : `counted ${c}`; },
         solution: mode === 'both'
-          ? `Put ${P1} and ${P2} on it, then choose the other ${k - 2} from the remaining ${n - 2}: C(${n - 2}, ${k - 2}) = <b>${value}</b>.`
+          ? `${P1} and ${P2} take 2 of the ${k} seats. ${k === 3 ? `The last seat goes to one of the other ${n - 2} members, in C(${n - 2}, 1)` : `The other ${k - 2} seats go to ${k - 2} of the other ${n - 2} members, in C(${n - 2}, ${k - 2})`} = <b>${value}</b> ways.`
           : mode === 'exactly one'
-            ? `Pick which of the two is on it (2 ways), then the other ${k - 1} members from the ${n - 2} people who are neither: 2·C(${n - 2}, ${k - 1}) = <b>${value}</b>.`
-            : `Leave both out and choose all ${k} from the other ${n - 2}: C(${n - 2}, ${k}) = <b>${value}</b>.`,
+            ? `First pick which of the two is on it, in 2 ways. The other ${k - 1} seats go to ${k - 1} of the ${n - 2} members who are neither, in C(${n - 2}, ${k - 1}) = ${choose(n - 2, k - 1)} ways. So there are 2·${choose(n - 2, k - 1)} = <b>${value}</b> committees.`
+            : `Leave both out, which leaves the other ${n - 2} members. All ${k} seats go to ${k} of them, in C(${n - 2}, ${k}) = <b>${value}</b> ways.`,
       };
     },
   ],
@@ -343,7 +362,8 @@ export const classic = named({
         text: `A circle is drawn inside a right triangle with legs ${a} and ${b} so that it touches all three sides. What is the radius of the circle?`,
         answer: choices(d, r, [[c, 2], [a * b, c], [a + b + c, 2], a + b - c, c - a], showFrac),
         check: () => (Math.abs((a * b) / (a + b + c) - r) < 1e-9 ? '' : 'radius wrong'),
-        solution: `The hypotenuse is ${c}. From the right-angle corner, both tangent lengths equal r, so the legs are r + x and r + y with x + y = ${c} (the tangent lengths from the other two corners). Then ${a} + ${b} = 2r + ${c}, and r = (${a} + ${b} − ${c})/2 = <b>${r}</b>.`,
+        tip: 'The two tangent lengths from any corner to the circle are equal, and from the right-angle corner both are r.',
+        solution: `The hypotenuse is √(${a}² + ${b}²) = ${c}. From the right-angle corner, both tangent lengths equal r, so the legs are r + x and r + y, where x and y are the tangent lengths from the other two corners. Those make up the hypotenuse, so x + y = ${c}. Then ${a} + ${b} = 2r + ${c}, and r = (${a} + ${b} − ${c})/2 = <b>${r}</b>.`,
       };
     },
     // the area from the hypotenuse and a leg
@@ -368,8 +388,8 @@ export const classic = named({
         answer: choices(d, value, [h, a0 * c0, b0 * c0, p + q, (p + q) / 2, Math.round(Math.sqrt(p * p + q * q))]),
         check: () => { const A = [0, 0], B = [p + q, 0], C = [p, h], leg1 = Math.hypot(C[0] - A[0], C[1]), leg2 = Math.hypot(B[0] - C[0], C[1]); const right = Math.abs((C[0] - A[0]) * (C[0] - B[0]) + C[1] * C[1]) < 1e-6; const got = ask === 'altitude' ? h : ask === 'shorter leg' ? Math.min(leg1, leg2) : Math.max(leg1, leg2); return right && Math.abs(got - value) < 1e-6 ? '' : 'not a right triangle'; },
         solution: ask === 'altitude'
-          ? `The altitude makes two smaller triangles similar to each other, so ${p}/h = h/${q}: h² = ${p}·${q} = ${p * q}, and h = <b>${h}</b>.`
-          : `The hypotenuse is ${p} + ${q} = ${p + q}. Each leg is the geometric mean of the hypotenuse and the piece next to it: ${ask === 'shorter leg' ? `√(${p}·${p + q})` : `√(${q}·${p + q})`} = <b>${value}</b>.`,
+          ? `The altitude makes two smaller triangles similar to each other, so ${p}/h = h/${q}. That gives h² = ${p}·${q} = ${num(p * q)}, and h = √${p}·√${q} = ${a0}·${b0} = <b>${h}</b>.`
+          : `The hypotenuse is ${p} + ${q} = ${p + q}. Each leg is the geometric mean of the hypotenuse and the piece next to it, so the ${ask} is ${ask === 'shorter leg' ? `√(${p}·${p + q}) = √${p}·√${p + q} = ${a0}·${c0}` : `√(${q}·${p + q}) = √${q}·√${p + q} = ${b0}·${c0}`} = <b>${value}</b>.`,
       };
     },
   ],
@@ -382,10 +402,11 @@ export const classic = named({
       const L = lcm(a, b), both = Math.floor(N / L), either = Math.floor(N / a) + Math.floor(N / b) - both, value = neither ? N - either : either;
       return {
         rank: 8,
-        text: `How many integers from 1 to ${N} are divisible by ${neither ? `neither ${a} nor ${b}` : `${a} or ${b}`}?`,
+        text: `How many integers from 1 to ${num(N)} are divisible by ${neither ? `neither ${a} nor ${b}` : `${a} or ${b}`}?`,
         answer: choices(d, value, neither ? [N - Math.floor(N / a) - Math.floor(N / b), N - either + both, either, N - Math.floor(N / (a * b))] : [Math.floor(N / a) + Math.floor(N / b), Math.floor(N / a) + Math.floor(N / b) - Math.floor(N / (a * b)), both, either + both]),
         check: () => { let c = 0; for (let i = 1; i <= N; i++) { const hit = i % a === 0 || i % b === 0; if (neither ? !hit : hit) c++; } return c === value ? '' : `counted ${c}`; },
-        solution: `Divisible by ${a}: ${Math.floor(N / a)}. By ${b}: ${Math.floor(N / b)}. By both (by lcm ${L}): ${both}. By ${a} or ${b}: ${Math.floor(N / a)} + ${Math.floor(N / b)} − ${both} = ${either}.` + (neither ? ` Neither: ${N} − ${either} = <b>${value}</b>.` : ` So the answer is <b>${value}</b>.`),
+        solution: `There are ⌊${N}/${a}⌋ = ${Math.floor(N / a)} multiples of ${a} and ⌊${N}/${b}⌋ = ${Math.floor(N / b)} multiples of ${b}. That counts twice the numbers divisible by both, the multiples of lcm(${a}, ${b}) = ${L}, and there are ⌊${N}/${L}⌋ = ${both} of those. `
+          + (neither ? `So ${Math.floor(N / a)} + ${Math.floor(N / b)} − ${both} = ${either} are divisible by ${a} or ${b}, and the other ${num(N)} − ${either} = <b>${value}</b> by neither.` : `So ${Math.floor(N / a)} + ${Math.floor(N / b)} − ${both} = <b>${value}</b> are divisible by ${a} or ${b}.`),
       };
     },
     // a Venn diagram in words
@@ -407,10 +428,10 @@ export const classic = named({
       const f = (x) => Math.floor(N / x), singles = f(a) + f(b) + f(c), pairs = f(a * b) + f(a * c) + f(b * c), triple = f(a * b * c), value = singles - pairs + triple;
       return {
         rank: 11,
-        text: `How many integers from 1 to ${N} are divisible by at least one of ${a}, ${b} and ${c}?`,
+        text: `How many integers from 1 to ${num(N)} are divisible by at least one of ${a}, ${b} and ${c}?`,
         answer: choices(d, value, [singles, singles - pairs, N - value, value + triple, singles - pairs - triple]),
         check: () => { let k = 0; for (let i = 1; i <= N; i++) if (i % a === 0 || i % b === 0 || i % c === 0) k++; return k === value ? '' : `counted ${k}`; },
-        solution: `Add the three counts: ${f(a)} + ${f(b)} + ${f(c)} = ${singles}. Numbers divisible by two of them were counted twice, so subtract ${f(a * b)} + ${f(a * c)} + ${f(b * c)} = ${pairs}. Numbers divisible by all three were added three times and taken away three times, so add them back: ${triple}. Total ${singles} − ${pairs} + ${triple} = <b>${value}</b>.`,
+        solution: `Counting the multiples of ${a}, of ${b} and of ${c} separately gives ⌊${N}/${a}⌋ + ⌊${N}/${b}⌋ + ⌊${N}/${c}⌋ = ${f(a)} + ${f(b)} + ${f(c)} = ${singles}. Numbers divisible by two of them, the multiples of ${a * b}, ${a * c} and ${b * c}, were counted twice, so subtract ${f(a * b)} + ${f(a * c)} + ${f(b * c)} = ${pairs}. The multiples of ${a * b * c} were added three times and taken away three times, so add them back, ${triple} of them. Total ${singles} − ${pairs} + ${triple} = <b>${value}</b>.`,
       };
     },
     // one but not the other
@@ -419,10 +440,10 @@ export const classic = named({
       const L = lcm(a, b), value = Math.floor(N / a) - Math.floor(N / L);
       return {
         rank: 7,
-        text: `How many integers from 1 to ${N} are divisible by ${a} but not by ${b}?`,
+        text: `How many integers from 1 to ${num(N)} are divisible by ${a} but not by ${b}?`,
         answer: choices(d, value, [Math.floor(N / a) - Math.floor(N / b), Math.floor(N / a) - Math.floor(N / (a * b)), Math.floor(N / a), Math.floor(N / b) - Math.floor(N / L)]),
         check: () => { let k = 0; for (let i = 1; i <= N; i++) if (i % a === 0 && i % b !== 0) k++; return k === value ? '' : `counted ${k}`; },
-        solution: `Multiples of ${a}: ${Math.floor(N / a)}. The ones that are also multiples of ${b} are the multiples of lcm(${a}, ${b}) = ${L}: ${Math.floor(N / L)}. So ${Math.floor(N / a)} − ${Math.floor(N / L)} = <b>${value}</b>.`,
+        solution: `There are ⌊${N}/${a}⌋ = ${Math.floor(N / a)} multiples of ${a}. The ones that are also multiples of ${b} are the multiples of lcm(${a}, ${b}) = ${L}, and there are ⌊${N}/${L}⌋ = ${Math.floor(N / L)} of those. So ${Math.floor(N / a)} − ${Math.floor(N / L)} = <b>${value}</b> are divisible by ${a} but not by ${b}.`,
       };
     },
   ],
@@ -438,7 +459,9 @@ export const classic = named({
         text: `Real or not, x and y satisfy x + y = ${s} and xy = ${num(p)}. What is ${ask === 'squares' ? 'x<sup>2</sup> + y<sup>2</sup>' : 'x<sup>3</sup> + y<sup>3</sup>'}?`,
         answer: choices(d, value, ask === 'squares' ? [s * s - p, s * s + 2 * p, s * s, 2 * s - p] : [s ** 3 - s * p, s ** 3 + 3 * s * p, s ** 3, s ** 3 - 3 * p]),
         check: () => (Math.abs(powerSum(s, p, ask === 'squares' ? 2 : 3) - value) < 1e-6 ? '' : 'power sum wrong'),
-        solution: ask === 'squares' ? `x² + y² = (x + y)² − 2xy = ${s}² − 2·(${num(p)}) = <b>${num(value)}</b>.` : `x³ + y³ = (x + y)³ − 3xy(x + y) = ${s}³ − 3·(${num(p)})·${s} = <b>${num(value)}</b>.`,
+        solution: ask === 'squares'
+          ? `Squaring the sum gives (x + y)² = x² + y² + 2xy. So x² + y² = (x + y)² − 2xy = ${s}² − 2·${paren(p)} = ${s * s} ${p < 0 ? '+' : '−'} ${Math.abs(2 * p)} = <b>${num(value)}</b>.`
+          : `Cubing the sum gives (x + y)³ = x³ + y³ + 3xy(x + y). So x³ + y³ = (x + y)³ − 3xy(x + y) = ${s}³ − 3·${paren(p)}·${s} = ${num(s ** 3)} ${p < 0 ? '+' : '−'} ${num(Math.abs(3 * p * s))} = <b>${num(value)}</b>.`,
       };
     },
     // the product, or the cubes, from the sum and the sum of squares
@@ -451,8 +474,8 @@ export const classic = named({
         answer: choices(d, value, ask === 'product' ? [s * s - q, (q - s * s) / 2, q - s, (s * s + q) / 2] : [s * q, s ** 3 - q, s * (q + p), s ** 3]),
         check: () => (Math.abs(powerSum(s, p, ask === 'product' ? 0 : 3) - (ask === 'product' ? 2 : value)) < 1e-6 && Math.abs(powerSum(s, p, 2) - q) < 1e-6 ? '' : 'wrong'),
         solution: ask === 'product'
-          ? `(x + y)² = x² + y² + 2xy, so ${s}² = ${num(q)} + 2xy, and xy = (${s * s} − ${num(q)})/2 = <b>${num(value)}</b>.`
-          : `First the product: ${s}² = ${num(q)} + 2xy gives xy = ${num(p)}. Then x³ + y³ = (x + y)(x² − xy + y²) = ${s}·(${num(q)} − (${num(p)})) = <b>${num(value)}</b>.`,
+          ? `Squaring the sum gives (x + y)² = x² + y² + 2xy, so ${s}² = ${num(q)} + 2xy. Then 2xy = ${s * s} − ${paren(q)} = ${num(s * s - q)}, and xy = <b>${num(value)}</b>.`
+          : `Squaring the sum gives (x + y)² = x² + y² + 2xy, so ${s}² = ${num(q)} + 2xy and xy = (${s * s} − ${paren(q)})/2 = ${num(p)}. Then x³ + y³ = (x + y)(x² − xy + y²) = ${s}·(${num(q)} − ${paren(p)}) = ${s}·${num(q - p)} = <b>${num(value)}</b>.`,
       };
     },
     // from the difference and the product
@@ -465,8 +488,8 @@ export const classic = named({
         answer: choices(d, value, ask === 'squares' ? [t * t - 2 * p, t * t + p, t * t + 4 * p, t * t] : [t * t + 2 * p, t * t - 4 * p, t * t + p, (t + p) ** 2]),
         check: () => { const y = (-t + Math.sqrt(t * t + 4 * p)) / 2, x = y + t; const got = ask === 'squares' ? x * x + y * y : (x + y) ** 2; return Math.abs(x * y - p) < 1e-9 && Math.abs(got - value) < 1e-6 ? '' : `got ${got}`; },
         solution: ask === 'squares'
-          ? `(x − y)² = x² + y² − 2xy, so x² + y² = (x − y)² + 2xy = ${t}² + 2·${p} = <b>${value}</b>.`
-          : `(x + y)² and (x − y)² differ by 4xy: (x + y)² = (x − y)² + 4xy = ${t}² + 4·${p} = <b>${value}</b>.`,
+          ? `Squaring the difference gives (x − y)² = x² + y² − 2xy. So x² + y² = (x − y)² + 2xy = ${t}² + 2·${p} = ${t * t} + ${2 * p} = <b>${value}</b>.`
+          : `Squaring gives (x + y)² = x² + y² + 2xy and (x − y)² = x² + y² − 2xy, which differ by 4xy. So (x + y)² = (x − y)² + 4xy = ${t}² + 4·${p} = ${t * t} + ${4 * p} = <b>${value}</b>.`,
       };
     },
     // x + 1/x
@@ -479,8 +502,8 @@ export const classic = named({
         answer: choices(d, value, ask === 2 ? [s * s, s * s + 2, s * s - 1, 2 * s] : [s ** 3, s ** 3 - s, s ** 3 + 3 * s, s ** 3 - 3]),
         check: () => { const x = (s + Math.sqrt(s * s - 4)) / 2; return Math.abs(x ** ask + x ** -ask - value) < 1e-6 ? '' : 'wrong'; },
         solution: ask === 2
-          ? `Square both sides: x² + 2·x·(1/x) + 1/x² = ${s}², so x² + 1/x² = ${s * s} − 2 = <b>${value}</b>.`
-          : `Cube both sides: x³ + 3x + 3/x + 1/x³ = ${s}³, that is x³ + 1/x³ + 3(x + 1/x) = ${s ** 3}. So x³ + 1/x³ = ${s ** 3} − 3·${s} = <b>${value}</b>.`,
+          ? `Squaring both sides gives x² + 2·x·(1/x) + 1/x² = ${s}², and the middle term is just 2. So x² + 1/x² = ${s * s} − 2 = <b>${value}</b>.`
+          : `Cubing both sides gives x³ + 3x + 3/x + 1/x³ = ${s}³, that is x³ + 1/x³ + 3(x + 1/x) = ${s ** 3}. Since x + 1/x = ${s}, x³ + 1/x³ = ${s ** 3} − 3·${s} = <b>${value}</b>.`,
       };
     },
   ],
@@ -497,19 +520,19 @@ export const classic = named({
         text: `The price of a game rises by ${up}%. Later, the new price falls by ${down}%. Overall, how did the price change?`,
         answer: choices(d, net, [up - down, -(up * down) / 100, up - down - (up * down) / 100 + 10, down - up], show),
         check: () => { const price = 100 * (100 + up) * (100 - down) / 10000; return Math.abs(price - 100 - net) < 1e-9 ? '' : 'net wrong'; },
-        solution: `Multiply the factors: ${num(1 + up / 100, 2)} × ${num(1 - down / 100, 2)} = ${num((1 + up / 100) * (1 - down / 100), 4)}. That is a <b>${show(net)}</b>, not simply ${up}% − ${down}%.`,
+        solution: `A ${up}% rise multiplies the price by ${num(1 + up / 100, 2)}, and a ${down}% fall then multiplies it by ${num(1 - down / 100, 2)}. Overall the price is multiplied by ${num(1 + up / 100, 2)} × ${num(1 - down / 100, 2)} = ${num((1 + up / 100) * (1 - down / 100), 4)}, so it ends at ${num(100 + net, 2)}% of where it started. That is a <b>${show(net)}</b>, not simply ${up}% − ${down}%.`,
       };
     },
     // the price before a discount
     (d, ctx) => {
       const [pct, orig] = combo(ctx, [[10, 15, 20, 25, 30, 40, 50, 60, 75], [40, 60, 80, 120, 160, 200, 240, 300, 400]], (p, o) => (o * (100 - p)) % 100 === 0);
-      const price = (orig * (100 - pct)) / 100, show = (v) => `$${num(v, 2)}`;
+      const price = (orig * (100 - pct)) / 100, show = money;
       return {
         rank: 4,
         text: `After a ${pct}% discount, a jacket costs $${price}. What was its price before the discount?`,
         answer: choices(d, orig, [(price * (100 + pct)) / 100, price + pct, (price * 100) / pct, price + (price * pct) / 100 + 10], show),
         check: () => (orig - (orig * pct) / 100 === price ? '' : 'price wrong'),
-        solution: `After the discount the jacket costs ${100 - pct}% of its old price, so ${num((100 - pct) / 100, 2)} × (old price) = $${price}, and the old price is ${price} ÷ ${num((100 - pct) / 100, 2)} = <b>${show(orig)}</b>. (Adding ${pct}% to $${price} doesn't undo it: the ${pct}% was taken off a bigger price.)`,
+        solution: `After the discount the jacket costs ${100 - pct}% of its old price, so ${num((100 - pct) / 100, 2)} × (old price) = $${price}, and the old price is ${price} ÷ ${num((100 - pct) / 100, 2)} = <b>${show(orig)}</b>. (Adding ${pct}% to $${price} doesn’t undo it, because the ${pct}% was taken off a bigger price.)`,
       };
     },
     // the decrease that undoes an increase
@@ -521,7 +544,7 @@ export const classic = named({
         text: `A number is increased by ${p}%. By what percent must the new number now be decreased to get back to the original number?`,
         answer: choices(d, value, [p, p / 2, 100 - value / 2, value + 10, 100], show),
         check: () => (Math.abs((1 + p / 100) * (1 - value / 100) - 1) < 1e-12 ? '' : 'does not undo'),
-        solution: `Start with 100. After the increase it is ${100 + p}. To get back to 100, take off ${p} out of ${100 + p}: ${p}/${100 + p} = ${num(value / 100, 4)}, which is <b>${show(value)}</b>.`,
+        solution: `Start with 100, so after the increase it is ${num(100 + p)}. To get back to 100, take off ${p} out of ${num(100 + p)}, and ${p}/${100 + p} = ${num(value / 100, 4)}, which is <b>${show(value)}</b>.`,
       };
     },
     // the percent from two prices
@@ -573,7 +596,7 @@ export const classic = named({
         text: `A faucet fills a tub in ${a} minutes, and the open drain empties a full tub in ${b} minutes. With the faucet on and the drain open, how long does it take to fill the empty tub?`,
         answer: choices(d, value, [(a * b) / (a + b), b - a, (a + b) / 2, a + b, 2 * a], show),
         check: () => { let level = 0, t = 0; while (level < 1 - 1e-9) { level += 1 / a / 1000 - 1 / b / 1000; t += 1 / 1000; } return Math.abs(t - value) < 0.01 ? '' : `simulated ${t}`; },
-        solution: `Each minute the faucet adds 1/${a} of the tub and the drain takes away 1/${b}: 1/${a} − 1/${b} = ${frac(b - a, a * b)} per minute. So filling takes ${a * b}/${b - a} = <b>${show(value)}</b>.`,
+        solution: `Each minute the faucet adds 1/${a} of the tub and the drain takes away 1/${b}, so together they fill 1/${a} − 1/${b} = ${frac(b - a, a * b)} of the tub per minute. So filling the whole tub takes 1 ÷ ${frac(b - a, a * b)} = <b>${show(value)}</b>.`,
       };
     },
     // one starts alone, then both finish
@@ -626,7 +649,7 @@ export const classic = named({
         text: `On a test, a class of ${a} students averaged ${x} and another class of ${b} students averaged ${y}. What was the average score of all ${a + b} students?`,
         answer: choices(d, value, [(x + y) / 2, (a * y + b * x) / (a + b), Math.round((x + y) / 2) + 1, value + 1, value - 2]),
         check: () => { const all = [...Array(a).fill(x), ...Array(b).fill(y)]; return Math.abs(all.reduce((s, v) => s + v, 0) / all.length - value) < 1e-9 ? '' : 'average wrong'; },
-        solution: `Totals add, averages don't: ${a}·${x} + ${b}·${y} = ${a * x} + ${b * y} = ${a * x + b * y} points for ${a + b} students, an average of <b>${num(value, 2)}</b>. (Just averaging ${x} and ${y} ignores that the classes are different sizes.)`,
+        solution: `Totals add, averages don’t, so add up the points. The two classes scored ${a}·${x} + ${b}·${y} = ${num(a * x)} + ${num(b * y)} = ${num(a * x + b * y)} points for ${a + b} students, an average of ${num(a * x + b * y)} ÷ ${a + b} = <b>${num(value, 2)}</b>. (Just averaging ${x} and ${y} ignores that the classes are different sizes.)`,
       };
     },
     // consecutive numbers
@@ -641,6 +664,7 @@ export const classic = named({
         text: `The average of ${n} consecutive ${kind} is ${m}. What is the largest of them?`,
         answer: choices(d, largest, [m + (n - 1) * step, m - ((n - 1) / 2) * step, largest + step, largest - step, largest + 2 * step]),
         check: () => { const first = largest - (n - 1) * step, list = range(0, n - 1).map((i) => first + i * step); const avg = list.reduce((s, v) => s + v, 0) / n; return avg === m && list.every((v) => (kind === 'integers' ? true : (v % 2 === 0) === (kind === 'even numbers'))) ? '' : 'list wrong'; },
+        tip: 'Evenly spaced numbers have their average exactly in the middle, so count how far the last one is from the middle.',
         solution: `Consecutive ${kind} are evenly spaced (${step} apart), so their average is the middle of the list. The ${n} numbers stretch ${num(((n - 1) / 2) * step)} on each side of ${m}, so the largest is ${m} + ${num(((n - 1) / 2) * step)} = <b>${num(largest)}</b>.`,
       };
     },
@@ -662,7 +686,7 @@ export const classic = named({
         text: `What is the area of the triangle with vertices ${pt(P[0])}, ${pt(P[1])} and ${pt(P[2])}?`,
         answer: choices(d, area, [2 * area, area + 1, boxA, area - 1, boxA / 2]),
         check: () => { const [u, v, w] = [0, 1, 2].map((i) => Math.hypot(P[i][0] - P[(i + 1) % 3][0], P[i][1] - P[(i + 1) % 3][1])), s = (u + v + w) / 2; return Math.abs(Math.sqrt(s * (s - u) * (s - v) * (s - w)) - area) < 1e-6 ? '' : 'Heron disagrees'; },
-        solution: `Shoelace formula: ½·|(x₂ − x₁)(y₃ − y₁) − (x₃ − x₁)(y₂ − y₁)| = ½·|(${num(P[1][0] - P[0][0])})(${num(P[2][1] - P[0][1])}) − (${num(P[2][0] - P[0][0])})(${num(P[1][1] - P[0][1])})| = <b>${num(area)}</b>.`,
+        solution: `With the corners taken in the order given, the shoelace formula gives the area as ½·|(x₂ − x₁)(y₃ − y₁) − (x₃ − x₁)(y₂ − y₁)|. Here that is ½·|(${num(P[1][0] - P[0][0])})(${num(P[2][1] - P[0][1])}) − (${num(P[2][0] - P[0][0])})(${num(P[1][1] - P[0][1])})| = ½·|${num((P[1][0] - P[0][0]) * (P[2][1] - P[0][1]))} − ${paren((P[2][0] - P[0][0]) * (P[1][1] - P[0][1]))}| = ½·${num(2 * area)} = <b>${num(area)}</b>.`,
       };
     },
     // where a line crosses the x-axis
@@ -690,7 +714,7 @@ export const classic = named({
         text: `The points ${pt([x1, y1])}, ${pt([x2, y2])} and (${num(x3)}, k) all lie on one straight line. What is k?`,
         answer: choices(d, k, [y1 + j * dx, k + dy, y2 + j * dy, -k, y1 + (j - 1) * dy]),
         check: () => ((x2 - x1) * (k - y1) - (x3 - x1) * (y2 - y1) === 0 ? '' : 'not on the line'),
-        solution: `From ${pt([x1, y1])} to ${pt([x2, y2])}, x goes up ${dx} and y changes by ${num(dy)}. To reach x = ${num(x3)}, x goes up ${j * dx} from ${num(x1)}, which is ${j} times as far, so y changes by ${j}·(${num(dy)}) = ${num(j * dy)}: k = ${num(y1)} + (${num(j * dy)}) = <b>${num(k)}</b>.`,
+        solution: `From ${pt([x1, y1])} to ${pt([x2, y2])}, x goes up ${dx} and y changes by ${num(dy)}. To reach x = ${num(x3)}, x goes up ${j * dx} from ${num(x1)}, which is ${j} times as far, so y changes by ${j}·${paren(dy)} = ${num(j * dy)}. So k = ${num(y1)} + ${paren(j * dy)} = <b>${num(k)}</b>.`,
       };
     },
     // the distance between two points
@@ -703,7 +727,7 @@ export const classic = named({
         text: `How far apart are the points ${pt([x1, y1])} and ${pt([x2, y2])}?`,
         answer: choices(d, c, [a + b, a * a + b * b, Math.abs(b - a), c + 1, c - 1]),
         check: () => (Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) === c ? '' : 'distance wrong'),
-        solution: `Across: |${num(x2)} − (${num(x1)})| = ${ex}. Up or down: |${num(y2)} − (${num(y1)})| = ${ey}. These are the legs of a right triangle, so the distance is √(${ex}² + ${ey}²) = √${a * a + b * b} = <b>${c}</b>.`,
+        solution: `Across: |${num(x2)} − ${paren(x1)}| = ${ex}. Up or down: |${num(y2)} − ${paren(y1)}| = ${ey}. These are the legs of a right triangle, so the distance is √(${ex}² + ${ey}²) = √${a * a + b * b} = <b>${c}</b>.`,
       };
     },
   ],

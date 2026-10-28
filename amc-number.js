@@ -90,8 +90,19 @@ const firstMeet = (a, M, j) => { let T = 1; while (range(a, M).filter((k) => T %
 // how many times the digit x (1 to 9) is written in 1, 2, …, N, place by place
 const placeCount = (N, x, p) => { const high = Math.floor(N / (10 * p)), cur = Math.floor(N / p) % 10, low = N % p; return high * p + (cur > x ? p : cur === x ? low + 1 : 0); };
 // two digits that add up to t: how many ways; and 1 + 2 + ⋯ + r written out with its total
-const upTo = (r) => (r === 1 ? '1' : r === 2 ? '1 + 2 = 3' : `1 + 2 + ⋯ + ${r} = ${(r * (r + 1)) / 2}`);
+const upTo = (r) => (r === 1 ? '1' : `${r <= 4 ? range(1, r).join(' + ') : `1 + 2 + ⋯ + ${r}`} = ${(r * (r + 1)) / 2}`);
 const pairs = (t) => (t < 0 || t > 18 ? 0 : t <= 9 ? t + 1 : 19 - t);
+// a list written out: "1, 2 and 4" (or "… or 4")
+const and = (xs, w = 'and') => (xs.length < 2 ? `${xs[0]}` : `${xs.slice(0, -1).join(', ')} ${w} ${xs.at(-1)}`);
+// A·x² + B·x + C with its signs, leaving out the zero terms: quad([2, -17, -30]) is 2b² − 17b − 30
+const quad = (cs, x = 'b') => cs.map((c, i) => [c, 2 - i]).filter(([c]) => c).map(([c, e], i) => {
+  const a = Math.abs(c), body = e === 0 ? `${a}` : `${a === 1 ? '' : a}${x}${e === 2 ? '<sup>2</sup>' : ''}`;
+  return i === 0 ? `${c < 0 ? '−' : ''}${body}` : `${c < 0 ? '−' : '+'} ${body}`;
+}).join(' ');
+// a prime factorization as it reads: 2<sup>2</sup> · 3 · 43
+const shown = (n) => factor(n).map(([p, e]) => pw(p, e)).join(' · ');
+// the multiples of k from 0 up to e, as a list: "0, 3 or 6", or "0, 2, …, 12" when there are many
+const mults = (k, e, w = 'or') => { const xs = range(0, Math.floor(e / k)).map((t) => k * t); return xs.length <= 4 ? and(xs, w) : `${xs[0]}, ${xs[1]}, …, ${xs.at(-1)}`; };
 
 export const numberTheory = Object.fromEntries([
   topic('Primes in a digit pattern',
@@ -104,7 +115,7 @@ export const numberTheory = Object.fromEntries([
         text: `The list 101, 11011, 1110111, 111101111, … goes on the same way: its k-th number is k ones, then a 0, then k more ones. How many of the first ${count} numbers in the list are ${ask}?`,
         answer: choices(d, value, ask === 'prime' ? [0, 2, 3, count] : [count, count - 2, 0, 1]),
         check: () => { const primes = range(1, count).filter((k) => isPrimeBig(BigInt(term(k)))).length; return (ask === 'prime' ? primes : count - primes) === value ? '' : `found ${primes} primes`; },
-        solution: `The k-th number is 11…1 (k ones) times 10<sup>k+1</sup> + 1: for example 11011 = 11 × 1001 and 1110111 = 111 × 10001. For k ≥ 2 both factors are more than 1, so the number is composite. Only the first number, 101, is prime. So ${ask === 'prime' ? `<b>1</b> of the first ${count} is prime` : `<b>${count - 1}</b> of the first ${count} are composite`}.`,
+        solution: `The k-th number is k ones moved k + 1 places to the left, plus k more ones, so it is 11…1 × 10<sup>k+1</sup> + 11…1 = 11…1 (k ones) × (10<sup>k+1</sup> + 1). For example 11011 = 11 × 1001 and 1110111 = 111 × 10001. For k ≥ 2 both factors are more than 1, so the number is composite. Only the first number, 101, is prime. So ${ask === 'prime' ? `<b>1</b> of the first ${count} is prime` : `<b>${count - 1}</b> of the first ${count} are composite`}.`,
       };
     },
     // 10^k + 1: only 11 and 101 are prime among the first dozen
@@ -115,7 +126,7 @@ export const numberTheory = Object.fromEntries([
         text: `The list 11, 101, 1001, 10001, 100001, … goes on the same way: its k-th number is a 1, then k − 1 zeros, then a 1 (that is, 10<sup>k</sup> + 1). How many of the first ${n} numbers in the list are ${ask}?`,
         answer: choices(d, value, ask === 'prime' ? [1, 3, 4, 0, n - 2] : [n - 1, n - 3, n - 4, n]),
         check: () => { const primes = range(1, n).filter((k) => isPrimeBig(10n ** BigInt(k) + 1n)).length; return (ask === 'prime' ? primes : n - primes) === value ? '' : `found ${primes} primes`; },
-        solution: `If k has an odd factor m > 1, then 10<sup>k</sup> + 1 = x<sup>m</sup> + 1 with x = 10<sup>k/m</sup>, and x + 1 divides x<sup>m</sup> + 1 because m is odd: for example 1001 = 11 × 91 and 100001 = 11 × 9091. That leaves k = 1, 2, 4 and 8: 11 and 101 are prime, but 10001 = 73 × 137 and 100000001 = 17 × 5882353. So ${ask === 'prime' ? `<b>2</b> of the first ${n} are prime` : `<b>${n - 2}</b> of the first ${n} are composite`}.`,
+        solution: `If k has an odd factor m > 1, then 10<sup>k</sup> + 1 = x<sup>m</sup> + 1 with x = 10<sup>k/m</sup>, and x + 1 divides x<sup>m</sup> + 1 because m is odd: for example 1001 = 11 × 91 and 100001 = 11 × 9091. Of the first ${n}, that leaves only the k with no odd factor, k = ${n >= 8 ? '1, 2, 4 and 8' : '1, 2 and 4'}: 11 and 101 are prime, but 10001 = 73 × 137${n >= 8 ? ' and 100000001 = 17 × 5882353' : ''}. So ${ask === 'prime' ? `<b>2</b> of the first ${n} are prime` : `<b>${n - 2}</b> of the first ${n} are composite`}.`,
       };
     },
     // 1, m zeros, 1: a multiple of 11 exactly when m is even
@@ -126,6 +137,7 @@ export const numberTheory = Object.fromEntries([
         text: `A number is written as a 1, then m zeros, then another 1 (so m = 2 gives 1001). For how many values of m from 1 to ${N} is the number a multiple of 11?`,
         answer: choices(d, value, [Math.ceil(N / 2) === value ? value + 1 : Math.ceil(N / 2), N, Math.floor(N / 3), value - 1, Math.floor(N / 11)]),
         check: () => { const k = range(1, N).filter((m) => (10n ** BigInt(m + 1) + 1n) % 11n === 0n).length; return k === value ? '' : `found ${k}`; },
+        tip: 'Write the number as a power of 10 plus 1, and use 10 = 11 − 1 to see when a power of 10 is 1 more or 1 less than a multiple of 11.',
         solution: `The number is 10<sup>m+1</sup> + 1. Since 10 = 11 − 1, a power of 10 is 1 less than a multiple of 11 when its exponent is odd, and 1 more when it is even (10 = 11 − 1, 100 = 99 + 1, 1000 = 1001 − 1, …). So 10<sup>m+1</sup> + 1 is a multiple of 11 exactly when m + 1 is odd, that is, when m is even. From 1 to ${N} there are <b>${value}</b> even numbers.`,
       };
     },
@@ -180,6 +192,7 @@ export const numberTheory = Object.fromEntries([
         text: `Three positive integers have a product of ${P} and a sum of ${S}. What is the largest of the three?`,
         answer: choices(d, z, [y, x, ...near.map((t) => t[2]), S - z, P / z]),
         check: () => { const hits = []; for (let a = 1; a <= P; a++) for (let b = a; b <= P; b++) { const c = P / (a * b); if (Number.isInteger(c) && c >= b && a + b + c === S) hits.push(c); } return hits.length === 1 && hits[0] === z ? '' : `found ${hits.join(', ')}`; },
+        tip: 'List the ways to split the product into three factors, smallest factor first, and add up each split until one gives the sum.',
         solution: `List the ways to write ${P} as a product of three positive integers and add up each: for example ${near.map((t) => `${t.join(' · ')} adds to ${total(t)}`).join(', ')}. Only ${x} · ${y} · ${z} adds up to ${S}, so the largest of the three is <b>${z}</b>.`,
       };
     }),
@@ -193,12 +206,14 @@ export const numberTheory = Object.fromEntries([
         L = lcm(n, a); G = gcd(n, b); fits = divisors(L).filter((x) => lcm(x, a) === L);
         if (G > 1 && n !== a && n !== L && fits.length >= 3 && fits.filter((x) => gcd(x, b) === G).length === 1) break;
       }
+      // the part of L that a lacks (a smaller power of a prime, or none of it): n has to bring all of it
+      const forced = product(factor(L).filter(([p, e]) => vp(a, p) < e).map(([p, e]) => p ** e));
       return {
         rank: 7,
-        text: `A positive integer n has least common multiple ${L} with ${a}, and greatest common divisor ${G} with ${b}. What is n?`,
+        text: `A positive integer n has least common multiple ${ints(L)} with ${a}, and greatest common divisor ${G} with ${b}. What is n?`,
         answer: choices(d, n, [...d.shuffle(fits.filter((x) => x !== n)), ...d.shuffle(divisors(L).filter((x) => x !== n && gcd(x, b) === G)), L, 2 * n]),
         check: () => { const found = range(1, 2 * L).filter((x) => lcm(x, a) === L && gcd(x, b) === G); return found.length === 1 && found[0] === n ? '' : `found ${found.join(', ')}`; },
-        solution: `Since lcm(n, ${a}) = ${L}, n is a divisor of ${L}. The divisors of ${L} whose lcm with ${a} is ${L} are ${fits.join(', ')}. Of these, only ${n} has gcd ${G} with ${b}. So n = <b>${n}</b>.`,
+        solution: `Since lcm(n, ${a}) = ${ints(L)}, n is a divisor of ${ints(L)}. In ${ints(L)} = ${shown(L)}, the factor ${shown(forced)} can’t come from ${a} = ${shown(a)}, so it must come from n, and n is a multiple of ${ints(forced)}. The divisors of ${ints(L)} that are multiples of ${ints(forced)} are ${fits.map(ints).join(', ')}, and each of them has lcm ${ints(L)} with ${a}. Of these, only ${n} has gcd ${G} with ${b} = ${shown(b)}. So n = <b>${ints(n)}</b>.`,
       };
     },
     // how many pairs share a given gcd and lcm
@@ -210,7 +225,10 @@ export const numberTheory = Object.fromEntries([
         text: `Positive integers a and b have greatest common divisor ${G} and least common multiple ${num(L, 0)}. How many ordered pairs (a, b) are possible?`,
         answer: choices(d, value, [2 ** (w - 1), w, divisors(K).length, value + 2, 2 * divisors(K).length]),
         check: () => { const ds = divisors(L); let k = 0; for (const x of ds) for (const y of ds) if (gcd(x, y) === G && lcm(x, y) === L) k++; return k === value ? '' : `brute force found ${k}`; },
-        solution: `Write a = ${G}x and b = ${G}y. Then x and y have no common factor, and their lcm is xy = ${num(L, 0)}/${G} = ${K} = ${f.map(([p, e]) => pw(p, e)).join(' · ')}. Each prime power must go whole to x or to y (split between them, it would leave a common factor), so there are 2 choices for each of the ${w} primes: 2<sup>${w}</sup> = <b>${value}</b> ordered pairs.`,
+        solution: (G === 1
+          ? `Since the gcd is 1, a and b have no common factor, so their lcm is their product: ab = ${K} = ${f.map(([p, e]) => pw(p, e)).join(' · ')}. Each prime power must go whole to a or to b (split between them, it would leave a common factor)`
+          : `Write a = ${G}x and b = ${G}y. Then x and y have no common factor, and their lcm is xy = ${num(L, 0)}/${G} = ${K} = ${f.map(([p, e]) => pw(p, e)).join(' · ')}. Each prime power must go whole to x or to y (split between them, it would leave a common factor)`)
+          + `, so there are 2 choices for each of the ${w} primes, which makes 2<sup>${w}</sup> = <b>${value}</b> ordered pairs.`,
       };
     },
     // gcd × lcm = product: one number gives the other
@@ -234,6 +252,7 @@ export const numberTheory = Object.fromEntries([
         text: `What is the smallest integer greater than ${r} that leaves a remainder of ${r} when divided by ${a}, by ${b} and by ${c}?`,
         answer: choices(d, value, [a * b * c + r, L, 2 * L + r, a * b + r, lcm(a, b) + r]),
         check: () => { let n = r + 1; while (n % a !== r || n % b !== r || n % c !== r) n++; return n === value ? '' : `search found ${n}`; },
+        tip: 'If a number leaves the same remainder every time, then the number minus that remainder is a multiple of every one of the divisors.',
         solution: `n − ${r} must be a multiple of ${a}, of ${b} and of ${c}, so a multiple of their least common multiple: lcm(${a}, ${b}, ${c}) = ${L}. The smallest such n above ${r} is ${L} + ${r} = <b>${value}</b>.`,
       };
     }),
@@ -247,12 +266,15 @@ export const numberTheory = Object.fromEntries([
       do f = [0, 1, 2].map(() => d.pick(pool)).sort((x, y) => x - y); while (f.reduce((s, x) => s + vp(x, 2), 0) !== a || f[0] * f[1] * f[2] > 2e6);
       const N = f[0] * f[1] * f[2], m = N / 2 ** a, r = 2 ** (a + 1) - 2, powers = range(1, a).map((i) => 2 ** i);
       const ratio = (v) => [v, `1 : ${v}`];
+      // the 2s taken out of each factor: "52 = 2² · 13", and the odd parts that are left
+      const evens = f.filter((x) => x % 2 === 0), oddCount = 3 - evens.length, oddParts = f.map((x) => x / 2 ** vp(x, 2));
+      const takeOut = `${and(evens.map((x) => `${x} = ${pw(2, vp(x, 2))} · ${x / 2 ** vp(x, 2)}`))}${oddCount === 2 ? ', and the other two are odd' : oddCount === 1 ? ', and the other one is odd' : ''}`;
       return {
         rank: 9,
         text: `Let N = ${f.join(' · ')}. Add up all the odd positive divisors of N, and separately add up all the even ones. What is the ratio of the odd total to the even total?`,
         answer: labelled(ratio(r), [2 ** a, 2 ** (a + 1), 2 ** (a + 1) - 1, 2 ** a - 1, 2 ** (a + 2) - 2, a + 1, 2 * a].filter((v) => v > 0).map(ratio)),
         check: () => { let odd = 0, even = 0; for (const x of divisors(N)) if (x % 2) odd += x; else even += x; return even === r * odd ? '' : `sums ${odd} and ${even}`; },
-        solution: `N = ${pw(2, a)} · ${num(m, 0)}, and ${num(m, 0)} is odd. The odd divisors of N are the divisors of ${num(m, 0)}; say they add up to s. `
+        solution: `Take the factors of 2 out of each number: ${takeOut}. So N = ${pw(2, a)} · ${oddParts.join(' · ')} = ${pw(2, a)} · ${num(m, 0)}, and ${num(m, 0)} is odd. The odd divisors of N are the divisors of ${num(m, 0)}; say they add up to s. `
           + (a === 1 ? 'Every even divisor is 2 times an odd one, so the even divisors add up to 2s.' : `Every even divisor is ${powers.slice(0, -1).join(', ')} or ${powers.at(-1)} times an odd one, so the even divisors add up to (${powers.join(' + ')}) · s = ${r}s.`)
           + ` The ratio is <b>1 : ${r}</b>.`,
       };
@@ -288,7 +310,7 @@ export const numberTheory = Object.fromEntries([
         text: `What is the sum of all the even positive divisors of ${ints(N)}?`,
         answer: choices(d, value, [sigma(N), s, 2 * s, (2 ** a) * s, sigma(N) - 2 * s].filter((v) => v !== value), ints),
         check: () => { const t = divisors(N).filter((x) => x % 2 === 0).reduce((u, x) => u + x, 0); return t === value ? '' : `brute force says ${t}`; },
-        solution: `${ints(N)} = ${pw(2, a)} · ${m} with ${m} odd. Each even divisor is ${a === 1 ? '2' : powers.join(', ').replace(/, (\d+)$/, ' or $1')} times a divisor of ${m}, and the divisors of ${m} add up to ${ints(s)}. So the even divisors add up to (${powers.join(' + ')}) · ${ints(s)} = ${2 ** (a + 1) - 2} · ${ints(s)} = <b>${ints(value)}</b>.`,
+        solution: `${ints(N)} = ${pw(2, a)} · ${m} with ${m} odd. Each even divisor is ${a === 1 ? '2' : powers.join(', ').replace(/, (\d+)$/, ' or $1')} times a divisor of ${m}, and the divisors of ${m} add up to ${divisors(m).join(' + ')} = ${ints(s)}. So the even divisors add up to ${a === 1 ? `2 · ${ints(s)}` : `(${powers.join(' + ')}) · ${ints(s)} = ${2 ** (a + 1) - 2} · ${ints(s)}`} = <b>${ints(value)}</b>.`,
       };
     }),
 
@@ -302,7 +324,7 @@ export const numberTheory = Object.fromEntries([
         text: `Nadia was supposed to multiply ${M} by the repeating decimal ${w}.<i>ab</i><i>ab</i><i>ab</i>…, in which the two digits <i>a</i> and <i>b</i> repeat forever. Not noticing the repeat, she multiplied ${M} by ${w}.<i>ab</i> instead, and her answer came out ${num(diff, 2)} too small. What is the two-digit number <i>ab</i>?`,
         answer: choices(d, ab, [swapped, ab + 9, ab - 9, ab + 11, Math.round(ab / 2)].filter((v) => v >= 10 && v <= 99)),
         check: () => { const hits = range(10, 99).filter((t) => Math.abs(M * (Number(`${w}.${String(t).repeat(8)}`) - Number(`${w}.${t}`)) - diff) < 1e-6); return hits.length === 1 && hits[0] === ab ? '' : `matches: ${hits.join(', ')}`; },
-        solution: `The repeating decimal is ${w} + ${fr('<i>ab</i>', 99)} and the number she used is ${w} + ${fr('<i>ab</i>', 100)}. So her answer was short by ${M} · <i>ab</i> · (${fr(1, 99)} − ${fr(1, 100)}) = ${fr(`${M} · <i>ab</i>`, '9900')}. Setting that equal to ${num(diff, 2)} gives <i>ab</i> = 9900 · ${num(diff, 2)} / ${M} = <b>${ab}</b>.`,
+        solution: `Call y = 0.<i>ab</i><i>ab</i><i>ab</i>…; then 100y = <i>ab</i>.<i>ab</i><i>ab</i>… = <i>ab</i> + y, so 99y = <i>ab</i> and y = ${fr('<i>ab</i>', 99)}. So the repeating decimal is ${w} + ${fr('<i>ab</i>', 99)}, while the number she used is ${w} + ${fr('<i>ab</i>', 100)}. Her answer was short by ${M} · <i>ab</i> · (${fr(1, 99)} − ${fr(1, 100)}) = ${M} · <i>ab</i> · ${fr(1, 9900)} = ${fr(`${M} · <i>ab</i>`, '9900')}. Setting that equal to ${num(diff, 2)} gives <i>ab</i> = 9900 · ${num(diff, 2)} / ${M} = ${ints(M * ab)} / ${M} = <b>${ab}</b>.`,
       };
     },
     // two repeating digits as a fraction in lowest terms
@@ -325,7 +347,7 @@ export const numberTheory = Object.fromEntries([
         text: `When the repeating decimal 0.${a}${bc}${bc}${bc}… (the digit ${a}, then the digits ${bc} repeating forever) is written as a fraction in lowest terms, what is the denominator?`,
         answer: choices(d, q, [990, 99, 900, 999, 1000].filter((v) => v !== q), ints),
         check: () => (Math.abs(top / g / q - Number(`0.${a}${String(bc).repeat(7)}`)) < 1e-12 && gcd(top / g, q) === 1 ? '' : 'fraction wrong'),
-        solution: `Call the number x. Then 10x = ${a}.${bc}${bc}… and 1000x = ${a}${bc}.${bc}${bc}…, so subtracting, 990x = ${a}${bc} − ${a} = ${top}. That makes x = ${fr(top, 990)} = ${fr(top / g, q)} in lowest terms, so the denominator is <b>${q}</b>.`,
+        solution: `Call the number x. Then 10x = ${a}.${bc}${bc}… and 1000x = ${a}${bc}.${bc}${bc}…, so subtracting, 990x = ${a}${bc} − ${a} = ${top}. That makes x = ${fr(top, 990)}${g > 1 ? `, and dividing top and bottom by their greatest common factor, ${g}, gives ${fr(top / g, q)} in lowest terms` : `, which is already in lowest terms: 990 = 2 · 3<sup>2</sup> · 5 · 11, and ${top} is a multiple of none of 2, 3, 5 and 11`}. So the denominator is <b>${q}</b>.`,
       };
     },
     // a far-off digit of a repeating decimal
@@ -337,7 +359,8 @@ export const numberTheory = Object.fromEntries([
         text: `What is the ${ord(N)} digit after the decimal point in the decimal form of ${frac(p, q)}?`,
         answer: choices(d, value, [+digits[(i + 1) % L], +digits[(i + L - 1) % L], ...d.shuffle(digits.split('').map(Number)), ...d.shuffle(range(0, 9))]),
         check: () => { let r = p, digit = -1; for (let k = 0; k < N; k++) { r *= 10; digit = Math.floor(r / q); r %= q; } return digit === value ? '' : `long division says ${digit}`; },
-        solution: `${frac(p, q)} = 0.${digits}${digits}…: the block ${digits} of ${L} digits repeats forever. ${N} = ${L} · ${Math.floor((N - 1) / L)} + ${i + 1}, so the ${ord(N)} digit is the ${ord(i + 1)} digit of the block: <b>${value}</b>.`,
+        tip: 'Find the block of digits that repeats, then use the remainder when the position is divided by the length of the block.',
+        solution: `By long division, ${frac(p, q)} = 0.${digits}${digits}…, and the block ${digits} of ${L} digits repeats forever. ${N} = ${L} · ${Math.floor((N - 1) / L)} + ${i + 1}, so the ${ord(N)} digit is the ${ord(i + 1)} digit of the block: <b>${value}</b>.`,
       };
     }),
 
@@ -391,7 +414,8 @@ export const numberTheory = Object.fromEntries([
         text: `What are the last two digits of ${sup(B, n)}?`,
         answer: labelled(opt(value, two(value)), [...cyc.filter((v) => v !== value).map((v) => opt(v, two(v))), opt((value + 10) % 100, two((value + 10) % 100))]),
         check: () => (powMod(B, n, 100) === value ? '' : 'last two digits wrong'),
-        solution: `Only the last two digits matter: ${B}, ${B}<sup>2</sup>, ${B}<sup>3</sup> and ${B}<sup>4</sup> end in ${cyc.map(two).join(', ')}. Since ${B}<sup>4</sup> ends in 01, the pattern starts over every 4 powers. ${n} leaves remainder ${n % 4} when divided by 4, so ${sup(B, n)} ends in the same two digits as ${pw(B, ((n - 1) % 4) + 1)}: <b>${two(value)}</b>.`,
+        tip: 'Keep only the last two digits at each step, find the power that ends in 01, and use the exponent’s remainder to pick the spot.',
+        solution: `Only the last two digits matter, so keep just those at each step: ${B} · ${B} = ${ints(B * B)}, then ${two(cyc[1])} · ${B} = ${ints(cyc[1] * B)}, then ${two(cyc[2])} · ${B} = ${ints(cyc[2] * B)}. So ${B}, ${B}<sup>2</sup>, ${B}<sup>3</sup> and ${B}<sup>4</sup> end in ${and(cyc.map(two))}. Since ${B}<sup>4</sup> ends in 01, the pattern starts over every 4 powers. ${n} leaves remainder ${n % 4} when divided by 4, so ${sup(B, n)} ends in the same two digits as ${pw(B, ((n - 1) % 4) + 1)}: <b>${two(value)}</b>.`,
       };
     }),
 
@@ -407,7 +431,9 @@ export const numberTheory = Object.fromEntries([
         text: `What is the remainder when ${terms} is divided by ${m}?`,
         answer: choices(d, value, [F, x, (F + x) % m, (t * x) % m, (F * seq[k % L]) % m, ...d.shuffle(range(0, m - 1))]),
         check: () => (range(0, t - 1).reduce((s, i) => s + powMod(b, k + i, m), 0) % m === value ? '' : 'remainder wrong'),
-        solution: `Factor out ${sup(b, k)}: the sum is ${sup(b, k)} · (${small}) = ${sup(b, k)} · ${sum}${sum >= m ? `, and ${sum} leaves remainder ${F} when divided by ${m}` : ''}. The remainders of ${b}, ${sup(b, 2)}, ${sup(b, 3)}, … mod ${m} are ${seq.join(', ')}, and then they repeat. ${k} leaves remainder ${k % L} when divided by ${L}, so ${sup(b, k)} leaves remainder ${x}. The sum leaves the same remainder as ${F} · ${x} = ${F * x}: <b>${value}</b>.`,
+        solution: `Factor out ${sup(b, k)}: the sum is ${sup(b, k)} · (${small}) = ${sup(b, k)} · ${sum}${sum >= m ? `, and ${sum} leaves remainder ${F} when divided by ${m}` : ''}. The remainders of ${b}, ${sup(b, 2)}, ${sup(b, 3)}, … when divided by ${m} are ${seq.join(', ')}, and then they repeat every ${L} powers. `
+          + (k % L ? `${k} leaves remainder ${k % L} when divided by ${L}, so ${sup(b, k)} leaves the same remainder as ${pw(b, k % L)}, which is ${x}.` : `${k} is a multiple of ${L}, so ${sup(b, k)} leaves the same remainder as ${sup(b, L)}, which is ${x}.`)
+          + ` The sum leaves the same remainder as ${F} · ${x} = ${F * x}${F * x >= m ? `, which leaves remainder <b>${value}</b> when divided by ${m}` : `, so the remainder is <b>${value}</b>`}.`,
       };
     },
     // a base one more or one less than the divisor
@@ -434,7 +460,10 @@ export const numberTheory = Object.fromEntries([
         text: `What is the remainder when 1 + ${b} + ${sup(b, 2)} + ${sup(b, 3)} + ⋯ + ${sup(b, n)} is divided by ${m}?`,
         answer: choices(d, value, [(n + 1) % m, (value + 1) % m, (full * S) % m === value ? (value + 2) % m : (full * S) % m, powMod(b, n, m), ...d.shuffle(range(0, m - 1))]),
         check: () => { let s = 0; for (let i = 0; i <= n; i++) s = (s + powMod(b, i, m)) % m; return s === value ? '' : `adding up gives ${s}`; },
-        solution: `The remainders of 1, ${b}, ${sup(b, 2)}, … when divided by ${m} are ${seq.join(', ')}, and then they repeat every ${L} terms; one full block adds up to ${S}, a multiple of ${m}. The sum has ${n + 1} terms: ${full} full block${full > 1 ? 's' : ''}${left ? ` and ${left} more term${left > 1 ? 's' : ''} (${seq.slice(0, left).join(' + ')} = ${part})` : ''}. So the remainder is ${left ? `the remainder of ${part}` : '0'}: <b>${value}</b>.`,
+        solution: `The remainders of 1, ${b}, ${sup(b, 2)}, … when divided by ${m} are ${seq.join(', ')}, and then they repeat every ${L} terms; one full block adds up to ${S}, a multiple of ${m}. `
+          + (left ? `The sum has ${n + 1} terms, which make ${full} full block${full > 1 ? 's' : ''} and ${left} more term${left > 1 ? 's' : ''}, with remainder${left > 1 ? `s adding up to ${seq.slice(0, left).join(' + ')} = ${part}` : ' 1'}. `
+            + (part < m ? `So the remainder is <b>${value}</b>.` : `So the sum leaves the same remainder as ${part}, which is <b>${value}</b>.`)
+            : `The sum has ${n + 1} terms, which make exactly ${full} full blocks, so the sum is a multiple of ${m} and the remainder is <b>0</b>.`),
       };
     }),
 
@@ -460,7 +489,7 @@ export const numberTheory = Object.fromEntries([
         text: `How many of the integers 1, 2, 3, …, ${N} can be written as x<sup>2</sup> − y<sup>2</sup> for some integers x and y?`,
         answer: choices(d, value, [Math.ceil(N / 2), N, Math.floor(N / 2), N - Math.floor(N / 4), value - Math.floor(N / 4)]),
         check: () => { const k = range(1, N).filter((t) => divisors(t).some((u) => u * u <= t && (u + t / u) % 2 === 0)).length; return k === value ? '' : `brute force found ${k}`; },
-        solution: `x<sup>2</sup> − y<sup>2</sup> = (x − y)(x + y), and the two factors differ by 2y, so they are both odd or both even. Both odd gives an odd number, and both even gives a multiple of 4. Every such number works: an odd n is 1 · n (x = (n + 1)/2, y = (n − 1)/2), and 4k is 2 · 2k (x = k + 1, y = k − 1). So only 2, 6, 10, … (2 more than a multiple of 4) fail, and up to ${N} there are ${bad} of them. That leaves <b>${value}</b>.`,
+        solution: `x<sup>2</sup> − y<sup>2</sup> = (x − y)(x + y), and the two factors differ by 2y, so they are both odd or both even. Both odd gives an odd number, and both even gives a multiple of 4. Every such number works, since an odd n is 1 · n (x = (n + 1)/2, y = (n − 1)/2), and 4k is 2 · 2k (x = k + 1, y = k − 1). So only 2, 6, 10, … (2 more than a multiple of 4) fail, and up to ${N} those are 2, 6, …, ${4 * bad - 2}, which is (${4 * bad - 2} − 2)/4 + 1 = ${bad} numbers. That leaves ${N} − ${bad} = <b>${value}</b>.`,
       };
     },
     // the gap and the gap between the squares give the numbers
@@ -506,7 +535,7 @@ export const numberTheory = Object.fromEntries([
         text: `How many ordered pairs (m, n) of nonzero integers satisfy ${fr(1, 'm')} + ${fr(1, 'n')} = ${fr(1, k)}?`,
         answer: choices(d, value, [t, 2 * t, t - 1, 2 * t + 1, 2 * t - 3]),
         check: () => { let c = 0; for (let m = k - K; m <= k + K; m++) { if (!m || m === k || (m * k) % (m - k)) continue; const n = (m * k) / (m - k); if (n && n * k + m * k === m * n) c++; } return c === value ? '' : `brute force found ${c}`; },
-        solution: `Multiply through by ${k}mn: ${k}n + ${k}m = mn, which rearranges to (m − ${k})(n − ${k}) = ${K}. Any of the ${t} positive divisors of ${K}, or its negative, can be m − ${k}: that is ${2 * t} pairs. But m − ${k} = −${k} gives m = 0 (and n = 0), which is not allowed. So there are <b>${value}</b>.`,
+        solution: `Multiply through by ${k}mn: ${k}n + ${k}m = mn. Move everything to one side and add ${K}: mn − ${k}m − ${k}n + ${K} = ${K}, which factors as (m − ${k})(n − ${k}) = ${K}. Any of the ${t} positive divisors of ${K}, or its negative, can be m − ${k}, and then n − ${k} is fixed, which makes 2 · ${t} = ${2 * t} pairs. But m − ${k} = −${k} gives m = 0 (and n = 0), which is not allowed. So there are <b>${value}</b>.`,
       };
     },
     // the same equation over the positive integers: the negative factors can't happen
@@ -517,7 +546,7 @@ export const numberTheory = Object.fromEntries([
         text: `How many ordered pairs (m, n) of positive integers satisfy mn = ${a}m + ${b}n?`,
         answer: choices(d, value, [2 * value, value - 1, value + 1, 2 * value - 1, value + 2]),
         check: () => { let k = 0; for (let m = 1; m <= b + ab; m++) for (let n = 1; n <= a + ab; n++) if (m * n === a * m + b * n) k++; return k === value ? '' : `brute force found ${k}`; },
-        solution: `Rearrange to (m − ${b})(n − ${a}) = ${ab}. If both factors were negative, we would have m − ${b} = −u and n − ${a} = −v with u &lt; ${b} and v &lt; ${a} (m and n are positive), so uv &lt; ${ab}: impossible. So both factors are positive, and each of the ${value} positive divisors of ${ab} gives one pair: <b>${value}</b>.`,
+        solution: `Move everything to one side and add ${ab}: mn − ${a}m − ${b}n + ${ab} = ${ab}, which factors as (m − ${b})(n − ${a}) = ${ab}. The product is positive, so the two factors are both positive or both negative. If both were negative, we would have m − ${b} = −u and n − ${a} = −v with u &lt; ${b} and v &lt; ${a} (m and n are positive), so uv &lt; ${ab}: impossible. So both factors are positive, and each of the ${value} positive divisors of ${ab} gives one pair: <b>${value}</b>.`,
       };
     },
     // the largest m + n: put the factors as far apart as they go
@@ -528,7 +557,7 @@ export const numberTheory = Object.fromEntries([
         text: `Positive integers m and n satisfy ${fr(1, 'm')} + ${fr(1, 'n')} = ${fr(1, k)}. What is the largest possible value of m + n?`,
         answer: choices(d, value, [4 * k, k * k + 1, k * k + k, value - 1, k * k + 2 * k]),
         check: () => { let best = 0; for (let m = k + 1; m <= k + k * k; m++) if ((m * k) % (m - k) === 0) best = Math.max(best, m + (m * k) / (m - k)); return best === value ? '' : `search found ${best}`; },
-        solution: `Clear the fractions: ${k}n + ${k}m = mn, so (m − ${k})(n − ${k}) = ${k * k}. Both m and n are more than ${k} (1/m and 1/n are each less than 1/${k}), so both factors are positive. m + n = (m − ${k}) + (n − ${k}) + ${2 * k}, and two positive numbers with product ${k * k} have the biggest sum when they are 1 and ${k * k}. So the largest m + n is 1 + ${k * k} + ${2 * k} = <b>${value}</b>.`,
+        solution: `Clear the fractions: ${k}n + ${k}m = mn, so mn − ${k}m − ${k}n + ${k * k} = ${k * k}, which factors as (m − ${k})(n − ${k}) = ${k * k}. Both m and n are more than ${k} (1/m and 1/n are each less than 1/${k}), so both factors are positive. Now m + n = (m − ${k}) + (n − ${k}) + ${2 * k}, and two positive numbers with product ${k * k} have the biggest sum when they are as far apart as possible, 1 and ${k * k}. So the largest m + n is 1 + ${k * k} + ${2 * k} = <b>${value}</b>.`,
       };
     }),
 
@@ -551,7 +580,7 @@ export const numberTheory = Object.fromEntries([
           const r = iroot(mm * P, 2);
           return rest === 1n && mm === BigInt(m) && r * r === mm * P ? '' : `factoring gives m = ${mm}`;
         },
-        solution: `Pair each odd factorial with the next one: (2j − 1)! · (2j)! = ((2j − 1)!)<sup>2</sup> · 2j. So 1! · 2! ⋯ ${n}! is a perfect square times 2 · 4 · 6 ⋯ ${n} = ${sup(2, h)} · ${h}! = ${exps.map(([p, e]) => pw(p, e)).join(' · ')}. In a perfect square every prime has an even power, so m must supply one more of each prime whose power here is odd: m = ${odd.length > 1 ? `${odd.join(' · ')} = ` : ''}<b>${ints(m)}</b>.`,
+        solution: `Pair each odd factorial with the next one: (2j − 1)! · (2j)! = ((2j − 1)!)<sup>2</sup> · 2j. So 1! · 2! ⋯ ${n}! is a perfect square times 2 · 4 · 6 ⋯ ${n} = ${sup(2, h)} · ${h}!. Since ${h}! = ${primesTo(h).map((p) => pw(p, legendre(h, p))).join(' · ')}, that is ${exps.map(([p, e]) => pw(p, e)).join(' · ')}. In a perfect square every prime has an even power, so m must supply one more of each prime whose power here is odd: m = ${odd.length > 1 ? `${odd.join(' · ')} = ` : ''}<b>${ints(m)}</b>.`,
       };
     },
     // one factorial made into a perfect square
@@ -562,7 +591,7 @@ export const numberTheory = Object.fromEntries([
         text: `What is the smallest positive integer m for which m · ${n}! is a perfect square?`,
         answer: choices(d, m, [product(ps), n, m % 2 ? 2 * m : m / 2, product(ps.filter((p) => 2 * p > n)), m * (ps.find((p) => m % p) ?? 1)], ints),
         check: () => { let f = 1n; for (let k = 2; k <= n; k++) f *= BigInt(k); const r = iroot(BigInt(m) * f, 2); const smaller = divisors(m).filter((x) => x < m).some((x) => isSquare(BigInt(x) * f)); return r * r === BigInt(m) * f && !smaller ? '' : 'not the smallest square'; },
-        solution: `Find the power of each prime in ${n}! (count the multiples of p, then of p<sup>2</sup>, and so on): ${n}! = ${ps.map((p) => pw(p, legendre(n, p))).join(' · ')}. In a perfect square every power is even, so m supplies one more of each prime with an odd power: m = ${odd.length > 1 ? `${odd.join(' · ')} = ` : ''}<b>${ints(m)}</b>.`,
+        solution: `Find the power of each prime in ${n}! by counting the multiples of p, then of p<sup>2</sup>, and so on; for 2 that is ${range(1, Math.floor(Math.log2(n))).map((i) => `⌊${n}/${2 ** i}⌋`).join(' + ')} = ${range(1, Math.floor(Math.log2(n))).map((i) => Math.floor(n / 2 ** i)).join(' + ')} = ${legendre(n, 2)}. Altogether ${n}! = ${ps.map((p) => pw(p, legendre(n, p))).join(' · ')}. In a perfect square every power is even, so m supplies one more of each prime with an odd power: m = ${odd.length > 1 ? `${odd.join(' · ')} = ` : ''}<b>${ints(m)}</b>.`,
       };
     },
     // which factorial to take out so the rest is a square
@@ -586,6 +615,7 @@ export const numberTheory = Object.fromEntries([
         text: `What is the largest integer k for which 2<sup>k</sup> divides 1! · 2! · 3! ⋯ ${n}!?`,
         answer: choices(d, value, [legendre(n, 2), total(range(1, n).map((j) => Math.floor(j / 2))), value - 1, value + legendre(n, 2), Math.floor(n / 2)]),
         check: () => { let P = 1n, f = 1n; for (let j = 1; j <= n; j++) { f *= BigInt(j); P *= f; } let k = 0; while (P % 2n === 0n) { P /= 2n; k++; } return k === value ? '' : `the product has 2^${k}`; },
+        tip: 'The power of 2 in a product is the total of the powers of 2 in its factors, and in j! it is ⌊j/2⌋ + ⌊j/4⌋ + ⌊j/8⌋ + ⋯.',
         solution: `Add up the power of 2 in each factorial (in j! it is ⌊j/2⌋ + ⌊j/4⌋ + ⌊j/8⌋ + ⋯): for 1!, 2!, …, ${n}! these are ${each.join(', ')}, and they add up to <b>${value}</b>.`,
       };
     }),
@@ -622,12 +652,18 @@ export const numberTheory = Object.fromEntries([
         const hi = Math.max(x1, x0, y1, y0, ...zd);
         if (b - 2 > hi && range(hi + 1, 40).filter((j) => inBase(X, j) * inBase(Y, j) === inBase(Z, j)).length === 1) break;
       }
+      // the equation, right side minus left: A b² + B b + C = 0, with A ≥ 0 (Z's first digit holds at least x1·y1) and
+      // C ≤ 0 (Z's last digit is x0·y0 less its carries); b is a root, and the other factor is A·b + (A·b0 + B)
+      const A = zd[0] - x1 * y1, B = zd[1] - (x1 * y0 + x0 * y1), C = zd[2] - x0 * y0, E = A * b + B;
+      const solve = A === 0 ? `so ${quad([0, B, 0])} = ${-C} and b = ${b}`
+        : E === 0 ? `which factors as ${A === 1 ? '' : A}b(b − ${b}) = 0, and a base can’t be 0`
+          : `which factors as (b − ${b})(${quad([0, A, E])}) = 0, and ${quad([0, A, E])} can’t be 0 when b is positive`;
       return {
         rank: 12,
         text: `In which base b is it true that ${X}<sub>b</sub> × ${Y}<sub>b</sub> = ${Z}<sub>b</sub>?`,
         answer: choices(d, b, [b - 2, b - 1, b + 1, b + 2, b + 3]),
         check: () => { const works = range(Math.max(...(X + Y + Z).split('').map(Number)) + 1, 40).filter((j) => inBase(X, j) * inBase(Y, j) === inBase(Z, j)); return works.length === 1 && works[0] === b ? '' : `works in ${works.join(', ')}`; },
-        solution: `In base b, ${X}<sub>b</sub> = ${poly([x1, x0])}, ${Y}<sub>b</sub> = ${poly([y1, y0])} and ${Z}<sub>b</sub> = ${poly(zd)}. Try the choices: with b = ${b}, ${xv} × ${yv} = ${zv}, and ${zd[0]} · ${b * b} + ${zd[1]} · ${b} + ${zd[2]} = ${zv} as well, while none of the other bases works. So b = <b>${b}</b>.`,
+        solution: `In base b, ${X}<sub>b</sub> = ${poly([x1, x0])}, ${Y}<sub>b</sub> = ${poly([y1, y0])} and ${Z}<sub>b</sub> = ${poly(zd)}. So (${poly([x1, x0])})(${poly([y1, y0])}) = ${poly(zd)}, and multiplying out the left side, ${quad([x1 * y1, x1 * y0 + x0 * y1, x0 * y0])} = ${poly(zd)}. Taking the left side from the right side leaves ${quad([A, B, C])} = 0, ${solve}. Indeed, with b = ${b} the three numbers are worth ${xv}, ${yv} and ${zv}, and ${xv} × ${yv} = ${zv}. So b = <b>${b}</b>.`,
       };
     },
     // numerals that are squares in every base
@@ -702,7 +738,7 @@ export const numberTheory = Object.fromEntries([
           for (let n = -30; n <= 30; n++) { const top = BigInt(A) * BigInt(n >= 0 ? p : q) ** BigInt(Math.abs(n)), bottom = BigInt(n >= 0 ? q : p) ** BigInt(Math.abs(n)); if (top % bottom === 0n && top / bottom > best) best = top / bottom; }
           return best === BigInt(value) ? '' : `search found ${best}`;
         },
-        solution: `${ints(A)} = ${pw(p, x)} · ${pw(q, y)}, so the expression is an integer for n from −${x} to ${y}. Each step up in n multiplies it by ${frac(p, q)}, which is ${p > q ? 'more' : 'less'} than 1, so the largest value comes at n = ${num(at, 0)}: ${p > q ? `${pw(p, x)} · ${pw(q, y)} · ${pw(p, y)} / ${pw(q, y)}` : `${pw(p, x)} · ${pw(q, y)} · ${pw(q, x)} / ${pw(p, x)}`} = ${pw(big, x + y)} = <b>${ints(value)}</b>.`,
+        solution: `${ints(A)} = ${pw(p, x)} · ${pw(q, y)}. For n ≥ 0 the expression is ${ints(A)} · ${p}<sup>n</sup> / ${q}<sup>n</sup>, an integer when ${q}<sup>n</sup> divides ${ints(A)}, that is n ≤ ${y}; for n &lt; 0 it is ${ints(A)} · ${q}<sup>|n|</sup> / ${p}<sup>|n|</sup>, an integer when |n| ≤ ${x}. So the expression is an integer for n from −${x} to ${y}. Each step up in n multiplies it by ${frac(p, q)}, which is ${p > q ? 'more' : 'less'} than 1, so the largest value comes at n = ${num(at, 0)}: ${p > q ? `${pw(p, x)} · ${pw(q, y)} · ${pw(p, y)} / ${pw(q, y)}` : `${pw(p, x)} · ${pw(q, y)} · ${pw(q, x)} / ${pw(p, x)}`} = ${pw(big, x + y)} = <b>${ints(value)}</b>.`,
       };
     }),
 
@@ -719,7 +755,7 @@ export const numberTheory = Object.fromEntries([
         text: `Let T = 1 + 2 + ⋯ + n and P = 1 · 2 ⋯ n = n!. What is the greatest ${words} for which P is not a multiple of T?`,
         answer: choices(d, n, [below, U, U - 1, p, n - 2, n - 4], ints),
         check: () => { for (let k = U; k >= 1; k--) if (!sumDivides(k)) return k === n ? '' : `first failure at ${k}`; return 'never fails'; },
-        solution: `T = n(n + 1)/2, so P/T = 2 · (n − 1)!/(n + 1). If n + 1 is composite (and n ≥ 3), it splits into factors that all show up in 2 · (n − 1)!, so P/T is a whole number. If n + 1 is an odd prime, it divides neither 2 nor any of 1, 2, …, n − 1, so T does not divide P. So we need the greatest n in range for which n + 1 is prime. ${ints(p)} is the largest prime up to ${ints(U + 1)}, so n = <b>${ints(n)}</b>.`,
+        solution: `T = n(n + 1)/2, so P/T = 2 · (n − 1)!/(n + 1). If n + 1 is composite (and n ≥ 3), it splits into factors that all show up in 2 · (n − 1)!, so P/T is a whole number. If n + 1 is an odd prime, it divides neither 2 nor any of 1, 2, …, n − 1, so T does not divide P. So we need the greatest n in range for which n + 1 is prime. Here n + 1 can be at most ${ints(U + 1)}, and ${p === U + 1 ? `${ints(p)} is prime` : `the largest prime up to ${ints(U + 1)} is ${ints(p)}`}, so n = ${ints(p)} − 1 = <b>${ints(n)}</b>.`,
       };
     },
     // how many n fail: one for each odd prime
@@ -737,12 +773,17 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [p] = combo(ctx, [primesTo(200).filter((v) => v > 30)]), n = p - 1;
       const wrongs = d.shuffle(range(n - 8, n + 8).filter((k) => k !== n && !isPrime(k + 1))).slice(0, 4);
+      // why the other values of n + 1 aren't prime: even, or an odd number with a small factor
+      const others = wrongs.map((k) => k + 1).sort((x, y) => x - y), evens = others.filter((v) => v % 2 === 0), odds = others.filter((v) => v % 2);
+      const split = (v) => { const s = primesTo(v).find((q) => v % q === 0); return `${v} = ${s} · ${v / s}`; };
+      const notPrime = [evens.length ? `${and(evens)} ${evens.length > 1 ? 'are' : 'is'} even` : '', odds.length ? and(odds.map(split)) : ''].filter(Boolean).join(', and ');
       return {
         rank: 9,
         text: `Each choice below is a value of n between ${Math.min(n, ...wrongs)} and ${Math.max(n, ...wrongs)}. For which of them is n! <i>not</i> a multiple of 1 + 2 + ⋯ + n?`,
         answer: choices(d, n, wrongs),
         check: () => { const fails = [n, ...wrongs].filter((k) => !sumDivides(k)); return fails.length === 1 && fails[0] === n ? '' : `fails for ${fails.join(', ')}`; },
-        solution: `n! ÷ (1 + 2 + ⋯ + n) = 2 · (n − 1)!/(n + 1), which fails to be whole only when n + 1 is an odd prime. Of the choices, only ${n} + 1 = ${p} is prime, so the answer is <b>${n}</b>.`,
+        solution: `n! ÷ (1 + 2 + ⋯ + n) = 2 · (n − 1)!/(n + 1), which fails to be whole only when n + 1 is an odd prime. For the choices, n + 1 is ${and([n, ...wrongs].sort((x, y) => x - y).map((k) => k + 1), 'or')}. `
+          + `Of those, ${notPrime}, so only ${p} is prime, and the answer is <b>${n}</b>.`,
       };
     }),
 
@@ -767,12 +808,18 @@ export const numberTheory = Object.fromEntries([
       const [N, x] = combo(ctx, [[50, 64, 75, 88, 99, 100, 120, 150, 199, 250], range(1, 9)]);
       const u = placeCount(N, x, 1), t = placeCount(N, x, 10), h = placeCount(N, x, 100), value = u + t + h;
       const containing = range(1, N).filter((k) => String(k).includes(String(x))).length;
+      // where the digit shows up: the last number ending in it, the runs x0 to x9 in each hundred, and x00 to x99
+      const lastU = N - ((N - x) % 10 + 10) % 10, runs = range(0, Math.floor(N / 100)).map((hh) => [100 * hh + 10 * x, Math.min(100 * hh + 10 * x + 9, N)]).filter(([s]) => s <= N);
+      const span = ([s, e]) => (s === e ? `${s}` : `${s} to ${e}`), times = (c) => `${c} time${c === 1 ? '' : 's'}`;
       return {
         rank: 5,
         text: `How many times is the digit ${x} written when the whole numbers from 1 to ${N} are written out?`,
         answer: choices(d, value, [containing === value ? value + 1 : containing, value - 1, u, t, value + 10]),
         check: () => { const k = range(1, N).map(String).join('').split('').filter((c) => c === String(x)).length; return k === value ? '' : `counting gives ${k}`; },
-        solution: `Count place by place. In the units place ${x} comes once in every 10 numbers: ${u} time${u === 1 ? '' : 's'}. In the tens place it is the ${x}0s (${x}0 to ${x}9) in each hundred: ${t} time${t === 1 ? '' : 's'}.${h ? ` In the hundreds place: ${h} time${h === 1 ? '' : 's'}.` : ''} Total: <b>${value}</b>.`,
+        solution: `Count place by place. In the units place ${x} comes once in every 10 numbers (${x}, 1${x}, …, ${lastU}), which is ${times(u)}. `
+          + (t ? `In the tens place it comes in ${and(runs.map(span))}, which is ${times(t)}.` : `In the tens place it never comes, since the numbers stop before ${x}0.`)
+          + (h ? ` In the hundreds place it comes in ${span([100 * x, Math.min(100 * x + 99, N)])}, which is ${times(h)}.` : '')
+          + ` In all, ${u} + ${t}${h ? ` + ${h}` : ''} = <b>${value}</b>.`,
       };
     },
     // the sum of every digit written
@@ -784,7 +831,9 @@ export const numberTheory = Object.fromEntries([
         text: `Ana writes out the whole numbers from 1 to ${N}. What is the sum of all the digits she writes?`,
         answer: choices(d, value, [(N * (N + 1)) / 2, U, T, value + 10, value - 9], ints),
         check: () => { const s = total(range(1, N).map(digitSum)); return s === value ? '' : `adding up gives ${s}`; },
-        solution: `Add the units digits and the tens digits separately. Units: each full run 0, 1, …, 9 adds 45, and there are ${f} of them${r ? `, plus ${upTo(r)} at the end` : ''}: ${U}. Tens: the digit t is written 10 times for each t from 1 to ${f - 1} (10 · ${f - 1 > 1 ? `(${upTo(f - 1)})` : '1'} = ${(10 * (f - 1) * f) / 2}), and ${f} is written ${r + 1} time${r ? 's' : ''} at the end (${f * (r + 1)}): ${T}. Altogether ${U} + ${T} = <b>${ints(value)}</b>.`,
+        solution: `Add the units digits and the tens digits separately. Units: each full run 0, 1, …, 9 adds 45, and there are ${f} of them up to ${10 * f - 1}${r === 1 ? `, plus 1 for ${N}` : r ? `, plus ${upTo(r)} from ${10 * f + 1} to ${N}` : ''}, so ${U} in all. `
+          + `Tens: ${f - 1 === 1 ? 'the digit 1 is written 10 times, in 10 to 19, which adds 10' : `each digit from 1 to ${f - 1} is written 10 times, which adds 10 · (${f - 1 <= 4 ? range(1, f - 1).join(' + ') : `1 + 2 + ⋯ + ${f - 1}`}) = ${(10 * (f - 1) * f) / 2}`}, `
+          + `and ${f} is written ${r + 1} time${r ? 's' : ''}, in ${r ? `${10 * f} to ${N}` : N}, which adds ${f} · ${r + 1} = ${f * (r + 1)}, so ${T} in all. Altogether ${U} + ${T} = <b>${ints(value)}</b>.`,
       };
     },
     // working back from how many digits a book's page numbers take
@@ -796,6 +845,7 @@ export const numberTheory = Object.fromEntries([
         text: `The pages of a book are numbered 1, 2, 3, and so on. Printing all the page numbers takes ${ints(D)} digits. How many pages does the book have?`,
         answer: choices(d, P, [Math.floor(D / 3), D - 189, P - 9, Math.round((D - 9) / 2), P + 33], ints),
         check: () => (digitsUpTo(P) === D ? '' : `${P} pages take ${digitsUpTo(P)} digits`),
+        tip: 'Count the digits that the one-digit and two-digit pages use first; the digits left over go 3 to a page.',
         solution: `Pages 1 to 9 take 9 digits and pages 10 to 99 take 90 · 2 = 180, so 189 in all. The other ${ints(D)} − 189 = ${ints(D - 189)} digits are for three-digit pages: ${ints(D - 189)} / 3 = ${P - 99} pages after page 99. So the book has 99 + ${P - 99} = <b>${P}</b> pages.`,
       };
     }),
@@ -805,15 +855,16 @@ export const numberTheory = Object.fromEntries([
     (d) => {
       const B = d.pick([11, 12, 13, 14, 16]), c = d.int(1, 9), e = d.int(0, B - 1), f = d.int(0, B - 1), N = c * B * B + e * B + f;
       const part1 = c * 100, part2 = Math.min(e, 10) * 10, part3 = e <= 9 ? Math.min(f, 9) + 1 : 0, all = part1 + part2 + part3, value = all - 1;
-      const steps = [`First digit 0 to ${c - 1}: ${c} · 10 · 10 = ${part1}.`];
-      if (e > 0) steps.push(`First digit ${c}, second digit 0 to ${Math.min(e - 1, 9)}: ${Math.min(e, 10)} · 10 = ${part2}.`);
-      steps.push(e <= 9 ? `First two digits ${c}${e}, last digit 0 to ${Math.min(f, 9)}: ${part3}.` : `The second base-${B} digit of ${ints(N)} is a letter, so no number starting ${c}${digitOf(e)} counts.`);
+      const upto = (k) => (k === 0 ? '0' : k === 1 ? '0 or 1' : `0 to ${k}`);
+      const steps = [`A first digit of ${upto(c - 1)} gives ${c === 1 ? '' : `${c} · `}10 · 10 = ${part1}.`];
+      if (e > 0) steps.push(`A first digit of ${c} and a second digit of ${upto(Math.min(e - 1, 9))} gives ${Math.min(e, 10)} · 10 = ${part2}.`);
+      steps.push(e <= 9 ? `First digits ${c}${e} and a last digit of ${upto(Math.min(f, 9))} give ${part3}.` : `The second base-${B} digit of ${ints(N)} is a letter, so every number starting ${c} with no letters is already counted.`);
       return {
         rank: 18,
         text: `In base ${B}, numbers are written with the digits 0 through 9 and ${letters(B)}. How many of the integers 1, 2, 3, …, ${ints(N)} have a base-${B} form that uses no letters?`,
         answer: choices(d, value, [all, part1 - 1, value + 10, value - 10, part1 + 99], ints),
         check: () => { const k = range(1, N).filter((x) => /^[0-9]+$/.test(x.toString(B))).length; return k === value ? '' : `brute force found ${k}`; },
-        solution: `${ints(N)} = ${c} · ${B}<sup>2</sup> + ${e} · ${B} + ${f}, which is ${digitOf(c)}${digitOf(e)}${digitOf(f)} in base ${B}. Count the numbers from 0 to ${ints(N)} whose three base-${B} digits (with leading zeros) are all 0–9. ${steps.join(' ')} That makes ${ints(all)} numbers counting 0, so the answer is <b>${ints(value)}</b>.`,
+        solution: `${ints(N)} ÷ ${B * B} = ${c} remainder ${e * B + f}, and ${e * B + f} = ${e} · ${B} + ${f}, so ${ints(N)} = ${c} · ${B}<sup>2</sup> + ${e} · ${B} + ${f}, which is ${digitOf(c)}${digitOf(e)}${digitOf(f)} in base ${B}. Count the numbers from 0 to ${ints(N)} whose three base-${B} digits (with leading zeros) are all 0–9. ${steps.join(' ')} That makes ${ints(all)} numbers counting 0, so the answer is <b>${ints(value)}</b>.`,
       };
     },
     // three-digit numerals with at least one letter: all of them minus the all-digit ones
@@ -824,6 +875,7 @@ export const numberTheory = Object.fromEntries([
         text: `In base ${B}, numbers are written with the digits 0 through 9 and ${letters(B)}. How many three-digit base-${B} numbers (with no leading zero) contain at least one letter?`,
         answer: choices(d, value, [all, 900, (B - 10) ** 3, (B - 10) * B * B, all - 1000], ints),
         check: () => { const k = range(B * B, B ** 3 - 1).filter((x) => /[a-f]/.test(x.toString(B))).length; return k === value ? '' : `brute force found ${k}`; },
+        tip: 'Count all the three-digit numerals first, then take away the ones that use only the digits 0 to 9.',
         solution: `A three-digit base-${B} number has ${B - 1} choices for its first digit (anything but 0) and ${B} for each of the other two: ${B - 1} · ${B} · ${B} = ${ints(all)} in all. The ones with no letters use only 0–9: 9 · 10 · 10 = 900. So ${ints(all)} − 900 = <b>${ints(value)}</b> contain a letter.`,
       };
     },
@@ -838,7 +890,8 @@ export const numberTheory = Object.fromEntries([
         text: `In base ${B}, numbers are written with the digits 0 through 9 and ${letters(B)}. What number, in base ten, is ${X}<sub>${B}</sub>?`,
         answer: choices(d, value, [c * 100 + e * 10 + f, c * B * B + f * B + e, value + B, value - B, c * B + e * B + f], ints),
         check: () => (parseInt(X, B) === value ? '' : `it is ${parseInt(X, B)}`),
-        solution: `${X}<sub>${B}</sub> = ${c} · ${B}<sup>2</sup> + ${e} · ${B} + ${f} = ${ints(c * B * B)} + ${e * B} + ${f} = <b>${ints(value)}</b>.`,
+        tip: 'Each digit counts its value times a power of the base (ones, then the base, then the base squared), and a letter counts as the number it stands for.',
+        solution: `Here ${and([...new Set([c, e, f].filter((v) => v >= 10))].map((v) => `${digitOf(v)} stands for ${v}`))}. In base ${B} the last digit counts ones, the middle digit counts ${B}s, and the first digit counts ${B}<sup>2</sup> = ${B * B}s. So ${X}<sub>${B}</sub> = ${c} · ${B}<sup>2</sup> + ${e} · ${B} + ${f} = ${ints(c * B * B)} + ${e * B} + ${f} = <b>${ints(value)}</b>.`,
       };
     },
     // the last digit is the remainder, and it's a letter for remainders 10 and up
@@ -850,6 +903,7 @@ export const numberTheory = Object.fromEntries([
         text: `In base ${B}, numbers are written with the digits 0 through 9 and ${letters(B)}. How many of the integers 1, 2, 3, …, ${N} end in a letter when written in base ${B}?`,
         answer: choices(d, value, [q, value + (B - 10), Math.round((N * (B - 10)) / 10), N - value, value - 1], ints),
         check: () => { const k = range(1, N).filter((x) => /[a-f]$/.test(x.toString(B))).length; return k === value ? '' : `brute force found ${k}`; },
+        tip: 'The last digit of a number written in base B is its remainder when it is divided by B.',
         solution: `The last base-${B} digit of a number is its remainder when divided by ${B}, and that digit is a letter when the remainder is 10 or more: ${B - 10} of every ${B} numbers in a row. ${N} = ${B} · ${q} + ${r}, so the ${q} full runs of ${B} give ${q} · ${B - 10} = ${q * (B - 10)}, and the last ${r} numbers give ${extra} more. That is <b>${value}</b>.`,
       };
     }),
@@ -871,7 +925,10 @@ export const numberTheory = Object.fromEntries([
         text: `For some integer k, the base-k expansion of the fraction ${frac(p, q)} is 0.${a}${b}${a}${b}${a}${b}…<sub>k</sub>, with the two digits ${a}${b} repeating forever. What is k?`,
         answer: choices(d, k, [k - 2, k - 1, k + 1, k + 2, k + 3, k + 4].filter((j) => j > Math.max(a, b))),
         check: () => { const want = [a, b, a, b, a, b].join(','), hits = range(Math.max(a, b) + 1, k + 4).filter((j) => expand(p, q, j, 6).join(',') === want); return hits.length === 1 && hits[0] === k ? '' : `long division matches ${hits.join(', ')}`; },
-        solution: `Call the number x. Multiplying by k<sup>2</sup> shifts it two places: k<sup>2</sup>x = ${a}${b}<sub>k</sub> + x = ${poly([a, b]).replace(/b/g, 'k')} + x. So x = (${poly([a, b]).replace(/b/g, 'k')})/(k<sup>2</sup> − 1). With k = ${k} this is ${a * k + b}/${k * k - 1} = ${frac(p, q)}, and none of the other choices works. So k = <b>${k}</b>.`,
+        // setting the two equal: q(ak + b) = p(k² − 1), that is p·k² − qa·k − (qb + p) = 0, which is (k − K)(p·k + (qb + p)/K)
+        solution: `Call the number x. Multiplying by k<sup>2</sup> shifts it two places: k<sup>2</sup>x = ${a}${b}<sub>k</sub> + x = ${poly([a, b]).replace(/b/g, 'k')} + x. So x = (${poly([a, b]).replace(/b/g, 'k')})/(k<sup>2</sup> − 1). `
+          + `Setting that equal to ${frac(p, q)} and cross-multiplying gives ${q}(${poly([a, b]).replace(/b/g, 'k')}) = ${p === 1 ? '' : p}(k<sup>2</sup> − 1), that is ${quad([p, -q * a, -(q * b + p)], 'k')} = 0, which factors as (k − ${k})(${quad([0, p, (q * b + p) / k], 'k')}) = 0. `
+          + `The second factor is positive for any positive k, so k = ${k}. Indeed, with k = ${k} the fraction is ${a * k + b}/${k * k - 1} = ${frac(p, q)}. So k = <b>${k}</b>.`,
       };
     },
     // two repeating digits in base k as a fraction
@@ -883,7 +940,7 @@ export const numberTheory = Object.fromEntries([
         text: `In base ${k}, the repeating expansion 0.${a}${b}${a}${b}${a}${b}…<sub>${k}</sub> equals a fraction p/q in lowest terms. What is p + q?`,
         answer: choices(d, value, [top + bottom, 10 * a + b + 99, value + 1, q, a + b + k]),
         check: () => (expand(p, q, k, 8).join(',') === [a, b, a, b, a, b, a, b].join(',') ? '' : 'long division disagrees'),
-        solution: `Call the number x. Multiplying by ${k}<sup>2</sup> shifts it two places: ${k * k}x = ${a}${b}<sub>${k}</sub> + x, so ${bottom}x = ${a} · ${k} + ${b} = ${top} and x = ${fr(top, bottom)}${g > 1 ? ` = ${fr(p, q)}` : ''}. So p + q = <b>${value}</b>.`,
+        solution: `Call the number x. Multiplying by ${k}<sup>2</sup> shifts it two places: ${k * k}x = ${a}${b}<sub>${k}</sub> + x, so ${bottom}x = ${a} · ${k} + ${b} = ${top} and x = ${fr(top, bottom)}${g > 1 ? `, which is ${fr(p, q)} in lowest terms (divide top and bottom by ${g})` : `, already in lowest terms: ${bottom} = ${shown(bottom)}, and ${top} is a multiple of ${factor(bottom).length === 2 ? `neither ${factor(bottom)[0][0]} nor ${factor(bottom)[1][0]}` : `none of ${and(factor(bottom).map(([pr]) => pr))}`}`}. So p + q = ${p} + ${q} = <b>${value}</b>.`,
       };
     },
     // one repeating digit in base k
@@ -906,7 +963,8 @@ export const numberTheory = Object.fromEntries([
         text: `For how many integers b with 2 ≤ b ≤ ${N} does the fraction ${frac(1, q)} have an expansion in base b that ends, rather than repeating forever?`,
         answer: choices(d, value, [Math.floor(N / q) === value ? value + 1 : Math.floor(N / q), Math.floor(N / primes[0]), Math.floor(N / primes.at(-1)), N - value, value - 1]),
         check: () => { const k = range(2, N).filter((b) => { let r = 1; for (let i = 0; i < 40 && r; i++) r = (r * b) % q; return r === 0; }).length; return k === value ? '' : `long division ends in ${k} bases`; },
-        solution: `${frac(1, q)} ends in base b exactly when some power of b is a multiple of ${q}, that is, when every prime factor of ${q} (${primes.join(' and ')}) divides b. So b must be a multiple of ${rad}, and from 2 to ${N} there are ⌊${N}/${rad}⌋ = <b>${value}</b> of them.`,
+        tip: 'A fraction’s expansion in base b ends exactly when the fraction can be written over a power of b, so ask which primes b must contain.',
+        solution: `${frac(1, q)} ends in base b exactly when it can be written as m/b<sup>k</sup> for whole numbers m and k, that is, when some power of b is a multiple of ${q}. That happens exactly when every prime factor of ${q} (${primes.join(' and ')}) divides b. So b must be a multiple of ${rad}, and from 2 to ${N} there are ⌊${N}/${rad}⌋ = <b>${value}</b> of them.`,
       };
     }),
 
@@ -920,7 +978,7 @@ export const numberTheory = Object.fromEntries([
         text: `A rectangular hall ${m} meters wide and ${n} meters long is covered with ${ints(m * n)} square tiles, each 1 meter on a side. A robot rolls in a straight line from one corner of the hall to the opposite corner. How many tiles does it roll across, counting the first and the last? (Just touching the corner of a tile doesn't count.)`,
         answer: choices(d, count, [m + n, m + n - 1, m + n - 2 * g, count - 1, u + v - 1]),
         check: () => { let k = 0; for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) if (Math.max(j * m, n * i) < Math.min((j + 1) * m, n * (i + 1))) k++; return k === count ? '' : `tile by tile: ${k}`; },
-        solution: `The robot starts in one tile and enters a new one each time it crosses a grid line: ${m - 1} lines one way and ${n - 1} the other. But where it crosses two lines at once, at a grid point, it enters only one new tile. The diagonal passes through gcd(${m}, ${n}) − 1 = ${g - 1} grid point${g - 1 > 1 ? 's' : ''} inside the hall. So it crosses 1 + ${m - 1} + ${n - 1} − ${g - 1} = <b>${count}</b> tiles.`,
+        solution: `The robot starts in one tile and enters a new one each time it crosses a grid line: ${m - 1} lines one way and ${n - 1} the other. But where it crosses two lines at once, at a grid point, it enters only one new tile. Since ${m}/${n} = ${u}/${v} in lowest terms, the diagonal meets a grid point after every ${u} meters across and ${v} along, so it passes through gcd(${m}, ${n}) − 1 = ${g - 1} grid point${g - 1 > 1 ? 's' : ''} inside the hall. So it crosses 1 + ${m - 1} + ${n - 1} − ${g - 1} = <b>${count}</b> tiles.`,
       };
     },
     // lattice points on a segment
@@ -932,6 +990,7 @@ export const numberTheory = Object.fromEntries([
         text: `How many points with integer coordinates lie on the line segment from (${num(x1, 0)}, ${num(y1, 0)}) to (${num(x2, 0)}, ${num(y2, 0)}), counting both ends?`,
         answer: choices(d, value, [g, g - 1, g + 2, u + v, Math.abs(dx) + 1]),
         check: () => { let k = 0; for (let x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) if (((x - x1) * dy) % dx === 0) k++; return k === value ? '' : `counting gives ${k}`; },
+        tip: 'Divide the run and the rise by their gcd to get the smallest step from one point with integer coordinates to the next.',
         solution: `The segment goes ${Math.abs(dx)} across and ${Math.abs(dy)} ${dy > 0 ? 'up' : 'down'}, and gcd(${Math.abs(dx)}, ${Math.abs(dy)}) = ${g}. So it splits into ${g} equal steps of ${u} across and ${v} ${dy > 0 ? 'up' : 'down'}, each ending at a point with integer coordinates, and there are none in between. Counting the starting point too, that is ${g} + 1 = <b>${value}</b> points.`,
       };
     },
@@ -944,7 +1003,10 @@ export const numberTheory = Object.fromEntries([
         text: `A ${a} × ${b} × ${c} box is built from unit cubes. A straight line runs from one corner of the box to the opposite corner. How many of the unit cubes does it pass through the inside of?`,
         answer: choices(d, value, [a + b + c, a + b + c - 2, a + b + c - gcd(a, b) - gcd(b, c) - gcd(a, c), value + 1, a * b * c > 200 ? value + g3 + 2 : a * b * c]),
         check: () => { const seen = new Set(); for (const s of [a, b, c]) for (let i = 1; i < s; i++) { const g = gcd(i, s); seen.add(`${i / g}/${s / g}`); } return seen.size + 1 === value ? '' : `crossings give ${seen.size + 1}`; },
-        solution: `The line enters a new cube each time it crosses one of the ${a - 1} + ${b - 1} + ${c - 1} inner planes, except that where it crosses two or three planes at once it enters only one new cube. Counting with inclusion and exclusion: ${a} + ${b} + ${c} − gcd(${a}, ${b}) − gcd(${b}, ${c}) − gcd(${a}, ${c}) + gcd(${a}, ${b}, ${c}) = ${a + b + c} − ${gcd(a, b)} − ${gcd(b, c)} − ${gcd(a, c)} + ${g3} = <b>${value}</b>.`,
+        tip: 'Count the planes the line crosses, and use inclusion and exclusion for the moments when it crosses two or three planes at once.',
+        solution: `The line starts in one cube and enters a new one each time it crosses an inner plane, and it crosses ${a - 1} + ${b - 1} + ${c - 1} = ${a + b + c - 3} of them. `
+          + `But it crosses two kinds of plane at the same moment gcd(${a}, ${b}) − 1 = ${gcd(a, b) - 1}, gcd(${b}, ${c}) − 1 = ${gcd(b, c) - 1} and gcd(${a}, ${c}) − 1 = ${gcd(a, c) - 1} times, and all three kinds at once gcd(${a}, ${b}, ${c}) − 1 = ${g3 - 1} time${g3 - 1 === 1 ? '' : 's'}, and each of those moments enters only one new cube. `
+          + `By inclusion and exclusion it enters a new cube ${a + b + c - 3} − (${gcd(a, b) - 1} + ${gcd(b, c) - 1} + ${gcd(a, c) - 1}) + ${g3 - 1} = ${value - 1} times, so it passes through 1 + ${value - 1} = <b>${value}</b> cubes.`,
       };
     }),
 
@@ -962,7 +1024,7 @@ export const numberTheory = Object.fromEntries([
           for (let i = 0; i <= e; i++) for (let j = 0; j <= e; j++) { const N = BigInt(p) ** BigInt(i) * BigInt(q) ** BigInt(j); if (iroot(N, 2) ** 2n === N || iroot(N, 3) ** 3n === N) k++; }
           return k === value ? '' : `brute force found ${k}`;
         },
-        solution: `${base} = ${p} · ${q}, so each divisor is ${p}<sup>i</sup> · ${q}<sup>j</sup> with 0 ≤ i, j ≤ ${e}. It is a square when i and j are both even: ${f(2)} choices each, so ${sq} squares. It is a cube when both are multiples of 3: ${f(3)} choices each, so ${cu} cubes. It is both when both are multiples of 6: ${six}. So the count is ${sq} + ${cu} − ${six} = <b>${value}</b>.`,
+        solution: `${base} = ${p} · ${q}, so each divisor is ${p}<sup>i</sup> · ${q}<sup>j</sup> with 0 ≤ i, j ≤ ${e}. It is a square when i and j are both even (${mults(2, e)}): ${f(2)} choices each, so ${sq} squares. It is a cube when both are multiples of 3 (${mults(3, e)}): ${f(3)} choices each, so ${cu} cubes. It is both when both are multiples of 6 (${mults(6, e)}): ${f(6)} choices each, so ${six}. So the count is ${sq} + ${cu} − ${six} = <b>${value}</b>.`,
       };
     },
     // square divisors of a product of three prime powers
@@ -974,6 +1036,7 @@ export const numberTheory = Object.fromEntries([
         text: `How many positive divisors of ${N} are perfect squares?`,
         answer: choices(d, value, [(a + 1) * (b + 1) * (c + 1), Math.ceil(a / 2) * Math.ceil(b / 2) * Math.ceil(c / 2), value + 1, Math.floor(a / 2) * Math.floor(b / 2) * Math.floor(c / 2), h(a) + h(b) + h(c)]),
         check: () => { let k = 0; for (let i = 0; i <= a; i++) for (let j = 0; j <= b; j++) for (let l = 0; l <= c; l++) if (isSquare(BigInt(p) ** BigInt(i) * BigInt(q) ** BigInt(j) * BigInt(r) ** BigInt(l))) k++; return k === value ? '' : `brute force found ${k}`; },
+        tip: 'A divisor is a perfect square exactly when every prime in it has an even power, so count the even powers each prime can have.',
         solution: `A divisor is ${p}<sup>i</sup> · ${q}<sup>j</sup> · ${r}<sup>l</sup> with 0 ≤ i ≤ ${a}, 0 ≤ j ≤ ${b} and 0 ≤ l ≤ ${c}. It is a perfect square exactly when i, j and l are all even: ${h(a)} choices for i, ${h(b)} for j and ${h(c)} for l. So there are ${h(a)} · ${h(b)} · ${h(c)} = <b>${value}</b>.`,
       };
     },
@@ -986,7 +1049,7 @@ export const numberTheory = Object.fromEntries([
         text: `How many positive divisors of ${pw(p, a)} · ${pw(q, b)} are perfect cubes but not perfect squares?`,
         answer: choices(d, value, [cubes, both, cubes + both, value + 1, (Math.floor(a / 2) + 1) * (Math.floor(b / 2) + 1)]),
         check: () => { let k = 0; for (let i = 0; i <= a; i++) for (let j = 0; j <= b; j++) { const N = BigInt(p) ** BigInt(i) * BigInt(q) ** BigInt(j); if (iroot(N, 3) ** 3n === N && !isSquare(N)) k++; } return k === value ? '' : `brute force found ${k}`; },
-        solution: `A divisor ${p}<sup>i</sup> · ${q}<sup>j</sup> is a cube when i and j are multiples of 3: ${t(a)} · ${t(b)} = ${cubes} of them. It is also a square when i and j are multiples of 6: ${s(a)} · ${s(b)} = ${both}. So ${cubes} − ${both} = <b>${value}</b> are cubes but not squares.`,
+        solution: `A divisor ${p}<sup>i</sup> · ${q}<sup>j</sup> (with i ≤ ${a} and j ≤ ${b}) is a cube when i and j are multiples of 3, so i is ${mults(3, a)} and j is ${mults(3, b)}, which gives ${t(a)} · ${t(b)} = ${cubes} of them. It is also a square when i and j are multiples of 6, so i is ${mults(6, a)} and j is ${mults(6, b)}, which gives ${s(a)} · ${s(b)} = ${both}. So ${cubes} − ${both} = <b>${value}</b> are cubes but not squares.`,
       };
     }),
 
@@ -995,12 +1058,13 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [a, M, j] = combo(ctx, [[2, 3], range(8, 12), [3, 4, 5]], (a, M, j) => M >= a + 6 && firstMeet(a, M, j) !== 12);
       const T = firstMeet(a, M, j), at = range(a, M).filter((k) => T % k === 0), small = range(a, a + j - 1).reduce((x, k) => lcm(x, k), 1);
+      const laps = (t) => range(a, M).filter((k) => t % k === 0), near = range(1, T - 1).reverse().find((t) => laps(t).length === j - 1);   // the latest near miss
       return {
         rank: 16,
         text: `On a circular track, ${M - a + 1} go-karts leave the start line together. Kart k takes exactly k minutes per lap, for each k from ${a} to ${M}, and every kart keeps a steady speed. After how many minutes are at least ${j} of the karts at the start line at the same moment for the first time?`,
         answer: choices(d, T, [small, 2 * T, T + a, T - 1, T + j]),
         check: () => { let best = Infinity; const ks = range(a, M); const walk = (s, c, l) => { if (c === j) { best = Math.min(best, l); return; } for (let i = s; i < ks.length; i++) walk(i + 1, c + 1, lcm(l, ks[i])); }; walk(0, 0, 1); return best === T ? '' : `subsets say ${best}`; },
-        solution: `A kart with a k-minute lap is at the start line exactly at multiples of k minutes. So we want the least T that is a multiple of at least ${j} of the numbers ${a}, ${a + 1}, …, ${M}. Going through T = 1, 2, 3, …, each earlier time is a multiple of fewer than ${j} of them, while ${T} is a multiple of ${at.join(', ')}. The answer is <b>${T}</b>.`,
+        solution: `A kart with a k-minute lap is at the start line exactly at multiples of k minutes. So we want the least T that is a multiple of at least ${j} of the numbers ${a}, ${a + 1}, …, ${M}. Going through T = 1, 2, 3, …, each earlier time is a multiple of fewer than ${j} of them${near ? ` (${near}, for example, is a multiple of only ${and(laps(near))})` : ''}, while ${T} is a multiple of ${and(at)}. The answer is <b>${T}</b>.`,
       };
     },
     // all three runners together again
@@ -1012,7 +1076,7 @@ export const numberTheory = Object.fromEntries([
         text: `Three runners leave the start line of a track together. They run at steady speeds and take ${x}, ${y} and ${z} minutes per lap. After how many minutes are all three at the start line together again for the first time?`,
         answer: choices(d, value, [x * y * z, x + y + z, lcm(x, y), lcm(y, z), 2 * value], ints),
         check: () => { let t = 1; while (t % x || t % y || t % z) t++; return t === value ? '' : `search found ${t}`; },
-        solution: `Each runner is at the start line at the multiples of their lap time, so we need the least common multiple of ${x}, ${y} and ${z}. With ${[x, y, z].map((v) => `${v} = ${factor(v).map(([p, e]) => pw(p, e)).join(' · ')}`).join(', ')}, take the highest power of each prime: lcm = <b>${value}</b>.`,
+        solution: `Each runner is at the start line at the multiples of their lap time, so we need the least common multiple of ${x}, ${y} and ${z}. With ${[x, y, z].map((v) => `${v} = ${factor(v).map(([p, e]) => pw(p, e)).join(' · ')}`).join(', ')}, take the highest power of each prime: lcm = ${shown(value)} = <b>${value}</b>.`,
       };
     },
     // how many times two blinking lights line up
@@ -1037,6 +1101,9 @@ export const numberTheory = Object.fromEntries([
       const possible = (w) => w >= 1 && w <= s + 1 && (s + 1 - w) % 9 === 0;
       const wrongs = [s + 10, ...d.shuffle([s, s - 9, value + 3, value - 2, value + 5, 1 + ((s + 3) % 9), 12, value + 1, value - 1])].filter((w) => w > 0 && !possible(w));
       const answer = choices(d, value, wrongs, ints);
+      // the wrong choices: too big, or the wrong remainder when divided by 9
+      const shownWrong = answer.choices.map((c) => Number(c.replace(/,/g, ''))).filter((w) => w !== value), big = shownWrong.filter((w) => w > s + 1), off = shownWrong.filter((w) => w <= s + 1);
+      const ruledOut = [big.length ? `${and(big.map(ints))} ${big.length > 1 ? 'are' : 'is'} more than ${ints(s + 1)}` : '', off.length ? `${and(off.map(ints))} leave${off.length > 1 ? '' : 's'} remainder${off.length > 1 ? 's' : ''} ${and(off.map((w) => w % 9))}` : ''].filter(Boolean).join(', and ');
       return {
         rank: 20,
         text: `Let S(n) be the sum of the digits of the positive integer n; for example, S(4096) = 19. For a certain n, S(n) = ${ints(s)}. Which of the following could be the value of S(n + 1)?`,
@@ -1046,7 +1113,7 @@ export const numberTheory = Object.fromEntries([
           const shown = answer.choices.map((c) => Number(c.replace(/,/g, '')));
           return digitSum(n) === s && digitSum((BigInt(n) + 1n).toString()) === value && shown.filter(possible).length === 1 ? '' : 'the choices are off';
         },
-        solution: `Adding 1 to n raises its last digit by 1, unless n ends in 9s: each of those becomes a 0 (losing 9 apiece) and the digit before them goes up by 1. So S(n + 1) = S(n) + 1 − 9t, where t is the number of 9s at the end of n. That means S(n + 1) is at most ${ints(s + 1)} and leaves the same remainder as ${ints(s + 1)} when divided by 9. Of the choices, only <b>${ints(value)}</b> does (it needs ${t} nines at the end of n).`,
+        solution: `Adding 1 to n raises its last digit by 1, unless n ends in 9s: each of those becomes a 0 (losing 9 apiece) and the digit before them goes up by 1. So S(n + 1) = S(n) + 1 − 9t, where t is the number of 9s at the end of n. That means S(n + 1) is at most ${ints(s + 1)} and leaves the same remainder as ${ints(s + 1)} when divided by 9, which is ${(s + 1) % 9}. Of the choices, ${ruledOut}. Only ${ints(value)} = ${ints(s + 1)} − 9 · ${t} fits, with ${t} nines at the end of n, so the answer is <b>${ints(value)}</b>.`,
       };
     },
     // the smallest number with a given digit sum
@@ -1074,7 +1141,8 @@ export const numberTheory = Object.fromEntries([
         text: `How many three-digit positive integers have digits that add up to ${s}?`,
         answer: choices(d, value, [value + pairs(s), ((s + 2) * (s + 1)) / 2, value - 1, value + 1, (s * (s + 1)) / 2]),
         check: () => { const k = range(100, 999).filter((n) => digitSum(n) === s).length; return k === value ? '' : `brute force found ${k}`; },
-        solution: `Fix the first digit a (from 1 to 9). The other two digits add up to ${s} − a, and two digits can make a total of t in t + 1 ways when t ≤ 9, or 19 − t ways when 10 ≤ t ≤ 18. Going through a = ${used.map(([a]) => a).join(', ')}: ${used.map(([, v]) => v).join(' + ')} = <b>${value}</b>.`,
+        tip: 'Fix the first digit, then count the ways the other two digits can make up the rest of the sum.',
+        solution: `Fix the first digit a (from 1 to 9). The other two digits add up to ${s} − a, and two digits can make a total of t in t + 1 ways when t ≤ 9, or 19 − t ways when 10 ≤ t ≤ 18. That total has to be from 0 to 18, so a runs through ${and(used.map(([a]) => a))}, and the other two digits then add up to ${and(used.map(([a]) => s - a))}. That can happen in ${used.map(([, v]) => v).join(' + ')} = <b>${value}</b> ways.`,
       };
     },
     // the digits of a power of ten minus a little
@@ -1086,7 +1154,8 @@ export const numberTheory = Object.fromEntries([
         text: `What is the sum of the digits of 10<sup>${k}</sup> − ${ints(m)}?`,
         answer: choices(d, value, [9 * k, 9 * k - digitSum(m), 9 * (k - L), value + 9, value - 9]),
         check: () => (digitSum((10n ** BigInt(k) - BigInt(m)).toString()) === value ? '' : 'digit sum wrong'),
-        solution: `10<sup>${k}</sup> − ${ints(m)} = (10<sup>${k}</sup> − 10<sup>${L}</sup>) + (10<sup>${L}</sup> − ${ints(m)}): that is ${k - L} nines followed by the ${L} digits of ${10 ** L} − ${ints(m)} = ${String(tail).padStart(L, '0')}. So its digit sum is 9 · ${k - L} + ${digitSum(tail)} = <b>${value}</b>.`,
+        tip: 'Split the subtraction so that most of the digits come out as 9s, and work out the last few digits on their own.',
+        solution: `10<sup>${k}</sup> − ${ints(m)} = (10<sup>${k}</sup> − ${pw(10, L)}) + (${ints(10 ** L)} − ${ints(m)}). The first part is ${k - L} nines followed by ${L === 1 ? 'a 0' : `${L} zeros`}, and the second is ${ints(tail)}, so the number is ${k - L} nines followed by ${L === 1 ? `the digit ${tail}` : `the ${L} digits ${String(tail).padStart(L, '0')}`}. So its digit sum is 9 · ${k - L} + ${L === 1 ? tail : `${String(tail).padStart(L, '0').split('').join(' + ')}`} = <b>${value}</b>.`,
       };
     }),
 ]);

@@ -23,7 +23,7 @@ export const triangleLearning = {
       tip: 'All three angles of a triangle add up to 180°, so find what is left after the two you know.',
     },
     'Right triangle': {
-      idea: 'A right angle, marked with a little square, is exactly 90°. That uses up 90° of the triangle\'s 180°, so the other two angles share the remaining 90°: they always add up to 90°. If one of them is 10°, the other is 90° − 10° = 80°.',
+      idea: 'A right angle, marked with a little square, is exactly 90°. That uses up 90° of the triangle’s 180°, so the other two angles share the remaining 90°: they always add up to 90°. If one of them is 10°, the other is 90° − 10° = 80°.',
       how: ['Spot the right angle (the small square): it is 90°.', 'The other two angles add up to 90°.', 'Subtract the angle you know from 90°.'],
       watch: ['Subtracting from 180° instead of 90° forgets the right angle.', 'The other angles are acute, so the answer must be less than 90°.'],
       tip: 'The right angle already takes 90°, so the two other angles share the remaining 90°.',
@@ -36,7 +36,7 @@ export const triangleLearning = {
     },
     'Angles in terms of x': {
       idea: 'Even when the angles are written as expressions like (x + 10)° and (2x − 5)°, they still add up to 180°. Adding the three expressions collects the x terms and the plain numbers, which gives one equation to solve for x. For example, x + 2x + 3x = 180 gives 6x = 180, so x = 30.',
-      how: ['Add the three expressions and set the total equal to 180.', 'Collect the x terms together and the plain numbers together.', 'Solve the equation for x.', 'If the question asks for an angle, put x back into that angle\'s expression.'],
+      how: ['Add the three expressions and set the total equal to 180.', 'Collect the x terms together and the plain numbers together.', 'Solve the equation for x.', 'If the question asks for an angle, put x back into that angle’s expression.'],
       watch: ['Keep the signs: (2x − 10) adds −10, not +10.', 'Stopping at x when the question asks for ∠B, or giving ∠B when it asks for x.'],
       tip: 'Add all three expressions, set the total equal to 180, and solve for x first.',
     },
@@ -73,13 +73,13 @@ export const triangleLearning = {
     'Angle bisector': {
       idea: 'An angle bisector cuts an angle into two equal halves. Here it starts at A and meets BC at D, making a smaller triangle ABD. Find the whole of ∠A from the angle sum, halve it to get ∠BAD, then use the angle sum again in triangle ABD. For example, if ∠B = 85° and ∠C = 35°, then ∠A = 60°, ∠BAD = 30°, and ∠ADB = 180° − 85° − 30° = 65°.',
       how: ['Find ∠A: 180° minus ∠B and ∠C.', 'Halve it: the bisector makes ∠BAD = ∠A ÷ 2.', 'In triangle ABD, ∠ADB = 180° − ∠B − ∠BAD.'],
-      watch: ['Using the whole of ∠A in triangle ABD instead of half of it.', 'Using ∠C in triangle ABD: that triangle\'s angles are at A (the half), B and D.'],
+      watch: ['Using the whole of ∠A in triangle ABD instead of half of it.', 'Using ∠C in triangle ABD: that triangle’s angles are at A (the half), B and D.'],
       tip: 'Work out the whole of ∠A first, halve it, then look at the small triangle ABD.',
     },
     'Altitude': {
-      idea: 'An altitude drops from a corner to the opposite side and meets it at a right angle, so ∠ADB = 90°. That makes ABD a right triangle, and its other two angles add up to 90°. So ∠BAD is just 90° minus ∠B, and ∠C isn\'t needed at all. With ∠B = 80°, ∠BAD = 10°.',
+      idea: 'An altitude drops from a corner to the opposite side and meets it at a right angle, so ∠ADB = 90°. That makes ABD a right triangle, and its other two angles add up to 90°. So ∠BAD is just 90° minus ∠B, and ∠C isn’t needed at all. With ∠B = 80°, ∠BAD = 10°.',
       how: ['Mark the right angle where the altitude meets BC: ∠ADB = 90°.', 'Look only at the small triangle ABD.', 'Its other two angles add up to 90°, so ∠BAD = 90° − ∠B.'],
-      watch: ['Halving ∠A: an altitude is not a bisector, so it usually doesn\'t split ∠A in half.', 'Using ∠C: it belongs to the other small triangle, ADC.'],
+      watch: ['Halving ∠A: an altitude is not a bisector, so it usually doesn’t split ∠A in half.', 'Using ∠C: it belongs to the other small triangle, ADC.'],
       tip: 'The altitude meets BC at 90°, so look at the right triangle ABD on its own.',
     },
   },

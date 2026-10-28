@@ -201,9 +201,9 @@ const tangentCircles = [
         text: `Two circles, with radii ${r1} and ${r2}, rest on a straight line and touch each other. A third circle fits in the gap below them: it touches both circles and the line. What is the radius of the third circle?`,
         figure: figure([r1, r2, '?']),
         answer: choices(d, ans, [lowest(r1 * r2, r1 + r2), k === 1 ? lowest(s1 * s2, s1 + s2) : lowest(rt, s1 + s2), lowest(r1 * r2, r1 + r2 + rt), lowest(k * s1 * s1 * s2 * s2, 4 * (s1 + s2) ** 2), lowest(4 * k * s1 * s1 * s2 * s2, (s1 + s2) ** 2)], showFrac),
-        solution: `${PAIR} If the small circle has radius x, its point of contact splits the big circles' contact distance in two: 2√(${r1}·${r2}) = 2${sqrtOf(times(r1, 'x'))} + 2√(${r2}x). Dividing by 2${sqrtOf(times(r1, r2, 'x'))} gives 1/√x = ${r1 === 1 ? '1' : `1/√${r1}`} + 1/√${r2}` + (k === 1
+        solution: `${PAIR} If the small circle has radius x, its point of contact splits the big circles’ contact distance in two: 2√(${r1}·${r2}) = 2${sqrtOf(times(r1, 'x'))} + 2√(${r2}x). Dividing by 2${sqrtOf(times(r1, r2, 'x'))} gives 1/√x = ${r1 === 1 ? '1' : `1/√${r1}`} + 1/√${r2}` + (k === 1
           ? ` = ${frac(1, s1)} + ${frac(1, s2)} = ${frac(s1 + s2, s1 * s2)}. So √x = ${frac(s1 * s2, s1 + s2)}, and x = <b>${fr(ans)}</b>.`
-          : `, so √x = √(${r1}·${r2})/(√${r1} + √${r2}). Squaring, x = ${r1 * r2}/(${r1} + ${r2} + 2·${rt}) = <b>${fr(ans)}</b>.`),
+          : `, so √x = √(${r1}·${r2})/(√${r1} + √${r2}). Squaring, x = ${r1}·${r2}/(${r1} + ${r2} + 2√(${r1}·${r2})), and √(${r1}·${r2}) = √${r1 * r2} = ${rt}, so x = ${r1 * r2}/(${r1} + ${r2} + ${2 * rt}) = <b>${fr(ans)}</b>.`),
         check: () => {
           const xB = touchRight(0, r1, r2), got = solve((x) => Math.hypot(xB - touchRight(0, r1, x), r2 - x) - (r2 + x), 1e-9, Math.min(r1, r2));
           return near(got, ans[0] / ans[1], 'radius');
@@ -215,7 +215,7 @@ const tangentCircles = [
       text: `Two circles rest on a straight line and touch each other; one of them has radius ${r1}. A circle of radius ${r3} fits in the gap below them: it touches both circles and the line. What is the radius of the other circle?`,
       figure: figure([r1, '?', r3]),
       answer: choices(d, r2, [lowest(r1 * r3, r1 - r3), a2, lowest(r1 * r3, (a1 + a3) ** 2), (a1 - a3) ** 2], showFrac),
-      solution: `${PAIR} With the other radius y, the small circle's contact point splits the big circles' contact distance in two: 2√(${r1}y) = 2√(${r1}·${r3}) + 2√(${r3}y). Dividing by 2√(${r1}·${r3}·y) gives 1/√${r3} = 1/√y + 1/√${r1}, so 1/√y = ${frac(1, a3)} − ${frac(1, a1)} = ${frac(a1 - a3, a1 * a3)}. So √y = ${a2}, and y = <b>${r2}</b>.`,
+      solution: `${PAIR} With the other radius y, the small circle’s contact point splits the big circles’ contact distance in two: 2√(${r1}y) = 2√(${r1}·${r3}) + 2√(${r3}y). Dividing by 2√(${r1}·${r3}·y) gives 1/√${r3} = 1/√y + 1/√${r1}, so 1/√y = ${frac(1, a3)} − ${frac(1, a1)} = ${frac(a1 - a3, a1 * a3)}. So √y = ${a2}, and y = <b>${r2}</b>.`,
       check: () => { const xB = touchRight(0, r1, r2), xG = touchRight(0, r1, r3); return near(Math.hypot(xB - xG, r2 - r3), r2 + r3, 'the gap circle against the other circle'); },
     };
   },
@@ -267,6 +267,7 @@ const tangentCircles = [
       text: `Two circles, with radii ${a} and ${b}, rest on level ground and touch each other. A straight ramp starts on the ground beside the smaller circle and touches both circles from above. A third circle, on the far side of the circle of radius ${b}, touches that circle, the ground and the ramp. What is the radius of the third circle?`,
       figure: svg(400, 250, 'Two touching circles on the ground under a ramp, and a third circle beyond them', rampFigure(a, b, nx[0] / nx[1], [a, b, '?'], { names: false })),
       answer: choices(d, nx, [[2 * b - a, 1], [a + b, 1], lowest(b ** 3, a * a), [k * (s + t) ** 2, 1]], showFrac),
+      tip: 'The ramp and the ground both touch every circle, so an enlargement from P, where they meet, takes each circle to the next one.',
       solution: `The ground and the ramp meet at P, and the enlargement from P that takes the circle of radius ${a} to the one of radius ${b} (scale ${frac(b, a)}) keeps both lines where they are. So it takes the circle of radius ${b} to a circle on its far side that touches it, the ground and the ramp, and that is the third circle. Its radius is ${b}·${frac(b, a)} = <b>${fr(nx)}</b>.`,
       check: () => {
         const { xB, gap } = geo(), got = solve((q) => gap([touchRight(xB, b, q), q]) - q, 1e-6, 50 * b);
@@ -278,7 +279,8 @@ const tangentCircles = [
       text: `Two circles, with radii ${a} and ${b}, rest on level ground and touch each other; they touch the ground at A and B. A straight ramp starts on the ground at P, on the far side of A from B, and touches both circles from above. How long is PA?`,
       figure: svg(400, 250, 'Two touching circles on the ground under a ramp that starts at P', rampFigure(a, b, 0, [a, b])),
       answer: choices(d, PA, [[AB, 1], PB, lowest(2 * k * s ** 3 * t, t * t + s * s), lowest(AB * a, b), lowest(AB, 2)], showFrac),
-      solution: `${common} ${scale}, and PB = ${frac(b, a)}·PA. Then PA + ${AB} = ${frac(b, a)}·PA, which gives PA = ${AB}·${a}/(${b} − ${a}) = <b>${fr(PA)}</b>.`,
+      tip: 'Touching circles touch the ground 2√(pq) apart, and an enlargement from P, where the ramp meets the ground, takes the small circle to the large one.',
+      solution: `${common} ${scale}, and PB = ${frac(b, a)}·PA. Then PA + ${AB} = ${frac(b, a)}·PA, so (${frac(b, a)} − 1)·PA = ${AB}, which gives PA = ${AB}·${a}/(${b} − ${a}) = <b>${fr(PA)}</b>.`,
       check: () => { const { xP } = geo(); return near(-xP, PA[0] / PA[1], 'PA'); },
     };
     return {
@@ -286,7 +288,8 @@ const tangentCircles = [
       text: `Two circles, with radii ${a} and ${b}, rest on level ground and touch each other. A straight ramp starts on the ground at P, beside the smaller circle, and touches both circles from above; it touches the larger circle at T. How long is PT?`,
       figure: svg(400, 250, 'Two touching circles on the ground under a ramp from P that touches the larger circle at T', rampFigure(a, b, 0, [a, b], { names: 'T' })),
       answer: choices(d, PB, [PA, [AB, 1], [PB[0] + b * PB[1], PB[1]], lowest(AB * b, a + b)], showFrac),
-      solution: `${common} ${scale}: PB = ${frac(b, a)}·PA, and with PB − PA = ${AB} that gives PB = ${AB}·${b}/(${b} − ${a}) = ${fr(PB)}, where B is where the large circle touches the ground. PT and PB are the two tangents from P to the large circle, and the two tangents from a point to a circle are equally long. So PT = <b>${fr(PB)}</b>.`,
+      tip: 'Touching circles touch the ground 2√(pq) apart, and an enlargement from P, where the ramp meets the ground, takes the small circle to the large one.',
+      solution: `${PAIR} So the circles touch the ground at points A and B that are 2√(${a}·${b}) = ${AB} apart. ${scale}, which makes PA = ${frac(a, b)}·PB. Since PB − PA = ${AB}, (1 − ${frac(a, b)})·PB = ${AB}, and PB = ${AB}·${b}/(${b} − ${a}) = ${fr(PB)}. PT and PB are the two tangents from P to the large circle, and the two tangents from a point to a circle are equally long. So PT = <b>${fr(PB)}</b>.`,
       check: () => {
         const { xB, xP, th } = geo(), c = [xB, b], u = [Math.cos(th), Math.sin(th)], along = (c[0] - xP) * u[0] + c[1] * u[1];
         return near(Math.hypot(c[0] - xP - along * u[0], c[1] - along * u[1]), b, 'the ramp touching the large circle') || near(along, PB[0] / PB[1], 'PT');
@@ -315,7 +318,7 @@ const semicircles = [
     const { T, parts } = squareFigure(s);
     parts.push(arc(T, [0, 0], s, 0, 90), arc(T, [s, 0], s, 90, 180), ...(ask === 'three' ? [arc(T, [h, 0], h, 0, 180)] : []), ring(T([h, { top: s - r, low: r, three: h + r }[ask]]), r * T.s, 'arc'));
     const arcs = `In square ABCD with side ${s}, two quarter circles are drawn inside the square: one centred at A, from B to D, and one centred at B, from A to C.`;
-    const start = `Put A at (0, 0) and B at (${s}, 0). By symmetry the circle's centre is on the line x = ${h}, halfway between A and B.`;
+    const start = `Put A at (0, 0) and B at (${s}, 0). By symmetry the circle’s centre is on the line x = ${h}, halfway between A and B.`;
     const text = {
       top: `${arcs} A small circle, above the point where the two arcs cross, touches both arcs and side CD. What is the radius of the small circle?`,
       low: `${arcs} A circle inside both quarter circles touches both arcs and side AB. What is the radius of the circle?`,
@@ -358,7 +361,7 @@ const semicircles = [
     const solution = {
       'in-out': `Put A at (0, 0), B at (${s}, 0) and D at (0, ${s}); the circle touches AB, so its centre is (x, r). It is inside the semicircle about (${h}, 0) of radius ${h}, so (x − ${h})² + r² = (${h} − r)², that is (x − ${h})² = ${h * h} − ${s}r. It is outside the semicircle about (0, ${h}), so x² + (r − ${h})² = (r + ${h})², that is x² = ${2 * s}r. Subtracting the first from the second gives ${s}x − ${h * h} = ${3 * s}r − ${h * h}, so x = 3r; then 9r² = ${2 * s}r, and r = <b>${fr(ans)}</b>.`,
       quarter: `Put A at (0, 0) and B at (${s}, 0); the circle touches AD, so its centre is (r, y). It is inside the quarter circle of radius ${s} about A, so r² + y² = (${s} − r)², that is y² = ${s * s} − ${2 * s}r. It is outside the semicircle about (${h}, 0) of radius ${h}, so (r − ${h})² + y² = (r + ${h})², that is y² = ${2 * s}r. So ${s * s} − ${2 * s}r = ${2 * s}r, and r = <b>${fr(ans)}</b>.`,
-      sides: `By symmetry the circle's centre is halfway across, at (${h}, r) when A is (0, 0) and B is (${s}, 0). It touches the semicircle about (0, ${h}), of radius ${h}, from outside, so ${h}² + (${h} − r)² = (${h} + r)². Expanding, ${h * h} = ${2 * s}r, so r = <b>${fr(ans)}</b>.`,
+      sides: `By symmetry the circle’s centre is halfway across, at (${h}, r) when A is (0, 0) and B is (${s}, 0). It touches the semicircle about (0, ${h}), of radius ${h}, from outside, so ${h}² + (${h} − r)² = (${h} + r)². Expanding, ${h * h} = ${2 * s}r, so r = <b>${fr(ans)}</b>.`,
     }[ask];
     const wrongs = { 'in-out': [[s, 4], [s, 6], [s, 8], [s, 3], [4 * s, 9]], quarter: [[s, 3], [s, 6], [s, 8], [3 * s, 8], [s, 5]], sides: [[s, 4], [s, 6], [s, 16], [3 * s, 8], [s, 9]] }[ask];
     return {
@@ -391,7 +394,8 @@ const semicircles = [
         figure: svg(w, h, 'Three semicircles on AB, AC and CB, with CD perpendicular to AB', [poly(region), seg(T(A), T(B)), seg(T(C), T(D), 'seg'), corner(T(C), T(B), T(D)),
           ...[[A, 'A', -12, 8], [B, 'B', 12, 8], [C, 'C', 0, 16], [D, 'D', -10, -12]].map(([p, n, dx, dy]) => label(T(p).map((v, i) => v + [dx, dy][i]), n)), label(mid(T(C), T(D)).map((v, i) => v + [-12, 0][i]), c, 'ang')]),
         answer: choices(d, ans, [lowest(c * c, 2), lowest(c * c, 8), [c * c, 1], lowest(c * c, 16)], piShow),
-        solution: `Say AC = 2p and CB = 2q, so the three radii are p, q and p + q. Angle ADB is a right angle (it stands on the diameter AB), and CD is the altitude to its hypotenuse, so CD² = AC·CB = 4pq. The region's area is ½π(p + q)² − ½πp² − ½πq² = πpq = π·${c}²/4 = <b>${piShow(ans)}</b>.`,
+        tip: 'Call the small radii p and q, so the big one is p + q; angle ADB is a right angle, so CD² = AC·CB.',
+        solution: `Say AC = 2p and CB = 2q, so the three radii are p, q and p + q. Angle ADB is a right angle (it stands on the diameter AB), and CD is the altitude to its hypotenuse, so CD² = AC·CB = 4pq. The region’s area is ½π(p + q)² − ½πp² − ½πq² = πpq = π·${c}²/4 = <b>${piShow(ans)}</b>.`,
         check: () => {
           // two different splits of AB with the same CD: grid counts of the region
           const area = (p, q) => gridArea([-(p + q), p + q], [0, p + q], ([x, y]) => x * x + y * y <= (p + q) ** 2 && Math.hypot(x + q, y) > p && Math.hypot(x - p, y) > q);
@@ -416,7 +420,8 @@ const semicircles = [
       text: `${same}, and PQ = ${c}. What is the area of the region inside the large semicircle but outside the small one?`,
       figure,
       answer: choices(d, area, [lowest(c * c, 4), lowest(c * c, 2), lowest(c * c, 16), [c, 1]], piShow),
-      solution: `Call the radii R and r. The chord is parallel to AB and touches the small semicircle at its highest point, so it is r above AB, and so r from the centre of the large semicircle too. By Pythagoras, (PQ/2)² + r² = R², so R² − r² = (${c}/2)² = ${(c * c) / 4}. The region's area is ½πR² − ½πr² = ½π·${(c * c) / 4} = <b>${piShow(area)}</b>.`,
+      tip: 'The chord is r above AB, so Pythagoras in the large semicircle gives R² − r², and that is all the region’s area needs.',
+      solution: `Call the radii R and r. The chord is parallel to AB and touches the small semicircle at its highest point, so it is r above AB, and so r from the centre of the large semicircle too. By Pythagoras, (PQ/2)² + r² = R², so R² − r² = (${c}/2)² = ${(c * c) / 4}. The region’s area is ½πR² − ½πr² = ½π·${(c * c) / 4} = <b>${piShow(area)}</b>.`,
       check,
     };
     return {
@@ -424,7 +429,8 @@ const semicircles = [
       text: `${same}. The region inside the large semicircle but outside the small one has area ${piShow(area)}. How long is PQ?`,
       figure,
       answer: labelled([c, num(c, 0)], [[c / 2, num(c / 2, 0)], [2 * c, num(2 * c, 0)], surd(c / 2, 2), surd(c, 2)]),
-      solution: `Call the radii R and r. The chord is parallel to AB and touches the small semicircle at its highest point, so it is r above AB, and so r from the centre of the large semicircle; by Pythagoras, (PQ/2)² = R² − r². The region's area is ½πR² − ½πr² = ½π(PQ/2)², so ½π(PQ/2)² = ${piShow(area)}, which gives (PQ/2)² = ${(c * c) / 4}. So PQ/2 = ${c / 2}, and PQ = <b>${c}</b>.`,
+      tip: 'The chord is r above AB, so Pythagoras in the large semicircle gives R² − r², and that is all the region’s area needs.',
+      solution: `Call the radii R and r. The chord is parallel to AB and touches the small semicircle at its highest point, so it is r above AB, and so r from the centre of the large semicircle; by Pythagoras, (PQ/2)² = R² − r². The region’s area is ½πR² − ½πr² = ½π(PQ/2)², so ½π(PQ/2)² = ${piShow(area)}, which gives (PQ/2)² = ${(c * c) / 4}. So PQ/2 = ${c / 2}, and PQ = <b>${c}</b>.`,
       check,
     };
   },
@@ -440,6 +446,7 @@ const semicircles = [
         text: `Square ABCD has side ${s}, and a semicircle with diameter AB is drawn inside it. A smaller square hangs from side CD: its top side lies along CD, and its two bottom corners are on the semicircle. What is the area of the smaller square?`,
         figure: svg(320, 300, 'Square ABCD with a semicircle on AB and a smaller square hanging from CD onto it', parts),
         answer: choices(d, ans, [lowest(s * s, 5), lowest(s * s, 4), lowest(16 * s * s, 25), lowest(9 * s * s, 16), lowest(s * s, 2)], showFrac),
+        tip: 'Give the square’s corners coordinates, using its symmetry; a corner on an arc is exactly one radius from that arc’s centre.',
         solution: `Put A at (0, 0) and B at (${s}, 0), so the semicircle has centre (${half}, 0) and radius ${half}. The two bottom corners are at the same height, so they sit symmetrically about x = ${half}, and with side t they are (${half} ± t/2, ${s} − t). Being on the semicircle, (t/2)² + (${s} − t)² = ${s % 2 ? `(${half})` : half}², which simplifies to 5t² − ${8 * s}t + ${3 * s * s} = 0, or (5t − ${3 * s})(t − ${s}) = 0. The smaller square has t = ${frac(3 * s, 5)}, so its area is <b>${fr(ans)}</b>.`,
         check: () => { const got = solve((x) => (x / 2) ** 2 + (s - x) ** 2 - (s / 2) ** 2, 0, 0.9 * s); return near(got * got, ans[0] / ans[1], 'area'); },
       };
@@ -454,6 +461,7 @@ const semicircles = [
           label([O[0] - 10, O[1] + 12], 'O'), label(T([R, 0]).map((v2, i) => v2 + [10, 12][i]), 'X'), label(T([0, R]).map((v2, i) => v2 + [-12, -2][i]), 'Y'),
           ...['E', 'F', 'G', 'H'].map((n, i) => label(away(sq[i], centre(sq), 13), n)), label(T([R * 0.82, 0]).map((v2, i) => v2 + [0, 18][i]), R, 'ang')]),
         answer: choices(d, ans, [lowest(R * R, 2), lowest(4 * R * R, 5), lowest(R * R, 5), lowest(2 * R * R, 3), lowest(R * R, 4)], showFrac),
+        tip: 'Give the square’s corners coordinates, using its symmetry; a corner on an arc is exactly one radius from that arc’s centre.',
         solution: `Put O at (0, 0) with E = (u, 0) and F = (0, v). Turning FE = (u, −v) a quarter turn gives (v, u), so the other corners are G = F + (v, u) = (v, u + v) and H = E + (v, u) = (u + v, u). Both are ${R} from O, so v² + (u + v)² = ${R * R} = (u + v)² + u², which gives u = v, and then 5u² = ${R * R}. The side EF is u√2, so the area is 2u² = <b>${fr(ans)}</b>.`,
         check: () => {
           // for each E, the F that puts H on the arc; then the E that puts G on the arc too
@@ -469,7 +477,8 @@ const semicircles = [
       text: `A square stands on the diameter of a semicircle, with its two top corners on the arc. The square has area ${A}. What is the area of the part of the semicircle outside the square?`,
       figure: svg(400, 230, 'A square standing on the diameter of a semicircle with its top corners on the arc', [poly(region), poly([[-x / 2, 0], [-x / 2, x], [x / 2, x], [x / 2, 0]].map(T)), label(T([0, x / 2]), A, 'ang')]),
       answer: labelled(correct, [piMinus(10 * m, A), piMinus(4 * m, A), [5 * m * Math.PI, `${5 * m === 1 ? '' : 5 * m}π`], piMinus(5 * m, 4 * m)]),
-      solution: `By symmetry the square is centred on the semicircle's centre O; with side x, its top corners are x/2 to the side of O and x up. So the radius R satisfies R² = (x/2)² + x² = ${frac(5, 4)}x² = ${frac(5, 4)}·${A} = ${10 * m}. The semicircle has area ½πR² = ${5 * m}π, so the part outside the square is <b>${correct[1]}</b>.`,
+      tip: 'Give the square’s corners coordinates, using its symmetry; a corner on an arc is exactly one radius from that arc’s centre.',
+      solution: `By symmetry the square is centred on the semicircle’s centre O; with side x, its top corners are x/2 to the side of O and x up. So the radius R satisfies R² = (x/2)² + x² = ${frac(5, 4)}x² = ${frac(5, 4)}·${A} = ${10 * m}. The semicircle has area ½πR² = ${5 * m}π, so the part outside the square is <b>${correct[1]}</b>.`,
       check: () => near(gridArea([-R, R], [0, R], ([px, py]) => px * px + py * py <= R * R && !(Math.abs(px) <= x / 2 && py <= x)), correct[0], 'area', 0.01),
     };
   },
@@ -537,12 +546,12 @@ const cones = [
     const n = u, j = v, ans = lowest(j ** 3 - (j - 1) ** 3, n ** 3), y0 = hc * (1 - j / n), y1 = hc * (1 - (j - 1) / n), r0 = (rb * j) / n, r1 = (rb * (j - 1)) / n;
     return {
       topic: 'Cutting a cone', rank: 17,
-      text: `Planes parallel to the base cut a solid cone into ${n} slices of equal thickness. Counting from the apex, what fraction of the cone's volume is in the ${ord(j)} slice?`,
+      text: `Planes parallel to the base cut a solid cone into ${n} slices of equal thickness. Counting from the apex, what fraction of the cone’s volume is in the ${ord(j)} slice?`,
       figure: svg(w, h, `A cone cut into ${n} slices of equal thickness`, [`<g>${poly([...ell(0, y0, r0, 180, 360), ...ell(0, y1, r1, 360, 180)].map(T))}</g>`, cone(T, 0, rb, hc, true),
         ...range(1, n - 1).flatMap((i) => { const y = (hc * i) / n, r = rb * (1 - i / n); return [line(ell(0, y, r, 180, 360).map(T)), line(ell(0, y, r, 0, 180).map(T), 'side dash')]; }),
         label(T([0, (y0 - 0.25 * r0 + y1 - 0.25 * r1) / 2]), '?', 'ang')]),
-      answer: choices(d, ans, [[1, n], lowest(2 * j - 1, n * n), lowest(j ** 3, n ** 3), lowest((j - 1) ** 3, n ** 3), lowest(j, (n * (n + 1)) / 2)], showFrac),
-      solution: `The top j slices together make a cone similar to the whole one, with j/${n} of its height, so they hold (j/${n})³ of its volume. So the top ${j} slices hold ${frac(j ** 3, n ** 3)}, and the top ${j - 1} ${j - 1 === 1 ? 'slice holds' : 'slices hold'} ${frac((j - 1) ** 3, n ** 3)}. The ${ord(j)} slice is the difference: ${frac(j ** 3, n ** 3)} − ${frac((j - 1) ** 3, n ** 3)} = <b>${fr(ans)}</b>.`,
+      answer: choices(d, ans, [[1, n], lowest(2 * j - 1, n * n), lowest(j ** 3, n ** 3), lowest((j - 1) ** 3, n ** 3), lowest(j, (n * (n + 1)) / 2)].filter((v) => v[0] < v[1]), showFrac),
+      solution: `The top j slices together make a cone similar to the whole one, with j/${n} of its height, so they hold (j/${n})³ of its volume. So the top ${j} slices hold ${j === n ? 'all of it, 1' : `(${j}/${n})³ = ${frac(j ** 3, n ** 3)}`}, and the top ${j - 1} ${j - 1 === 1 ? 'slice holds' : 'slices hold'} (${j - 1}/${n})³ = ${frac((j - 1) ** 3, n ** 3)}. The ${ord(j)} slice is the difference: ${frac(j ** 3, n ** 3)} − ${frac((j - 1) ** 3, n ** 3)} = <b>${fr(ans)}</b>.`,
       check: () => near(coneSlices((j - 1) / n, j / n) / coneSlices(0, 1), ans[0] / ans[1], 'share', 1e-6),
     };
   },
@@ -559,7 +568,7 @@ const cones = [
         text: `A cone-shaped glass stands point down and is ${H} cm deep inside. It holds water filling ${word} of its volume. How deep is the water, in centimetres?`,
         figure: svg(w, h, 'A cone-shaped glass, point down, partly filled with water', [cone(T, 0, rb, hc, false, wd), tall(T, -1.15, 0, hc, H), tall(T, 1.05, 0, wd, '?', 1)]),
         answer: labelled(c, [[(H * a) / b, frac(H * a, b)], sq, [H - c[0], `${H} − ${c[1]}`], top, low]),
-        solution: `The water forms a cone similar to the glass, point down, so when it is d deep its volume is (d/${H})³ of the full glass. So (d/${H})³ = ${frac(a, b)}, and d = ${H}·∛(${frac(a, b)}). Multiplying the top and bottom inside the cube root by ${b * b} gives ∛(${frac(a, b)}) = ∛${a * b * b}/${b}, so d = <b>${c[1]}</b>.`,
+        solution: `The water forms a cone similar to the glass, point down, so when it is d deep its volume is (d/${H})³ of the full glass. So (d/${H})³ = ${frac(a, b)}, and d = ${H}·∛(${frac(a, b)}). Multiplying the top and bottom inside the cube root by ${b * b} gives ∛(${frac(a, b)}) = ∛${a * b * b}/${b}, so d = ${H}·∛${a * b * b}/${b} = ${`${H / b}∛${a * b * b}` === c[1] ? '' : `${H / b}∛${a * b * b} = `}<b>${c[1]}</b>.`,
         check: () => near(vol(c[0], H), a / b, 'share of the glass', 1e-6),
       };
     }
@@ -593,7 +602,8 @@ const cones = [
       text: `A frustum of a square pyramid (the part between its base and a cut parallel to the base) has ${an(a)} ${a}-by-${a} square bottom, ${an(b)} ${b}-by-${b} square top, and height ${h}. What is its total surface area, both squares included?`,
       figure: frustumFigure(a, b, h, [a, b, h]),
       answer: choices(d, S, [lat, a * a + b * b + 2 * (a + b) * h, a * a + lat, a * a + b * b + 4 * (a + b) * sl]),
-      solution: `Each of the four slanted faces is a trapezoid with parallel sides ${a} and ${b}. Its height, the slant height, is the hypotenuse of a right triangle with legs ${h} (the frustum's height) and (${a} − ${b})/2 = ${e} (how far each side steps in), so it is √(${h}² + ${e}²) = ${sl}. The four trapezoids have area 4·½·(${a} + ${b})·${sl} = ${lat}, and with the two squares, ${a * a} and ${b * b}, the total is <b>${num(S)}</b>.`,
+      tip: 'Each slanted face is a trapezoid, and its height, the slant height, comes from a right triangle with the frustum’s height and how far each side steps in.',
+      solution: `Each of the four slanted faces is a trapezoid with parallel sides ${a} and ${b}. Its height, the slant height, is the hypotenuse of a right triangle with legs ${h} (the frustum’s height) and (${a} − ${b})/2 = ${e} (how far each side steps in), so it is √(${h}² + ${e}²) = ${sl}. The four trapezoids have area 4·½·(${a} + ${b})·${sl} = ${lat}, and with the two squares, ${a * a} and ${b * b}, the total is <b>${num(S)}</b>.`,
       check: () => {
         // the corners in space, and each slanted face as two triangles
         const lo = [[0, 0, 0], [a, 0, 0], [a, a, 0], [0, a, 0]], hi = [[e, e, h], [a - e, e, h], [a - e, a - e, h], [e, a - e, h]];
@@ -618,7 +628,7 @@ const cones = [
         figure: svg(w, h, 'A closed cone of water standing point down, and the same cone turned over', [cone(T, 0, rb, hc, false, (hc * p) / q), cone(T, 2.1, rb, hc, true, correct[0] * (hc / H)),
           tall(T, -1.05, 0, hc, H), tall(T, 0.95, 0, (hc * p) / q, hd, 1), tall(T, 3.05, 0, correct[0] * (hc / H), '?', 1)]),
         answer: labelled(correct, [air, [H - hd, num(H - hd, 0)], [hd, num(hd, 0)], Number.isInteger(sq[0]) ? [H - sq[0], num(H - sq[0], 0)] : [H - sq[0], `${H} − ${sq[1]}`], [(u * p ** 3) / (q * q), frac(u * p ** 3, q * q)]]),
-        solution: `Point down, the water is a cone similar to the container with ${frac(p, q)} of its height, so it fills (${frac(p, q)})³ = ${frac(p ** 3, q ** 3)} of the container. Turned over, the air at the top is a cone similar to the container filling the other ${frac(q ** 3 - p ** 3, q ** 3)}, so its height is ${H}·∛(${frac(q ** 3 - p ** 3, q ** 3)}) = ${air[1]}. The water fills the rest of the height: <b>${correct[1]}</b>.`,
+        solution: `Point down, the water is a cone similar to the container with ${frac(p, q)} of its height, so it fills (${frac(p, q)})³ = ${frac(p ** 3, q ** 3)} of the container. Turned over, the air at the top is a cone similar to the container filling the other ${frac(q ** 3 - p ** 3, q ** 3)}, so its height is ${H}·∛(${frac(q ** 3 - p ** 3, q ** 3)}) = ${H}·∛${q ** 3 - p ** 3}/${q} = ${air[1]}. The water fills the rest of the height: <b>${correct[1]}</b>.`,
         check: () => { const v = vDown(hd); return near(solve((y) => vUp(y) - v, 0, H), correct[0], 'depth', 1e-6); },
       };
     }
@@ -629,7 +639,7 @@ const cones = [
       figure: svg(w, h, 'A closed cone of water standing on its base, and the same cone turned over onto its point', [cone(T, 0, rb, hc, true, (hc * dd) / H), cone(T, 2.1, rb, hc, false, air[0] * (hc / H)),
         tall(T, -1.05, 0, hc, H), tall(T, 0.95, 0, (hc * dd) / H, dd, 1), tall(T, 3.05, 0, air[0] * (hc / H), '?', 1)]),
       answer: labelled(air, [[dd, num(dd, 0)], [H - dd, num(H - dd, 0)], [H - air[0], `${H} − ${air[1]}`], Number.isInteger(sq[0]) ? [sq[0], num(sq[0], 0)] : sq, [(u * (q ** 3 - p ** 3)) / (q * q), frac(u * (q ** 3 - p ** 3), q * q)]]),
-      solution: `Point up, the air above the water is a cone similar to the container, ${H} − ${dd} = ${p * u} tall, which is ${frac(p, q)} of the height, so it fills (${frac(p, q)})³ = ${frac(p ** 3, q ** 3)} of the container, and the water fills the other ${frac(q ** 3 - p ** 3, q ** 3)}. Turned over, the water is a cone similar to the container, point down. So its depth is ${H}·∛(${frac(q ** 3 - p ** 3, q ** 3)}) = <b>${air[1]}</b>.`,
+      solution: `Point up, the air above the water is a cone similar to the container, ${H} − ${dd} = ${p * u} tall, which is ${frac(p, q)} of the height, so it fills (${frac(p, q)})³ = ${frac(p ** 3, q ** 3)} of the container, and the water fills the other ${frac(q ** 3 - p ** 3, q ** 3)}. Turned over, the water is a cone similar to the container, point down. So its depth is ${H}·∛(${frac(q ** 3 - p ** 3, q ** 3)}) = ${H}·∛${q ** 3 - p ** 3}/${q} = <b>${air[1]}</b>.`,
       check: () => { const v = vUp(dd); return near(solve((y) => vDown(y) - v, 0, H), air[0], 'depth', 1e-6); },
     };
   },
@@ -707,7 +717,7 @@ const reflections = [
       const Hs = T([ax, ay]), Bs = T([bx, by]), O = T([0, 0]);
       return {
         topic: 'Reflections and shortest paths', rank: 18,
-        text: `A straight river runs east–west, and a straight road runs north–south, crossing it at right angles. ${N}'s house H is ${ax} m east of the road and ${ay} m north of the river, and the barn B is ${bx} m east of the road and ${by} m north of the river. ${N} walks from the house to the river, then to the road, then to the barn. What is the shortest possible length of the walk, in metres?`,
+        text: `A straight river runs east–west, and a straight road runs north–south, crossing it at right angles. ${N}’s house H is ${ax} m east of the road and ${ay} m north of the river, and the barn B is ${bx} m east of the road and ${by} m north of the river. ${N} walks from the house to the river, then to the road, then to the barn. What is the shortest possible length of the walk, in metres?`,
         figure: svg(360, 270, 'A river and a road crossing at right angles, with a house and a barn beside them', [seg(T([-0.15 * (ax + bx), 0]), T([1.1 * Math.max(ax, bx), 0])), seg(T([0, -0.15 * (ay + by)]), T([0, 1.1 * Math.max(ay, by)])),
           dot(Hs), dot(Bs), label([Hs[0] + 11, Hs[1] - 8], 'H'), label([Bs[0] + 11, Bs[1] - 8], 'B'), label([T([1.1 * Math.max(ax, bx), 0])[0] - 4, O[1] + 16], 'river', 'ang', 'end'), label([O[0] - 8, T([0, 1.1 * Math.max(ay, by)])[1] + 4], 'road', 'ang', 'end')]),
         answer: labelled([L, num(L, 0)], [rootOf((ax - bx) ** 2 + (ay - by) ** 2), rootOf((ax - bx) ** 2 + (ay + by) ** 2), rootOf((ax + bx) ** 2 + (ay - by) ** 2), rootSum(ax * ax + ay * ay, bx * bx + by * by), [ax + ay + bx + by, num(ax + ay + bx + by, 0)]]),
@@ -722,7 +732,7 @@ const reflections = [
     }
     const [dd, a, b] = v, L = Math.hypot(dd, a + b), T = frame([-0.12 * dd, 1.12 * dd], [-0.45 * Math.max(a, b), 1.15 * Math.max(a, b)], 380, 250, 18);
     const Ts = T([0, a]), Cs = T([dd, b]), F1 = T([0, 0]), F2 = T([dd, 0]);
-    const tent = `${N}'s tent T is ${a} m from a straight river, and the campfire C is ${b} m from it, on the same side; the points of the bank nearest to them are ${dd} m apart.`;
+    const tent = `${N}’s tent T is ${a} m from a straight river, and the campfire C is ${b} m from it, on the same side; the points of the bank nearest to them are ${dd} m apart.`;
     const figure = svg(380, 250, 'A tent and a campfire beside a straight river', [seg(T([-0.12 * dd, 0]), T([1.12 * dd, 0])), seg(Ts, F1, 'side dash'), seg(Cs, F2, 'side dash'), dot(Ts), dot(Cs),
       label([Ts[0] - 12, Ts[1] - 6], 'T'), label([Cs[0] + 12, Cs[1] - 6], 'C'), label([F1[0] - 9, mid(Ts, F1)[1]], a, 'ang', 'end'), label([F2[0] + 9, mid(Cs, F2)[1]], b, 'ang', 'start'),
       dim(F1, F2, dd, -16), label([T([1.12 * dd, 0])[0] - 2, F1[1] + 40], 'river', 'ang', 'end')]);
@@ -733,7 +743,7 @@ const reflections = [
       text: `${tent} ${N} walks from the tent to the river to fill a bucket, and then to the campfire. What is the shortest possible length of the walk, in metres?`,
       figure,
       answer: labelled([L, num(L, 0)], [[a + b + dd, num(a + b + dd, 0)], rootOf(dd * dd + (a - b) ** 2), plusRoot(a, dd * dd + b * b), plusRoot(b, dd * dd + a * a), [L + 1, num(L + 1, 0)]]),
-      solution: `Reflect the campfire in the bank: its mirror image is ${b} m from the river on the other side, and any path from the bank to the campfire is exactly as long as the same path to the image. So the walk is shortest when the tent, the bucket point and the image lie on one straight line. The tent and the image are ${dd} m apart along the bank and ${a} + ${b} = ${a + b} m apart across it, so the shortest walk is √(${dd}² + ${a + b}²) = <b>${num(L, 0)}</b>.`,
+      solution: `If the campfire is reflected in the bank, its mirror image is ${b} m from the river on the other side, and any path from the bank to the campfire is exactly as long as the same path to the image. So the walk is shortest when the tent, the bucket point and the image lie on one straight line. The tent and the image are ${dd} m apart along the bank and ${a} + ${b} = ${a + b} m apart across it, so the shortest walk is √(${dd}² + ${a + b}²) = <b>${num(L, 0)}</b>.`,
       check: () => near(along(tern()), L, 'shortest walk', 1e-9),
     };
     const ans = lowest(dd * a, a + b);
@@ -742,7 +752,7 @@ const reflections = [
       text: `${tent} ${N} walks from the tent to the river to fill a bucket, and then to the campfire, by the shortest possible route. How far from the bank point nearest the tent does ${N} fill the bucket, in metres?`,
       figure,
       answer: choices(d, ans, [lowest(dd, 2), lowest(dd * b, a + b), lowest(dd * a, b), lowest(dd * a, 2 * b)], showFrac),
-      solution: `Reflect the campfire in the bank; the best walk heads straight from the tent toward the campfire's mirror image and fills the bucket where that line crosses the bank. The tent, its nearest bank point and the bucket point make a right triangle similar to the one made by the image, its bank point and the bucket point, and their legs across the river are ${a} and ${b}. So the bucket point splits the ${dd} m between the two bank points in the ratio ${a} : ${b}, which puts it ${frac(a, a + b)} of the way from the tent's bank point: ${dd}·${frac(a, a + b)} = <b>${fr(ans)}</b>.`,
+      solution: `Reflect the campfire in the bank; the best walk heads straight from the tent toward the campfire’s mirror image and fills the bucket where that line crosses the bank. The tent, its nearest bank point and the bucket point make a right triangle similar to the one made by the image, its bank point and the bucket point, and their legs across the river are ${a} and ${b}. So the bucket point splits the ${dd} m between the two bank points in the ratio ${a} : ${b}, which puts it ${frac(a, a + b)} of the way from the tent’s bank point: ${dd}·${frac(a, a + b)} = <b>${fr(ans)}</b>.`,
       check: () => near(tern(), ans[0] / ans[1], 'bucket point', 1e-6),
     };
   },
@@ -767,7 +777,7 @@ const reflections = [
       return { hits, steps, corner: cornerAt(x === m ? 1 : 0, y === n ? 1 : 0) };
     };
     const intro = `A rectangular pool table ABCD has AB = ${m} and BC = ${n}, with pockets only at its four corners. A ball is shot from corner A at 45° to the sides; each time it hits a side it bounces off at the same angle, and it rolls until it drops into a corner pocket.`;
-    const why = `Instead of bouncing the ball, reflect the table: copies of the table tile the plane, and the ball rolls on in a straight line at 45°, going as far across as up. It first reaches a corner of a copy when it has gone a common multiple of ${m} and ${n} both ways, and the first is lcm(${m}, ${n}) = ${l}.`;
+    const why = `Instead of bouncing the ball, reflect the table, so that copies of the table tile the plane and the ball rolls on through them in a straight line at 45°, going as far across as up. It first reaches a corner of a copy when it has gone a common multiple of ${m} and ${n} both ways, and the first is lcm(${m}, ${n}) = ${l}.`;
     if (ask === 'length') {
       const correct = surd(l, 2);
       return {
@@ -788,7 +798,7 @@ const reflections = [
       text: `${intro} How many times does it bounce, and into which corner does it drop?`,
       figure,
       answer: labelled(say(bounces, end), [say(bounces, others[0]), say(bounces, others[1]), say(bounces + 1, end), say(m + n - 2, noGcd), say(bounces + 2, end), say(Math.max(bounces - 1, 0), end)]),
-      solution: `${why} On the way it crosses ${across - 1} lines between copies going across and ${up - 1} going up, one bounce each, so it bounces ${bounces} times. It has gone ${across} table lengths across, ${sideX}, and ${up} table widths up, ${sideY}. So the answer is <b>${say(bounces, end)[1]}</b>.`,
+      solution: `${why} That is ${l} ÷ ${m} = ${across} table lengths across and ${l} ÷ ${n} = ${up} table widths up. On the way it crosses ${across} − 1 = ${across - 1} lines between copies going across and ${up} − 1 = ${up - 1} going up, one bounce each, so it bounces ${bounces} times. It has gone ${across} table lengths across, ${sideX}, and ${up} table widths up, ${sideY}. So the answer is <b>${say(bounces, end)[1]}</b>.`,
       check: () => { const r = roll(); return r.hits === bounces && r.corner === end ? '' : `rolled: ${r.hits} bounces into ${r.corner}, said ${bounces} into ${end}`; },
     };
   },
@@ -826,7 +836,7 @@ const reflections = [
       const hy = 0.45 * Lm * Math.sin(rad(th)), X = [hy / Math.tan(rad(th)), hy];
       parts.push(seg(T([0.9 * Lm, hy]), T(X), 'seg'), label(T([0.9 * Lm, hy]).map((v, i) => v + [6, 0][i]), 'ray', 'ang', 'start'));
     }
-    const why = `Instead of reflecting the ray, reflect the mirrors: copies of the ${th}° angle fan out around O, and the ray goes straight on through them, one reflection for each mirror line it crosses.`;
+    const why = `Instead of reflecting the ray, reflect the mirrors, so that copies of the ${th}° angle fan out around O and the ray goes straight on through them, one reflection for each mirror line it crosses.`;
     const lastLine = `${count}·${th}° = ${count * th}°`, next = (count + 1) * th;
     return {
       topic: 'Reflections and shortest paths', rank: ask === 'start' ? 20 : 21,
@@ -836,8 +846,8 @@ const reflections = [
       figure: svg(400, 250, 'Two mirrors meeting at O and a light ray between them', parts),
       answer: choices(d, count, [count + 1, count - 1, Math.floor(180 / th), Math.floor((ask === 'start' ? ph : 90) / th), count + 2]),
       solution: ask === 'start'
-        ? `${why} Seen from O, the ray starts on a mirror, at 0°, and as it travels off along its straight line its direction from O turns toward ${turn}° (it makes ${ph}° with PO) without reaching it. So it crosses the mirror lines at ${th}°, ${2 * th}°, … up to ${lastLine}, the last one below ${turn}° (the next, ${next}°, is past it). So it meets a mirror <b>${count}</b> times.`
-        : `${why} Seen from O, the ray's direction starts at 0° (far off, beside the first mirror) and turns to 180° (far off the other way) as it goes past. So it crosses the mirror lines at ${th}°, ${2 * th}°, … up to ${lastLine}, the last one below 180° (the next, ${next}°, ${next === 180 ? 'is parallel to the ray' : 'is past 180°'}). So it meets a mirror <b>${count}</b> times.`,
+        ? `${why} Seen from O, the ray starts on a mirror, at 0°, and as it travels off along its straight line its direction from O turns toward 180° − ${ph}° = ${turn}°, the way the ray is heading (PO points back at 180°, and the ray makes ${ph}° with it), without reaching it. So it crosses the mirror lines at ${th}°, ${2 * th}°, … up to ${lastLine}, the last one below ${turn}° (the next, ${next}°, is past it). So it meets a mirror <b>${count}</b> times.`
+        : `${why} Seen from O, the ray’s direction starts at 0° (far off, beside the first mirror) and turns to 180° (far off the other way) as it goes past. So it crosses the mirror lines at ${th}°, ${2 * th}°, … up to ${lastLine}, the last one below 180° (the next, ${next}°, ${next === 180 ? 'is parallel to the ray' : 'is past 180°'}). So it meets a mirror <b>${count}</b> times.`,
       check: () => { const got = follow(); return got === count ? '' : `followed the ray: ${got} reflections, said ${count}`; },
     };
   },
@@ -853,7 +863,8 @@ const reflections = [
         text: `An ant is at corner A of a closed box that is ${L} long, ${W} wide and ${H} tall. It crawls over the outside of the box to G, the corner farthest from A. How long is the shortest route it can take?`,
         figure: svg(380, 280, 'A box with an ant at corner A and the far corner G', parts),
         answer: labelled([ans, num(ans, 0)], [...c.filter((x) => x !== best).map(rootOf), rootOf(L * L + W * W + H * H), [L + W + H, num(L + W + H, 0)]]),
-        solution: `Unfold two neighbouring faces of the box into one flat rectangle: the ant's best route crosses one edge, and on the unfolded faces it is a straight line, the diagonal of that rectangle. There are three ways to pair the faces: √((${L} + ${W})² + ${H}²) = ${root(c[0])}, √((${L} + ${H})² + ${W}²) = ${root(c[1])} and √((${W} + ${H})² + ${L}²) = ${root(c[2])}. The shortest is <b>${num(ans, 0)}</b>.`,
+        tip: 'Unfold the faces the route crosses into one flat net; on the net the route is a straight line, so compare the different nets.',
+        solution: `The ant’s best route crosses one edge, from one face to a neighbouring one. Unfold those two faces into one flat rectangle, and the route is a straight line, the diagonal of that rectangle. There are three ways to pair the faces, giving √((${L} + ${W})² + ${H}²) = ${root(c[0])}, √((${L} + ${H})² + ${W}²) = ${root(c[1])} and √((${W} + ${H})² + ${L}²) = ${root(c[2])}. The shortest is <b>${num(ans, 0)}</b>.`,
         check: () => near(boxRoute([L, W, H], [0, 0, 0], [L, W, H]), ans, 'shortest route'),
       };
     }
@@ -865,6 +876,7 @@ const reflections = [
         text: `An ant is at corner A of a closed box that is ${L} long, ${W} wide and ${H} tall. It crawls over the outside of the box to M, the centre of the top face. How long is the shortest route it can take?`,
         figure: svg(380, 280, 'A box with an ant at corner A and the centre M of the top face', parts),
         answer: labelled([ans, num(ans, 0)], [rootOf(Math.max(c1, c2)), rootOf((L / 2) ** 2 + (W / 2) ** 2 + H * H), plusRoot(H, (L / 2) ** 2 + (W / 2) ** 2), [H + L / 2 + W / 2, num(H + L / 2 + W / 2, 0)]]),
+        tip: 'Unfold the faces the route crosses into one flat net; on the net the route is a straight line, so compare the different nets.',
         solution: `The ant has to cross a side face and then the top. Unfold the top face so that it lies flat beside a side face; then the best route is a straight line. Across the ${L}-by-${H} face, M ends up ${L / 2} along and ${H} + ${W / 2} = ${H + W / 2} up, giving √(${L / 2}² + ${H + W / 2}²) = ${root(c1)}; across the ${W}-by-${H} face, M is ${W / 2} along and ${H} + ${L / 2} = ${H + L / 2} up, giving √(${W / 2}² + ${H + L / 2}²) = ${root(c2)}. The shorter is <b>${num(ans, 0)}</b>.`,
         check: () => near(boxRoute([L, W, H], [0, 0, 0], [L / 2, W / 2, H]), ans, 'shortest route'),
       };
@@ -875,10 +887,11 @@ const reflections = [
     parts.push(seg(P([0, W / 2, 0]), P([0, W / 2, H]), 'arc dash'), seg(P([L, W / 2, 0]), P([L, W / 2, H]), 'arc'), dot(S), dot(F), seg(S, [Sl[0] + 6, Sl[1] + 3], 'arc'), seg(F, [Fl[0] - 6, Fl[1] + 2], 'arc'), label(Sl, 'S'), label(Fl, 'F'));
     return {
       topic: 'Reflections and shortest paths', rank: 22,
-      text: `A room shaped like a box is ${L} feet long, ${W} feet wide and ${H} feet high. A spider S is on one end wall, halfway across it and 1 foot below the ceiling. A fly F is on the opposite end wall, halfway across it and 1 foot above the floor. Crawling only over the walls, the floor and the ceiling, how long is the spider's shortest route to the fly, in feet?`,
+      text: `A room shaped like a box is ${L} feet long, ${W} feet wide and ${H} feet high. A spider S is on one end wall, halfway across it and 1 foot below the ceiling. A fly F is on the opposite end wall, halfway across it and 1 foot above the floor. Crawling only over the walls, the floor and the ceiling, how long is the spider’s shortest route to the fly, in feet?`,
       figure: svg(380, 280, 'A box-shaped room with a spider on one end wall and a fly on the other', parts),
       answer: labelled([ans, num(ans, 0)], [[L + H, num(L + H, 0)], rootOf(side), rootOf(cs), rootOf(L * L + (H - 2) ** 2)]),
-      solution: `Unfold the room flat in different ways; on each unfolding the best route is a straight line, and the shortest of them is the answer. Straight over the ceiling it is 1 + ${L} + ${H - 1} = ${L + H} (the floor is the same), across one side wall it is √(${L + W}² + ${H - 2}²) ≈ ${num(Math.sqrt(side), 1)}, and across the ceiling and then a side wall it is √(${L + W / 2 + 1}² + ${H + W / 2 - 1}²) ≈ ${num(Math.sqrt(cs), 1)}. Better still is the strip that crosses the ceiling, a side wall and the floor: it is 1 + ${L} + 1 = ${L + 2} long and ${W / 2} + ${H} + ${W / 2} = ${W + H} across, so that route is √(${L + 2}² + ${W + H}²) = <b>${num(ans, 0)}</b>.`,
+      tip: 'Unfold the faces the route crosses into one flat net; on the net the route is a straight line, so compare the different nets.',
+      solution: `Unfold the room flat in different ways; on each unfolding the best route is a straight line, and the shortest of them is the answer. The spider and the fly are each ${W}/2 = ${W / 2} feet from the side walls. Straight over the ceiling it is 1 + ${L} + ${H - 1} = ${L + H} (the floor is the same), across one side wall it is √((${W / 2} + ${L} + ${W / 2})² + (${H} − 2)²) = √(${L + W}² + ${H - 2}²) ≈ ${num(Math.sqrt(side), 1)}, and across the ceiling and then a side wall it is √((1 + ${L} + ${W / 2})² + (${W / 2} + ${H} − 1)²) = √(${L + W / 2 + 1}² + ${H + W / 2 - 1}²) ≈ ${num(Math.sqrt(cs), 1)}. Better still is the strip that crosses the ceiling, a side wall and the floor, which is 1 + ${L} + 1 = ${L + 2} long and ${W / 2} + ${H} + ${W / 2} = ${W + H} across, so that route is √(${L + 2}² + ${W + H}²) = <b>${num(ans, 0)}</b>.`,
       check: () => near(boxRoute([L, W, H], [0, W / 2, H - 1], [L, W / 2, 1]), ans, 'shortest route'),
     };
   },
