@@ -49,6 +49,18 @@ export function combo(ctx, lists, ok = () => true) {
 }
 
 // ---------- numbers ----------
+// what someone typed → a number (takes 4.5, −2.5, 1,250, 3/4, 45°, 12 m/s, x = 7, and powers of ten like 3.2e-5,
+// 3.2 × 10⁻⁵ or 3.2 x 10^-5)
+const SUPS = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+export function readNumber(text) {
+  const clean = String(text ?? '').trim().replace(/[−–]/g, '-').replace(/^[a-zA-Zθ∠ ]*=\s*/, '').replace(/,(?=\d{3}\b)/g, '')
+    .replace(/\s*[×xX*·]\s*10\s*(?:\^\s*\(?\s*([+-]?\d+)\s*\)?|([⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+))/, (_, power, raised) =>
+      'e' + (power ?? raised.replace('⁻', '-').replace('⁺', '').replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, (c) => SUPS.indexOf(c))));
+  const m = clean.match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)(?:\s*\/\s*(\d+(?:\.\d+)?))?/);
+  if (!m) return null;
+  const v = parseFloat(m[1]) / (m[2] ? parseFloat(m[2]) : 1);
+  return Number.isFinite(v) ? v : null;
+}
 export const round = (x, d = 2) => Math.round((x + Number.EPSILON) * 10 ** d) / 10 ** d;
 // a number as people write it: no trailing zeros, thousands separated, a proper minus sign
 export function num(x, d = 2) {

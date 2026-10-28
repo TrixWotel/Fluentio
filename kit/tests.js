@@ -1,10 +1,15 @@
 // Fluentio's test runner, shared by the Math, Science, Physics and Spanish pages: a card for each test, a test of random variants
 // with a score (your best is kept in this browser), learning a topic at a time with hints, and practice by variant
-// number with worked solutions.
+// number with worked solutions. A course with an exam (kit/exam.js) also has tests like the ones in class, and then
+// its test of random variants is called practice.
 // Links: #triangles opens a test's page, #triangles/test starts a test (#triangles/test/40 one of 40 questions; an AMC
-// test can end in /contest, /hard or /mixed, its shape), #triangles/learn shows the learning path (#triangles/learn/3
-// its 4th topic, #triangles/learn/all mixed practice), and #triangles/137 shows variant 137.
-const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); for (const k of kids.flat()) if (k != null && k !== false) n.append(k.nodeType ? k : document.createTextNode(k)); return n; };
+// test can end in /contest, /hard or /mixed, its shape; #triangles/practice is the same), #triangles/learn shows the
+// learning path (#triangles/learn/3 its 4th topic, #triangles/learn/all mixed practice), #triangles/137 shows variant
+// 137, and for a course with an exam, #heat/exam starts a test like the ones in class (#heat/exam/37 opens Test 37).
+import { readNumber } from './bank.js';
+import { examPaper, draftOf, answered } from './exam.js';
+export { readNumber };
+const el =(tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); for (const k of kids.flat()) if (k != null && k !== false) n.append(k.nodeType ? k : document.createTextNode(k)); return n; };
 const html = (tag, cls, markup) => { const n = el(tag, { className: cls }); n.innerHTML = markup; return n; };   // markup here is always the banks' own, never typed by anyone
 const LETTERS = ['A', 'B', 'C', 'D', 'E'];
 const GOAL = 3;                                     // right in a row (first try, no hints) to learn a topic, unless a test says
@@ -23,17 +28,9 @@ const SHAPES = {
   mixed: { name: 'Mixed', about: 'Problems from every topic and every level, in a random order.' },
 };
 const shapeOf = (t, asked) => (!t.amc || !t.order ? 'mixed' : SHAPES[asked] ? asked : SHAPES[store.get(t.bank.id + '.shape')] ? store.get(t.bank.id + '.shape') : 'contest');
-const testLink = (t, length, shape) => `#${t.bank.id}/test${length === standard(t) ? '' : '/' + length}${t.amc && t.order ? '/' + shape : ''}`;
+const testLink = (t, length, shape) => `#${t.bank.id}/${t.exam ? 'practice' : 'test'}${length === standard(t) ? '' : '/' + length}${t.amc && t.order ? '/' + shape : ''}`;
 const bestKey = (t, shape) => t.bank.id + (shape === 'hard' || (shape === 'mixed' && t.amc && t.order) ? `.best-${shape}` : '.best');
 
-// what someone typed → a number (takes 4.5, −2.5, 1,250, 3/4, 45°, 12 m/s, x = 7)
-export function readNumber(text) {
-  const clean = String(text ?? '').trim().replace(/−/g, '-').replace(/^[a-zA-Zθ∠ ]*=\s*/, '').replace(/,(?=\d{3}\b)/g, '');
-  const m = clean.match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+))(?:\s*\/\s*(\d+(?:\.\d+)?))?/);
-  if (!m) return null;
-  const v = parseFloat(m[1]) / (m[2] ? parseFloat(m[2]) : 1);
-  return Number.isFinite(v) ? v : null;
-}
 // typed words: capitals, spaces and a final full stop don't matter; accents do (nearly() spots a slip in only those)
 const words = (s) => String(s ?? '').normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ').replace(/[.!?]+$/, '');
 const bare = (s) => words(s).normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -67,19 +64,29 @@ export function steps(markup) {
     }
   }
   out.push(markup.slice(from));
-  return out.filter((s) => s.trim());
+  // then no scraps: a short label ending in a colon goes with what follows it ("Volume:" with its sum), so does a colon
+  // before a short result ("Divisible by 6:" with "50."), and a scrap left on its own ("2.") joins the sentence before it
+  const text = (s) => s.replace(/<[^>]+>/g, '').trim(), parts = out.filter((s) => s.trim()), tidy = [];
+  for (let i = 0; i < parts.length; i++) {
+    let p = parts[i];
+    while (i + 1 < parts.length && /:$/.test(text(p)) && (text(p).length < 14 || text(parts[i + 1]).length < 16)) p += ' ' + parts[++i];
+    if (tidy.length && text(p).length < 8) tidy[tidy.length - 1] += ' ' + p;
+    else tidy.push(p);
+  }
+  return tidy;
 }
 const fmt = (v) => (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('en-US', { maximumFractionDigits: 3 });
 const shown = (answer) => (answer.kind === 'choice' ? `(${LETTERS[answer.correct]}) ${answer.choices[answer.correct]}`
   : answer.kind === 'text' ? answer.accept[0] : `${fmt(answer.value)}${answer.unit ? (answer.unit === '°' ? '°' : ' ' + answer.unit) : ''}`);
 
-// the page: tests = [{ bank, name, blurb, about, length, amc, order(n), learn, aside(), asideName, asideOpen }]
+// the page: tests = [{ bank, name, blurb, about, length, amc, order(n), learn, exam, aside(), asideName, asideOpen }]
 // order(n), if given, is how hard variant n is: without a path, learning lists the easier topics first.
+// exam, if given, is a bank of tests like the ones in class (kit/exam-kit.js's examBank).
 // learn, if given, is { path: [{ unit, topics: [names] }], lessons: { name: { spot, idea, how: [steps], facts, watch: [traps],
 // tip } }, goal, example }: the order to learn the topics in, a short lesson for each, how many right in a row learn a topic
 // (3 if not given), and example: false to skip the worked example (for a word list, say, where it would add nothing). A
 // lesson's spot (how to tell a problem is this kind) and facts (worth knowing by heart) are optional; its tip is shown
-// after a wrong answer, and is the first hint.
+// after a wrong answer, and is the first hint (a question can bring its own tip instead, for a kind its lesson's doesn't fit).
 // An answer is { kind: 'choice', choices, correct }, { kind: 'number', value, unit, tol }, or { kind: 'text', accept: [the
 // right answers], keys: [letters to offer as buttons], lang }
 export function testsPage({ tests }) {
@@ -105,10 +112,11 @@ export function testsPage({ tests }) {
     window.scrollTo(0, 0);
     top.hidden = !!t;
     if (!t) return home();
-    if (part === 'test') {
+    if (part === 'test' || part === 'practice') {
       const words = [sub, ...rest], size = words.find((w) => /^\d+$/.test(w ?? ''));
       return startTest(t, size ? Math.min(Math.max(1, +size), t.bank.count) : Math.min(standard(t), t.bank.count), shapeOf(t, words.find((w) => SHAPES[w])));
     }
+    if (part === 'exam' && t.exam) return openExam(t, sub);
     if (part === 'learn') return sub ? learn(t, sub) : learnHome(t);
     if (part && /^\d+$/.test(part)) return practice(t, Math.min(Math.max(1, +part), t.bank.count));
     return testHome(t);
@@ -155,10 +163,12 @@ export function testsPage({ tests }) {
   function home() {
     titled();
     show(el('div', { className: 'grid stagger' }, ...tests.map((t) => {
-      const best = store.get(t.bank.id + '.best'), learned = learnedIn(progressOf(t));
+      const best = store.get(t.bank.id + '.best'), exam = t.exam && store.get(t.bank.id + '.exam'), learned = learnedIn(progressOf(t));
+      // a course with an exam has two bests: its tests like the ones in class, and its practice
+      const bests = t.exam ? [exam && `Test: ${exam.text}`, best && `Practice: ${best.text}`].filter(Boolean).join(' · ') : best && `Best: ${best.text}`;
       return el('a', { className: 'card', href: '#' + t.bank.id },
-        el('b', {}, t.name), el('span', { className: 'count' }, `${t.blurb} ${t.bank.count.toLocaleString('en-US')} variants.`),
-        el('span', { className: 'best' + (best ? ' has' : '') }, best ? `Best: ${best.text}` : 'Not taken yet'),
+        el('b', {}, t.name), el('span', { className: 'count' }, `${t.blurb} ${t.bank.count.toLocaleString('en-US')} variants${t.exam ? ', and tests like the ones in class' : ''}.`),
+        el('span', { className: 'best' + (bests ? ' has' : '') }, bests || 'Not taken yet'),
         learned ? el('span', { className: 'best has' }, `${plural(learned, 'topic')} learned`) : null);
     })));
   }
@@ -191,28 +201,66 @@ export function testsPage({ tests }) {
     pickN.setAttribute('aria-label', 'Variant number');
     const open = () => go(`#${t.bank.id}/${Math.min(Math.max(1, Math.round(+pickN.value) || 1), t.bank.count)}`);
     pickN.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); });
+    const one = [el('button', { className: 'btn', onclick: open }, 'Open'), el('button', { className: 'btn', onclick: () => go(`#${t.bank.id}/${random(t)}`) }, 'Random variant')];
+    // a course with an exam: its tests like the ones in class come first (or the one in progress), then practice
+    const exam = t.exam ? (() => {
+      const id = t.bank.id, draft = draftOf(store, id), going = draft && !draft.final, best = store.get(id + '.exam');
+      return [
+        el('h3', {}, 'Test'),
+        el('div', { className: 'start' },
+          going ? el('a', { className: 'btn primary big', href: `#${id}/exam/${draft.n}` }, draft.done ? `Finish marking Test ${draft.n}` : `Continue Test ${draft.n}`)
+            : el('a', { className: 'btn primary big', href: `#${id}/exam` }, 'Start a test'),
+          going ? el('a', { className: 'btn', href: `#${id}/exam/${newExam(t, draft.n)}` }, 'Start a new test') : null),
+        el('p', { className: 'muted note' }, `A test like the ones in class: ${plural(t.exam.slots.length, 'question')} built on labs, data and graphs, about ${examMarks(t)} marks in ${t.exam.minutes} minutes. The page marks the numbers, choices, tables and graphs, and you mark your written answers and sketches against the mark scheme.`),
+        best ? el('p', { className: 'muted best-line' }, `Your best: ${best.text}`) : null,
+        el('h3', {}, 'Practice')];
+    })() : [];
     show(
       el('a', { className: 'back', href: '#' }, '← All tests'),
       el('h2', { className: 'tname' }, t.name),
       el('p', { className: 'lead small' }, t.about),
+      ...exam,
       shapes,
       el('div', { className: 'start' },
-        el('button', { className: 'btn primary big', onclick: begin }, 'Start a test'),
+        el('button', { className: `btn${t.exam ? '' : ' primary'} big`, onclick: begin }, t.exam ? 'Start practice' : 'Start a test'),
         el('label', { className: 'muted' }, howMany, ' questions')),
       note, bestLine,
+      t.exam ? el('div', { className: 'start' }, el('label', { className: 'muted' }, 'Or one question: variant ', pickN, ` of ${t.bank.count}`), ...one) : null,
       el('h3', {}, 'Learn'),
       el('div', { className: 'start' },
         next >= 0 ? el('a', { className: 'btn', href: `#${t.bank.id}/learn/${next}` }, Object.keys(p).length ? `Continue: ${sequence(t)[next]}` : 'Start learning') : null,
         el('a', { className: 'btn', href: `#${t.bank.id}/learn` }, 'The learning path'),
         el('span', { className: 'muted' }, `Lessons, worked examples and practice, a topic at a time. ${learned} of ${names.length} topics learned.`)),
-      el('h3', {}, 'Practice'),
-      el('div', { className: 'start' },
-        el('label', { className: 'muted' }, 'Variant ', pickN, ` of ${t.bank.count}`),
-        el('button', { className: 'btn', onclick: open }, 'Open'),
-        el('button', { className: 'btn', onclick: () => go(`#${t.bank.id}/${random(t)}`) }, 'Random variant')),
+      t.exam ? null : [el('h3', {}, 'Practice'), el('div', { className: 'start' }, el('label', { className: 'muted' }, 'Variant ', pickN, ` of ${t.bank.count}`), ...one)],
       el('h3', {}, `What's in it`),
       el('ul', { className: 'kinds' }, ...names.map((k) => el('li', {}, k))),
       extra(t, true));
+  }
+
+  // ---------- a test like the ones in class (kit/exam.js): the one in progress, or a new one ----------
+  const examSize = new Map();
+  // about how many marks a test has (to the nearest 5), from its first few
+  const examMarks = (t) => { if (!examSize.has(t)) { let s = 0; for (let n = 1; n <= 6; n++) s += t.exam.make(n).marks; examSize.set(t, Math.round(s / 30) * 5); } return examSize.get(t); };
+  const newExam = (t, not) => { let n; do n = 1 + Math.floor(Math.random() * t.exam.count); while (t.exam.count > 1 && n === not); return n; };
+  function openExam(t, sub) {
+    const id = t.bank.id, draft = draftOf(store, id), going = draft && !draft.final;
+    // #heat/exam: the test in progress, or a new one
+    if (!/^\d+$/.test(sub ?? '')) { history.replaceState(null, '', `#${id}/exam/${going ? draft.n : newExam(t)}`); return route(); }
+    const n = Math.min(Math.max(1, +sub), t.exam.count);
+    // another test is in progress: go back to it, or leave it for this one
+    if (going && draft.n !== n && (answered(draft) || draft.done)) {
+      titled(`${t.name} test`);
+      return show(
+        el('a', { className: 'back', href: '#' + id }, '← ' + t.name),
+        el('h2', { className: 'tname' }, 'You have a test in progress'),
+        el('p', { className: 'lead small' }, draft.done ? `Test ${draft.n} is handed in, but you haven’t finished marking it. Starting Test ${n} leaves it unmarked.` : `Test ${draft.n} isn’t handed in yet (${plural(answered(draft), 'answer')} so far). Starting Test ${n} leaves it behind.`),
+        el('div', { className: 'start' },
+          el('a', { className: 'btn primary', href: `#${id}/exam/${draft.n}` }, `Back to Test ${draft.n}`),
+          el('button', { className: 'btn', onclick: () => { try { localStorage.removeItem(`fluentio.${id}.exam-draft`); } catch {} route(); } }, `Start Test ${n} instead`)));
+    }
+    const order = t.learn ? sequence(t) : [];
+    examPaper({ app, exam: t.exam, n, key: id, store, back: '#' + id, name: t.name, titled, again: () => `#${id}/exam/${newExam(t, n)}`,
+      lessonLink: (topic) => (order.includes(topic) ? `#${id}/learn/${order.indexOf(topic)}` : null) });
   }
 
   // ---------- a question: its text, figure, and a way to answer ----------
@@ -495,7 +543,7 @@ export function testsPage({ tests }) {
         };
         const next = el('button', { className: 'btn primary', hidden: true, onclick: () => { settle(false); ask(); window.scrollTo(0, 0); } }, mixed ? 'Next question ›' : 'Another one ›');
         const ready = () => { next.hidden = false; requestAnimationFrame(() => (onward.hidden ? next : onward).focus({ preventScroll: true })); };
-        const body = card(q, { learn: true, nudge: lesson(name)?.tip, onWrong: () => { clean = false; }, onHelp: () => { clean = false; }, onReveal: ready, onAnswer: () => { settle(true); ready(); } });
+        const body = card(q, { learn: true, nudge: q.tip || lesson(name)?.tip, onWrong: () => { clean = false; }, onHelp: () => { clean = false; }, onReveal: ready, onAnswer: () => { settle(true); ready(); } });
         paint();
         box.replaceChildren(...[body, note, el('div', { className: 'start' }, onward, next),
           mixed && lesson(name) ? el('p', { className: 'muted' }, 'Stuck? ', el('a', { href: `#${t.bank.id}/learn/${order.indexOf(name)}` }, `The lesson on ${name}`)) : null].filter(Boolean));
@@ -514,7 +562,7 @@ export function testsPage({ tests }) {
 
   // ---------- a test ----------
   function startTest(t, length, shape) {
-    titled(`${t.name} test`);
+    titled(`${t.name} ${t.exam ? 'practice' : 'test'}`);
     run = { t, list: shape === 'mixed' ? mixedList(t, length) : gradedList(t, length, SHAPES[shape]), shape, i: 0, given: [], started: Date.now() };
     showQuestion();
   }
@@ -583,7 +631,7 @@ export function testsPage({ tests }) {
       bar = [el('div', { className: 'progress' }, el('div', { style: `width:${(i / list.length) * 100}%; --from:${(Math.max(0, i - 1) / list.length) * 100}%` })),
         el('p', { className: 'muted qcount' }, `Question ${i + 1} of ${list.length}`), body, el('div', { className: 'start' }, next)];
     }
-    show(el('div', { className: 'pnav' }, el('a', { className: 'back', href: '#' + t.bank.id }, '← Stop the test'), el('span', { className: 'grow' }), timer), ...bar, extra(t, false));
+    show(el('div', { className: 'pnav' }, el('a', { className: 'back', href: '#' + t.bank.id }, t.exam ? '← Stop practising' : '← Stop the test'), el('span', { className: 'grow' }), timer), ...bar, extra(t, false));
     startClock(timer, t.amc ? list.length * 3 * 60 : 0);   // the AMC 10's 75 minutes for 25 problems
   }
   function results() {
@@ -615,9 +663,9 @@ export function testsPage({ tests }) {
       el('h2', { className: 'tname' }, 'Your score'),
       el('p', { className: 'score' }, text),
       el('p', { className: 'muted' }, (t.amc && t.order ? `${SHAPES[shape].name}. ` : '') + (isBest ? 'A new best! ' : best ? `Your best: ${best.text}. ` : '')
-        + (full ? '' : `Only tests of ${standard(t)} or more questions count for your best. `) + `It took about ${plural(mins, 'minute')}.`),
+        + (full ? '' : `Only ${t.exam ? 'practice sets' : 'tests'} of ${standard(t)} or more questions count for your best. `) + `It took about ${plural(mins, 'minute')}.`),
       tally.length > 1 ? el('p', { className: 'muted tally' }, `Right by unit: ${tally.join(' · ')}`) : null,
-      el('div', { className: 'start' }, el('button', { className: 'btn primary', onclick: () => go(again) }, 'Take another test'), el('a', { className: 'btn', href: `#${t.bank.id}/learn` }, 'Learn'), el('a', { className: 'btn', href: '#' }, 'All tests')),
+      el('div', { className: 'start' }, el('button', { className: 'btn primary', onclick: () => go(again) }, t.exam ? 'Practise again' : 'Take another test'), el('a', { className: 'btn', href: `#${t.bank.id}/learn` }, 'Learn'), el('a', { className: 'btn', href: '#' }, 'All tests')),
       missed.length ? el('div', { className: 'work-on' }, el('h3', {}, 'What to work on'),
         el('p', { className: 'muted' }, `The ${missed.length === 1 ? 'topic' : 'topics'} you missed or left blank. Each opens its lesson, a worked example and practice.`),
         el('ul', { className: 'kinds' }, ...missed.map((n) => el('li', {}, el('a', { href: lessonLink(n) }, n))))) : null,

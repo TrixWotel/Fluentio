@@ -188,7 +188,116 @@ table.data td:last-child, table.data th:last-child { text-align: right; font-var
 table.data.words td:last-child, table.data.words th:last-child, .lesson table.data td, .lesson table.data th { text-align: left; }
 .lesson table.data { margin: 10px 0 4px; }
 .lesson table.data.words td:first-child { font-weight: 600; }
+/* tests like the ones in class (exam.js): the paper, with its bar (the timer and Hand in) kept in view, its questions,
+   their contexts (graphs with a key, tables of data) and parts, the ways to answer, and the marking */
+.exam-bar { position: sticky; top: 0; z-index: 20; padding: 10px 0; margin: -10px 0 8px; background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+html.has-bar .exam-bar { top: var(--bar-h); }
+.exam-meta { margin: 0 0 10px; }
+.aside.guide { margin: 0 0 18px; }
+.xq { background: var(--card); border: 1px solid var(--line); border-radius: calc(var(--radius) + 2px); padding: 20px 22px; box-shadow: var(--shadow); margin: 0 0 18px; animation: rise var(--t3) var(--ease) backwards; }
+h3.xq-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 0 0 10px; font-size: 1.05rem; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--text); }
+.xq-title .muted { font-size: .85rem; white-space: nowrap; }
+.ctx p { margin: 0 0 10px; }
+.ctx .model { text-align: center; font-size: 1.2rem; margin: 6px 0 12px; }
+.xq .fig { margin: 8px 0 14px; }
+.chart { width: 100%; max-width: 600px; }
+.chart-title { text-align: center; font-weight: 600; margin: 0 0 6px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px; margin-top: 6px; font-size: .88rem; }
+.legend .k::before { content: ''; display: inline-block; width: 18px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; background: var(--accent); }
+.legend .k1::before { background: var(--plot2); }
+.legend .k2::before { background: var(--good); }
+.legend .k3::before { background: var(--accent-2); }
+.graph .ln2 { stroke: var(--good); animation-delay: calc(.3s / var(--speed)); }
+.graph .ln3 { stroke: var(--accent-2); animation-delay: calc(.45s / var(--speed)); }
+.scroll { overflow-x: auto; max-width: 100%; }
+table.data.exam { width: auto; min-width: 280px; max-width: none; margin: 0 auto; }
+table.data.exam th, table.data.exam td, table.data.exam th:last-child, table.data.exam td:last-child { text-align: center; }
+table.data.exam th { text-transform: none; letter-spacing: 0; font-size: .85rem; }
+table.data.exam td { font-variant-numeric: tabular-nums; }
+.parts { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 18px; }
+.part { border-top: 1px solid var(--line); padding-top: 14px; }
+.part .ask { display: flex; gap: 8px; align-items: baseline; margin-bottom: 10px; }
+.part .pl { font-weight: 700; color: var(--accent); min-width: 1.4em; }
+.part .ask-text { flex: 1; }
+.part .pm { font-size: .85rem; white-space: nowrap; }
+textarea.written { display: block; width: 100%; padding: 10px 12px; font: inherit; line-height: 1.5; border-radius: calc(var(--radius) * .72); border: 1px solid var(--line); background: var(--bg); color: inherit; resize: vertical; transition: border-color var(--t1), box-shadow var(--t2); }
+textarea.written:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+.why { margin-top: 12px; }
+.why-ask { margin: 0 0 6px; font-weight: 600; font-size: .95rem; }
+.steps { display: grid; gap: 8px; }
+.step-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.step-label { flex: 0 1 300px; color: var(--muted); }
+.step-mark { font-weight: 600; font-size: .9rem; }
+.step-mark.good { color: var(--good); }
+.step-mark.bad { color: var(--bad); }
+.picks { display: flex; flex-wrap: wrap; gap: 10px 22px; }
+.pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pick > span { color: var(--muted); }
+.pick-in { padding: 8px 10px; font: inherit; border-radius: calc(var(--radius) * .65); border: 1px solid var(--line); background: var(--bg); color: inherit; max-width: 100%; }
+.pick-in:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+.ans.good, .pick-in.good, .cell.good { border-color: var(--good); }
+.ans.bad, .pick-in.bad, .cell.bad { border-color: var(--bad); }
+table.data.fill td.in { padding: 4px 6px; }
+table.data.fill .cell { width: 96px; padding: 6px 8px; font: inherit; text-align: center; border-radius: calc(var(--radius) * .55); border: 1px solid var(--line); background: var(--bg); color: inherit; }
+table.data.fill .cell:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+table.data.fill .was { display: block; font-size: .78rem; color: var(--good); margin-top: 2px; }
+/* a graph to plot: the line of best fit is dragged by its two ends; once marked, the best line shows dashed */
+.plot-box .picks { margin-bottom: 8px; }
+.plot-pad { display: flex; justify-content: center; }
+.plot-pad svg { width: 100%; max-width: 600px; height: auto; }
+.plot-empty { width: 100%; padding: 34px 12px; text-align: center; border: 1px dashed var(--line); border-radius: var(--radius); }
+.graph .ruler { stroke: var(--plot2); stroke-width: 2.5; }
+.graph .fit { stroke: var(--good); stroke-width: 2; stroke-dasharray: 7 6; }
+.handle .hit { fill: transparent; }
+.handle .dot { fill: var(--card); stroke: var(--plot2); stroke-width: 3; transition: fill var(--t1); }
+.handle.live { cursor: grab; touch-action: none; }
+.handle.held { cursor: grabbing; }
+.handle.live:hover .dot, .handle.held .dot, .handle:focus-visible .dot { fill: var(--plot2); }
+.handle:focus { outline: none; }
+.readout { font-size: .9rem; margin: 6px 0 0; font-variant-numeric: tabular-nums; }
+/* a sketch: drawn by hand on blank axes, a colour for each pen */
+svg.sketch-pad { display: block; width: 100%; max-width: 520px; height: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
+.sketch-pad.live { touch-action: none; cursor: crosshair; }
+.graph .gr.faint { stroke-opacity: .55; }
+.graph .ax.arrow { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.graph .ink { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.graph .ink.s1 { stroke: var(--plot2); }
+.graph .ink.s2 { stroke: var(--good); }
+.graph .ink.s3 { stroke: var(--accent-2); }
+.sketch-box .legend, .model-sketch .legend { justify-content: flex-start; max-width: 520px; }
+.pens { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0; max-width: 520px; }
+.pen { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); font-size: .9rem; transition: border-color var(--t1); }
+.pen i { width: 14px; height: 4px; border-radius: 2px; background: var(--accent); }
+.pen.p1 i { background: var(--plot2); }
+.pen.p2 i { background: var(--good); }
+.pen.p3 i { background: var(--accent-2); }
+.pen.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.btn.small { padding: 5px 12px; font-size: .88rem; }
+/* the marking: what the page marked, the points to tick for the rest, model answers and what loses marks */
+.mk { margin-top: 12px; padding: 12px 14px; border-radius: calc(var(--radius) * .85); background: var(--soft); border-left: 3px solid var(--accent); animation: rise var(--t2) var(--ease) backwards; }
+.mk.good { border-left-color: var(--good); }
+.mk.some { border-left-color: var(--plot2); }
+.mk.bad { border-left-color: var(--bad); }
+.mk-head { margin: 0 0 6px; }
+.mk.good > .mk-head > b { color: var(--good); }
+.mk.bad > .mk-head > b { color: var(--bad); }
+.points { list-style: none; margin: 4px 0 8px; padding: 0; display: grid; gap: 6px; }
+.points label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.points input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--good); flex: none; }
+.model-answer p, .notes p, .model-sketch p { margin: 6px 0 2px; }
+.notes ul { margin: 0; padding-left: 20px; }
+.notes li::marker { color: var(--bad); }
+.mk-why { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.mk-sum { margin: 4px 0 18px; padding: 16px 20px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); animation: rise var(--t3) var(--ease) backwards; }
+.mk-sum .score { margin: 0; }
+.small { font-size: .85rem; }
+.exam-foot { margin-top: 10px; }
+.exam-bar .exam-ask { flex-basis: 100%; margin: 4px 0 0; }
+
 @media (max-width: 560px) {
+  .xq { padding: 16px; } .step-label { flex-basis: 100%; } table.data.fill .cell { width: 76px; }
+  .wide-only { display: none; } .exam-bar .btn { padding: 6px 12px; }
+  .plot-pad .graph .tk { font-size: 19px; } .plot-pad .graph .al, svg.sketch-pad .al { font-size: 21px; }
   main { padding-top: 28px; } h1 { font-size: 2rem; } .q { padding: 16px; } .qtext { font-size: 1.05rem; }
   /* graphs shrink on a phone, so their numbers grow to stay readable */
   .graph .tk { font-size: 15px; } .graph .al, .graph .pl { font-size: 16px; }
