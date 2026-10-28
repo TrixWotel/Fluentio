@@ -100,7 +100,7 @@ const imperfectLessons = {
   'The imperfect in sentences': {
     idea: 'Use the imperfect for the background of the past: habits (<i>todos los días</i>, <i>siempre</i>, <i>de niño</i>, <i>antes</i>), actions in progress (<i>mientras</i>), descriptions of people, places and weather, and time and age (<i>Eran las tres</i>, <i>Tenía diez años</i>). Then match the form to the subject of the blank.',
     how: ['Find the subject of the blank and its person.', 'Look for a habit, a description, a time or an age, or an action in progress.', 'Conjugate the verb in the imperfect for that person.'],
-    watch: ['Using the preterite for something that used to happen again and again.', 'Mixing up the persons: yo and él share one form, but nosotros and ellos don\'t.', 'Clock time is plural from two o\'clock on: <i>eran las tres</i>, but <i>era la una</i>.'],
+    watch: ['Using the preterite for something that used to happen again and again.', 'Mixing up the persons: yo and él share one form, but nosotros and ellos don’t.', 'Clock time is plural from two o’clock on: <i>eran las tres</i>, but <i>era la una</i>.'],
     tip: 'Is this a habit, a description or something in progress, and who is the subject?',
   },
   'Preterite or imperfect?': {

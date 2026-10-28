@@ -56,7 +56,7 @@ const other = (tense) => (tense === 'pret' ? 'imp' : 'pret');
 function why(verb, person, tense) {
   const form = FORM[tense](verb, person), g = groupOf(verb), stem = stemOf(verb), who = `<b>${WHO[person]}</b>`;
   if (tense === 'imp') {
-    if (verb === 'ser' || verb === 'ir' || verb === 'ver') return `<b>${verb}</b> is one of only three irregular verbs in the imperfect. Its forms are ${all5('imp', verb)}, so for ${who} it's <b>${form}</b>.`;
+    if (verb === 'ser' || verb === 'ir' || verb === 'ver') return `<b>${verb}</b> is one of only three irregular verbs in the imperfect. Its forms are ${all5('imp', verb)}, so for ${who} it’s <b>${form}</b>.`;
     const ending = form.slice(stemOf(verb === 'oír' ? 'oir' : verb).length);
     const change = REGULAR_IMPERFECT.includes(verb) ? ` It may change in the present, but the imperfect has no stem changes and no irregular stems.` : '';
     return `<b>${verb}</b> is regular in the imperfect.${change} Take off -${verb.slice(-2)} and add the ${verb.endsWith('ar') ? '-aba' : '-ía'} ending for ${who}: ${stemOf(verb === 'oír' ? 'oir' : verb)}- + -${ending} = <b>${form}</b>.`;
@@ -69,14 +69,14 @@ function why(verb, person, tense) {
     return `<b>${verb}</b> has the irregular preterite stem <b>${s}-</b>, with the endings -e, -iste, -o, -imos, -${j ? 'eron' : 'ieron'} and no accents${j ? ' (after j it is -eron, not -ieron)' : ''}${/zo$/.test(form) ? ' (c becomes z before o)' : ''}. For ${who}: <b>${form}</b>.`;
   }
   if (['car', 'gar', 'zar'].includes(g)) return person === 'yo'
-    ? `-${g} verbs change their spelling in the yo form only: ${{ car: 'c → qu, so it still sounds like k before é', gar: 'g → gu, so it still sounds like the g in "go" before é', zar: 'z → c, because Spanish spells this sound ce, not ze' }[g]}. So <b>${form}</b>.`
-    : `Only the yo form of a -${g} verb changes its spelling. For ${who} it's regular: ${stem}- + -${form.slice(stem.length)} = <b>${form}</b>.`;
+    ? `-${g} verbs change their spelling in the yo form only: ${{ car: 'c → qu, so it still sounds like k before é', gar: 'g → gu, so it still sounds like the g in “go” before é', zar: 'z → c, because Spanish spells this sound ce, not ze' }[g]}. So ${stem}- becomes ${form.slice(0, -1)}-, and ${form.slice(0, -1)}- + -é = <b>${form}</b>.`
+    : `Only the yo form of a -${g} verb changes its spelling. For ${who} it’s regular: ${stem}- + -${form.slice(stem.length)} = <b>${form}</b>.`;
   if (g === 'y') return person === 'él' || person === 'ellos'
-    ? `The stem of <b>${verb}</b> ends in a vowel, so the i of -ió and -ieron becomes y between the vowels: <b>${form}</b>.`
+    ? `The stem of <b>${verb}</b> ends in a vowel, so the i of -ió and -ieron becomes y between the vowels. So ${stemOf(verb === 'oír' ? 'oir' : verb)}- + -${form.slice(stemOf(verb === 'oír' ? 'oir' : verb).length)} = <b>${form}</b>.`
     : `For ${who}, <b>${verb}</b> keeps its i: <b>${form}</b>${verb.endsWith('uir') ? ' (no accent after -u-, except in the yo form)' : ' (with an accent, since the stem ends in a vowel)'}.`;
   if (g === 'stem') return person === 'él' || person === 'ellos'
-    ? `<b>${verb}</b> is an -ir verb that changes its stem in the preterite, but only for él and ellos: ${verb === 'dormir' || verb === 'morir' ? 'o → u' : 'e → i'}. So <b>${form}</b>.`
-    : `<b>${verb}</b> changes its stem only for él and ellos; for ${who} it's regular: <b>${form}</b>.`;
+    ? `<b>${verb}</b> is an -ir verb that changes its stem in the preterite, but only for él and ellos: ${verb === 'dormir' || verb === 'morir' ? 'o → u' : 'e → i'}. So ${form.slice(0, person === 'él' ? -2 : -5)}- + -${person === 'él' ? 'ió' : 'ieron'} = <b>${form}</b>.`
+    : `<b>${verb}</b> changes its stem only for él and ellos; for ${who} it’s regular: <b>${form}</b>.`;
   const ending = form.slice(stem.length);
   return `<b>${verb}</b> is a regular -${verb.slice(-2)} verb: take off -${verb.slice(-2)} and add the ${verb.endsWith('ar') ? '-ar' : '-er/-ir'} ending for ${who}, ${stem}- + -${ending} = <b>${form}</b>.`;
 }
