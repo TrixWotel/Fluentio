@@ -37,7 +37,7 @@ const templates = [
       topic: 'Heat in kilojoules',
       text: `${['water', 'ethanol', 'olive oil', 'sand'].includes(mat) ? `${num(m)} kg of ${mat}` : `A ${num(m)} kg block of ${mat}`} warms by ${dT} °C. How much heat did it absorb, in kilojoules? (c = ${num(ck, 1)} J/(kg·°C))`,
       answer: ans((m * ck * dT) / 1000, 'kJ'),
-      solution: `Q = mcΔT = ${num(m)} kg × ${num(ck, 1)} J/(kg·°C) × ${dT} °C = ${num(m * ck * dT, 1)} J = <b>${num((m * ck * dT) / 1000, 3)} kJ</b> (divide by 1000).`,
+      solution: `Q = mcΔT = ${num(m)} kg × ${num(ck, 1)} J/(kg·°C) × ${dT} °C = ${num(m * ck * dT, 1)} J. A kilojoule is 1000 J, so that is ${num(m * ck * dT, 1)} ÷ 1000 = <b>${num((m * ck * dT) / 1000, 3)} kJ</b>.`,
     };
   },
   // 3. final temperature from the heat added
@@ -48,7 +48,7 @@ const templates = [
       topic: 'Final temperature',
       text: `${num(Q, 0)} J of heat is added to ${m} g of ${mat} at ${T0} °C. What is its final temperature? (c = ${num(c, 3)} J/(g·°C))`,
       answer: ans(T0 + rise, C, { abs: 0.3 }),
-      solution: `ΔT = Q/(mc) = ${num(Q, 0)} / (${m} × ${num(c, 3)}) = ${num(rise, 2)} °C. Final temperature = ${T0} + ${num(rise, 2)} = <b>${num(T0 + rise, 1)} °C</b>.`,
+      solution: `ΔT = Q/(mc) = ${num(Q, 0)} / (${m} × ${num(c, 3)}) = ${num(rise, 2)} °C. Final temperature = ${T0} + ${num(rise, 2)} = <b>${num(T0 + rise, 2)} °C</b>.`,
     };
   },
   // 4. find the mass
@@ -79,18 +79,18 @@ const templates = [
       topic: 'Heat released while cooling',
       text: `${m} g of ${mat} cools from ${T1} °C to ${T2} °C. How much heat does it give off? (c = ${num(c, 3)} J/(g·°C); answer as a positive number)`,
       answer: ans(m * c * dT, J),
-      solution: `ΔT = ${T2} − ${T1} = −${dT} °C, so Q = mcΔT = −${num(m * c * dT, 1)} J. The minus sign means heat leaves: it gives off <b>${num(m * c * dT, 1)} J</b>.`,
+      solution: `ΔT = ${T2} − ${T1} = −${dT} °C, so Q = mcΔT = ${m} g × ${num(c, 3)} J/(g·°C) × (−${dT} °C) = −${num(m * c * dT, 1)} J. The minus sign means heat leaves, so it gives off <b>${num(m * c * dT, 1)} J</b>.`,
     };
   },
   // 7. mixing: hot metal dropped into water → final temperature
   (d) => {
     const [mat, c] = d.pick(METALS), m1 = d.pick([50, 75, 100, 120, 150, 200, 250, 300]), T1 = d.pick([80, 90, 95, 100, 120, 150]), m2 = d.pick([100, 150, 200, 250, 300, 400, 500]), T2 = d.int(15, 25);
-    const Tf = (m1 * c * T1 + m2 * CW * T2) / (m1 * c + m2 * CW);
+    const a = m1 * c, b = m2 * CW, Tf = (a * T1 + b * T2) / (a + b);
     return {
       topic: 'Mixing: final temperature',
       text: `A ${m1} g piece of ${mat} at ${T1} °C is dropped into ${m2} g of water at ${T2} °C. Ignoring heat lost to the surroundings, what is the final temperature? (c of ${mat} = ${num(c, 3)}, water = ${CW} J/(g·°C))`,
       answer: ans(Tf, C, { abs: 0.3 }),
-      solution: `Heat lost by the metal = heat gained by the water: ${m1}·${num(c, 3)}·(${T1} − T) = ${m2}·${CW}·(T − ${T2}). Solving: T = (${m1}·${num(c, 3)}·${T1} + ${m2}·${CW}·${T2}) / (${m1}·${num(c, 3)} + ${m2}·${CW}) = <b>${num(Tf, 1)} °C</b>.`,
+      solution: `Heat lost by the metal = heat gained by the water: ${m1} × ${num(c, 3)} × (${T1} − T) = ${m2} × ${CW} × (T − ${T2}). Working out the products, ${num(a, 3)} × (${T1} − T) = ${num(b, 2)} × (T − ${T2}). Multiplying out and gathering the T terms on one side, ${num(a, 3)} × ${T1} + ${num(b, 2)} × ${T2} = (${num(a, 3)} + ${num(b, 2)}) × T. So T = ${num(a * T1 + b * T2, 2)} ÷ ${num(a + b, 3)} = <b>${num(Tf, 1)} °C</b>.`,
     };
   },
   // 8. mixing: find an unknown metal's specific heat
@@ -99,9 +99,9 @@ const templates = [
     const Tf = round((m1 * c * T1 + m2 * CW * T2) / (m1 * c + m2 * CW), 1), cc = (m2 * CW * (Tf - T2)) / (m1 * (T1 - Tf));
     return {
       topic: 'Mixing: unknown metal',
-      text: `A ${m1} g metal block at ${T1} °C is placed in ${m2} g of water at ${T2} °C. They settle at ${num(Tf, 1)} °C. What is the metal's specific heat? (water: ${CW} J/(g·°C))`,
+      text: `A ${m1} g metal block at ${T1} °C is placed in ${m2} g of water at ${T2} °C. They settle at ${num(Tf, 1)} °C. What is the metal’s specific heat? (water: ${CW} J/(g·°C))`,
       answer: ans(cc, CU, 0.03),
-      solution: `Heat gained by water = ${m2}·${CW}·(${num(Tf, 1)} − ${T2}) = ${num(m2 * CW * (Tf - T2), 1)} J = heat lost by the metal = ${m1}·c·(${T1} − ${num(Tf, 1)}). So c = <b>${num(cc, 3)} J/(g·°C)</b>, close to ${closest(cc)[0]}.`,
+      solution: `Heat gained by the water = ${m2} × ${CW} × (${num(Tf, 1)} − ${T2}) = ${num(m2 * CW * (Tf - T2), 1)} J. The metal lost that same heat while cooling by ${T1} − ${num(Tf, 1)} = ${num(T1 - Tf, 1)} °C, so ${m1} × c × ${num(T1 - Tf, 1)} = ${num(m2 * CW * (Tf - T2), 1)}. So c = ${num(m2 * CW * (Tf - T2), 1)} ÷ (${m1} × ${num(T1 - Tf, 1)}) = <b>${num(cc, 3)} J/(g·°C)</b>, close to ${closest(cc)[0]} (${num(closest(cc)[1], 3)}).`,
     };
   },
   // 9. an electric heater: Q = P·t
@@ -113,9 +113,9 @@ const templates = [
     const rise = (P * t) / (m * CW), mins = t % 60 === 0 && d.chance(0.5);
     return {
       topic: 'Electric heater',
-      text: `A ${P} W heater warms ${m} g of water for ${mins ? `${t / 60} minute${t === 60 ? '' : 's'}` : `${t} seconds`}. If all its energy goes into the water, how much does the water's temperature rise? (water: ${CW} J/(g·°C))`,
+      text: `A ${num(P, 0)} W heater warms ${num(m, 0)} g of water for ${mins ? `${t / 60} minute${t === 60 ? '' : 's'}` : `${t} seconds`}. If all its energy goes into the water, how much does the water’s temperature rise? (water: ${CW} J/(g·°C))`,
       answer: ans(rise, C),
-      solution: `Energy = power × time = ${P} W × ${t} s = ${num(P * t, 0)} J. ΔT = Q/(mc) = ${num(P * t, 0)} / (${m} × ${CW}) = <b>${num(rise, 2)} °C</b>.`,
+      solution: `${mins ? `The time in seconds is ${t / 60} × 60 = ${t} s. ` : ''}Energy = power × time = ${num(P, 0)} W × ${t} s = ${num(P * t, 0)} J. Then ΔT = Q/(mc) = ${num(P * t, 0)} / (${num(m, 0)} × ${CW}) = <b>${num(rise, 2)} °C</b>.`,
       check: () => (rise > 0 && rise < 200 ? '' : 'temperature rise out of range'),
     };
   },
@@ -129,7 +129,7 @@ const templates = [
       topic: 'Same heat, different materials',
       text: `Equal masses of ${A} and ${B} absorb the same amount of heat. The ${A} warms by ${dTA} °C. By how much does the ${B} warm? (c: ${A} ${num(cA, 3)}, ${B} ${num(cB, 3)} J/(g·°C))`,
       answer: ans((dTA * cA) / cB, C),
-      solution: `Same Q and m, so c·ΔT is the same for both: ΔT(${B}) = ${dTA} × ${num(cA, 3)} / ${num(cB, 3)} = <b>${num((dTA * cA) / cB, 2)} °C</b>. Lower specific heat means a bigger temperature change.`,
+      solution: `Same Q and m, so c × ΔT is the same for both: ΔT(${B}) = ${dTA} × ${num(cA, 3)} / ${num(cB, 3)} = <b>${num((dTA * cA) / cB, 2)} °C</b>. Lower specific heat means a bigger temperature change.`,
     };
   },
   // 11. calories
@@ -137,9 +137,9 @@ const templates = [
     const m = d.pick(MASS.concat([600, 750, 1000])), dT = d.int(5, 60), joules = d.chance(0.5);
     return {
       topic: 'Calories',
-      text: `How much heat is needed to warm ${m} g of water by ${dT} °C, ${joules ? 'in joules? (1 cal = 4.184 J, and water takes 1 cal/(g·°C))' : 'in calories? (water takes 1 cal/(g·°C))'}`,
+      text: `How much heat is needed to warm ${num(m, 0)} g of water by ${dT} °C, ${joules ? 'in joules? (1 cal = 4.184 J, and water takes 1 cal/(g·°C))' : 'in calories? (water takes 1 cal/(g·°C))'}`,
       answer: joules ? ans(m * dT * 4.184, J) : ans(m * dT, 'cal'),
-      solution: joules ? `In calories: Q = ${m} × 1 × ${dT} = ${num(m * dT, 0)} cal. In joules: ${num(m * dT, 0)} × 4.184 = <b>${num(m * dT * 4.184, 1)} J</b>.` : `Q = mcΔT = ${m} g × 1 cal/(g·°C) × ${dT} °C = <b>${num(m * dT, 0)} cal</b> (that's ${num((m * dT) / 1000, 3)} kcal, or food Calories).`,
+      solution: joules ? `In calories: Q = ${num(m, 0)} × 1 × ${dT} = ${num(m * dT, 0)} cal. In joules: ${num(m * dT, 0)} × 4.184 = <b>${num(m * dT * 4.184, 1)} J</b>.` : `Q = mcΔT = ${num(m, 0)} g × 1 cal/(g·°C) × ${dT} °C = <b>${num(m * dT, 0)} cal</b>. That’s ${num((m * dT) / 1000, 3)} kcal, or ${num((m * dT) / 1000, 3)} food Calories.`,
     };
   },
 ];

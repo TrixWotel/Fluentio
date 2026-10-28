@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Science Tests · Fluentio</title>
-  <meta name="description" content="Heat capacity questions, Q = mcΔT, with hundreds of variants and a worked solution for each.">
+  <meta name="description" content="Heat and energy: tests like the ones in class, and Q = mcΔT practice with hundreds of variants and a worked solution for each.">
   <script src="../settings.js"></script>
   <script src="../kit/look.js"></script>
   <script src="../kit/bar.js"></script>
@@ -17,7 +17,7 @@
     <header id="top">
       <a class="back" href="../study/">← <span data-fill="studyTitle">Study</span></a>
       <h1>🧪 Science Tests</h1>
-      <p class="lead">Heat capacity with Q = mcΔT. Every question comes in hundreds of variants, each with a worked solution.</p>
+      <p class="lead">Heat and energy: tests like the ones in class (graphs to read, data sets, experiments and problem solving), and Q = mcΔT practice in hundreds of variants, each with a worked solution.</p>
     </header>
     <div id="app"><noscript>These tests need JavaScript.</noscript></div>
   </main>
@@ -26,6 +26,7 @@
     import { testsPage } from '../kit/tests.js';
     import { heat, MATERIALS } from './heat.js';
     import { heatLearning } from './heat-lessons.js';
+    import { heatExam } from './heat-exam.js';
 
     // the formulas, next to the table of specific heats the questions use
     const formulas = () => {
@@ -47,7 +48,7 @@
 
     testsPage({ tests: [
       {
-        bank: heat, name: 'Heat Capacity: Q = mcΔT', length: 10, learn: heatLearning,
+        bank: heat, name: 'Heat Capacity: Q = mcΔT', length: 10, learn: heatLearning, exam: heatExam,
         blurb: 'Warming, cooling, mixing hot metal into water, heaters and calories.',
         about: 'Use Q = mcΔT to find the heat, the temperature change, the mass or the specific heat. Answers within 1% are right, so round as you like. The specific heats are in the table below.',
         asideName: 'Formulas and specific heats', aside: formulas, asideOpen: true,   // some questions ask which material in the table
