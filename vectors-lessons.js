@@ -12,7 +12,7 @@ export const vectorsLearning = {
     'Scalars and vectors': {
       idea: '<p>A <b>scalar</b> is just a size: 20 m, 5 s, 3 kg, 30 °C. A <b>vector</b> is a size <i>and</i> a direction: 20 m east, 5 m/s north, 10 N down.</p><p>They come in pairs: distance (scalar) and displacement (vector), speed (scalar) and velocity (vector). Acceleration, force, weight and momentum are vectors. Time, mass, energy, temperature and volume are scalars.</p>',
       how: ['Ask: does the quantity point anywhere?', 'If knowing which way matters (east, up, toward the wall), it is a vector.', 'If a single number with a unit says it all, it is a scalar.'],
-      watch: ['Thinking speed and velocity are the same: velocity has a direction, speed doesn\'t.', 'Calling weight a scalar: weight is a force, so it points down.'],
+      watch: ['Thinking speed and velocity are the same: velocity has a direction, speed doesn’t.', 'Calling weight a scalar: weight is a force, so it points down.'],
       tip: 'A vector needs a direction to describe it. If there is no "which way", it is a scalar.',
     },
     'Distance and displacement on a path': {
@@ -52,7 +52,7 @@ export const vectorsLearning = {
       tip: 'At right angles the resultant is the hypotenuse: √(a² + b²), and its angle is tan⁻¹(across ÷ beside).',
     },
     'Adding vectors by components': {
-      idea: '<p>When vectors aren\'t at right angles, split each one into x and y parts, add all the x parts and all the y parts, then put the totals back together with Pythagoras and tan⁻¹.</p><p>An angle past 90° makes the cos negative: a leg at 120° from east goes 0.5 of its length <i>west</i>.</p>',
+      idea: '<p>When vectors aren’t at right angles, split each one into x and y parts, add all the x parts and all the y parts, then put the totals back together with Pythagoras and tan⁻¹.</p><p>An angle past 90° makes the cos negative: a leg at 120° from east goes 0.5 of its length <i>west</i>.</p>',
       how: ['For each vector: x = size cos θ, y = size sin θ, with θ measured from +x (or east).', 'Add the x parts. Add the y parts.', 'Size = √(Rx² + Ry²), direction = tan⁻¹(Ry ÷ Rx), adding 180° if Rx is negative.'],
       watch: ['Adding the sizes directly.', 'Forgetting that cos of an angle over 90° is negative.'],
       tip: 'Split every vector into x and y parts, add each set, then rebuild: √(Rx² + Ry²).',
@@ -65,20 +65,20 @@ export const vectorsLearning = {
     },
     'The vector that balances': {
       idea: '<p>When something stays still, all the forces on it add to zero. So the force that balances the others is their resultant turned around: the same size, pointing the opposite way.</p><p>40 N east and 30 N north add to 50 N at 36.9° north of east. The balancing force is 50 N at 36.9° south of west.</p>',
-      how: ['Add the known forces (tip to tail, or by components).', 'The balancing force has the same size as that sum.', 'Its direction is exactly opposite: flip both components\' signs.'],
-      watch: ['Giving the resultant\'s direction instead of the opposite one.', 'Forgetting a minus sign when you write the balancing force in i and j.'],
+      how: ['Add the known forces (tip to tail, or by components).', 'The balancing force has the same size as that sum.', 'Its direction is exactly opposite: flip both components’ signs.'],
+      watch: ['Giving the resultant’s direction instead of the opposite one.', 'Forgetting a minus sign when you write the balancing force in i and j.'],
       tip: 'Balancing force = −(sum of the others): same size, opposite direction.',
     },
     'Crossing a river': {
-      idea: '<p>The boat\'s velocity over the ground is its own velocity through the water plus the current\'s velocity. Pointing straight across, the current doesn\'t slow the crossing (that only depends on the speed across), but it carries the boat downstream all the way.</p><p>To land straight opposite, the boat points upstream so its upstream part cancels the current: sin θ = current ÷ boat speed. Then it crosses more slowly, at √(boat² − current²).</p>',
+      idea: '<p>The boat’s velocity over the ground is its own velocity through the water plus the current’s velocity. Pointing straight across, the current doesn’t slow the crossing (that only depends on the speed across), but it carries the boat downstream all the way.</p><p>To land straight opposite, the boat points upstream so its upstream part cancels the current: sin θ = current ÷ boat speed. Then it crosses more slowly, at √(boat² − current²).</p>',
       how: ['Time to cross = width ÷ (the speed straight across).', 'Drift downstream = current × that time.', 'Speed over the ground = √(boat² + current²) when pointing straight across.', 'To go straight across: θ = sin⁻¹(current ÷ boat speed) upstream.'],
-      watch: ['Using the ground speed to work out the crossing time when pointing straight across.', 'Using tan instead of sin for the upstream angle: the boat\'s speed is the hypotenuse.'],
+      watch: ['Using the ground speed to work out the crossing time when pointing straight across.', 'Using tan instead of sin for the upstream angle: the boat’s speed is the hypotenuse.'],
       tip: 'Across and downstream are independent: time comes from the across part alone, drift from current × time.',
     },
     'Flying in a crosswind': {
-      idea: '<p>A plane\'s velocity over the ground is its velocity through the air plus the wind. Pointing north at 200 km/h with a 50 km/h wind blowing east, it travels √(200² + 50²) = 206 km/h at tan⁻¹(50/200) = 14° east of north.</p><p>To fly due north anyway, the pilot points into the wind: sin θ = wind ÷ airspeed. A headwind or tailwind along the same line just subtracts or adds.</p>',
-      how: ['Draw the plane\'s air velocity, then the wind tip to tail.', 'At right angles, use Pythagoras for the ground speed and tan⁻¹ for the drift angle.', 'To cancel the wind, point at sin⁻¹(wind ÷ airspeed) into it.', 'Along one line, add or subtract the speeds, then time = distance ÷ ground speed.'],
-      watch: ['Using tan for the heading that cancels the wind (the airspeed is the hypotenuse, so it\'s sin).', 'Adding a headwind instead of subtracting it.'],
+      idea: '<p>A plane’s velocity over the ground is its velocity through the air plus the wind. Pointing north at 200 km/h with a 50 km/h wind blowing east, it travels √(200² + 50²) = 206 km/h at tan⁻¹(50/200) = 14° east of north.</p><p>To fly due north anyway, the pilot points into the wind: sin θ = wind ÷ airspeed. A headwind or tailwind along the same line just subtracts or adds.</p>',
+      how: ['Draw the plane’s air velocity, then the wind tip to tail.', 'At right angles, use Pythagoras for the ground speed and tan⁻¹ for the drift angle.', 'To cancel the wind, point at sin⁻¹(wind ÷ airspeed) into it.', 'Along one line, add or subtract the speeds, then time = distance ÷ ground speed.'],
+      watch: ['Using tan for the heading that cancels the wind (the airspeed is the hypotenuse, so it’s sin).', 'Adding a headwind instead of subtracting it.'],
       tip: 'Ground velocity = air velocity + wind. Into a crosswind, the heading angle is sin⁻¹(wind ÷ airspeed).',
     },
   },

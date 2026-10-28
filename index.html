@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Physics Tests · Fluentio</title>
-  <meta name="description" content="Kinematics with motion graphs, motion in a straight line, vectors and projectile motion: hundreds of variants of each, with a worked solution for every one.">
+  <meta name="description" content="Kinematics with motion graphs, motion in a straight line, vectors and projectile motion: tests like the ones in class, and hundreds of practice variants of each, with a worked solution for every one.">
   <script src="../settings.js"></script>
   <script src="../kit/look.js"></script>
   <script src="../kit/bar.js"></script>
@@ -38,7 +38,7 @@
     <header id="top">
       <a class="back" href="../study/">← <span data-fill="studyTitle">Study</span></a>
       <h1>🚀 Physics Tests</h1>
-      <p class="lead">Kinematics with motion graphs, motion in a straight line, vectors and projectile motion. Every question comes in hundreds of variants, each with a worked solution, and most with a graph or a drawing to scale.</p>
+      <p class="lead">Kinematics with motion graphs, motion in a straight line, vectors and projectile motion. Each has tests like the ones in class (a lab to analyse, a problem to solve, motion to explain), and practice questions in hundreds of variants, each with a worked solution and most with a graph or a drawing to scale.</p>
     </header>
     <div id="app"><noscript>These tests need JavaScript.</noscript></div>
   </main>
@@ -47,12 +47,16 @@
     import { testsPage } from '../kit/tests.js';
     import { kinematics } from './kinematics.js';
     import { kinematicsLearning } from './kinematics-lessons.js';
+    import { kinematicsExam } from './kinematics-exam.js';
     import { motionBank } from './motion.js';
     import { motionLearning } from './motion-lessons.js';
+    import { motionExam } from './motion-exam.js';
     import { vectorBank } from './vectors.js';
     import { vectorsLearning } from './vectors-lessons.js';
+    import { vectorsExam } from './vectors-exam.js';
     import { projectileBank } from './projectiles.js';
     import { projectilesLearning } from './projectiles-lessons.js';
+    import { projectilesExam } from './projectiles-exam.js';
 
     const box = (html) => () => {
       const el = document.createElement('div');
@@ -106,25 +110,25 @@
 
     testsPage({ tests: [
       {
-        bank: kinematics, name: 'Kinematics', length: 10, learn: kinematicsLearning,
+        bank: kinematics, name: 'Kinematics', length: 10, learn: kinematicsLearning, exam: kinematicsExam,
         blurb: 'Read x–t, v–t and a–t graphs, plus braking, free fall and throwing things up. Every variant has its own graph.',
         about: 'Slopes and areas of motion graphs, and the equations of constant acceleration. Answers within 2% are right, so round as you like.',
         asideName: 'Formulas', aside: kinematicsFormulas,
       },
       {
-        bank: motionBank, name: 'Motion in a Straight Line', length: 10, learn: motionLearning,
+        bank: motionBank, name: 'Motion in a Straight Line', length: 10, learn: motionLearning, exam: motionExam,
         blurb: 'Constant acceleration problems: speeding up and braking, trips in stages, throwing things up and down, bounces and v–t graphs.',
         about: 'The equations of constant acceleration in every kind of problem, from a skier on a slope to a ball thrown up from a balcony. Use g = 9.8 m/s². Answers within 2% are right.',
         asideName: 'Formulas', aside: motionFormulas,
       },
       {
-        bank: vectorBank, name: 'Vectors', length: 10, learn: vectorsLearning,
+        bank: vectorBank, name: 'Vectors', length: 10, learn: vectorsLearning, exam: vectorsExam,
         blurb: 'Components, sizes and directions, adding and subtracting, river crossings and crosswinds. Most variants draw their vectors to scale.',
         about: 'What a vector is, splitting one into parts, putting them back together, and relative velocity. Angles are in degrees. Answers within 2% are right.',
         asideName: 'Formulas', aside: vectorFormulas,
       },
       {
-        bank: projectileBank, name: 'Projectile Motion', length: 10, learn: projectilesLearning,
+        bank: projectileBank, name: 'Projectile Motion', length: 10, learn: projectilesLearning, exam: projectilesExam,
         blurb: 'Things launched sideways and at angles: time in the air, how far, how high, how they land, cliffs, ledges, walls and tanks.',
         about: 'Across and up as two separate motions that share the time. Use g = 9.8 m/s² and ignore air resistance. Answers within 2% are right.',
         asideName: 'Formulas', aside: projectileFormulas,

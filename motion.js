@@ -54,8 +54,8 @@ const templates = [
         topic: T.graph, text: `A ${ball} is dropped and bounces. The graph shows its velocity, with downward as positive, from the moment it is let go until it reaches the top of its bounce, ${num(t1 + t2)} s later. ${type === 0 ? 'What total distance does it travel?' : 'At the top of the bounce, how far below the point it was dropped from is it?'}`,
         figure: vt(pts, { points: [[t1, v1, `(${num(t1)} s, ${num(v1)} m/s)`], [t1, -v2, `(${num(t1)} s, −${num(v2)} m/s)`], [round(t1 + t2, 4), 0, '']] }),
         answer: numAns(type === 0 ? down + up : down - up, 'm'),
-        solution: `Falling: the triangle above the axis has area ½ × ${num(t1)} × ${num(v1)} = ${num(down)} m. Rising: the triangle below has area ½ × ${num(t2)} × ${num(v2)} = ${num(up)} m.`
-          + (type === 0 ? ` Distance counts both: ${num(down)} + ${num(up)} = <b>${num(down + up)} m</b>.` : ` Displacement subtracts the part below the axis (it moved back up): ${num(down)} − ${num(up)} = <b>${num(down - up)} m</b> below where it started.`),
+        solution: `Falling: the triangle above the axis has area ½ × ${num(t1)} × ${num(v1)} = ${num(down)} m. Rising: it takes ${num(t1 + t2)} − ${num(t1)} = ${num(t2)} s, so the triangle below has area ½ × ${num(t2)} × ${num(v2)} = ${num(up)} m.`
+          + (type === 0 ? ` Distance counts both, so it is ${num(down)} + ${num(up)} = <b>${num(down + up)} m</b>.` : ` Displacement subtracts the part below the axis (it moved back up), so it is ${num(down)} − ${num(up)} = <b>${num(down - up)} m</b> below where it started.`),
         meta: { type: type === 0 ? 'bounce-distance' : 'bounce-displacement', in: { t1, e } },
       };
     }
@@ -67,8 +67,8 @@ const templates = [
       topic: T.graph, text: `The graph shows the velocity of a ${who} on a straight path: forward, then slowing, stopping and coming back. ${type === 2 ? `What total distance does the ${who} cover in the ${t5} s?` : `How far from the starting point is the ${who} after ${t5} s?`}`,
       figure: vt(pts, { points: [[t1, V, true], [t2, V, true], [t3, 0, true], [t4, -U, true], [t5, -U, true]] }),
       answer: numAns(type === 2 ? fwd + back : fwd - back, 'm'),
-      solution: `Area above the axis (going forward): ½ × ${t1} × ${V} + ${b} × ${V} + ½ × 2 × ${V} = ${num(fwd)} m. Area below (coming back): ½ × 2 × ${U} + 2 × ${U} = ${num(back)} m.`
-        + (type === 2 ? ` Distance adds them: <b>${num(fwd + back)} m</b>.` : ` Displacement subtracts the way back: ${num(fwd)} − ${num(back)} = <b>${num(fwd - back)} m</b> from the start.`),
+      solution: `The area above the axis (going forward) is ½ × ${t1} × ${V} + ${b} × ${V} + ½ × 2 × ${V} = ${num(fwd)} m. The area below (coming back) is ½ × 2 × ${U} + 2 × ${U} = ${num(back)} m.`
+        + (type === 2 ? ` Distance adds them: ${num(fwd)} + ${num(back)} = <b>${num(fwd + back)} m</b>.` : ` Displacement subtracts the way back: ${num(fwd)} − ${num(back)} = <b>${num(fwd - back)} m</b> from the start.`),
       meta: { type: type === 2 ? 'reverse-distance' : 'reverse-displacement', in: { V, U, a, b } },
     };
   },
@@ -85,7 +85,7 @@ const templates = [
       return {
         topic: T.down, text: `A ball is thrown straight down at ${num(u)} m/s from a point ${h} m above the ground. How fast is it moving when it hits the ground?`,
         answer: numAns(v, 'm/s'),
-        solution: `Down is positive: v² = u² + 2gh = ${num(u)}² + 2 × 9.8 × ${h} = ${num(v * v)}, so v = <b>${num(v)} m/s</b>.`,
+        solution: `Taking down as positive, v² = u² + 2gh = ${num(u)}² + 2 × 9.8 × ${h} = ${num(v * v)}. So v = √${num(v * v)} = <b>${num(v)} m/s</b>.`,
         meta: { type: 'down-speed', in: { u, h } },
       };
     }
@@ -93,7 +93,7 @@ const templates = [
       return {
         topic: T.down, text: `A ball is thrown straight down at ${num(u)} m/s from a point ${h} m above the ground. How long does it take to reach the ground?`,
         answer: numAns(t, 's'),
-        solution: `First the landing speed: v = √(${num(u)}² + 2 × 9.8 × ${h}) = ${num(v)} m/s. Then v = u + gt gives t = (${num(v)} − ${num(u)}) ÷ 9.8 = <b>${num(t)} s</b>.`,
+        solution: `First find the landing speed, v = √(${num(u)}² + 2 × 9.8 × ${h}) = ${num(v)} m/s. Then v = u + gt gives t = (${num(v)} − ${num(u)}) ÷ 9.8 = <b>${num(t)} s</b>.`,
         meta: { type: 'down-time', in: { u, h } },
       };
     }
@@ -102,7 +102,7 @@ const templates = [
       return {
         topic: T.down, text: `A stone thrown straight down from a bridge at ${num(u)} m/s hits the water at ${num(vv)} m/s. How high is the bridge above the water?`,
         answer: numAns(hh, 'm'),
-        solution: `v² = u² + 2gh, so h = (v² − u²) ÷ 2g = (${num(vv)}² − ${num(u)}²) ÷ 19.6 = <b>${num(hh)} m</b>.`,
+        solution: `v² = u² + 2gh, so h = (v² − u²) ÷ (2g) = (${num(vv)}² − ${num(u)}²) ÷ 19.6 = <b>${num(hh)} m</b>.`,
         meta: { type: 'down-height', in: { u, v: vv } },
       };
     }
@@ -110,7 +110,7 @@ const templates = [
     return {
       topic: T.down, text: `From ${h} m up, one ball is dropped and another is thrown straight down at ${num(u)} m/s at the same moment. How much sooner does the thrown ball land?`,
       answer: numAns(td - t, 's'),
-      solution: `Dropped: t = √(2 × ${h} / 9.8) = ${num(td)} s. Thrown: it lands at √(${num(u)}² + 2 × 9.8 × ${h}) = ${num(v)} m/s, after (${num(v)} − ${num(u)}) ÷ 9.8 = ${num(t)} s. Difference: <b>${num(td - t)} s</b>.`,
+      solution: `Dropped: t = √(2 × ${h} / 9.8) = ${num(td)} s. Thrown: it lands at √(${num(u)}² + 2 × 9.8 × ${h}) = ${num(v)} m/s, after (${num(v)} − ${num(u)}) ÷ 9.8 = ${num(t)} s. Difference: ${num(td)} − ${num(t)} = <b>${num(td - t)} s</b>.`,
       meta: { type: 'down-sooner', in: { u, h } },
     };
   },
@@ -138,7 +138,7 @@ const templates = [
       return {
         topic: T.rest, text: `A ${who} starts from rest and covers ${s} m in the first ${t} s, speeding up steadily. How fast is the ${who} going ${TT} s after starting?`,
         answer: numAns(v, 'm/s'),
-        solution: `a = 2s/t² = 2 × ${s} / ${t}² = ${num(a, 3)} m/s², so after ${TT} s, v = at = ${num(a, 3)} × ${TT} = <b>${num(v)} m/s</b>.`,
+        solution: `From rest, s = ½at², so a = 2s/t² = 2 × ${s} / ${t}² = ${num(a, 3)} m/s². After ${TT} s, v = at = ${num(a, 3)} × ${TT} = <b>${num(v)} m/s</b>.`,
         meta: { type: 'speed-after', in: { s, t, TT } },
       };
     }
@@ -147,12 +147,12 @@ const templates = [
       return {
         topic: T.rest, text: `A ${who} starts from rest and covers ${s} m in the first ${t} s, speeding up steadily. How far does the ${who} go before reaching ${V} m/s?`,
         answer: numAns(x, 'm'),
-        solution: `a = 2s/t² = ${num(a, 3)} m/s². From rest, v² = 2as, so s = ${V}² ÷ (2 × ${num(a, 3)}) = <b>${num(x)} m</b>.`,
+        solution: `From rest, s = ½at², so a = 2s/t² = 2 × ${s} / ${t}² = ${num(a, 3)} m/s². Then v² = 2as gives s = ${V}² ÷ (2 × ${num(a, 3)}) = <b>${num(x)} m</b>.`,
         meta: { type: 'distance-to-speed', in: { s, t, V } },
       };
     }
     return {
-      topic: T.rest, text: `A ${who} starts from rest and speeds up steadily, covering ${s} m in ${t} s. What is the ${who}'s acceleration?`,
+      topic: T.rest, text: `A ${who} starts from rest and speeds up steadily, covering ${s} m in ${t} s. What is the ${who}’s acceleration?`,
       answer: numAns(a, 'm/s²'),
       solution: `From rest, s = ½at², so a = 2s/t² = 2 × ${s} ÷ ${t}² = <b>${num(a)} m/s²</b>.`,
       meta: { type: 'accel-from-rest', in: { s, t } },
@@ -174,7 +174,7 @@ const templates = [
       return {
         topic: T.checkpoints, text: `${setup}, ${t} s apart. Its speed at the first checkpoint is ${u} m/s. What is its acceleration?`,
         answer: numAns(a, 'm/s²'),
-        solution: `s = ut + ½at²: ${s} = ${u} × ${t} + ½ × a × ${t}², so a = 2(${s} − ${u * t}) ÷ ${t * t} = <b>${num(a)} m/s²</b>.`,
+        solution: `Use s = ut + ½at² with u = ${u} m/s and t = ${t} s, so ${s} = ${u} × ${t} + ½ × a × ${t}² = ${u * t} + ${num((t * t) / 2)}a. So a = (${s} − ${u * t}) ÷ ${num((t * t) / 2)} = <b>${num(a)} m/s²</b>.`,
         meta: { type: 'checkpoint-accel', in: { s, t, u } },
       };
     }
@@ -190,7 +190,7 @@ const templates = [
       return {
         topic: T.checkpoints, text: `${setup}, ${t} s apart. It passes the second checkpoint at ${num(v)} m/s. How fast was it going at the first?`,
         answer: numAns(u, 'm/s'),
-        solution: `${s} = ½(u + ${num(v)}) × ${t}, so u = 2 × ${s} ÷ ${t} − ${num(v)} = <b>${num(u)} m/s</b>.`,
+        solution: `With steady acceleration, distance = average speed × time: ${s} = ½(u + ${num(v)}) × ${t}, so u = 2 × ${s} ÷ ${t} − ${num(v)} = <b>${num(u)} m/s</b>.`,
         meta: { type: 'checkpoint-u', in: { s, t, v } },
       };
     }
@@ -211,7 +211,8 @@ const templates = [
       return {
         topic: T.caught, text: `A stone is thrown straight up at ${u} m/s and caught on its way down at a point ${h} m above where it was thrown. How fast is it moving when it is caught?`,
         answer: numAns(vAt, 'm/s'),
-        solution: `v² = u² − 2gh = ${u}² − 2 × 9.8 × ${h} = ${num(vAt * vAt)}, so the speed is <b>${num(vAt)} m/s</b> (moving down).`,
+        solution: `Taking up as positive, v² = u² − 2gh = ${u}² − 2 × 9.8 × ${h} = ${num(vAt * vAt)} at that height. So the speed is √${num(vAt * vAt)} = <b>${num(vAt)} m/s</b> (moving down).`,
+        tip: 'Use v² = u² − 2gh: at a given height the speed is the same on the way up and on the way down.',
         meta: { type: 'caught-speed', in: { u, h } },
       };
     }
@@ -219,13 +220,13 @@ const templates = [
       return {
         topic: T.caught, text: `A stone is thrown straight up at ${u} m/s and caught on its way down at a point ${h} m above where it was thrown. How long was it in the air?`,
         answer: numAns(down, 's'),
-        solution: `h = ut − ½gt²: ${h} = ${u}t − 4.9t². It is at ${h} m twice, on the way up and on the way down. Caught on the way down is the later root: t = (${u} + √(${u}² − 2 × 9.8 × ${h})) ÷ 9.8 = <b>${num(down)} s</b>.`,
+        solution: `Using h = ut − ½gt², ${h} = ${u}t − 4.9t². It is at ${h} m twice, on the way up and on the way down. Caught on the way down is the later root: t = (${u} + √(${u}² − 2 × 9.8 × ${h})) ÷ 9.8 = <b>${num(down)} s</b>.`,
         meta: { type: 'caught-time', in: { u, h } },
       };
     }
     if (type === 2) {
       return {
-        topic: T.caught, text: `A ball is thrown straight up at ${u} m/s. How long after it is thrown does it first pass a window ${h} m above the thrower's hand?`,
+        topic: T.caught, text: `A ball is thrown straight up at ${u} m/s. How long after it is thrown does it first pass a window ${h} m above the thrower’s hand?`,
         answer: numAns(up, 's'),
         solution: `${h} = ${u}t − 4.9t² has two roots; the first, on the way up, is t = (${u} − √(${u}² − 2 × 9.8 × ${h})) ÷ 9.8 = <b>${num(up)} s</b>. (It passes again on the way down at ${num(down)} s.)`,
         meta: { type: 'first-pass', in: { u, h } },
@@ -235,7 +236,8 @@ const templates = [
     return {
       topic: T.caught, text: `From a balcony, a ball is thrown straight up at ${u} m/s. On the way down it falls past the balcony and is caught ${h} m below it. How fast is it moving when caught?`,
       answer: numAns(vb, 'm/s'),
-      solution: `It comes back past the balcony at ${u} m/s (the way down mirrors the way up), then falls ${h} m more: v² = ${u}² + 2 × 9.8 × ${h}, so v = <b>${num(vb)} m/s</b>.`,
+      solution: `It comes back past the balcony at ${u} m/s (the way down mirrors the way up), then falls ${h} m more: v² = ${u}² + 2 × 9.8 × ${h} = ${num(vb * vb)}, so v = √${num(vb * vb)} = <b>${num(vb)} m/s</b>.`,
+      tip: 'On the way down it passes the balcony at the speed it was thrown, then speeds up over the extra drop.',
       meta: { type: 'caught-below', in: { u, h } },
     };
   },
@@ -249,7 +251,7 @@ const templates = [
       return {
         topic: T.sections, text: `A ${who} with constant acceleration passes points A, B and C on a straight road, taking ${t} s for each of AB and BC. It passes B at ${num(vB)} m/s, and AB is ${p}/${q} of BC. What is its acceleration?`,
         answer: numAns(a, 'm/s²'),
-        solution: `Measure from B. AB = ${num(vB)} × ${t} − ½a × ${t}² (it was slower before B) and BC = ${num(vB)} × ${t} + ½a × ${t}². Setting ${q} × AB = ${p} × BC: ${q}(${num(vB * t)} − ${t * t / 2}a) = ${p}(${num(vB * t)} + ${t * t / 2}a), so a = <b>${num(a)} m/s²</b>.`,
+        solution: `Measuring from B, AB = ${num(vB)} × ${t} − ½a × ${t}² (it was slower before B) and BC = ${num(vB)} × ${t} + ½a × ${t}². AB is ${p}/${q} of BC, so ${q} × AB = ${p} × BC, which gives ${q}(${num(vB * t)} − ${num((t * t) / 2)}a) = ${p}(${num(vB * t)} + ${num((t * t) / 2)}a). Multiplying out, ${num(q * vB * t)} − ${num((q * t * t) / 2)}a = ${num(p * vB * t)} + ${num((p * t * t) / 2)}a. Gathering the a terms, ${num((q - p) * vB * t)} = ${num(((p + q) * t * t) / 2)}a, so a = ${num((q - p) * vB * t)} ÷ ${num(((p + q) * t * t) / 2)} = <b>${num(a)} m/s²</b>.`,
         meta: { type: 'ratio-accel', in: { p, q, vB, t } },
       };
     }
@@ -261,7 +263,7 @@ const templates = [
       answer: type === 1 ? numAns(a, 'm/s²') : type === 2 ? numAns(vB, 'm/s') : numAns(vA, 'm/s'),
       solution: type === 1 ? `In equal times, the distances differ by at²: ${s2} − ${s1} = a × ${t}², so a = ${gap} ÷ ${t * t} = <b>${num(a)} m/s²</b>.`
         : type === 2 ? `B is the middle moment of the ${2 * t} s, and with steady acceleration the speed then is the average speed over it: (${s1} + ${s2}) ÷ ${2 * t} = <b>${num(vB)} m/s</b>.`
-          : `The speed at B is (${s1} + ${s2}) ÷ ${2 * t} = ${num(vB)} m/s and a = (${s2} − ${s1}) ÷ ${t}² = ${num(a)} m/s². A was ${t} s earlier: ${num(vB)} − ${num(a)} × ${t} = <b>${num(vA)} m/s</b>.`,
+          : `The speed at B is (${s1} + ${s2}) ÷ ${2 * t} = ${num(vB)} m/s and a = (${s2} − ${s1}) ÷ ${t}² = ${num(a)} m/s². A was ${t} s earlier, so its speed there was ${num(vB)} − ${num(a)} × ${t} = <b>${num(vA)} m/s</b>.`,
       meta: { type: ['', 'sections-accel', 'sections-vB', 'sections-vA'][type], in: { s1, s2, t } },
     };
   },
@@ -283,7 +285,7 @@ const templates = [
     return {
       topic: T.top, text: `A ball thrown straight up reaches ${num(H)} m above the point where it was released. ${type === 2 ? 'How fast was it thrown?' : 'How long did it take to get that high?'}`,
       answer: type === 2 ? numAns(u, 'm/s') : numAns(t, 's'),
-      solution: type === 2 ? `At the top v = 0: 0 = u² − 2gH, so u = √(2 × 9.8 × ${num(H)}) = <b>${num(u)} m/s</b>.` : `The way up takes as long as falling back down from rest: H = ½gt², so t = √(2 × ${num(H)} / 9.8) = <b>${num(t)} s</b>.`,
+      solution: type === 2 ? `At the top v = 0, so 0 = u² − 2gH and u = √(2 × 9.8 × ${num(H)}) = <b>${num(u)} m/s</b>.` : `The way up takes as long as falling back down from rest: H = ½gt², so t = √(2 × ${num(H)} / 9.8) = <b>${num(t)} s</b>.`,
       meta: { type: type === 2 ? 'speed-from-height' : 'time-from-height', in: { H } },
     };
   },
@@ -296,7 +298,7 @@ const templates = [
       return {
         topic: T.above, text: `A particle is projected straight up at ${u} m/s from a point ${num(h0)} m above the ground. What is the greatest height above the ground that it reaches?`,
         answer: numAns(top, 'm'),
-        solution: `It rises u² ÷ 2g = ${u}² ÷ 19.6 = ${num((u * u) / (2 * G))} m above its starting point, so ${num(h0)} + ${num((u * u) / (2 * G))} = <b>${num(top)} m</b> above the ground.`,
+        solution: `It rises u² ÷ (2g) = ${u}² ÷ 19.6 = ${num((u * u) / (2 * G))} m above its starting point. So its greatest height is ${num(h0)} + ${num((u * u) / (2 * G))} = <b>${num(top)} m</b> above the ground.`,
         meta: { type: 'top-above-ground', in: { u, h0 } },
       };
     }
@@ -305,7 +307,7 @@ const templates = [
       return {
         topic: T.above, text: `A particle is projected straight up at ${u} m/s from a point ${num(h0)} m above the ground. For how long is it more than ${num(H)} m above the ground?`,
         answer: numAns(dt, 's'),
-        solution: `${num(H)} m above the ground is ${num(H - h0)} m above the start. It is there when ${num(H - h0)} = ${u}t − 4.9t², at two times; between them it is higher. Their difference is 2√(u² − 2g × ${num(H - h0)}) ÷ g = 2√(${u * u} − ${num(2 * G * (H - h0))}) ÷ 9.8 = <b>${num(dt)} s</b>.`,
+        solution: `${num(H)} m above the ground is ${num(H)} − ${num(h0)} = ${num(H - h0)} m above the start. It is there when ${num(H - h0)} = ${u}t − 4.9t², at two times; between them it is higher. The quadratic formula gives t = (${u} ± √(${u}² − 2 × 9.8 × ${num(H - h0)})) ÷ 9.8, so the two times differ by 2√(${u * u} − ${num(2 * G * (H - h0))}) ÷ 9.8 = <b>${num(dt)} s</b>.`,
         meta: { type: 'time-above', in: { u, h0, H } },
       };
     }
@@ -313,8 +315,8 @@ const templates = [
     return {
       topic: T.above, text: `A particle is projected straight up at ${u} m/s from a point ${num(h0)} m above the ground. ${type === 2 ? 'How long is it until it hits the ground?' : 'How fast is it moving when it hits the ground?'}`,
       answer: type === 2 ? numAns(t, 's') : numAns(vg, 'm/s'),
-      solution: type === 2 ? `Up positive, the ground is ${num(h0)} m below: −${num(h0)} = ${u}t − 4.9t². The positive root: t = (${u} + √(${u}² + 2 × 9.8 × ${num(h0)})) ÷ 9.8 = <b>${num(t)} s</b>.`
-        : `v² = u² + 2g × ${num(h0)} (it ends ${num(h0)} m below where it started) = ${u}² + ${num(2 * G * h0)}, so v = <b>${num(vg)} m/s</b>.`,
+      solution: type === 2 ? `Taking up as positive, the ground is ${num(h0)} m below, so −${num(h0)} = ${u}t − 4.9t². The positive root is t = (${u} + √(${u}² + 2 × 9.8 × ${num(h0)})) ÷ 9.8 = <b>${num(t)} s</b>.`
+        : `It ends ${num(h0)} m below where it started, so v² = u² + 2g × ${num(h0)} = ${u}² + ${num(2 * G * h0)} = ${num(u * u + 2 * G * h0)}. So v = √${num(u * u + 2 * G * h0)} = <b>${num(vg)} m/s</b>.`,
       meta: { type: type === 2 ? 'time-to-ground' : 'speed-at-ground', in: { u, h0 } },
     };
   },
@@ -329,25 +331,25 @@ const templates = [
     });
     const V = s2 / t2, a = (V * V) / (2 * s1), tA = V / a, tC = V / (k * a), who = VEHICLES[ctx.k % VEHICLES.length];
     const setup = `A ${who} starts from rest and speeds up at a steady a m/s² for ${s1} m, then travels ${s2} m at a constant speed, which takes ${t2} s, then brakes to rest at a steady ${k}a m/s².`;
-    const find = `The cruise gives the top speed: V = ${s2} ÷ ${t2} = ${num(V)} m/s. Speeding up from rest over ${s1} m: V² = 2a × ${s1}, so a = ${num(V)}² ÷ ${2 * s1} = ${num(a)} m/s².`;
-    if (type === 0) return { topic: T.stages, text: `${setup} Find a.`, answer: numAns(a, 'm/s²'), solution: find.replace(`${num(a)} m/s².`, `<b>${num(a)} m/s²</b>.`), meta: { type: 'stages-a', in: { s1, s2, t2, k } } };
+    const find = `The cruise gives the top speed, V = ${s2} ÷ ${t2} = ${num(V)} m/s. Speeding up from rest over ${s1} m, V² = 2a × ${s1}, so a = ${num(V)}² ÷ ${2 * s1} = ${num(a, 3)} m/s².`;
+    if (type === 0) return { topic: T.stages, text: `${setup} Find a.`, answer: numAns(a, 'm/s²'), solution: find.replace(`${num(a, 3)} m/s².`, `<b>${num(a, 3)} m/s²</b>.`), meta: { type: 'stages-a', in: { s1, s2, t2, k } } };
     if (type === 1) {
       return {
         topic: T.stages, text: `${setup} For how long is it moving altogether?`, answer: numAns(tA + t2 + tC, 's'),
-        solution: `${find} Speeding up takes V ÷ a = ${num(tA)} s and braking V ÷ ${k}a = ${num(tC)} s. Total: ${num(tA)} + ${t2} + ${num(tC)} = <b>${num(tA + t2 + tC)} s</b>.`,
+        solution: `${find} Speeding up takes V ÷ a = ${num(V)} ÷ ${num(a, 3)} = ${num(tA)} s, and braking at ${k}a takes 1/${k} as long, ${num(tA)} ÷ ${k} = ${num(tC)} s. Total: ${num(tA)} + ${t2} + ${num(tC)} = <b>${num(tA + t2 + tC)} s</b>.`,
         meta: { type: 'stages-time', in: { s1, s2, t2, k } },
       };
     }
     if (type === 2) {
       return {
         topic: T.stages, text: `${setup} How far does it travel altogether?`, answer: numAns(s1 + s2 + s1 / k, 'm'),
-        solution: `${find} Braking at ${k}a from V takes V² ÷ (2 × ${k}a) = ${num(s1 / k)} m (1/${k} of the ${s1} m it took to speed up). Total: ${s1} + ${s2} + ${num(s1 / k)} = <b>${num(s1 + s2 + s1 / k)} m</b>.`,
+        solution: `${find} Braking at ${k}a from V takes V² ÷ (2 × ${k}a) = ${num(V)}² ÷ (2 × ${num(k * a, 3)}) = ${num(s1 / k)} m (1/${k} of the ${s1} m it took to speed up). Total: ${s1} + ${s2} + ${num(s1 / k)} = <b>${num(s1 + s2 + s1 / k)} m</b>.`,
         meta: { type: 'stages-distance', in: { s1, s2, t2, k } },
       };
     }
     return {
       topic: T.stages, text: `${setup} How long does the braking take?`, answer: numAns(tC, 's'),
-      solution: `${find} Braking at ${k} × ${num(a)} = ${num(k * a)} m/s² from ${num(V)} m/s takes ${num(V)} ÷ ${num(k * a)} = <b>${num(tC)} s</b>.`,
+      solution: `${find} Braking at ${k} × ${num(a, 3)} = ${num(k * a, 3)} m/s² from ${num(V)} m/s takes ${num(V)} ÷ ${num(k * a, 3)} = <b>${num(tC)} s</b>.`,
       meta: { type: 'stages-brake-time', in: { s1, s2, t2, k } },
     };
   },
@@ -369,13 +371,13 @@ const templates = [
       { at: [ends[2], V], x: type < 2 ? '' : num(ends[2]) }, { at: [ends[3], 0], x: type < 2 ? '' : num(ends[3]) },
     ]);
     if (type === 0) {
-      return { topic: T.puzzle, text: `${describe} Find T.`, figure: fig, answer: numAns(TT, 's'), solution: `The first part's slope is the acceleration: ${V1} ÷ T = ${num(acc)}, so T = <b>${num(TT)} s</b>.`, meta: { type: 'puzzle-T', in: { V1, acc } } };
+      return { topic: T.puzzle, text: `${describe} Find T.`, figure: fig, answer: numAns(TT, 's'), solution: `The first part’s slope is the acceleration: ${V1} ÷ T = ${num(acc)}, so T = <b>${num(TT)} s</b>.`, meta: { type: 'puzzle-T', in: { V1, acc } } };
     }
     if (type === 1) {
       return {
         topic: T.puzzle, text: `${describe} The distance it covers before it starts moving at a constant speed is one third of its total distance. Find V.`, figure: fig,
         answer: numAns(V, 'm/s'),
-        solution: `T = ${V1} ÷ ${num(acc)} = ${num(TT)} s. Distance before the constant speed: ½ × ${num(TT)} × ${V1} + ½(${V1} + V) × ${t2}. After it: ${num(t3)}V + ½ × ${t4} × V. One third of the total means the part after is twice the part before: ${num(t3)}V + ${num(t4 / 2)}V = 2(${num(0.5 * V1 * TT)} + ${num(t2 / 2)}(${V1} + V)), so ${num(t3 + t4 / 2 - t2)}V = ${num(V1 * TT + V1 * t2)} and V = <b>${num(V)} m/s</b>.`,
+        solution: `T = ${V1} ÷ ${num(acc)} = ${num(TT)} s. The distance before the constant speed is ½ × ${num(TT)} × ${V1} + ½(${V1} + V) × ${t2}. The distance after it is ${num(t3)}V + ½ × ${t4} × V. One third of the total means the part after is twice the part before: ${num(t3)}V + ${num(t4 / 2)}V = 2(${num(0.5 * V1 * TT)} + ${num(t2 / 2)}(${V1} + V)). Multiplying out, ${num(t3 + t4 / 2)}V = ${num(V1 * TT + V1 * t2)} + ${t2}V, so ${num(t3 + t4 / 2 - t2)}V = ${num(V1 * TT + V1 * t2)} and V = <b>${num(V)} m/s</b>.`,
         meta: { type: 'puzzle-V', in: { V1, acc, t2, t3, t4 } },
       };
     }
@@ -407,7 +409,7 @@ const templates = [
     }), s = 0.5 * (u + v) * t;
     const from = u === 0 ? 'from rest' : `from ${u} m/s`;
     if (type === 0) return { topic: T.average, text: `A ${who} speeds up steadily ${from} to ${v} m/s in ${t} s. How far does it travel in that time?`, answer: numAns(s, 'm'), solution: `Average speed = ½(${u} + ${v}) = ${num((u + v) / 2)} m/s, so s = ${num((u + v) / 2)} × ${t} = <b>${num(s)} m</b>.`, meta: { type: 'average-distance', in: { u, v, t } } };
-    if (type === 1) return { topic: T.average, text: `A ${who} speeds up steadily ${from} to ${v} m/s while covering ${num(s)} m. How long does that take?`, answer: numAns(t, 's'), solution: `t = s ÷ average speed = ${num(s)} ÷ ½(${u} + ${v}) = <b>${num(t)} s</b>.`, meta: { type: 'average-time', in: { u, v, s } } };
+    if (type === 1) return { topic: T.average, text: `A ${who} speeds up steadily ${from} to ${v} m/s while covering ${num(s)} m. How long does that take?`, answer: numAns(t, 's'), solution: `Average speed = ½(${u} + ${v}) = ${num((u + v) / 2)} m/s. So t = s ÷ average speed = ${num(s)} ÷ ${num((u + v) / 2)} = <b>${num(t)} s</b>.`, meta: { type: 'average-time', in: { u, v, s } } };
     return { topic: T.average, text: u === 0 ? `A ${who} starts from rest, speeds up steadily and covers ${num(s)} m in ${t} s. How fast is it going at the end?` : `A ${who} moving at ${u} m/s speeds up steadily and covers ${num(s)} m in the next ${t} s. How fast is it going at the end?`, answer: numAns(v, 'm/s'), solution: `s = ½(u + v)t, so v = 2s ÷ t − u = 2 × ${num(s)} ÷ ${t} − ${u} = <b>${num(v)} m/s</b>.`, meta: { type: 'average-final', in: { u, s, t } } };
   },
 
@@ -420,17 +422,17 @@ const templates = [
       return {
         topic: T.bounce, text: `A ball is dropped from ${num(h)} m. It is in contact with the floor for ${ms} ms and leaves it at ${num(v2)} m/s upward. What is the size of its average acceleration while in contact?`,
         answer: numAns(acc, 'm/s²'),
-        solution: `It hits the floor at √(2 × 9.8 × ${num(h)}) = ${num(v1)} m/s downward. Its velocity goes from ${num(v1)} m/s down to ${num(v2)} m/s up, a change of ${num(v1)} + ${num(v2)} = ${num(v1 + v2)} m/s, in ${num(ms / 1000, 3)} s: a = <b>${num(acc)} m/s²</b>.`,
+        solution: `It hits the floor at √(2 × 9.8 × ${num(h)}) = ${num(v1)} m/s downward. Its velocity goes from ${num(v1)} m/s down to ${num(v2)} m/s up, a change of ${num(v1)} + ${num(v2)} = ${num(v1 + v2)} m/s. That takes ${ms} ms = ${num(ms / 1000, 3)} s, so a = ${num(v1 + v2)} ÷ ${num(ms / 1000, 3)} = <b>${num(acc, 0)} m/s²</b>.`,
         meta: { type: 'contact-accel', in: { h, v2, ms } },
       };
     }
     const [v2] = turn(ctx, 4, [[2.5, 3, 3.5, 4, 4.2, 5, 6]]), H = (v2 * v2) / (2 * G);
-    if (type === 0) return { topic: T.bounce, text: `A ball leaves the ground at ${num(v2)} m/s straight up after a bounce. How high does it rise?`, answer: numAns(H, 'm'), solution: `At the top v = 0: 0 = ${num(v2)}² − 2gH, so H = ${num(v2)}² ÷ 19.6 = <b>${num(H)} m</b>.`, meta: { type: 'rebound-height', in: { v2 } } };
+    if (type === 0) return { topic: T.bounce, text: `A ball leaves the ground at ${num(v2)} m/s straight up after a bounce. How high does it rise?`, answer: numAns(H, 'm'), solution: `At the top v = 0, so 0 = ${num(v2)}² − 2gH. So H = ${num(v2)}² ÷ 19.6 = <b>${num(H)} m</b>.`, tip: 'At the top of the bounce v = 0, so v² = u² − 2gH gives the height.', meta: { type: 'rebound-height', in: { v2 } } };
     if (type === 2) {
       const Hh = round(H, 2), v = Math.sqrt(2 * G * Hh);
-      return { topic: T.bounce, text: `After a bounce, a ball rises ${num(Hh)} m above the ground. How fast did it leave the ground?`, answer: numAns(v, 'm/s'), solution: `0 = v² − 2g × ${num(Hh)}, so v = √(2 × 9.8 × ${num(Hh)}) = <b>${num(v)} m/s</b>.`, meta: { type: 'rebound-speed', in: { H: Hh } } };
+      return { topic: T.bounce, text: `After a bounce, a ball rises ${num(Hh)} m above the ground. How fast did it leave the ground?`, answer: numAns(v, 'm/s'), solution: `At the top v = 0, so 0 = v² − 2g × ${num(Hh)} and v = √(2 × 9.8 × ${num(Hh)}) = <b>${num(v)} m/s</b>.`, tip: 'At the top of the bounce v = 0, so v² = u² − 2gH, read backwards, gives the speed it left with.', meta: { type: 'rebound-speed', in: { H: Hh } } };
     }
-    return { topic: T.bounce, text: `A ball leaves the ground at ${num(v2)} m/s straight up after a bounce. How long does it take to reach the top of the bounce?`, answer: numAns(v2 / G, 's'), solution: `Gravity takes away 9.8 m/s every second: ${num(v2)} ÷ 9.8 = <b>${num(v2 / G)} s</b>.`, meta: { type: 'rebound-time', in: { v2 } } };
+    return { topic: T.bounce, text: `A ball leaves the ground at ${num(v2)} m/s straight up after a bounce. How long does it take to reach the top of the bounce?`, answer: numAns(v2 / G, 's'), solution: `Gravity takes away 9.8 m/s every second until it stops at the top, so that takes ${num(v2)} ÷ 9.8 = <b>${num(v2 / G)} s</b>.`, tip: 'Gravity takes 9.8 m/s off the upward speed every second until it is zero at the top.', meta: { type: 'rebound-time', in: { v2 } } };
   },
 ];
 

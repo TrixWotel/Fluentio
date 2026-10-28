@@ -14,6 +14,7 @@ const apart = (answer, ...given) => given.every((x) => Math.abs(Math.abs(answer)
 const atan = (y, x) => deg(Math.atan(y / x));
 const sin = (a) => Math.sin((a * Math.PI) / 180), cos = (a) => Math.cos((a * Math.PI) / 180);
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
+const and = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);   // a, b and c
 const signed = (v, unit = '') => `${num(v)}${unit}`;   // (num writes a proper minus sign)
 // numbers in working that read right when they're negative: (−7)², 4 − 1 rather than 4 + −1, 2 × (−1)
 const sq = (v) => (v < 0 ? `(${num(v)})²` : `${num(v)}²`);
@@ -64,8 +65,8 @@ const templates = [
       return {
         topic: T.kinds, text: stem, answer: oneOf(d, cap(right), wrongs.map(cap)),
         solution: type === 0
-          ? `A vector has a size and a direction. <b>${cap(right)}</b> is a vector: ${WHY[right]}. ${wrongs.map(cap).join(', ')} only have a size, so they are scalars.`
-          : `A scalar has a size only. <b>${cap(right)}</b> is a scalar: it never points anywhere. ${wrongs.map(cap).join(', ')} are vectors, since each has a direction.`,
+          ? `A vector has a size and a direction. <b>${cap(right)}</b> is a vector, since ${WHY[right]}. ${cap(and(wrongs))} only have a size, so they are scalars.`
+          : `A scalar has a size only. <b>${cap(right)}</b> is a scalar, since it never points anywhere. ${cap(and(wrongs))} are vectors, since each has a direction.`,
         meta: { type: type === 0 ? 'pick-vector' : 'pick-scalar' },
       };
     }
@@ -73,11 +74,11 @@ const templates = [
     const PAIR = { velocity: 'speed', speed: 'velocity', displacement: 'distance', distance: 'displacement', force: 'acceleration', acceleration: 'velocity' };
     const SAY = [
       ['velocity', (n) => `The wind blows at ${n} km/h from the west.`, 'It gives a size and a direction (from the west)', [20, 25, 30, 40]],
-      ['speed', (n) => `A car's speedometer reads ${n} km/h.`, 'A speedometer only tells you how fast, not which way', [40, 50, 60, 80]],
+      ['speed', (n) => `A car’s speedometer reads ${n} km/h.`, 'A speedometer only tells you how fast, not which way', [40, 50, 60, 80]],
       ['displacement', (n) => `A runner finishes ${n} m east of the starting line.`, 'It says how far and which way from the start', [50, 100, 200, 400]],
       ['distance', (n) => `A hiking app says someone has walked ${n} km today.`, 'It counts every step without any direction', [5, 8, 12, 15]],
       ['force', (n) => `A sled is pulled with ${n} N toward the north.`, 'It is a pull with a size and a direction', [40, 60, 80, 120]],
-      ['acceleration', (n) => `A sprinter's speed goes up by ${n} m/s every second, along the track toward the finish.`, 'It is how fast the velocity changes, with a direction', [2, 3, 4, 5]],
+      ['acceleration', (n) => `A sprinter’s speed goes up by ${n} m/s every second, along the track toward the finish.`, 'It is how fast the velocity changes, with a direction', [2, 3, 4, 5]],
     ];
     const [which, i] = turn(ctx, 3, [[0, 1, 2, 3, 4, 5], [0, 1, 2, 3]]);
     const [kind, say, why, ns] = SAY[which], right = LABEL[kind];
@@ -85,7 +86,7 @@ const templates = [
     return {
       topic: T.kinds, text: `${say(ns[i])} What kind of quantity is this?`,
       answer: oneOf(d, right, [LABEL[PAIR[kind]], ...others.map((k) => LABEL[k])]),
-      solution: `${why}, so it is <b>${right}</b>.`,
+      solution: `${why}, so it is <b>${right[0].toLowerCase() + right.slice(1)}</b>.`,
       meta: { type: 'classify' },
     };
   },
@@ -150,7 +151,7 @@ const templates = [
         topic: T.size, text: `A velocity has components v<sub>x</sub> = ${signed(x, ' m/s')} and v<sub>y</sub> = ${signed(y, ' m/s')}. What is its magnitude (the speed)?`,
         figure: vectors(withParts(x, y, 'v'), { unit: 'm/s' }),
         answer: numAns(m, 'm/s'),
-        solution: `The components are at right angles, so the size is the hypotenuse: |v| = √(${sq(x)} + ${sq(y)}) = √${num(x * x + y * y)} = <b>${num(m)} m/s</b>. The signs only say which way each part points: squared, they're positive.`,
+        solution: `The components are at right angles, so the size is the hypotenuse: |v| = √(${sq(x)} + ${sq(y)}) = √${num(x * x + y * y)} = <b>${num(m)} m/s</b>. The signs only say which way each part points, and squared they’re positive anyway.`,
         meta: { type: 'velocity-size', in: { x, y } },
       };
     }
@@ -192,7 +193,7 @@ const templates = [
         topic: T.angle, text: `A vector has components x = −${a} and y = ${b}. What is its direction, measured counterclockwise from the +x axis?`,
         figure: vectors(withParts(-a, b, '?'), { unit: 'units' }),
         answer: numAns(t, '°'),
-        solution: `It points up and to the left (second quadrant). tan⁻¹(${b}/${a}) = ${num(atan(b, a))}° is its angle above the −x axis, so from +x it is 180° − ${num(atan(b, a))}° = <b>${num(t)}°</b>.`,
+        solution: `It points up and to the left (second quadrant). Its angle above the −x axis is tan⁻¹(${b}/${a}) = ${num(atan(b, a))}°, so from +x it is 180° − ${num(atan(b, a))}° = <b>${num(t)}°</b>.`,
         meta: { type: 'second-quadrant', in: { x: -a, y: b } },
       };
     }
@@ -203,8 +204,8 @@ const templates = [
         figure: vectors(withParts(a, b, '?'), { unit: 'km', axes: ['east', 'north'] }),
         answer: numAns(t, '°'),
         solution: fromEast
-          ? `"North of east" is measured from east, so tan θ = north ÷ east = ${b} ÷ ${a}: θ = <b>${num(t)}°</b> north of east.`
-          : `"East of north" is measured from north, so tan θ = east ÷ north = ${a} ÷ ${b}: θ = <b>${num(t)}°</b> east of north.`,
+          ? `“North of east” is measured from east, so tan θ = north ÷ east = ${b} ÷ ${a}. Then θ = tan⁻¹(${b}/${a}) = <b>${num(t)}°</b> north of east.`
+          : `“East of north” is measured from north, so tan θ = east ÷ north = ${a} ÷ ${b}. Then θ = tan⁻¹(${a}/${b}) = <b>${num(t)}°</b> east of north.`,
         meta: { type: fromEast ? 'north-of-east' : 'east-of-north', in: { x: a, y: b } },
       };
     }
@@ -231,7 +232,7 @@ const templates = [
         figure: vectors([{ from: [0, 0], to: [p, 0], label: `${p} N` }, { from: [p, 0], to: [p, q], label: `${q} N`, tone: 1 }, { from: [0, 0], to: [p, q], label: 'R', tone: 2 }], { unit: 'N', axes: ['east', 'north'] }),
         answer: numAns(type === 0 ? R : t, type === 0 ? 'N' : '°'),
         solution: type === 0
-          ? `Put them tip to tail: they make a right angle, so R = √(${p}² + ${q}²) = <b>${num(R)} N</b>.`
+          ? `Put them tip to tail and they make a right angle, so R = √(${p}² + ${q}²) = <b>${num(R)} N</b>.`
           : `tan θ = north ÷ east = ${q} ÷ ${p}, so θ = tan⁻¹(${q}/${p}) = <b>${num(t)}°</b> north of east.`,
         meta: { type: type === 0 ? 'pull-size' : 'pull-angle', in: { p, q } },
       };
@@ -242,7 +243,7 @@ const templates = [
         topic: T.square, text: `A plane points due north and flies at ${va} km/h through the air, while a wind blows it due east at ${vw} km/h. What is its speed over the ground?`,
         figure: vectors([{ from: [0, 0], to: [0, va], label: `${va} km/h` }, { from: [0, va], to: [vw, va], label: `${vw}`, tone: 1 }, { from: [0, 0], to: [vw, va], label: '?', tone: 2 }], { unit: 'km/h', axes: ['east', 'north'] }),
         answer: numAns(g, 'km/h'),
-        solution: `The plane's own velocity and the wind are at right angles: ground speed = √(${va}² + ${vw}²) = <b>${num(g)} km/h</b>.`,
+        solution: `The plane’s own velocity and the wind are at right angles: ground speed = √(${va}² + ${vw}²) = <b>${num(g)} km/h</b>.`,
         meta: { type: 'plane-ground-speed', in: { p: va, q: vw } },
       };
     }
@@ -266,7 +267,7 @@ const templates = [
         topic: T.add, text: `A boat sails ${d1} km due east, then ${d2} km at ${a > 90 ? `${180 - a}° north of west` : `${a}° north of east`}. How far is it from where it started?`,
         figure: vectors([{ from: [0, 0], to: [d1, 0], label: `${d1} km` }, { from: [d1, 0], to: [rx, ry], label: `${d2} km`, tone: 1 }, { from: [0, 0], to: [rx, ry], label: '?', tone: 2 }], { unit: 'km', axes: ['east', 'north'] }),
         answer: numAns(R, 'km'),
-        solution: `${a > 90 ? `${180 - a}° north of west is ${a}° around from east, so the` : 'The'} second leg's east part is ${d2} cos ${a}° = ${num(d2 * cos(a))} km and its north part ${d2} sin ${a}° = ${num(ry)} km. Altogether: ${plus(d1, d2 * cos(a))} = ${num(rx)} km east and ${num(ry)} km north, so the distance is √(${sq(rx)} + ${sq(ry)}) = <b>${num(R)} km</b>.`,
+        solution: `${a > 90 ? `${180 - a}° north of west is ${a}° around from east, so the` : 'The'} second leg’s east part is ${d2} cos ${a}° = ${num(d2 * cos(a))} km and its north part ${d2} sin ${a}° = ${num(ry)} km. Altogether: ${plus(d1, d2 * cos(a))} = ${num(rx)} km east and ${num(ry)} km north, so the distance is √(${sq(rx)} + ${sq(ry)}) = <b>${num(R)} km</b>.`,
         meta: { type: 'two-legs', in: { d1, d2, a } },
       };
     }
@@ -277,10 +278,12 @@ const templates = [
       topic: T.add, text: `Two forces act on a ring: ${F1} N at ${a1}° and ${F2} N at ${a2}° (both measured counterclockwise from the +x axis). ${ask}`,
       figure: vectors([{ from: [0, 0], to: [x1, y1], label: `${F1} N` }, { from: [x1, y1], to: [rx, ry], label: `${F2} N`, tone: 1 }, { from: [0, 0], to: [rx, ry], label: 'R', tone: 2 }], { unit: 'N' }),
       answer: type === 1 ? numAns(rx, 'N') : type === 2 ? numAns(R, 'N') : numAns(t, '°'),
-      solution: `x parts: ${F1} cos ${a1}° + ${F2} cos ${a2}° = ${plus(x1, x2)} = ${num(rx)} N. y parts: ${F1} sin ${a1}° + ${F2} sin ${a2}° = ${plus(y1, y2)} = ${num(ry)} N. `
-        + (type === 1 ? `So R<sub>x</sub> = <b>${num(rx)} N</b>.`
-          : type === 2 ? `Size = √(${sq(rx)} + ${sq(ry)}) = <b>${num(R)} N</b>.`
-            : `tan⁻¹(${num(ry)}/${num(rx)}) gives ${num(deg(Math.atan(ry / rx)))}°${rx < 0 ? ', and since R<sub>x</sub> is negative it points left, so add 180°' : ''}: the direction is <b>${num(t)}°</b>.`),
+      solution: type === 1 ? `R<sub>x</sub> is the sum of the x parts: ${F1} cos ${a1}° + ${F2} cos ${a2}° = ${plus(x1, x2)} = <b>${num(rx)} N</b>.`
+        : `The x parts add to ${F1} cos ${a1}° + ${F2} cos ${a2}° = ${plus(x1, x2)} = ${num(rx)} N. The y parts add to ${F1} sin ${a1}° + ${F2} sin ${a2}° = ${plus(y1, y2)} = ${num(ry)} N. `
+          + (type === 2 ? `Size = √(${sq(rx)} + ${sq(ry)}) = <b>${num(R)} N</b>.`
+            : Math.abs(rx) < 1e-9 ? `R<sub>x</sub> is 0 and R<sub>y</sub> is positive, so it points straight up the +y axis: <b>${num(t)}°</b>.`
+              : rx > 0 ? `So the direction is tan⁻¹(${num(ry)}/${num(rx)}) = <b>${num(t)}°</b>.`
+                : `Then tan⁻¹(${num(ry)}/${num(rx)}) gives ${num(deg(Math.atan(ry / rx)))}°, but R<sub>x</sub> is negative, so it points left: add 180°. So the direction is ${num(deg(Math.atan(ry / rx)))}° + 180° = <b>${num(t)}°</b>.`),
       meta: { type: ['', 'forces-x', 'forces-size', 'forces-angle'][type], in: { F1, a1, F2, a2 } },
     };
   },
@@ -295,7 +298,7 @@ const templates = [
       return {
         topic: T.ij, text: `A = ${ij(a, b)} and B = ${ij(c, e)}. What is the <b>${part}</b>-component of ${sum}?`,
         answer: numAns(value, ''),
-        solution: `Work on the ${part} parts only: ${p} × ${paren(part === 'i' ? a : b)} ${q < 0 ? '−' : '+'} ${Math.abs(q)} × ${paren(part === 'i' ? c : e)} = <b>${num(value)}</b>.`,
+        solution: `Work on the ${part} parts only, so ${p === 1 ? '' : `${p} × `}${paren(part === 'i' ? a : b)} ${q < 0 ? '−' : '+'} ${Math.abs(q) === 1 ? '' : `${Math.abs(q)} × `}${paren(part === 'i' ? c : e)} = <b>${num(value)}</b>.`,
         meta: { type: 'combine', in: { a, b, c, e, p, q, part } },
       };
     }
@@ -317,7 +320,8 @@ const templates = [
         topic: T.ij, text: `A velocity of ${v} m/s at ${a}° above the +x axis is written as (p<b>i</b> + q<b>j</b>) m/s. What is ${part === 'i' ? 'p' : 'q'}?`,
         figure: vectors(withParts(x, y, `${v} m/s`, part === 'i' ? ['p = ?', 'q'] : ['p', 'q = ?']), { unit: 'm/s' }),
         answer: numAns(part === 'i' ? x : y, 'm/s'),
-        solution: part === 'i' ? `p is the x part: ${v} cos ${a}° = <b>${num(x)} m/s</b>.` : `q is the y part: ${v} sin ${a}° = <b>${num(y)} m/s</b>.`,
+        solution: part === 'i' ? `p is the x part, so p = ${v} cos ${a}° = <b>${num(x)} m/s</b>.` : `q is the y part, so q = ${v} sin ${a}° = <b>${num(y)} m/s</b>.`,
+        tip: 'With the angle measured from the +x axis, the i part is v cos θ and the j part is v sin θ.',
         meta: { type: part === 'i' ? 'polar-i' : 'polar-j', in: { v, a } },
       };
     }
@@ -326,7 +330,8 @@ const templates = [
     return {
       topic: T.ij, text: `What is the <b>i</b>-component of the unit vector pointing the same way as ${ij(a, b)}?`,
       answer: numAns(a / m, ''),
-      solution: `A unit vector has size 1: divide by the size, √(${sq(a)} + ${sq(b)}) = ${num(m)}. Its <b>i</b>-component is ${num(a)} ÷ ${num(m)} = <b>${num(a / m)}</b>.`,
+      solution: `A unit vector has size 1, so divide by the size, √(${sq(a)} + ${sq(b)}) = ${num(m)}. Its <b>i</b>-component is ${num(a)} ÷ ${num(m)} = <b>${num(a / m)}</b>.`,
+      tip: 'A unit vector is the vector divided by its own size, so find the size first.',
       meta: { type: 'unit-i', in: { a, b } },
     };
   },
@@ -340,8 +345,8 @@ const templates = [
       return {
         topic: T.change, text: `A ball hits a wall at ${v1} m/s and bounces straight back at ${v2} m/s${type === 3 ? `, touching the wall for ${ms} ms` : ''}. ${type === 0 ? 'What is the size of its change in velocity?' : 'What is the size of its average acceleration while it touches the wall?'}`,
         answer: type === 0 ? numAns(dv, 'm/s') : numAns(acc, 'm/s²'),
-        solution: `Take toward the wall as positive: before +${v1} m/s, after −${v2} m/s. Δv = −${v2} − ${v1} = −${dv} m/s, a size of ${dv} m/s (not ${v1} − ${v2}: the direction flipped).`
-          + (type === 0 ? ` So <b>${dv} m/s</b>.` : ` Average acceleration = Δv ÷ Δt = ${dv} ÷ ${num(ms / 1000, 3)} s = <b>${num(acc)} m/s²</b>.`),
+        solution: `Take toward the wall as positive, so the velocity is +${v1} m/s before and −${v2} m/s after. Then Δv = −${v2} − ${v1} = −${dv} m/s, a size of ${type === 0 ? `<b>${dv} m/s</b>` : `${dv} m/s`} (not ${v1} − ${v2}, because the direction flipped).`
+          + (type === 0 ? '' : ` It touches the wall for ${ms} ms = ${num(ms / 1000, 3)} s, so the average acceleration = Δv ÷ Δt = ${dv} m/s ÷ ${num(ms / 1000, 3)} s = <b>${num(acc)} m/s²</b>.`),
         meta: { type: type === 0 ? 'bounce' : 'bounce-acceleration', in: { v1, v2, ms } },
       };
     }
@@ -352,7 +357,7 @@ const templates = [
         topic: T.change, text: `A car drives east at ${v1} m/s, then turns a corner and drives north at ${v2} m/s. What is the size of its change in velocity?`,
         figure: vectors([{ from: [0, 0], to: [0, v2], label: 'after', tone: 1 }, { from: [0, v2], to: [-v1, v2], label: '−before', tone: 0 }, { from: [0, 0], to: [-v1, v2], label: 'Δv', tone: 2 }], { unit: 'm/s', axes: ['east', 'north'] }),
         answer: numAns(dv, 'm/s'),
-        solution: `Δv = after − before = (${v2} m/s north) + (${v1} m/s west). Those are at right angles, so |Δv| = √(${v1}² + ${v2}²) = <b>${num(dv)} m/s</b>, even though the speed ${v1 === v2 ? "didn't change" : 'changed by only ' + Math.abs(v2 - v1) + ' m/s'}.`,
+        solution: `Δv = after − before = (${v2} m/s north) + (${v1} m/s west). Those are at right angles, so |Δv| = √(${v1}² + ${v2}²) = <b>${num(dv)} m/s</b>, even though the speed ${v1 === v2 ? "didn’t change" : 'changed by only ' + Math.abs(v2 - v1) + ' m/s'}.`,
         meta: { type: 'corner', in: { v1, v2 } },
       };
     }
@@ -363,6 +368,7 @@ const templates = [
       figure: vectors([{ from: [0, 0], to: [a, b], label: 'A' }, { from: [0, 0], to: [c, e], label: 'B', tone: 1 }, { from: [c, e], to: [a, b], label: 'A − B', tone: 2 }], { unit: 'units' }),
       answer: numAns(m, ''),
       solution: `A − B = (${minus(a, c)})<b>i</b> + (${minus(b, e)})<b>j</b> = ${ij(x, y)}. Size: √(${sq(x)} + ${sq(y)}) = <b>${num(m)}</b>.`,
+      tip: 'Subtract part by part, the i parts and then the j parts, then use Pythagoras for the size.',
       meta: { type: 'difference-size', in: { a, b, c, e } },
     };
   },
@@ -379,18 +385,18 @@ const templates = [
     }
     if (type === 1) {
       const t = w / vb;
-      return { topic: T.river, text: `${boat} It points straight across. How long does it take to cross?`, figure: vectors(across, { unit: 'm/s', axes: ['downstream', 'across'] }), answer: numAns(t, 's'), solution: `Only the part of the velocity across the river gets it to the other side, and the current doesn't change that: t = ${w} ÷ ${vb} = <b>${num(t)} s</b>.`, meta: { type: 'cross-time', in: { vb, vc, w } } };
+      return { topic: T.river, text: `${boat} It points straight across. How long does it take to cross?`, figure: vectors(across, { unit: 'm/s', axes: ['downstream', 'across'] }), answer: numAns(t, 's'), solution: `Only the part of the velocity across the river gets it to the other side, and the current doesn’t change that, so t = ${w} ÷ ${vb} = <b>${num(t)} s</b>.`, meta: { type: 'cross-time', in: { vb, vc, w } } };
     }
     if (type === 2) {
       const x = (vc * w) / vb;
-      return { topic: T.river, text: `${boat} It points straight across. How far downstream does it land?`, figure: vectors(across, { unit: 'm/s', axes: ['downstream', 'across'] }), answer: numAns(x, 'm'), solution: `It takes ${w} ÷ ${vb} = ${num(w / vb)} s to cross, and the current carries it ${vc} m/s all that time: ${vc} × ${num(w / vb)} = <b>${num(x)} m</b>.`, meta: { type: 'drift', in: { vb, vc, w } } };
+      return { topic: T.river, text: `${boat} It points straight across. How far downstream does it land?`, figure: vectors(across, { unit: 'm/s', axes: ['downstream', 'across'] }), answer: numAns(x, 'm'), solution: `It takes ${w} ÷ ${vb} = ${num(w / vb)} s to cross, and all that time the current carries it downstream at ${vc} m/s, so it lands ${vc} × ${num(w / vb)} = <b>${num(x)} m</b>.`, meta: { type: 'drift', in: { vb, vc, w } } };
     }
     const a = deg(Math.asin(vc / vb)), straight = Math.sqrt(vb * vb - vc * vc);
     const upstream = [{ from: [0, 0], to: [-vc, straight], label: `${vb} m/s` }, { from: [-vc, straight], to: [0, straight], label: `${vc}`, tone: 1 }, { from: [0, 0], to: [0, straight], label: 'straight across', tone: 2 }];
     if (type === 3) {
-      return { topic: T.river, text: `${boat} At what angle upstream from straight across must it point to land directly opposite where it started?`, figure: vectors(upstream, { unit: 'm/s', axes: ['downstream', 'across'] }), answer: numAns(a, '°'), solution: `Its upstream part must cancel the current: ${vb} sin θ = ${vc}, so θ = sin⁻¹(${vc}/${vb}) = <b>${num(a)}°</b>.`, meta: { type: 'heading', in: { vb, vc, w } } };
+      return { topic: T.river, text: `${boat} At what angle upstream from straight across must it point to land directly opposite where it started?`, figure: vectors(upstream, { unit: 'm/s', axes: ['downstream', 'across'] }), answer: numAns(a, '°'), solution: `Its upstream part must cancel the current: ${vb} sin θ = ${vc}, so θ = sin⁻¹(${vc}/${vb}) = <b>${num(a)}°</b>.`, tip: 'To land straight across, the upstream part of the boat’s velocity has to cancel the current.', meta: { type: 'heading', in: { vb, vc, w } } };
     }
-    return { topic: T.river, text: `${boat} It points upstream just enough to land directly opposite. How long does the crossing take?`, figure: vectors(upstream, { unit: 'm/s', axes: ['downstream', 'across'] }), answer: numAns(w / straight, 's'), solution: `Some of its speed goes into fighting the current, leaving √(${vb}² − ${vc}²) = ${num(straight)} m/s across. t = ${w} ÷ ${num(straight)} = <b>${num(w / straight)} s</b>.`, meta: { type: 'straight-time', in: { vb, vc, w } } };
+    return { topic: T.river, text: `${boat} It points upstream just enough to land directly opposite. How long does the crossing take?`, figure: vectors(upstream, { unit: 'm/s', axes: ['downstream', 'across'] }), answer: numAns(w / straight, 's'), solution: `Some of its speed goes into fighting the current, leaving √(${vb}² − ${vc}²) = ${num(straight, 3)} m/s across. So t = ${w} ÷ ${num(straight, 3)} = <b>${num(w / straight)} s</b>.`, tip: 'Pointing upstream, only part of its speed is left for crossing: find that part first, then time = width ÷ speed across.', meta: { type: 'straight-time', in: { vb, vc, w } } };
   },
 
   // 10. flying in a wind: the plane's air velocity plus the wind's
@@ -415,7 +421,7 @@ const templates = [
         topic: T.wind, text: `${flight} The pilot wants to travel due north. At what angle west of north must the plane point?`,
         figure: vectors([{ from: [0, 0], to: [-vw, north], label: `${va}` }, { from: [-vw, north], to: [0, north], label: `${vw}`, tone: 1 }, { from: [0, 0], to: [0, north], label: 'due north', tone: 2 }], { unit: 'km/h', axes: ['east', 'north'] }),
         answer: numAns(a, '°'),
-        solution: `The plane's westward part must cancel the wind: ${va} sin θ = ${vw}, so θ = sin⁻¹(${vw}/${va}) = <b>${num(a)}°</b> west of north.`,
+        solution: `The plane’s westward part must cancel the wind: ${va} sin θ = ${vw}, so θ = sin⁻¹(${vw}/${va}) = <b>${num(a)}°</b> west of north.`,
         meta: { type: 'crab-angle', in: { va, vw } },
       };
     }
@@ -423,7 +429,7 @@ const templates = [
     return {
       topic: T.wind, text: `A plane flies at ${va} km/h through the air, due east into a headwind of ${vw} km/h blowing toward the west. How long does it take to fly ${D} km?`,
       answer: numAns(t, 'h'),
-      solution: `Along one line the velocities just add with signs: ${va} − ${vw} = ${va - vw} km/h over the ground. t = ${D} ÷ ${va - vw} = <b>${num(t)} h</b>.`,
+      solution: `Along one line the velocities just add with signs, so the speed over the ground is ${va} − ${vw} = ${va - vw} km/h. Then t = ${D} ÷ ${va - vw} = <b>${num(t)} h</b>.`,
       meta: { type: 'headwind', in: { va, vw, D } },
     };
   },
@@ -440,7 +446,7 @@ const templates = [
         answer: type === 0 ? numAns(R, 'N') : numAns(a, '°'),
         solution: type === 0
           ? `The first two add to √(${F1}² + ${F2}²) = ${num(R)} N pointing north of east. To balance them, the third force has the same size the other way: <b>${num(R)} N</b>.`
-          : `The first two add to a force ${num(a)}° north of east (tan⁻¹(${F2}/${F1})). The balancing force points the opposite way: <b>${num(a)}°</b> south of west.`,
+          : `The first two add to a force ${num(a)}° north of east (tan⁻¹(${F2}/${F1})). The balancing force points the opposite way, <b>${num(a)}°</b> south of west.`,
         meta: { type: type === 0 ? 'balance-size' : 'balance-angle', in: { F1, F2 } },
       };
     }
@@ -450,7 +456,7 @@ const templates = [
       return {
         topic: T.balance, text: `Two forces F<sub>1</sub> = ${ij(a, b, 'N')} and F<sub>2</sub> = ${ij(c, e, 'N')} act on a ring, and a third force F<sub>3</sub> keeps it still. What is the <b>${part}</b>-component of F<sub>3</sub>?`,
         answer: numAns(v, 'N'),
-        solution: `Still means all three add to zero: F<sub>3</sub> = −(F<sub>1</sub> + F<sub>2</sub>). Its ${part}-component is −(${plus(part === 'i' ? a : b, part === 'i' ? c : e)}) = <b>${num(v)} N</b>.`,
+        solution: `Still means all three add to zero, so F<sub>3</sub> = −(F<sub>1</sub> + F<sub>2</sub>). Its ${part}-component is −(${plus(part === 'i' ? a : b, part === 'i' ? c : e)}) = <b>${num(v)} N</b>.`,
         meta: { type: 'balance-part', in: { a, b, c, e, part } },
       };
     }
@@ -477,7 +483,8 @@ const templates = [
         answer: numAns(type === 0 ? total : disp, 'm'),
         solution: type === 0
           ? `Distance adds up every leg, whatever its direction: ${a} + ${b} + ${c} = <b>${total} m</b>.`
-          : `Only where they end up counts: ${Math.abs(a - c)} m ${a >= c ? 'east' : 'west'} (${a} − ${c}) and ${b} m north of the start, so the displacement is √(${Math.abs(a - c)}² + ${b}²) = <b>${num(disp)} m</b>.`,
+          : `Only where they end up counts, and that is ${Math.abs(a - c)} m ${a >= c ? `east (${a} − ${c})` : `west (${c} − ${a})`} and ${b} m north of the start. So the displacement is √(${Math.abs(a - c)}² + ${b}²) = <b>${num(disp)} m</b>.`,
+        ...(type === 0 ? { tip: 'Distance adds up the length of every leg, whatever its direction.' } : {}),
         meta: { type: type === 0 ? 'path-distance' : 'path-displacement', in: { a, b, c } },
       };
     }
@@ -485,11 +492,11 @@ const templates = [
       const [r, lap] = turn(ctx, 4, [[20, 25, 30, 40, 50, 60, 80], ['half', 'quarter']]);
       const disp = lap === 'half' ? 2 * r : Math.SQRT2 * r;
       return {
-        topic: T.path, text: `A runner goes ${lap === 'half' ? 'halfway' : 'a quarter of the way'} around a circular track of radius ${r} m. What is the size of the runner's displacement?`,
+        topic: T.path, text: `A runner goes ${lap === 'half' ? 'halfway' : 'a quarter of the way'} around a circular track of radius ${r} m. What is the size of the runner’s displacement?`,
         answer: numAns(disp, 'm'),
         solution: lap === 'half'
           ? `Halfway around puts the runner straight across the circle, so the displacement is the diameter: 2 × ${r} = <b>${num(disp)} m</b> (the distance run is π × ${r} = ${num(Math.PI * r)} m).`
-          : `A quarter of the way around, the start and finish are ${r} m from the center at right angles, so the straight line between them is √(${r}² + ${r}²) = <b>${num(disp)} m</b> (the distance run is ${num((Math.PI * r) / 2)} m).`,
+          : `A quarter of the way around, the start and finish are both ${r} m from the center, at right angles to each other. So the straight line between them is √(${r}² + ${r}²) = <b>${num(disp)} m</b> (the distance run is ${num((Math.PI * r) / 2)} m).`,
         meta: { type: `track-${lap}`, in: { r } },
       };
     }
@@ -498,7 +505,7 @@ const templates = [
     return {
       topic: T.path, text: `A dog runs ${a} m east along a beach, then ${c} m back west, taking ${t} s for the whole run. What is the size of its average velocity?`,
       answer: numAns(v, 'm/s'),
-      solution: `Average velocity is displacement ÷ time. It ends ${a} − ${c} = ${a - c} m east of the start, so ${a - c} ÷ ${t} = <b>${num(v)} m/s</b>. (Its average speed is larger: ${a + c} ÷ ${t} = ${num((a + c) / t)} m/s.)`,
+      solution: `Average velocity is displacement ÷ time. It ends ${a} − ${c} = ${a - c} m east of the start, so ${a - c} ÷ ${t} = <b>${num(v)} m/s</b>. (Its average speed is larger, ${a + c} ÷ ${t} = ${num((a + c) / t)} m/s.)`,
       meta: { type: 'average-velocity', in: { a, c, t } },
     };
   },

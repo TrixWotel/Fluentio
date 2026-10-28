@@ -24,7 +24,7 @@ export const kinematicsLearning = {
       tip: 'Velocity is the slope of the x–t graph: change in position divided by change in time.',
     },
     'Velocity on one part of an x–t graph': {
-      idea: 'A trip graph can be made of several straight pieces: one going up (moving away), a flat one (stopped, because the position isn\'t changing) and one going down (coming back). Each piece has its own slope, so for the speed on one part of the trip, use only that piece\'s start and end. Coming back 5 m in 2 s is a speed of 5 ÷ 2 = 2.5 m/s; the velocity is −2.5 m/s, since x is decreasing.',
+      idea: 'A trip graph can be made of several straight pieces: one going up (moving away), a flat one (stopped, because the position isn’t changing) and one going down (coming back). Each piece has its own slope, so for the speed on one part of the trip, use only that piece’s start and end. Coming back 5 m in 2 s is a speed of 5 ÷ 2 = 2.5 m/s; the velocity is −2.5 m/s, since x is decreasing.',
       how: ['Find the piece for the part of the trip you are asked about (walking back is the piece going down).', 'Read the positions and times at its start and end.', 'Speed = how far it moves on that piece ÷ how long that piece lasts.'],
       watch: ['Using the times for the whole trip instead of just that piece.', 'Using the farthest position instead of how far it actually moves on that piece.'],
       tip: 'Use only the straight piece for that part of the trip: how far it moves on it, divided by how long it takes.',
@@ -50,7 +50,7 @@ export const kinematicsLearning = {
     'Acceleration from a velocity–time graph': {
       idea: 'On a velocity–time graph the <b>slope</b> is the acceleration: how many m/s the velocity changes each second. A line going up means speeding up; a line going down means slowing down, which is a negative acceleration. If the velocity goes from 4 m/s to 10 m/s in 3 s, a = (10 − 4) ÷ 3 = 2 m/s².',
       how: ['Read two points on the line.', 'Find the change in velocity: Δv = later v − earlier v.', 'Divide by the change in time: a = Δv/Δt, in m/s², keeping the sign.'],
-      watch: ['Dividing one velocity by one time when the line doesn\'t start at v = 0.', 'Losing the minus sign for a line that slopes down.'],
+      watch: ['Dividing one velocity by one time when the line doesn’t start at v = 0.', 'Losing the minus sign for a line that slopes down.'],
       tip: 'Acceleration is the slope of the v–t graph: change in velocity divided by change in time.',
     },
     'Displacement from the area under a v–t graph': {
@@ -72,9 +72,9 @@ export const kinematicsLearning = {
       tip: 'Average velocity = the whole area under the v–t graph divided by the whole time.',
     },
     'Two objects on one v–t graph': {
-      idea: 'With two lines on one v–t graph, the point where they cross is the moment both have the <b>same velocity</b>, not where the two objects meet. Here car A cruises at a steady speed while car B starts from rest with velocity a·t, so the speeds match when a·t equals A\'s speed. Until then A is faster and pulls ahead, and the gap equals the area between the two lines up to that moment: A\'s distance minus B\'s.',
-      how: ['Find when the speeds are equal: set a·t equal to A\'s speed and solve for t.', 'A\'s distance by then: its speed × t.', 'B\'s distance by then: ½ × a × t².', 'The gap is A\'s distance minus B\'s (the area between the lines).'],
-      watch: ['Thinking the crossing point is where the cars meet: it is only where their speeds are equal.', 'Forgetting the ½ in B\'s distance.'],
+      idea: 'With two lines on one v–t graph, the point where they cross is the moment both have the <b>same velocity</b>, not where the two objects meet. Here car A cruises at a steady speed while car B starts from rest with velocity a·t, so the speeds match when a·t equals A’s speed. Until then A is faster and pulls ahead, and the gap equals the area between the two lines up to that moment: A’s distance minus B’s.',
+      how: ['Find when the speeds are equal: set a·t equal to A’s speed and solve for t.', 'A’s distance by then: its speed × t.', 'B’s distance by then: ½ × a × t².', 'The gap is A’s distance minus B’s (the area between the lines).'],
+      watch: ['Thinking the crossing point is where the cars meet: it is only where their speeds are equal.', 'Forgetting the ½ in B’s distance.'],
       tip: 'The lines cross when the speeds are equal; the gap is the area between the two lines up to that time.',
     },
     'Velocity from an acceleration–time graph': {
@@ -84,10 +84,10 @@ export const kinematicsLearning = {
       tip: 'The area under the a–t graph is the change in velocity: add it to the starting velocity.',
     },
     'Braking distance': {
-      idea: 'A car braking steadily loses the same speed every second until it stops. With final speed v = 0, the equation <b>v² = u² + 2as</b> gives the braking distance s = u²/(2a), where a is the size of the deceleration. On the v–t graph it is the area of the triangle: ½ × stopping time × starting speed. A car at 8 m/s braking at 2 m/s² stops in 64 ÷ (2 × 2) = 16 m.',
-      how: ['Square the starting speed.', 'Divide by 2 × the deceleration: s = u²/(2a).', 'Check with the graph: ½ × (u ÷ a) × u gives the same area.'],
-      watch: ['Forgetting to square the speed, or forgetting the 2.', 'Putting a in as a negative number and getting a negative distance: in s = u²/(2a), use the size of the deceleration.'],
-      tip: 'The car ends at 0 m/s, so use v² = u² + 2as, or the area of the triangle under the v–t graph.',
+      idea: 'A car braking steadily loses the same speed every second until it stops. With final speed v = 0, the equation <b>v² = v₀² + 2aΔx</b> (a is negative, since it slows down) gives the braking distance Δx = v₀² ÷ (2 × the deceleration). On the v–t graph it is the area of the triangle: ½ × stopping time × starting speed. A car at 8 m/s braking at 2 m/s² stops in 64 ÷ (2 × 2) = 16 m.',
+      how: ['Square the starting speed.', 'Divide by 2 × the deceleration: Δx = v₀² ÷ (2 × deceleration).', 'Check with the graph: ½ × (v₀ ÷ deceleration) × v₀ gives the same area.'],
+      watch: ['Forgetting to square the speed, or forgetting the 2.', 'Putting a in as a negative number and getting a negative distance: in v₀² ÷ (2 × deceleration), use the size of the deceleration.'],
+      tip: 'The car ends at 0 m/s, so use v² = v₀² + 2aΔx (a is negative), or the area of the triangle under the v–t graph.',
     },
     'Free fall': {
       idea: 'Without air resistance, anything dropped from rest speeds up by <b>g = 9.8 m/s²</b>: it gains 9.8 m/s of speed every second, so its speed after t seconds is v = g·t. Its distance grows faster, as the square of the time: d = ½·g·t². After 7 s, a dropped stone falls at 9.8 × 7 = 68.6 m/s and has fallen ½ × 9.8 × 7² = 240.1 m.',
