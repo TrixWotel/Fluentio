@@ -95,5 +95,6 @@ window.FLUENTIO_SETTINGS = {
     { emoji: '🧪', title: 'Science', text: 'Heat and energy: tests like the ones in class, and Q = mcΔT practice.', link: 'science/', color: '#8b5cf6' },
     { emoji: '🚀', title: 'Physics', text: 'Kinematics, motion in a straight line, vectors and projectiles: tests like the ones in class, and practice.', link: 'physics/', color: '#e8743b' },
     { emoji: '🇪🇸', title: 'Spanish', text: '1,100 words in 25 themes, and the preterite and the imperfect.', link: 'spanish/', color: '#e5484d' },
+    { emoji: '🏰', title: 'History', text: 'The Middle Ages, from the fall of Rome to the printing press: people, dates and big ideas.', link: 'history/', color: '#b7791f' },
   ],
 };

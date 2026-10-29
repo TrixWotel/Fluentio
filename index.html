@@ -138,8 +138,8 @@
       const fresh = !v.at || now - v.at > 30 * 60000;
       const visits = { count: (v.count || 0) + (fresh ? 1 : 0), streak: away === 0 ? v.streak || 1 : away === 1 ? (v.streak || 1) + 1 : 1, away: fresh ? away : v.away ?? null };
       f.write('fluentio.visits', { ...visits, at: now });
-      const NAMES = { triangles: 'Triangle Angles', amc10: 'the AMC 10', heat: 'Heat Capacity', kinematics: 'Kinematics', motion: 'Motion in a Straight Line', vectors: 'Vectors', projectiles: 'Projectile Motion', vocab: 'Vocabulary', preterite: 'the preterite', imperfect: 'the imperfect' };
-      const IN = { math: ['triangles', 'amc10'], science: ['heat'], physics: ['kinematics', 'motion', 'vectors', 'projectiles'], spanish: ['vocab', 'preterite', 'imperfect'], geography: [] };
+      const NAMES = { triangles: 'Triangle Angles', amc10: 'the AMC 10', heat: 'Heat Capacity', kinematics: 'Kinematics', motion: 'Motion in a Straight Line', vectors: 'Vectors', projectiles: 'Projectile Motion', vocab: 'Vocabulary', preterite: 'the preterite', imperfect: 'the imperfect', middleages: 'the Middle Ages' };
+      const IN = { math: ['triangles', 'amc10'], science: ['heat'], physics: ['kinematics', 'motion', 'vectors', 'projectiles'], spanish: ['vocab', 'preterite', 'imperfect'], history: ['middleages'], geography: [] };
       const mine = {};   // id → { learned, bests }
       let learned = 0, bests = 0, best = null;
       for (const [id, name] of Object.entries(NAMES)) {
@@ -220,7 +220,7 @@
         question: () => {
           const box = tile('wide2', 'var(--plot2)', head('spark', 'Question of the day'), el('p', { className: 'muted' }, 'Finding today’s question…'));
           const POOL = [['amc10', 'math/amc.js', 'amc'], ['heat', 'science/heat.js', 'heat'], ['vocab', 'spanish/vocab.js', 'vocab'], ['motion', 'physics/motion.js', 'motionBank'],
-            ['amc10', 'math/amc.js', 'amc'], ['preterite', 'spanish/tenses.js', 'preteriteTest'], ['vectors', 'physics/vectors.js', 'vectorBank'], ['imperfect', 'spanish/tenses.js', 'imperfectTest']];
+            ['amc10', 'math/amc.js', 'amc'], ['preterite', 'spanish/tenses.js', 'preteriteTest'], ['vectors', 'physics/vectors.js', 'vectorBank'], ['imperfect', 'spanish/tenses.js', 'imperfectTest'], ['middleages', 'history/middle-ages.js', 'middleAges']];
           const today = Math.round((midnight(now) - new Date(2026, 0, 1)) / 86400000), [id, file, name] = POOL[((today % POOL.length) + POOL.length) % POOL.length];
           const folder = file.split('/')[0], subject = s.study.find((x) => folderOf(x) === folder) || { title: folder, emoji: '' };
           Promise.all([import(link(file)), import(link('kit/tests.js'))]).then(([mod, { isRight }]) => {
