@@ -21,7 +21,6 @@
     </header>
     <div id="app"><noscript>These tests need JavaScript.</noscript></div>
   </main>
-  <footer><span data-fill="footer">TrixWotel</span> <span id="year">2026</span></footer>
   <script type="module">
     import { testsPage } from '../kit/tests.js';
     import { heat, MATERIALS } from './heat.js';
@@ -54,7 +53,6 @@
         asideName: 'Formulas and specific heats', aside: formulas, asideOpen: true,   // some questions ask which material in the table
       },
     ] });
-    document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
