@@ -126,7 +126,7 @@ const COLORS = [
   ['second', 'Graphs', 'The second line on graphs and drawings'],
 ];
 const MAP = [['ocean', 'Ocean'], ['land', 'Land'], ['country', 'Countries'], ['border', 'Borders'], ['late', 'Found late', 'A country found after a wrong try']];
-const TILES = () => (f.spacesOn ? { workspace: 'Recent', study: s.studyTitle, data: s.dataTitle, quick: 'Quick' } : { study: s.studyTitle, quick: 'Quick' });
+const TILES = () => ({ ...(f.spacesOn ? { workspace: 'Recent' } : {}), study: s.studyTitle, progress: 'Your progress', today: 'Today', question: 'Question of the day', ...(f.spacesOn ? { data: s.dataTitle } : {}), quick: 'Quick' });
 const shown = () => (s.theme === 'dark' || s.theme === 'light' ? s.theme : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 let palette = shown();                              // which colors the Colors panel changes
 

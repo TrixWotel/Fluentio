@@ -32,7 +32,9 @@
     const here = where();
     // (each with its icon, which is all a phone has room for)
     nav.replaceChildren(...spaces().map((x) => el('a', { href: x.href, className: x.id === here ? 'on' : '', title: x.key ? `${x.title} (${x.key})` : x.title, 'aria-label': x.title, 'aria-current': x.id === here ? 'page' : null },
-      x.id === here ? el('span', { className: 'pill', 'aria-hidden': 'true' }) : null, svg(x.icon), el('span', { className: 'space-name' }, x.title))));
+      x.id === here ? el('span', { className: 'pill', 'aria-hidden': 'true' }) : null,
+      // (the icon and name are their own layer in a page change, so the sliding pill passes under them, not over)
+      el('span', { className: 'space-in', style: `view-transition-name: space-in-${x.id}` }, svg(x.icon), el('span', { className: 'space-name' }, x.title)))));
     const k = keyFor('search');
     find.title = k ? `Search (${k})` : 'Search';
     find.querySelector('kbd').textContent = k;

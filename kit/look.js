@@ -20,7 +20,7 @@
     font: 'system', corners: 14, style: 'glow', textSize: 16, animations: true, speed: 1, floatingColors: true,
     animationsIn: { data: true, code: true, notes: true },
     keys: { search: 'Ctrl+K', home: 'Ctrl+1', study: 'Ctrl+2', data: 'Ctrl+3', code: 'Ctrl+4', notes: 'Ctrl+5' },
-    home: ['workspace', 'study', 'data', 'quick'],
+    home: ['workspace', 'study', 'progress', 'today', 'question', 'data', 'quick'],
     quick: [
       { title: 'New note', link: 'notes/#new/note' },
       { title: 'New sheet', link: 'data/#new/table' },
@@ -170,6 +170,9 @@
     clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     cloud: '<path d="M7 18a4.5 4.5 0 0 1-.5-8.97A6 6 0 0 1 18 9.5a4.25 4.25 0 0 1-.5 8.5z"/>',
     bolt: '<path d="M13 3 4 14h7l-1 7 9-11h-7z"/>',
+    chart: '<path d="M4 20h16"/><path d="M7 16v-5M12 16V6M17 16v-8"/>',
+    calendar: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+    spark: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
     arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
     back: '<path d="M19 12H5M11 6l-6 6 6 6"/>',

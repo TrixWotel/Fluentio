@@ -4,7 +4,7 @@
 // from visit to visit. welcome(facts) touches no page, so it can be tried for any day:
 //   facts = { now: Date, visits: { count, streak, away (whole days since the last visit, or null the first time) },
 //             last: { topic, href, at } or null, learned (topics learned in all), best: { test, text, at } or null }
-// and it returns { hello, line, link: { text, href } or null }.
+// and it returns { hello, line, link: { text, href } or null }. upcoming() lists the next few holidays.
 const DAY = 86400000;
 const midnight = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 const daysBetween = (a, b) => Math.round((midnight(b) - midnight(a)) / DAY);
@@ -96,4 +96,12 @@ export function welcome({ now = new Date(), visits = { count: 1, streak: 1, away
   const dated = today ? `${greetingFor(now.getHours(), pick)}! ${today.line}` : note;
   const line = [dated, ...said].slice(0, said.length ? 2 : 1).join(' ');
   return { hello, line, link };
+}
+// the next few holidays from today (today's own counts, as 0 days): { name, emoji, days }, soonest first, for the home
+// page's Today tile
+export function upcoming(now = new Date(), count = 3) {
+  const y = now.getFullYear();
+  return [...holidays(y), ...holidays(y + 1)]
+    .map((h) => ({ name: h.hello.replace(/^(Happy|Merry) /, '').replace(/!$/, ''), emoji: h.emoji, days: daysBetween(now, h.day) }))
+    .filter((h) => h.days >= 0).sort((a, b) => a.days - b.days).slice(0, count);
 }

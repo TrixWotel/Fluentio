@@ -68,12 +68,15 @@ window.FLUENTIO_SETTINGS = {
 
   // the home page's tiles, in this order (take one out to hide it): 'workspace' (what you worked on last), 'study',
   // 'data' and 'quick'
-  home: ['workspace', 'study', 'data', 'quick'],
+  home: ['workspace', 'study', 'progress', 'today', 'question', 'data', 'quick'],
   // the buttons on the Quick tile (a link can also be a whole web address)
   quick: [
     { title: 'New note', link: 'notes/#new/note' },
     { title: 'New sheet', link: 'data/#new/table' },
     { title: 'Start AMC test', link: 'math/#amc10/test' },
+    { title: 'Science test', link: 'science/#heat/exam' },
+    { title: 'Physics tests', link: 'physics/' },
+    { title: 'Spanish words', link: 'spanish/#vocab/learn' },
   ],
 
   // the names of Data (databases of docs and sheets), Code and Notes in the bar, kept in your browser (Settings can
