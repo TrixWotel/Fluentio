@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>History · Fluentio</title>
+  <meta name="description" content="The Middle Ages, from the fall of Rome to the printing press: lessons, practice and tests on the people, dates and ideas.">
+  <script src="../settings.js"></script>
+  <script src="../kit/look.js"></script>
+  <script src="../kit/bar.js"></script>
+  <link rel="stylesheet" href="../kit/site.css">
+  <link rel="stylesheet" href="../kit/tests.css">
+</head>
+<body data-title="History">
+  <script>window.fluentio?.bar?.()</script>
+  <main>
+    <header id="top">
+      <a class="back" href="../study/">← <span data-fill="studyTitle">Study</span></a>
+      <h1>🏰 History</h1>
+      <p class="lead">The Middle Ages, from the fall of Rome in 476 to the printing press and 1492: the people, the dates and the big ideas. Learn with lessons, practise, and take tests.</p>
+    </header>
+    <div id="app"><noscript>These tests need JavaScript.</noscript></div>
+  </main>
+  <script type="module">
+    import { testsPage } from '../kit/tests.js';
+    import { middleAges } from './middle-ages.js';
+    import { middleAgesLearning, timeline } from './middle-ages-lessons.js';
+
+    testsPage({ tests: [
+      {
+        bank: middleAges, name: 'The Middle Ages', length: 20, learn: middleAgesLearning,
+        blurb: 'From the fall of Rome to the printing press: Charlemagne, the Vikings, feudalism, the Crusades, Magna Carta, the Black Death, the Hundred Years’ War, and the world beyond Europe.',
+        about: 'Each question has choices: who did something and why it mattered, what a word like fief or tithe means, the year or the century of an event, and which of four events came first or last. Learning goes in time order, in five units, each topic with a short lesson.',
+        asideName: 'The timeline', aside: timeline,
+      },
+    ] });
+  </script>
+</body>
+</html>
