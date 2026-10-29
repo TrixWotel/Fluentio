@@ -217,8 +217,7 @@ function home() {
   return el('section', { className: 'panel', id: 'home' }, el('h2', {}, 'Home'),
     set('Name', 'At the top of the home page and the bar, and in every tab’s title.', text(s.name, (v) => { s.name = v; save(); }, 'Name')),
     set('Line under it', '', text(s.tagline, (v) => { s.tagline = v; save(); }, 'Line under the name')),
-    set('Footer', 'At the bottom of the pages.', text(s.footer, (v) => { s.footer = v; save(); }, 'Footer')),
-    set('Greeting', 'Good morning, Good afternoon or Good evening above the name.', toggle(s.greeting, (v) => { s.greeting = v; save(); }, 'Greeting')),
+    set('Welcome', 'A greeting on the home page, and a line that changes with the time, the date, holidays and what you’ve been doing.', toggle(s.greeting, (v) => { s.greeting = v; save(); }, 'Greeting')),
     set('Tiles', 'Which show on the home page, and in what order.', tiles),
     set('Quick buttons', 'The Quick tile’s buttons: a name, and where each goes.', quick,
       el('button', { type: 'button', className: 'btn', onclick: () => { s.quick.push({ title: 'New button', link: f.spacesOn ? 'notes/' : 'study/' }); save(); draw(); panels.querySelector('#home .quick-list li:last-child input')?.select(); } }, svg('plus'), 'Add a button')));

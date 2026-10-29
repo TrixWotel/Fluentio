@@ -10,11 +10,10 @@
 // If something here has a typo, the site keeps working with its usual look.
 
 window.FLUENTIO_SETTINGS = {
-  // the name at the top of the home page, the line under it, and the footer
+  // the name at the top of the home page, and the line under it
   name: 'Fluentio',
   tagline: 'Web stack workspace',
-  footer: 'TrixWotel',
-  greeting: true,          // a "Good morning", "Good afternoon" or "Good evening" above the name
+  greeting: true,          // the welcome on the home page: a greeting, and a line that changes with the day and what you’ve done
 
   // 'auto' follows the device's light or dark mode, 'light' or 'dark' always uses that one
   theme: 'auto',

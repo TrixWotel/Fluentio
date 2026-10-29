@@ -4,11 +4,11 @@
 // It also gives the page window.fluentio: the settings (anything missing or mistyped filled in from the built-in ones),
 // the site's top folder, link() for the links in the settings, your data, code and notes (kept in this browser), the
 // icons, el() and svg() to build things with, and save() and reset() for the Settings page. It puts the site's name in
-// the page's title, fills in any element marked data-fill="footer" (or another of the settings' words), and adds the
+// the page's title, fills in any element marked data-fill="name" (or another of the settings' words), and adds the
 // drifting colors behind the page.
 (() => {
   const DEFAULTS = {
-    name: 'Fluentio', tagline: 'Web stack workspace', footer: 'TrixWotel', greeting: true, theme: 'auto',
+    name: 'Fluentio', tagline: 'Web stack workspace', greeting: true, theme: 'auto',
     colors: {
       light: { accent: '#2f6fed', accent2: '#9b5cf6', background: '#f6f7f9', card: '#ffffff', text: '#1b1f24', muted: '#5b6470', line: '#e3e6ea', right: '#2da44e', wrong: '#e5534b', second: '#e8743b' },
       dark: { accent: '#6c9bff', accent2: '#b48cff', background: '#0f1115', card: '#171a21', text: '#e8eaee', muted: '#9aa3ae', line: '#262b35', right: '#3fb950', wrong: '#f85149', second: '#f0a04b' },

@@ -62,9 +62,7 @@
       <a class="card subject" href="../spanish/"><span class="tile">🇪🇸</span><span class="info"><b>Spanish</b><span class="text">Vocabulary, the preterite and the imperfect.</span></span><span class="go">→</span></a>
     </nav>
   </main>
-  <footer><span id="footer">TrixWotel</span> <span id="year">2026</span></footer>
   <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
     // what this browser remembers of each subject: best scores and topics learned (the test pages keep them)
     const read = (key) => { try { return JSON.parse(localStorage.getItem('fluentio.' + key)); } catch { return null; } };
     const BANKS = { math: ['triangles', 'amc10'], science: ['heat'], physics: ['kinematics', 'motion', 'vectors', 'projectiles'], spanish: ['vocab', 'preterite', 'imperfect'] };
@@ -84,7 +82,6 @@
       document.title = `${s.studyTitle} · ${s.name}`;
       $('title').textContent = `📚 ${s.studyTitle}`;
       $('intro').textContent = s.studyIntro;
-      $('footer').textContent = s.footer;
       $('subjects').replaceChildren(...s.study.map((x) => {
         const href = link(x.link), folder = new URL(href).pathname.split('/').filter(Boolean).pop(), mine = progress(folder);
         const card = el('a', { className: 'card subject', href },

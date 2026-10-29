@@ -30,7 +30,7 @@ Keys: ⌃K (or /) searches everything, and ⌃1 to ⌃5 go to Home, Modules, Dat
 
 **settings.js**, at the top of the space branch, holds the colors and settings for the whole site. To change one on GitHub, open the file, press the pencil, change a value and press Commit changes. The site follows a minute or two later. (Or try changes in Settings on the site first, then paste its Copy as settings.js here.)
 
-* **name**, **tagline** and **footer** are the words at the top of the home page and at the bottom of the pages, and **greeting** turns the "Good morning" above the name on or off.
+* **name** and **tagline** are the words at the top of the home page, and **greeting** turns the home page’s welcome (a greeting, and a line that changes with the time, the date, holidays and what you’ve done) on or off.
 * **theme** is 'auto' (the device's light or dark mode), 'light' or 'dark'.
 * **colors** has a light set and a dark set: the accent (buttons, links and anything selected), a second color for gradients, the background, cards, text, quieter text, borders, right and wrong answers, and the second line on graphs. Any CSS color works, like '#2f6fed' or 'tomato'.
 * **map** is the colors of the Geography map, light and dark.
