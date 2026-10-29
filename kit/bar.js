@@ -1,7 +1,8 @@
 // The bar at the top of every page: the site's name, the spaces (Home, Modules, Data, Code and Notes: the one you're in
 // is marked, and the mark slides across when you go to another), Search, and Settings. Each page loads this right after
 // look.js and calls fluentio.bar() first thing in its <body>, so the bar is there before the page is drawn.
-// Search finds the pages, the subjects, and everything in Data, Code and Notes. The keys are the settings' (Settings can
+// Search finds the pages, the subjects, and everything in Data, Code and Notes. While look.js has Data, Code and Notes
+// switched off, the bar, Search and the keys leave them out. The keys are the settings' (Settings can
 // record new ones): ⌃K (or /) searches, and ⌃1 to ⌃5 go to Home, Modules, Data, Code and Notes from anywhere.
 (() => {
   const f = window.fluentio;
@@ -14,7 +15,9 @@
     { id: 'data', title: f.settings.dataTitle, href: f.link('data/'), icon: 'database', key: keyFor('data') },
     { id: 'code', title: f.settings.codeTitle, href: f.link('code/'), icon: 'code', key: keyFor('code') },
     { id: 'notes', title: f.settings.notesTitle, href: f.link('notes/'), icon: 'note', key: keyFor('notes') },
-  ];
+  ].filter((x) => f.spacesOn || !['data', 'code', 'notes'].includes(x.id));
+  // a link into Data, Code or Notes (a Quick button's, say), left out while they're off
+  const offLink = (href) => !f.spacesOn && /^(data|code|notes|workspace)\//.test(f.link(href).slice(f.root.length));
   // the space this page is in (a subject's page is in Modules, whose folder is study/), or what it is: 'settings', say
   const where = () => {
     const top = new URL(f.root).pathname, path = location.pathname;
@@ -56,21 +59,21 @@
     spaces().forEach((x) => out.push({ title: x.title, kind: x.key || 'Page', icon: x.icon, href: x.href, group: 'Go to' }));
     out.push({ title: 'Settings', kind: 'Colors and more', icon: 'settings', href: f.link('settings/'), group: 'Go to' });
     // what you worked on last (each in its own space), and once something's typed, all of it, folders and databases too
-    const items = f.workspace.items().sort((a, b) => (b.edited || 0) - (a.edited || 0));
+    const items = f.spacesOn ? f.workspace.items().sort((a, b) => (b.edited || 0) - (a.edited || 0)) : [];
     for (const it of q ? items : items.slice(0, 6)) {
       out.push({ title: it.title || 'Untitled', kind: KINDS[it.kind] || '', icon: KINDS[it.kind] ? it.kind : 'note', href: f.workspace.link(it), group: 'Recent', text: typeof it.text === 'string' ? it.text : '' });
     }
-    for (const x of q ? f.workspace.folders() : []) {
+    for (const x of q && f.spacesOn ? f.workspace.folders() : []) {
       const base = x.tab === 'database';
       out.push({ title: x.title || 'Untitled', kind: base ? 'Database' : 'Folder', icon: base ? 'database' : 'folder', href: f.workspace.link(x), group: 'Recent' });
     }
     for (const x of s.study) out.push({ title: x.title || '', kind: s.studyTitle, emoji: x.emoji || '📘', href: f.link(x.link), group: s.studyTitle });
     const named = { notes: s.notesTitle, data: s.dataTitle, code: s.codeTitle };
-    for (const [k, name] of Object.entries(KINDS)) {
+    for (const [k, name] of f.spacesOn ? Object.entries(KINDS) : []) {
       const space = f.workspace.space({ kind: k });
       out.push({ title: `New ${name.toLowerCase()}`, kind: named[space], icon: 'plus', href: f.link(`${space}/#new/${k}`), group: 'Make' });
     }
-    for (const x of s.quick) if (x.link && !out.some((o) => o.href === f.link(x.link))) out.push({ title: x.title || x.link, kind: 'Quick', icon: 'bolt', href: f.link(x.link), group: 'Make' });
+    for (const x of s.quick) if (x.link && !offLink(x.link) && !out.some((o) => o.href === f.link(x.link))) out.push({ title: x.title || x.link, kind: 'Quick', icon: 'bolt', href: f.link(x.link), group: 'Make' });
     return out;
   }
   // how well something matches: the title starting with it, then a word in it, then anywhere (a note's text last)
@@ -108,7 +111,7 @@
     list.querySelectorAll('.finder-item')[at]?.scrollIntoView({ block: 'nearest' });
   }
   function build() {
-    input = el('input', { type: 'text', placeholder: 'Search pages, subjects, data, code and notes', autocomplete: 'off', spellcheck: false, 'aria-label': 'Search' });
+    input = el('input', { type: 'text', placeholder: f.spacesOn ? 'Search pages, subjects, data, code and notes' : 'Search pages and subjects', autocomplete: 'off', spellcheck: false, 'aria-label': 'Search' });
     list = el('div', { className: 'finder-list', role: 'listbox' });
     const s = f.settings;
     box = el('div', { className: 'finder', hidden: true, onclick: (e) => { if (e.target === box) closeFind(); } },

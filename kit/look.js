@@ -221,11 +221,15 @@
   // the site's top folder (this file is in its kit folder), for the links in the settings
   const here = document.currentScript && document.currentScript.src;
   const root = here ? new URL('..', here).href : new URL('./', location.href).href;
+  // Data, Code and Notes are switched off: their code stays here, but they're nowhere on the site, their pages go to the
+  // home page, and neither settings.js nor Settings can turn them back on (only true here can)
+  const SPACES_ON = false;
+  if (!SPACES_ON && /^(data|code|notes|workspace)\//.test(decodeURI(location.href).slice(root.length))) location.replace(root);
   // where each kind of thing (and of folder) lives: notes in notes/, docs and sheets in data/, code files in code/
   const SPACES = { note: 'notes', doc: 'data', table: 'data', code: 'code', notes: 'notes', database: 'data' };
   const spaceOf = (x) => { const k = x.kind ?? x.tab; return typeof k === 'string' && Object.hasOwn(SPACES, k) ? SPACES[k] : 'notes'; };
   window.fluentio = {
-    settings: s, site, DEFAULTS, FONTS, root, read, write, el, svg, icon, key,
+    settings: s, site, DEFAULTS, FONTS, root, read, write, el, svg, icon, key, spacesOn: SPACES_ON,
     link: (href) => new URL(String(href || ''), root).href,
     moving: () => s.animations !== false && !matchMedia('(prefers-reduced-motion: reduce)').matches,
     // your docs and sheets (Data), code (Code) and notes (Notes), and their folders: kept in this browser only (Settings

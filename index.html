@@ -146,12 +146,14 @@
         },
         quick: () => tile('wide', 'var(--plot2)',
           el('div', { className: 'quick-label' }, el('span', { className: 'tile-ic' }, svg('bolt')), 'Quick'),
-          el('div', { className: 'row' }, s.quick.filter((q) => q.link).map((q) => {
+          el('div', { className: 'row' }, s.quick.filter((q) => q.link && (f.spacesOn || !/^(data|code|notes|workspace)\//.test(link(q.link).slice(f.root.length)))).map((q) => {
             const a = el('a', { className: 'btn', href: link(q.link) }, q.title || q.link);
             if (!link(q.link).startsWith(f.root)) { a.target = '_blank'; a.rel = 'noopener'; }
             return a;
           }))),
       };
+      // (while Data, Code and Notes are off, so are Recent, Data and the Quick buttons into them)
+      if (!f.spacesOn) { delete TILES.workspace; delete TILES.data; }
       $('tiles').replaceChildren(...s.home.filter((k, i, all) => TILES[k] && all.indexOf(k) === i).map((k) => TILES[k]()));
     }
   </script>
