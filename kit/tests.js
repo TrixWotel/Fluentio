@@ -36,11 +36,14 @@ const words = (s) => String(s ?? '').normalize('NFC').trim().toLowerCase().repla
 const bare = (s) => words(s).normalize('NFD').replace(/[̀-ͯ]/g, '');
 export const nearly = (answer, given) => answer.kind === 'text' && given != null && !isRight(answer, given) && answer.accept.some((a) => bare(a) === bare(given));
 // right if within the question's tolerance: { abs } is plus or minus that much, a plain number is a share of the answer;
-// a typed answer is right if it's one of answer.accept
+// a typed answer is right if it's one of answer.accept; an order or a match has to be right all through, and choosing
+// all that fit means all the right ones and none of the others
 export function isRight(answer, given) {
   if (given == null) return false;
   if (answer.kind === 'choice') return given === answer.correct;
   if (answer.kind === 'text') return answer.accept.some((a) => words(a) === words(given));
+  if (answer.kind === 'order' || answer.kind === 'match') return Array.isArray(given) && given.length === answer.correct.length && given.every((g, i) => g === answer.correct[i]);
+  if (answer.kind === 'multi') return Array.isArray(given) && given.length === answer.correct.length && answer.correct.every((c) => given.includes(c));
   const v = readNumber(given);
   if (v == null) return false;
   const tol = answer.tol && typeof answer.tol === 'object' ? answer.tol.abs : Math.max((answer.tol ?? 0.02) * Math.abs(answer.value), 0.005);
@@ -77,7 +80,16 @@ export function steps(markup) {
 }
 const fmt = (v) => (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('en-US', { maximumFractionDigits: 3 });
 const shown = (answer) => (answer.kind === 'choice' ? `(${LETTERS[answer.correct]}) ${answer.choices[answer.correct]}`
-  : answer.kind === 'text' ? answer.accept[0] : `${fmt(answer.value)}${answer.unit ? (answer.unit === '°' ? '°' : ' ' + answer.unit) : ''}`);
+  : answer.kind === 'text' ? answer.accept[0]
+  : answer.kind === 'order' ? answer.correct.map((i) => answer.items[i]).join(' → ')
+  : answer.kind === 'match' ? answer.left.map((l, i) => `${l} → ${answer.right[answer.correct[i]]}`).join('; ')
+  : answer.kind === 'multi' ? answer.correct.map((i) => `(${LETTERS[i]}) ${answer.choices[i]}`).join(', ')
+  : `${fmt(answer.value)}${answer.unit ? (answer.unit === '°' ? '°' : ' ' + answer.unit) : ''}`);
+// what someone answered, for the review after a test
+const yours = (answer, g) => (g == null ? 'left blank' : answer.kind === 'choice' ? `(${LETTERS[g]})`
+  : answer.kind === 'order' ? g.map((i) => answer.items[i]).join(' → ')
+  : answer.kind === 'match' ? g.map((j) => (j == null ? '?' : answer.right[j])).join(', ')
+  : answer.kind === 'multi' ? g.map((i) => `(${LETTERS[i]})`).join(' ') : `${g}`);
 
 // the page: tests = [{ bank, name, blurb, about, length, amc, order(n), learn, exam, aside(), asideName, asideOpen }]
 // order(n), if given, is how hard variant n is: without a path, learning lists the easier topics first.
@@ -87,8 +99,10 @@ const shown = (answer) => (answer.kind === 'choice' ? `(${LETTERS[answer.correct
 // (3 if not given), and example: false to skip the worked example (for a word list, say, where it would add nothing). A
 // lesson's spot (how to tell a problem is this kind) and facts (worth knowing by heart) are optional; its tip is shown
 // after a wrong answer, and is the first hint (a question can bring its own tip instead, for a kind its lesson's doesn't fit).
-// An answer is { kind: 'choice', choices, correct }, { kind: 'number', value, unit, tol }, or { kind: 'text', accept: [the
-// right answers], keys: [letters to offer as buttons], lang }
+// An answer is { kind: 'choice', choices, correct }, { kind: 'number', value, unit, tol }, { kind: 'text', accept: [the
+// right answers], keys: [letters to offer as buttons], lang }, { kind: 'order', items: [html, as shown], correct: [the
+// items' indexes in the right order] }, { kind: 'match', left: [html], right: [html], correct: [for each left, the index
+// of its right] }, or { kind: 'multi', choices, correct: [the indexes of every right one] } (choose all that fit)
 export function testsPage({ tests }) {
   const app = document.getElementById('app'), top = document.getElementById('top');   // top: the page's title, shown on the cards only
   const byId = Object.fromEntries(tests.map((t) => [t.bank.id, t]));
@@ -343,6 +357,61 @@ export function testsPage({ tests }) {
         list.append(b);
       });
       box.append(list);
+    } else if (['order', 'match', 'multi'].includes(q.answer.kind)) {
+      // put in order (tap the items in turn, tap one again to take it out), match each (a menu for each row), or choose
+      // every one that fits (tap to choose or unchoose), then Check
+      const a = q.answer, kind = a.kind;
+      let picks = Array.isArray(given) ? [...given] : kind === 'match' ? a.left.map(() => null) : [];
+      const area = el('div', { className: `choices ${kind}` });
+      let locked = false;
+      const items = kind === 'order' ? a.items : kind === 'multi' ? a.choices : null;
+      const buttons = items ? items.map((c, i) => {
+        const b = el('button', { className: 'choice', onclick: () => {
+          if (locked) return;
+          picks = picks.includes(i) ? picks.filter((x) => x !== i) : [...picks, i];
+          paint();
+        } });
+        b.append(el('span', { className: 'letter' }), html('span', 'cv', c));
+        area.append(b);
+        return b;
+      }) : [];
+      const menus = kind === 'match' ? a.left.map((l, i) => {
+        const s = el('select', { className: 'pick-in', onchange: () => { picks[i] = s.value === '' ? null : +s.value; } },
+          el('option', { value: '' }, 'Choose…'), ...a.right.map((r, j) => el('option', { value: j, selected: picks[i] === j }, r.replace(/<[^>]+>/g, ''))));
+        area.append(el('div', { className: 'match-row' }, html('span', 'ml', l), s));
+        return s;
+      }) : [];
+      const paint = () => buttons.forEach((b, i) => {
+        const at = picks.indexOf(i);
+        b.classList.toggle('picked', at >= 0);
+        b.querySelector('.letter').textContent = kind === 'multi' ? `(${LETTERS[i]})` : at >= 0 ? `${at + 1}.` : '·';
+      });
+      paint();
+      const ready = () => (kind === 'order' ? picks.length === a.items.length : kind === 'match' ? picks.every((x) => x != null) : picks.length > 0);
+      const value = () => (kind === 'multi' ? [...picks].sort((x, y) => x - y) : [...picks]);
+      // after the answer: each step of an order, each row of a match, each choice right or wrong (and any right choice
+      // missed outlined)
+      const marks = () => {
+        if (kind === 'order') buttons.forEach((b, i) => b.classList.add(a.correct[picks.indexOf(i)] === i ? 'right' : 'wrong'));
+        if (kind === 'match') menus.forEach((s, i) => s.classList.add(picks[i] === a.correct[i] ? 'good' : 'bad'));
+        if (kind === 'multi') buttons.forEach((b, i) => { if (a.correct.includes(i)) b.classList.add(picks.includes(i) ? 'right' : 'missed'); else if (picks.includes(i)) b.classList.add('wrong'); });
+      };
+      const lock = () => { locked = true; check.disabled = true; skip.hidden = true; clear.hidden = true; buttons.forEach((b) => { b.disabled = true; }); menus.forEach((s) => { s.disabled = true; }); };
+      const check = el('button', { className: 'btn primary', onclick: () => {
+        if (answered) return;
+        if (!ready()) { mark('bad'); result.textContent = kind === 'order' ? 'Put every one in order first.' : kind === 'match' ? 'Match every one first.' : 'Choose at least one first.'; return; }
+        if (learn) {
+          if (!isRight(a, value())) return tryAgain();
+          lock(); marks();
+          return gotIt(value());
+        }
+        lock();
+        if (feedback) marks();
+        finish(value());
+      } }, 'Check');
+      const clear = el('button', { className: 'btn', hidden: kind !== 'order', onclick: () => { if (!locked) { picks = []; paint(); } } }, 'Start again');
+      const skip = el('button', { className: 'btn', hidden: !onSkip, onclick: () => { if (answered) return; answered = true; lock(); reveal(null); onSkip(); } }, 'Skip');
+      box.append(area, el('div', { className: 'answer check-row' }, check, clear, skip));
     } else {
       // a number, or (kind 'text') words, with buttons for the letters a keyboard may not have (answer.keys)
       const text = q.answer.kind === 'text';
@@ -672,9 +741,8 @@ export function testsPage({ tests }) {
       el('h3', {}, 'Review'),
       el('div', { className: 'review stagger' }, ...qs.map((q, i) => {
         const g = given[i];
-        const yours = g == null ? 'left blank' : q.answer.kind === 'choice' ? `(${LETTERS[g]})` : `${g}`;
         const d = el('details', { className: 'rv ' + (right[i] ? 'good' : g == null ? 'blank' : 'bad') });
-        d.append(el('summary', {}, el('span', { className: 'mark' }, right[i] ? '✓' : g == null ? '–' : '✗'), `${i + 1}. ${q.topic}`, el('span', { className: 'muted' }, ` · variant ${q.n} · you: ${yours}`)));
+        d.append(el('summary', {}, el('span', { className: 'mark' }, right[i] ? '✓' : g == null ? '–' : '✗'), `${i + 1}. ${q.topic}`, el('span', { className: 'muted' }, ` · variant ${q.n} · you: ${yours(q.answer, g)}`)));
         d.append(html('p', 'qtext', q.text));
         if (q.figure) d.append(html('div', 'fig', q.figure));
         d.append(html('p', 'answer-line', `Answer: <b>${shown(q.answer)}</b>`), html('div', 'sol', q.solution));

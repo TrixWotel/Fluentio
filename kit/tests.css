@@ -136,6 +136,17 @@ details[open] > :not(summary) { animation: rise var(--t2) var(--ease) backwards;
 .choice.right { border-color: var(--good); background: color-mix(in srgb, var(--good) 10%, var(--bg)); animation: bump var(--t3) var(--spring); }
 .choice.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, var(--bg)); animation: shake calc(.42s / var(--speed)) var(--ease); }
 .choice.wrong:disabled { opacity: .55; cursor: default; }
+/* putting in order, choosing all that fit, and matching */
+.choices.order .choice .letter, .choices.multi .choice .letter { text-align: center; }
+.choices.order .choice.picked .letter { color: var(--accent); }
+.choice.missed { border-style: dashed; border-color: var(--good); }
+.choice:disabled { cursor: default; }
+.choice:disabled:hover { transform: none; }
+.choice.picked:disabled:not(.right):not(.wrong) { border-color: var(--accent); }
+.match-row { display: flex; align-items: center; justify-content: space-between; gap: 8px 14px; flex-wrap: wrap; padding: 8px 10px 8px 14px; border-radius: calc(var(--radius) * .72); border: 1px solid var(--line); background: var(--bg); }
+.match-row .ml { flex: 1 1 14em; }
+.match-row .pick-in { flex: 0 1 18em; }
+.check-row { margin-top: 12px; }
 .result { margin-top: 14px; font-weight: 600; min-height: 1.4em; }
 .result.good { color: var(--good); animation: pop var(--t2) var(--spring); }
 .result.bad { color: var(--bad); animation: shake calc(.42s / var(--speed)) var(--ease); }
@@ -199,6 +210,11 @@ h3.xq-title { display: flex; justify-content: space-between; align-items: baseli
 .xq-title .muted { font-size: .85rem; white-space: nowrap; }
 .ctx p { margin: 0 0 10px; }
 .ctx .model { text-align: center; font-size: 1.2rem; margin: 6px 0 12px; }
+/* a source to read (History): set apart like a quotation, with who wrote it under it */
+.ctx .source { margin: 4px 0 10px; padding: 12px 16px; border-left: 3px solid var(--accent); border-radius: 0 calc(var(--radius) * .6) calc(var(--radius) * .6) 0; background: var(--soft); font-style: italic; }
+.ctx .source p { margin: 0 0 8px; }
+.ctx .source footer { font-style: normal; color: var(--muted); font-size: .92rem; text-align: left; margin: 0; padding: 0; }
+.ctx .source footer::before { content: '— '; }
 .xq .fig { margin: 8px 0 14px; }
 .chart { width: 100%; max-width: 600px; }
 .chart-title { text-align: center; font-weight: 600; margin: 0 0 6px; }

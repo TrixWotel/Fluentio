@@ -216,7 +216,8 @@
             el('div', { className: 'meter', role: 'img', 'aria-label': `Day ${days} of ${of}` }, el('div', { style: `width:${Math.round((100 * days) / of)}%` })),
             soon);
         },
-        // one practice question a day, from a different subject each day (one without a figure), answered right here
+        // one practice question a day, from a different subject each day (one without a figure, answered with a choice, a
+        // number or a word), answered right here
         question: () => {
           const box = tile('wide2', 'var(--plot2)', head('spark', 'Question of the day'), el('p', { className: 'muted' }, 'Finding today’s question…'));
           const POOL = [['amc10', 'math/amc.js', 'amc'], ['heat', 'science/heat.js', 'heat'], ['vocab', 'spanish/vocab.js', 'vocab'], ['motion', 'physics/motion.js', 'motionBank'],
@@ -226,7 +227,7 @@
           Promise.all([import(link(file)), import(link('kit/tests.js'))]).then(([mod, { isRight }]) => {
             const bank = mod[name];
             let n = (Math.imul(today + 1, 2654435761) >>> 0) % bank.count + 1, q = bank.make(n);
-            for (let j = 0; j < 80 && q.figure; j++) { n = (n % bank.count) + 1; q = bank.make(n); }
+            for (let j = 0; j < 80 && (q.figure || !['choice', 'text', 'number'].includes(q.answer.kind)); j++) { n = (n % bank.count) + 1; q = bank.make(n); }
             const a = q.answer, LETTERS = 'ABCDE', key = day(now), saved = f.read('fluentio.today');
             const done = saved && saved.day === key && saved.id === id && saved.n === n ? saved : null;
             const result = el('p', { className: 'qd-result' });
