@@ -1,6 +1,13 @@
-// Learning AMC 10 Practice: the path (five units, each in an order where a topic builds on the ones before, the harder
+// Learning AMC 10 Practice: the path (six units, each in an order where a topic builds on the ones before, the harder
 // topics last) and a short lesson for every topic: how to spot it in a test, the idea, how to do it, the facts worth
-// knowing by heart, what to watch out for, and a tip (shown after a wrong answer, and as the first hint).
+// knowing by heart, what to watch out for, and a tip (shown after a wrong answer, and as the first hint). The lessons of
+// the hardest topics (problems 17 to 25) and of the word problems are in their own files, and join the path at the end.
+import * as topAlgebra from './amc-top-algebra-lessons.js';
+import * as topNumber from './amc-top-number-lessons.js';
+import * as topCounting from './amc-top-counting-lessons.js';
+import * as topGeometry from './amc-top-geometry-lessons.js';
+import * as topMiddle from './amc-top-middle-lessons.js';
+
 export const amcLearning = {
   path: [
     { unit: 'Arithmetic and algebra', topics: [
@@ -415,7 +422,7 @@ export const amcLearning = {
       ],
       tip: 'The gap between two ages never changes: a parent’s age is a multiple of the child’s exactly when the child’s age divides that gap.',
     },
-    // harder: problems 15 to 25
+    // harder ones
     'Roots without solving': {
       spot: 'When a question asks for something built from a polynomial’s roots (their squares, their reciprocals, a mean, a new polynomial with related roots), or for the coefficients that make the roots whole numbers: the roots are ugly or not needed, and Vieta’s formulas give the answer straight from the coefficients.',
       idea: 'A polynomial with leading coefficient a and roots r, s, t is a(x − r)(x − s)(x − t). Multiplying that out and matching coefficients gives Vieta’s formulas: for ax<sup>2</sup> + bx + c, r + s = −b/a and rs = c/a; for ax<sup>3</sup> + bx<sup>2</sup> + cx + d, r + s + t = −b/a, rs + st + tr = c/a and rst = −d/a. Anything symmetric in the roots can be rewritten in these three. For example, the roots of 2x<sup>2</sup> − 6x + 1 = 0 have r + s = 3 and rs = 1/2, so 1/r + 1/s = (r + s)/(rs) = 6, without ever finding r or s. A polynomial with the roots moved works the same way: the one with roots r + k, s + k, t + k is P(x − k).',
@@ -1019,7 +1026,7 @@ export const amcLearning = {
       ],
       tip: 'Multiply by k or k² to shift the repeating block over, then subtract so it cancels.',
     },
-    // harder: problems 15 to 25
+    // harder ones
     'Divisibility by 11': {
       spot: 'Missing digits in a multiple of 11, 33, 66, 88 or 99, a count of numbers with some digit property that are multiples of 11, palindromes, or a block of digits written over and over. Whenever 11 meets digits, think of the alternating digit sum.',
       idea: 'Since 10 = 11 − 1, the powers 1, 10, 100, 1000, … are alternately 1 more and 1 less than a multiple of 11. So a number leaves the same remainder as its alternating digit sum (units digit minus tens digit plus hundreds digit, and so on), and it is a multiple of 11 exactly when that sum is. For example, 9273 gives 3 − 7 + 2 − 9 = −11, so 9273 = 11 · 843. For 99, 88 or 66, use this test together with the one for 9, 8 or 6: the two factors share nothing, so passing both is the same as being a multiple of the product.',
@@ -1637,7 +1644,7 @@ export const amcLearning = {
       ],
       tip: 'Use symmetry to fix the start, sort the corners by distance, and remember that a walk changes color at every step.',
     },
-    // harder: problems 15 to 25
+    // harder ones
     'Counting with recursion': {
       spot: 'When you count strings, tilings, climbs or rows of length n with a rule about neighbours (no two in a row, never land on step 4, every bead next to one of its own color) and n is too big to list everything: the count for n is built from the counts for n − 1, n − 2, ….',
       idea: 'Sort the objects of length n by how they end. Whatever comes before the ending is a smaller object of the same kind, so the count for n is a sum of counts for shorter lengths, and you fill in a table from the bottom up. Strings of 0s and 1s with no two 1s side by side end in 0 or in 01, so a(n) = a(n − 1) + a(n − 2), which gives 2, 3, 5, 8, 13, …. When the rule depends on the last letter, keep one count for each kind of ending (a state) and update all of them together, one letter at a time.',
@@ -2034,7 +2041,7 @@ export const amcLearning = {
       ],
       tip: 'Turn the random choices into a random point in a shape, then compare areas.',
     },
-    // harder: problems 15 to 25
+    // harder ones
     'Random walks and states': {
       spot: 'When something moves step by step and only where it is now matters (a token on a strip, a coin waiting for a pattern, a frog on lily pads), and the question asks for the chance of finishing somewhere or the expected number of steps.',
       idea: 'Give each state an unknown: the chance of winning from there, or the expected number of steps still to come. One step from a state leads to the next states with known chances, so each unknown is an average of the unknowns it can step to (plus 1 for the step, when counting steps). That gives a small system of equations, and the finished states fix the ends. For a fair coin flipped until HH, let a be the expected flips from scratch and b the expected flips right after an H: a = 1 + ½b + ½a and b = 1 + ½a, so a = 6. In a walk along a line there is a shortcut: the gaps between neighboring unknowns follow a pattern.',
@@ -2465,7 +2472,7 @@ export const amcLearning = {
       ],
       tip: 'Join opposite face centres: three perpendicular segments as long as the box’s edges, two of which span a rhombus that splits the octahedron into two pyramids; neighbouring face centres are half-edges apart at right angles.',
     },
-    // harder: problems 15 to 25
+    // harder ones
     'Power of a point': {
       spot: 'When two chords cross, or lines from one point outside a circle cut it (or touch it), and the problem gives some of the pieces: the pieces along each line are tied together by their product.',
       idea: 'Every line through a point P that meets a circle is cut at the circle into two pieces, measured from P to each crossing point, and the two pieces always multiply to the same number, the power of P. Inside the circle that reads AE·EB = CE·ED for two crossing chords; outside it reads PA·PB = PC·PD for two secants, and PT² = PA·PB for a tangent PT. The reason is similar triangles: for crossing chords, triangles AEC and DEB have vertical angles at E and inscribed angles on the same arc, so their sides are in proportion. The line through the centre tells you what the number is: for P at distance d from the centre of a circle of radius r, the power is r² − d² inside and d² − r² outside. For example, chords crossing with pieces 4 and 9 give 36, so if the other chord is 15 long its pieces solve x(15 − x) = 36: they are 3 and 12.',
@@ -2644,3 +2651,15 @@ export const amcLearning = {
     },
   },
 };
+
+// the hardest topics go at the end of their units (the counting file's chance questions at the end of Probability), and
+// the word problems make a unit of their own, after arithmetic and algebra
+const unit = (name) => amcLearning.path.find((u) => u.unit === name).topics;
+const CHANCE = ['Linearity of expectation', 'Chances given what you saw', 'Chances from lengths and arcs', 'A bug on a solid'];
+unit('Arithmetic and algebra').push(...topAlgebra.topics);
+unit('Number theory').push(...topNumber.topics);
+unit('Counting').push(...topCounting.topics.filter((t) => !CHANCE.includes(t)));
+unit('Probability').push(...topCounting.topics.filter((t) => CHANCE.includes(t)));
+unit('Geometry').push(...topGeometry.topics);
+amcLearning.path.splice(1, 0, { unit: 'Word problems', topics: [...topMiddle.topics] });
+Object.assign(amcLearning.lessons, topAlgebra.lessons, topNumber.lessons, topCounting.lessons, topGeometry.lessons, topMiddle.lessons);

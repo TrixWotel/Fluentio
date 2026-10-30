@@ -73,7 +73,7 @@ export const algebra = {
       const [P, Q] = combo(ctx, [[10, 15, 20, 25, 30, 40], [5, 10, 15, 20]], (P, Q) => P > Q && !(P === 20 && Q === 5) && Math.abs((pct(P, Q) % 1) - 0.5) > 0.12);
       const [big, small] = d.pick([['concert ticket', 'snack'], ['paperback', 'coffee'], ['bus pass', 'lunch'], ['video game', 'drink'], ['museum pass', 'sandwich']]), who = d.pick(NAMES), p = P / 100, q = Q / 100, share = pct(P, Q), ans = Math.round(share);
       return {
-        topic: 'Percent of what is left', rank: 14,
+        topic: 'Percent of what is left', rank: 6,
         text: `Each week ${who} buys a ${big} and a ${small} out of an allowance of A dollars. This week the ${big} cost ${P}% of whatever would be left of A after buying only the ${small}, while the ${small} cost ${Q}% of whatever would be left of A after buying only the ${big}. To the nearest whole percent, how much of A did the two cost altogether?`,
         answer: choices(d, ans, [P + Q, Math.round((100 * p * (1 - q)) / (1 - p * q)), Math.round(100 * (p + q - p * q)), Math.round((100 * (p + q)) / (1 + p * q))], (v) => `${num(v)}%`),
         check: () => {
@@ -89,7 +89,7 @@ export const algebra = {
       const [P, Q] = combo(ctx, [[10, 20, 25, 30, 40, 50, 60], [10, 20, 25, 40, 50]]);
       const [first, second, whole] = d.pick([['a book', 'lunch', 'gift card'], ['a jacket', 'a gift', 'paycheck'], ['rent', 'groceries', 'paycheck'], ['a bike', 'a helmet', 'prize']]), who = d.pick(NAMES), left = ((100 - P) * (100 - Q)) / 100;
       return {
-        topic: 'Percent of what is left', rank: 5,
+        topic: 'Percent of what is left', rank: 1,
         text: `${who} spends ${P}% of a ${whole} on ${first}, and then ${Q}% of what is left on ${second}. What percent of the ${whole} is left?`,
         answer: choices(d, left, [100 - P - Q, 100 - left, ((100 - P) * Q) / 100, 100 - P, (P * Q) / 100], (v) => `${num(v, 2)}%`),
         check: () => { let x = 10000; x -= (x * P) / 100; x -= (x * Q) / 100; return Math.abs(x / 100 - left) < 1e-9 ? '' : `${x / 100}% is left`; },
@@ -103,7 +103,7 @@ export const algebra = {
       const keep = keepOf(P, Q), S = baseOf(P, Q) * mult, R = (S * keep) / 10000, who = d.pick(NAMES);
       const [first, second] = d.pick([['a phone', 'a case'], ['concert tickets', 'dinner'], ['a laptop', 'software'], ['flights', 'a hotel']]);
       return {
-        topic: 'Percent of what is left', rank: 8,
+        topic: 'Percent of what is left', rank: 2,
         text: `${who} spent ${P}% of some savings on ${first}, and then ${Q}% of what was left on ${second}, leaving $${num(R)}. How many dollars were in the savings at the start?`,
         answer: choices(d, S, [Math.round((R * 100) / (100 - P - Q)), Math.round((R * (100 + P) * (100 + Q)) / 10000), Math.round((R * 100) / (100 - P)), R + Math.round((R * (P + Q)) / 100)]),
         check: () => (S * keep === R * 10000 ? '' : `$${S} leaves $${(S * keep) / 10000}`),
@@ -118,7 +118,7 @@ export const algebra = {
       const A = step * d.int(Math.max(1, Math.ceil(20 / step)), Math.max(1, Math.floor(300 / step))), t = (tn * A) / D, s = (sn * A) / D;
       const [big, small] = d.pick([['concert ticket', 'snack'], ['paperback', 'coffee'], ['bus pass', 'lunch'], ['video game', 'drink']]), who = d.pick(NAMES);
       return {
-        topic: 'Percent of what is left', rank: 15,
+        topic: 'Percent of what is left', rank: 7,
         text: `${who} buys a ${big} and a ${small} out of an allowance. The ${big} costs ${P}% of what would be left of the allowance after buying only the ${small}, and the ${small} costs ${Q}% of what would be left after buying only the ${big}. Together they cost $${num(t + s)}. How many dollars is the allowance?`,
         answer: choices(d, A, [Math.round(((t + s) * 100) / (P + Q)), A + step, A - step, Math.round((t * 100) / P), 2 * (t + s)]),
         check: () => (100 * t === P * (A - s) && 100 * s === Q * (A - t) ? '' : `the prices ${t} and ${s} don’t fit an allowance of ${A}`),
@@ -135,7 +135,7 @@ export const algebra = {
       const [place, who, thing] = d.pick(SETTINGS);
       const [top, den] = parts(L, Y, N), other = (100 - L) * (100 - N);
       return {
-        topic: 'Saying and meaning', rank: 11,
+        topic: 'Saying and meaning', rank: 6,
         text: `At a ${place}, ${L}% of the ${who} truly like ${thing} and the rest do not. When asked, ${Y}% of those who like ${thing} say so, and the others claim they don’t; ${N}% of those who don’t like it say so, and the others claim they do. What fraction of the ${who} who say they don’t like ${thing} actually like it?`,
         answer: choices(d, [top, den], [[top, 10000], [100 - Y, 100], [other, other + L * Y], [den - top, den], [L, 100]], showFrac),
         check: () => { const s = survey(L, Y, N); return s.likeSayNo * den === top * (s.likeSayNo + s.notSayNo) ? '' : `counted ${s.likeSayNo}/${s.likeSayNo + s.notSayNo}`; },
@@ -148,7 +148,7 @@ export const algebra = {
       const [place, who, thing] = d.pick(SETTINGS);
       const top = L * Y, liars = (100 - L) * (100 - N), den = top + liars;
       return {
-        topic: 'Saying and meaning', rank: 10,
+        topic: 'Saying and meaning', rank: 6,
         text: `At a ${place}, ${L}% of the ${who} truly like ${thing} and the rest do not. ${Y}% of those who like ${thing} say so when asked, and the others claim they don’t; ${N}% of those who don’t like it say so, and the others claim they do. What fraction of the ${who} who say they like ${thing} really do?`,
         answer: choices(d, [top, den], [[Y, 100], [L, 100], [top, 10000], [liars, den], [top, top + (100 - L) * N]], showFrac),
         check: () => { const s = survey(L, Y, N); return s.likeSayYes * den === top * (s.likeSayYes + s.notSayYes) ? '' : `counted ${s.likeSayYes}/${s.likeSayYes + s.notSayYes}`; },
@@ -161,7 +161,7 @@ export const algebra = {
       const [place, who, thing] = d.pick(SETTINGS);
       const yes = (L * Y) / 100, fake = ((100 - L) * (100 - N)) / 100, say = yes + fake;
       return {
-        topic: 'Saying and meaning', rank: 6,
+        topic: 'Saying and meaning', rank: 3,
         text: `At a ${place}, ${L}% of the ${who} like ${thing}. Of those, ${Y}% say so when asked. Of the ${who} who don’t like ${thing}, ${N}% say so and the rest claim they do. What percent of all the ${who} say they like ${thing}?`,
         answer: choices(d, say, [L, yes, (L * Y + (100 - L) * N) / 100, 100 - say, Y], (v) => `${num(v, 2)}%`),
         check: () => { const s = survey(L, Y, N); return Math.abs((s.likeSayYes + s.notSayYes) / 100 - say) < 1e-9 ? '' : `counted ${(s.likeSayYes + s.notSayYes) / 100}%`; },
@@ -174,7 +174,7 @@ export const algebra = {
       const [place, who, thing] = d.pick(SETTINGS);
       const say = (L * Y + (100 - L) * (100 - N)) / 100;
       return {
-        topic: 'Saying and meaning', rank: 13,
+        topic: 'Saying and meaning', rank: 6,
         text: `At a ${place}, ${Y}% of the ${who} who like ${thing} say so when asked, and ${N}% of those who don’t like it say so too (the others claim they do). In all, ${num(say, 2)}% of the ${who} say they like ${thing}. What percent of the ${who} really like ${thing}?`,
         answer: choices(d, L, [say, Math.round((say * 100) / Y), 100 - L, Math.round(say - (100 - N)), Y], (v) => `${num(v, 2)}%`),
         check: () => { const fits = range(0, 100).filter((l) => Math.abs((l * Y + (100 - l) * (100 - N)) / 100 - say) < 1e-9); return fits.length === 1 && fits[0] === L ? '' : `fits: ${fits}`; },
@@ -188,7 +188,7 @@ export const algebra = {
     (d, ctx) => {
       const [N] = combo(ctx, [range(31, 99).filter((n) => n !== 63)]), things = d.pick(['cans', 'marbles', 'tiles', 'cups']), T = tri(N);
       return {
-        topic: 'Triangular numbers', rank: 9,
+        topic: 'Triangular numbers', rank: 4,
         text: `${num(T)} ${things} are arranged in a triangle: 1 in the first row, 2 in the second row, 3 in the third, and so on, each row holding one more than the row before. How many rows are there?`,
         answer: choices(d, N, [N - 1, N + 1, N + 2, N - 2, Math.floor(Math.sqrt(T))]),
         check: () => { let rows = 0, used = 0; while (used < T) used += ++rows; return used === T && rows === N ? '' : `${rows} rows hold ${used}`; },
@@ -200,7 +200,7 @@ export const algebra = {
     (d, ctx) => {
       const [N] = combo(ctx, [range(12, 60)]), things = d.pick(['cans', 'oranges', 'bricks', 'pins']), T = tri(N);
       return {
-        topic: 'Triangular numbers', rank: 3,
+        topic: 'Triangular numbers', rank: 2,
         text: `A display of ${things} has 1 in the top row, 2 in the next row, 3 in the next, and so on, with ${N} rows in all. How many ${things} are in the display?`,
         answer: choices(d, T, [N * N, tri(N - 1), N * (N + 1), tri(N + 1), Math.round((N * N) / 2)]),
         check: () => (range(1, N).reduce((s, r) => s + r, 0) === T ? '' : 'the rows add up differently'),
@@ -211,7 +211,7 @@ export const algebra = {
     (d, ctx) => {
       const [a, len] = combo(ctx, [range(5, 30), [5, 8, 10, 12, 15, 20]]), things = d.pick(['cans', 'cups', 'tiles', 'blocks']), b = a + len - 1, ans = tri(b) - tri(a - 1);
       return {
-        topic: 'Triangular numbers', rank: 7,
+        topic: 'Triangular numbers', rank: 4,
         text: `${things[0].toUpperCase() + things.slice(1)} are stacked in a triangle: 1 in the first row, 2 in the second row, 3 in the third, and so on. How many ${things} are in rows ${a} through ${b}, counting both of those rows?`,
         answer: choices(d, ans, [tri(b) - tri(a), tri(b), len * b, tri(b + 1) - tri(a), len * a]),
         check: () => (range(a, b).reduce((s, r) => s + r, 0) === ans ? '' : 'the rows add up differently'),
@@ -223,7 +223,7 @@ export const algebra = {
       const [N] = combo(ctx, [range(20, 70)]), things = d.pick(['marbles', 'coins', 'stones', 'beads']);
       const left = d.int(1, N), T = tri(N) + left;      // fewer than N + 1 left, so row N + 1 can’t be finished
       return {
-        topic: 'Triangular numbers', rank: 10,
+        topic: 'Triangular numbers', rank: 4,
         text: `${num(T)} ${things} are laid out in rows: 1 in the first row, 2 in the second, 3 in the third, and so on, finishing as many complete rows as possible. How many ${things} are left over?`,
         answer: choices(d, left, [tri(N + 1) - T, left + N + 1, T - N * N, T - tri(N - 1)]),
         check: () => { let rows = 0, used = 0; while (used + rows + 1 <= T) used += ++rows; return T - used === left ? '' : `${T - used} left`; },
@@ -240,7 +240,7 @@ export const algebra = {
       const second = which === 'second', ans = second ? [4 * t, 1] : [27 * t, 4];
       const S = (r) => (second ? t / (r * (1 - r)) : t / (r * r * (1 - r)));
       return {
-        topic: 'Geometric series', rank: 16,
+        topic: 'Geometric series', rank: 10,
         text: second
           ? `The terms of an infinite geometric series add up to a positive number S, and the series’ second term is ${t}. What is the smallest value S can have?`
           : `Every term of an infinite geometric series is positive, and its third term is ${t}. What is the smallest the sum of the whole series can be?`,
@@ -260,7 +260,7 @@ export const algebra = {
       const [[rp, rq]] = combo(ctx, [[[1, 2], [1, 3], [2, 3], [1, 4], [3, 4], [2, 5], [3, 5]]]), m = d.int(1, 5);
       const a = (rq - rp) * m, S = m * rq, ans = ratio(a * rp, rq);
       return {
-        topic: 'Geometric series', rank: 9,
+        topic: 'Geometric series', rank: 3,
         text: `An infinite geometric series has first term ${a} and its terms add up to ${S}. What is its second term?`,
         answer: choices(d, ans, [[rp, rq], [S - a, 1], ratio(a * (rq - rp), rq), ratio(a * rp * rp, rq * rq), ratio(a, 2)], showFrac),
         check: () => { const r = 1 - a / S; return Math.abs(a * r - ans[0] / ans[1]) < 1e-9 && Math.abs(a / (1 - r) - S) < 1e-9 ? '' : `the second term is ${a * r}`; },
@@ -272,7 +272,7 @@ export const algebra = {
       const [[rp, rq]] = combo(ctx, [[[1, 2], [1, 3], [2, 3], [1, 4], [3, 4], [2, 5], [1, 5]]]), m = d.int(1, 3);
       const S = (rq + rp) * rq * m, odd = rq * rq * m;          // first term (rq² − rp²)m
       return {
-        topic: 'Geometric series', rank: 14,
+        topic: 'Geometric series', rank: 7,
         text: `The terms of an infinite geometric series add up to ${S}, and the terms in the odd positions (the 1st, 3rd, 5th, …) add up to ${odd}. What is the common ratio of the series?`,
         answer: choices(d, [rp, rq], [ratio(odd, S), ratio(S - odd, S), ratio(rp * rp, rq * rq), ratio(rq - rp, rq), ratio(rp, rq + rp)], showFrac),
         check: () => {
@@ -289,7 +289,7 @@ export const algebra = {
       const [[rp, rq]] = combo(ctx, [[[1, 2], [1, 3], [2, 3], [3, 4], [3, 5], [2, 5], [4, 5]]]), H = d.pick([2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 20].filter((h) => h % (rq - rp) === 0));
       const falls = (H * rq) / (rq - rp), total = 2 * falls - H;
       return {
-        topic: 'Geometric series', rank: 10,
+        topic: 'Geometric series', rank: 4,
         text: `A ball is dropped from a height of ${H} meters. Every time it lands, it bounces back up to ${frac(rp, rq)} of the height it just fell. If it keeps bouncing forever, how many meters does it travel in all, up and down?`,
         answer: choices(d, total, [falls, 2 * falls, (H * (rq + rp)) / rq, total - H, total + H]),
         check: () => { let h = H, dist = H; for (let i = 0; i < 2000; i++) { h *= rp / rq; dist += 2 * h; } return Math.abs(dist - total) < 1e-6 ? '' : `it travels ${dist}`; },
@@ -304,7 +304,7 @@ export const algebra = {
       const [m] = combo(ctx, [[2, 4, 5, 6, 7]]);
       const cyc = pisano(m), P = cyc.length, total = cyc.reduce((x, y) => x + y, 0), s = d.int(1950, 2100), G = (i) => sub('G', i);
       return {
-        topic: 'Fibonacci remainders', rank: 13,
+        topic: 'Fibonacci remainders', rank: 5,
         text: `${fibIntro(m, cyc)} What is ${P > 3 ? `${G(s)} + ${G(s + 1)} + ⋯ + ${G(s + P - 1)}` : range(s, s + P - 1).map(G).join(' + ')}?`,
         answer: choices(d, total, [total + 1, total - 1, total + m, Math.round((P * (m - 1)) / 2), total - m, 2 * total]),
         check: () => {
@@ -320,7 +320,7 @@ export const algebra = {
       const [m] = combo(ctx, [[5, 6, 7, 8, 9]]);
       const cyc = pisano(m), P = cyc.length, N = d.int(1000, 3000), ans = cyc[N % P], G = (i) => sub('G', i);
       return {
-        topic: 'Fibonacci remainders', rank: 11,
+        topic: 'Fibonacci remainders', rank: 6,
         text: `${fibIntro(m, cyc)} What is ${G(N)}?`,
         answer: choices(d, ans, [cyc[(N + 1) % P], cyc[(N - 1) % P], cyc[(N + 2) % P], (ans + 1) % m, N % m]),
         check: () => { let [x, y] = [0, 1]; for (let i = 0; i < N; i++) [x, y] = [y, (x + y) % m]; return x === ans ? '' : `${G(N)} is ${x}`; },
@@ -333,7 +333,7 @@ export const algebra = {
       const cyc = pisano(m), P = cyc.length, N = d.int(100, 400), G = (i) => sub('G', i);
       const first = cyc.indexOf(0, 1) > 0 ? cyc.indexOf(0, 1) : P, zeros = Math.floor(N / first);   // 0s come every `first` terms
       return {
-        topic: 'Fibonacci remainders', rank: 12,
+        topic: 'Fibonacci remainders', rank: 6,
         text: `${fibIntro(m, cyc)} How many of ${G(1)}, ${G(2)}, …, ${G(N)} are equal to 0?`,
         answer: choices(d, zeros, [Math.floor(N / P), zeros + 1, zeros - 1, Math.floor(N / m), Math.round(N / P) * (P / first) + 1]),
         check: () => { let [x, y] = [0, 1], count = 0; for (let i = 1; i <= N; i++) { [x, y] = [y, (x + y) % m]; if (x === 0) count++; } return count === zeros ? '' : `counted ${count}`; },
@@ -346,7 +346,7 @@ export const algebra = {
       const cyc = pisano(m), P = cyc.length, total = cyc.reduce((x, y) => x + y, 0), N = d.int(100, 500), G = (i) => sub('G', i);
       const full = Math.floor((N + 1) / P), rest = cyc.slice(0, (N + 1) % P), ans = full * total + rest.reduce((x, y) => x + y, 0);
       return {
-        topic: 'Fibonacci remainders', rank: 14,
+        topic: 'Fibonacci remainders', rank: 7,
         text: `${fibIntro(m, cyc)} What is ${G(0)} + ${G(1)} + ⋯ + ${G(N)}?`,
         answer: choices(d, ans, [full * total, ans + cyc[(N + 1) % P] + 1, Math.round(((N + 1) * total) / P) + 1, ans - 1, ans + 1]),
         check: () => { let [x, y] = [0, 1], sum = 0; for (let i = 0; i <= N; i++) { sum += x; [x, y] = [y, (x + y) % m]; } return sum === ans ? '' : `the sum is ${sum}`; },
@@ -365,7 +365,7 @@ export const algebra = {
       g.push(g[2] - g[1], -g[1], -g[2], g[1] - g[2]);
       const r = ((N - 1) % 6) + 1, ans = c * (N + 1) + g[r], C = c === 1 ? '' : c, lin = c === 1 ? 'n + 1' : `${c}(n + 1)`;
       return {
-        topic: 'Recursive functions', rank: 20,
+        topic: 'Recursive functions', rank: 15,
         text: `A function f on the positive integers has f(1) = ${num(f1)}, f(2) = ${num(f2)}, and f(n) = f(n − 1) − f(n − 2) + ${C}n for every n ≥ 3. What is f(${N})?`,
         answer: choices(d, ans, [c * (N + 1), c * N, ans + 1, ans - 1, ans + c, ans - c]),
         check: () => { let [x, y] = [f1, f2]; for (let n = 3; n <= N; n++) [x, y] = [y, y - x + c * n]; return y === ans ? '' : `f(${N}) is ${y}`; },
@@ -378,7 +378,7 @@ export const algebra = {
       const [x, y] = combo(ctx, [range(-5, 7), range(-5, 7)], (x, y) => new Set([x, y, y - x, -x, -y, x - y]).size === 6);
       const N = d.int(500, 3000), vals = [x, y, y - x, -x, -y, x - y], ans = vals[(N - 1) % 6], a = (i) => sub('a', i);
       return {
-        topic: 'Recursive functions', rank: 12,
+        topic: 'Recursive functions', rank: 4,
         text: `A sequence has ${a(1)} = ${num(x)}, ${a(2)} = ${num(y)}, and ${a('n')} = ${a('n−1')} − ${a('n−2')} for every n ≥ 3. What is ${a(N)}?`,
         answer: choices(d, ans, [...vals.filter((v) => v !== ans), ans + 1]),
         check: () => { let [p, q] = [x, y]; for (let n = 3; n <= N; n++) [p, q] = [q, q - p]; return (N === 1 ? x : N === 2 ? y : q) === ans ? '' : `${a(N)} is ${q}`; },
@@ -391,7 +391,7 @@ export const algebra = {
       const vals = [ratio(a, 1), ratio(1, 1 - a), ratio(a - 1, a)], N = d.int(100, 2500), ans = vals[(N - 1) % 3], b = (i) => sub('b', i);
       const after = (v) => (v[0] < 0 ? `(${showFrac(v)})` : showFrac(v));   // what follows "1 −": a negative one in brackets
       return {
-        topic: 'Recursive functions', rank: 14,
+        topic: 'Recursive functions', rank: 5,
         text: `A sequence has ${b(1)} = ${num(a)} and ${b('n+1')} = <span class="fr"><span>1</span><span>1 − ${b('n')}</span></span> for every n ≥ 1. What is ${b(N)}?`,
         answer: choices(d, ans, [...vals.filter((v) => v !== ans), ratio(1, a), ratio(1 - a, 1), ratio(-1, a)], showFrac),
         check: () => {
@@ -409,7 +409,7 @@ export const algebra = {
       const [f1, A, B] = combo(ctx, [[1, 2, 3, 5, 7], [1, 2, 3, 4], [-3, -2, -1, 0, 1, 2]]);
       const N = d.int(40, 150), ans = f1 + A * (tri(N) - 1) + B * (N - 1), step = expr([A, 'n'], [B, '']);
       return {
-        topic: 'Recursive functions', rank: 9,
+        topic: 'Recursive functions', rank: 5,
         text: `A function has f(1) = ${f1} and f(n) = f(n − 1) + ${step} for every n ≥ 2. What is f(${N})?`,
         answer: choices(d, ans, [ans - f1, f1 + A * tri(N) + B * N, f1 + A * (tri(N - 1) - 1) + B * (N - 2), ans + A * N + B, A * N * N + B * N]),
         check: () => { let f = f1; for (let n = 2; n <= N; n++) f += A * n + B; return f === ans ? '' : `f(${N}) is ${f}`; },
@@ -427,7 +427,7 @@ export const algebra = {
       const [p, q] = term(N), sum = ([x, y]) => x + y, step = w - u * v;
       const an = (i) => `a<sub>${i}</sub>`;
       return {
-        topic: 'Reciprocal sequences', rank: 15,
+        topic: 'Reciprocal sequences', rank: 11,
         text: `A sequence has ${an(1)} = ${u === 1 ? '1' : frac(1, u)}, ${an(2)} = ${frac(v, w)}, and each later term is ${an('n')} = <span class="fr"><span>${an('n−2')} · ${an('n−1')}</span><span>2${an('n−2')} − ${an('n−1')}</span></span>. Written in lowest terms, ${an(N)} = p/q. What is p + q?`,
         answer: choices(d, p + q, [sum(term(N - 1)), sum(term(N + 1)), q, q - p, v + u * v + (N - 1) * step]),
         check: () => {
@@ -448,7 +448,7 @@ export const algebra = {
       const [x, step, i, gap] = combo(ctx, [[2, 3, 4, 5, 6], [2, 3, 4, 5, 7], [1, 2, 3], [3, 4, 5]]);
       const j = i + gap, y = x + gap * step, N = d.int(20, 80), m = x + (N - i) * step, a = (k) => sub('a', k);
       return {
-        topic: 'Reciprocal sequences', rank: 10,
+        topic: 'Reciprocal sequences', rank: 5,
         text: `The reciprocals 1/${a(1)}, 1/${a(2)}, 1/${a(3)}, … of a sequence go up by the same amount each time. If ${a(i)} = ${frac(1, x)} and ${a(j)} = ${frac(1, y)}, then ${a(N)} = 1/m. What is m?`,
         answer: choices(d, m, [x + (N - 1) * step, m + step, m - step, x + N * step, Math.round(x + ((N - i) * (y - x)) / (j - i + 1))]),
         check: () => { const diff = (y - x) / (j - i); return Math.abs(x + (N - i) * diff - m) < 1e-9 && Number.isInteger(diff) ? '' : `the reciprocal is ${x + (N - i) * diff}`; },
@@ -460,7 +460,7 @@ export const algebra = {
       const [u, k] = combo(ctx, [[1, 2, 3, 4, 5], [1, 2, 3, 4]]);
       const N = d.int(30, 200), m = u + (N - 1) * k, a = (i) => sub('a', i), K = k === 1 ? '' : k;
       return {
-        topic: 'Reciprocal sequences', rank: 13,
+        topic: 'Reciprocal sequences', rank: 7,
         text: `A sequence has ${a(1)} = ${frac(1, u)} and ${a('n+1')} = <span class="fr"><span>${a('n')}</span><span>1 + ${K}${a('n')}</span></span> for every n ≥ 1. Then ${a(N)} = 1/m. What is m?`,
         answer: choices(d, m, [u + N * k, u + (N - 2) * k, u * N * k, u + N - 1, k * N]),
         check: () => { let [p, q] = [1n, BigInt(u)]; for (let n = 1; n < N; n++) [p, q] = [p, q + BigInt(k) * p]; return p === 1n && Number(q) === m ? '' : `${a(N)} is ${p}/${q}`; },
@@ -472,7 +472,7 @@ export const algebra = {
       const [u, c] = combo(ctx, [[1, 2, 3, 4], [1, 2, 3]]);
       const N = d.int(20, 60), m = u + c * tri(N - 1), a = (i) => sub('a', i), C = c === 1 ? '' : c;
       return {
-        topic: 'Reciprocal sequences', rank: 17,
+        topic: 'Reciprocal sequences', rank: 9,
         text: `A sequence has ${a(1)} = ${frac(1, u)} and ${a('n+1')} = <span class="fr"><span>${a('n')}</span><span>1 + ${C}n${a('n')}</span></span> for every n ≥ 1. Then ${a(N)} = 1/m. What is m?`,
         answer: choices(d, m, [u + c * tri(N), u + c * (N - 1), c * tri(N - 1), u + c * tri(N - 2), m + 1]),
         check: () => { let [p, q] = [1n, BigInt(u)]; for (let n = 1; n < N; n++) q += BigInt(c * n) * p; return p === 1n && Number(q) === m ? '' : `${a(N)} is ${p}/${q}`; },
@@ -500,7 +500,7 @@ export const algebra = {
       const cleared = gq > 1 ? `, and multiplying both sides by ${gq} gives ${expr([gq * n * x0, ''], [gp, 'a'])} = ${expr([gq * s * x0, 'a'], [gq * s * m * y0, ''])}` : s === 1 ? '' : `, that is ${lhs} = ${expr([s * x0, 'a'], [s * m * y0, ''])}`;
       const flip = gp - gq * s * x0 < 0 ? -1 : 1, A1 = flip * (gp - gq * s * x0), B1 = flip * (gq * s * m * y0 - gq * n * x0);
       return {
-        topic: 'Perpendicular lines', rank: 10,
+        topic: 'Perpendicular lines', rank: 7,
         text: `For some numbers a, b and c, the lines ${expr([1, 'ax'], [m, 'y'])} = c and ${expr([n, 'x'], [1, 'by'])} = ${expr([s, 'c'])} meet at a right angle at the point (${num(x0)}, ${num(y0)}). What is c?`,
         answer: choices(d, c, [-c, s * c, a, b, a * x0 - m * y0]),
         check: () => {
@@ -520,7 +520,7 @@ export const algebra = {
         (p, q) => gcd(p, q) === 1 && Math.abs(p) !== Math.abs(q));
       const r = d.int(1, 12), ans = ratio(p * y1 - q * x1, p);
       return {
-        topic: 'Perpendicular lines', rank: 7,
+        topic: 'Perpendicular lines', rank: 4,
         text: `Line ℓ passes through (${num(x1)}, ${num(y1)}) and is perpendicular to the line ${expr([p, 'x'], [q, 'y'])} = ${r}. At what value of y does ℓ cross the y-axis?`,
         answer: choices(d, ans, [ratio(q * y1 + p * x1, q), ratio(p * y1 + q * x1, p), ratio(q * x1 - p * y1, q), [-ans[0], ans[1]], [y1, 1]], showFrac),
         check: () => {
@@ -540,7 +540,7 @@ export const algebra = {
       const c1 = d.int(1, 9), c2 = d.int(1, 9);
       const line1 = which === 'x' ? expr([1, 'kx'], [b1, 'y']) : expr([a1, 'x'], [1, 'ky']);
       return {
-        topic: 'Perpendicular lines', rank: 8,
+        topic: 'Perpendicular lines', rank: 3,
         text: `For what value of k are the lines ${line1} = ${c1} and ${expr([a2, 'x'], [b2, 'y'])} = ${c2} perpendicular?`,
         answer: choices(d, k, [parallel, [-k[0], k[1]], ratio(k[1], k[0]), [-parallel[0], parallel[1]]], showFrac),
         check: () => {
@@ -560,7 +560,7 @@ export const algebra = {
       const perpRight = m === 1 ? `−${xPart}` : m === -1 ? (P[0] === 0 ? 'x' : less('x', P[0])) : `${frac(-1, m)}${xPart}`;
       const perpLine = `${yPart} = ${perpRight}`;
       return {
-        topic: 'Perpendicular lines', rank: 12,
+        topic: 'Perpendicular lines', rank: 6,
         text: `What is the sum of the coordinates of the point on the line y = ${expr([m, 'x'], [b, ''])} that is closest to (${num(P[0])}, ${num(P[1])})?`,
         answer: choices(d, ans, [P[0] + P[1], P[0] + m * P[0] + b, f + m * f, ans + 1, ans - 1]),
         check: () => {
@@ -581,7 +581,7 @@ export const algebra = {
       const [[kp, kq], t] = combo(ctx, [[[1, 1], [2, 1], [3, 1], [1, 2], [1, 3]], [2, 3, 5, 6]], ([kp, kq], t) => (kp * t ** 3) % kq === 0);
       const k = kp / kq, area = (kp * t ** 3) / kq, K = kText(kp, kq);
       return {
-        topic: 'Parabolas and triangles', rank: 9,
+        topic: 'Parabolas and triangles', rank: 6,
         text: `Triangle PQR has all three corners on the parabola y = ${K}x<sup>2</sup>: P is at the origin, and side QR is parallel to the x-axis. The area of the triangle is ${area}. How long is QR?`,
         figure: parabolaFigure(k, t),
         answer: choices(d, 2 * t, [t, 4 * t, t * t, 2 * t * t, Math.round(Math.sqrt(area))]),
@@ -599,7 +599,7 @@ export const algebra = {
       const [[kp, kq], t] = combo(ctx, [[[1, 1], [2, 1], [3, 1], [1, 2], [1, 3], [3, 2]], [2, 3, 4, 5, 6]]);
       const k = kp / kq, K = kText(kp, kq), h = ratio(kp * t * t, kq), area = ratio(kp * t ** 3, kq);
       return {
-        topic: 'Parabolas and triangles', rank: 7,
+        topic: 'Parabolas and triangles', rank: 5,
         text: `Triangle PQR has all three corners on the parabola y = ${K}x<sup>2</sup>, with P at the origin and side QR parallel to the x-axis. If QR = ${2 * t}, what is the area of the triangle?`,
         figure: parabolaFigure(k, t),
         answer: choices(d, area, [h, ratio(2 * kp * t ** 3, kq), ratio(kp * t ** 3, 2 * kq), ratio(4 * kp * t ** 3, kq), ratio(kp * t * t, 2 * kq)], showFrac),
@@ -612,7 +612,7 @@ export const algebra = {
       const [[kp, kq]] = combo(ctx, [[[1, 1], [2, 1], [3, 1], [1, 2], [1, 3], [1, 4], [4, 1]]]);
       const k = kp / kq, K = kText(kp, kq), side = fracSurd(2 * kq, kp, 3), half = fracSurd(kq, kp, 3);
       return {
-        topic: 'Parabolas and triangles', rank: 13,
+        topic: 'Parabolas and triangles', rank: 9,
         text: `An equilateral triangle has one corner at the origin and its other two corners on the parabola y = ${K}x<sup>2</sup>. How long is each side of the triangle?`,
         figure: parabolaFigure(k, Math.sqrt(3) / k),
         answer: labelled(side, [fracSurd(2 * kq, kp), half, fracSurd(4 * kq, kp, 3), fracSurd(2 * kq, 3 * kp, 3), fracSurd(6 * kq, kp)]),
@@ -630,7 +630,7 @@ export const algebra = {
       const [[kp, kq], ask] = combo(ctx, [[[1, 1], [2, 1], [3, 1], [1, 2], [1, 3], [4, 1]], ['area', 'side']]);
       const K = kText(kp, kq), t = ratio(kq, kp), QR = ratio(2 * kq, kp), area = ratio(kq * kq, kp * kp);
       return {
-        topic: 'Parabolas and triangles', rank: 12,
+        topic: 'Parabolas and triangles', rank: 8,
         text: `Triangle PQR has all three corners on the parabola y = ${K}x<sup>2</sup>, with P at the origin, side QR parallel to the x-axis, and a right angle at P. What is ${ask === 'area' ? 'the area of the triangle' : 'the length of QR'}?`,
         figure: parabolaFigure(kp / kq, kq / kp),
         answer: ask === 'area'
@@ -656,7 +656,7 @@ export const algebra = {
       const K = d.int(60, 480), ans = K - g ** 4, p = 2 * s + 3 * g, q1 = s * (s + 3 * g), q2 = (s + g) * (s + 2 * g);
       const product = [0, 1, 2, 3].map((i) => factor(s + i * g)).join('');
       return {
-        topic: 'Least value of a product', rank: 19,
+        topic: 'Least value of a product', rank: 10,
         text: `As x ranges over all real numbers, what is the smallest value of ${product} + ${K}?`,
         answer: choices(d, ans, [K, K - g * g, K + g ** 4, K - 2 * g ** 4, K - 3 * g ** 4, K - 4 * g ** 4]),
         check: () => {
@@ -672,7 +672,7 @@ export const algebra = {
       const [a, gap] = combo(ctx, [range(-7, 7), [2, 4, 6, 8, 10]]);
       const b = a + gap, K = d.int(10, 99), half = gap / 2, ans = K - half * half;
       return {
-        topic: 'Least value of a product', rank: 5,
+        topic: 'Least value of a product', rank: 3,
         text: `As x ranges over all real numbers, what is the smallest value of ${factor(-a)}${factor(-b)} + ${K}?`,
         answer: choices(d, ans, [K, K - gap * gap, K - a * b, K + half * half, K - half]),
         check: () => { let low = Infinity; for (let x = a - 2; x <= b + 2; x += 1e-3) low = Math.min(low, (x - a) * (x - b) + K); return Math.abs(low - ans) < 1e-4 ? '' : `a scan finds ${low}`; },
@@ -685,7 +685,7 @@ export const algebra = {
       const b = a + i, c = b + j, mean = (a + b + c) / 3, ans = (a - mean) ** 2 + (b - mean) ** 2 + (c - mean) ** 2, sq = (v) => `(x ${v < 0 ? '+' : '−'} ${Math.abs(v)})<sup>2</sup>`;
       const at = (x) => (x - a) ** 2 + (x - b) ** 2 + (x - c) ** 2;
       return {
-        topic: 'Least value of a product', rank: 9,
+        topic: 'Least value of a product', rank: 4,
         text: `As x ranges over all real numbers, what is the smallest value of ${[a, b, c].map((v) => (v === 0 ? 'x<sup>2</sup>' : sq(v))).join(' + ')}?`,
         answer: choices(d, ans, [at(b), a * a + b * b + c * c, ((c - a) ** 2) / 2, at(0), ans + 3]),
         check: () => { let low = Infinity; for (let x = a - 2; x <= c + 2; x += 1e-3) low = Math.min(low, at(x)); return Math.abs(low - ans) < 1e-4 ? '' : `a scan finds ${low}`; },
@@ -698,7 +698,7 @@ export const algebra = {
       const b = a + u, c = b + v, e = c + u, D = b * c - a * e, K = d.int(100, 600), ans = K - (D * D) / 4;
       const product = [a, b, c, e].map(factor).join('');
       return {
-        topic: 'Least value of a product', rank: 20,
+        topic: 'Least value of a product', rank: 10,
         text: `As x ranges over all real numbers, what is the smallest value of ${product} + ${K}?`,
         answer: choices(d, ans, [K, K - D, K - (D * D) / 2, K + (D * D) / 4, K - D * D]),
         check: () => { let low = Infinity; for (let x = -e - 1; x <= -a + 1; x += 1e-4) low = Math.min(low, (x + a) * (x + b) * (x + c) * (x + e) + K); return Math.abs(low - ans) < 1e-3 ? '' : `a scan finds ${low}`; },
@@ -714,7 +714,7 @@ export const algebra = {
         ([a, b], e, N) => a ** e <= 3000 && a ** e * (b / a) ** (N - e) < 0.5);
       const A = a ** e, B = b ** e, m = N - e;
       return {
-        topic: 'Ratios of big powers', rank: 14,
+        topic: 'Ratios of big powers', rank: 9,
         text: `Let Q = <span class="fr"><span>${pow(a, N)} + ${pow(b, N)}</span><span>${pow(a, m)} + ${pow(b, m)}</span></span>. What is the greatest integer that does not exceed Q?`,
         answer: choices(d, A - 1, [A, A + B, A - B, A + B - 1, (a + b) ** e]),
         check: () => {
@@ -730,7 +730,7 @@ export const algebra = {
         ([a, b], e, N) => a ** e <= 3000 && a ** e * (b / a) ** (N - e) < 0.4);
       const A = a ** e, B = b ** e, m = N - e;
       return {
-        topic: 'Ratios of big powers', rank: 15,
+        topic: 'Ratios of big powers', rank: 10,
         text: `Let Q = <span class="fr"><span>${pow(a, N)} − ${pow(b, N)}</span><span>${pow(a, m)} − ${pow(b, m)}</span></span>. What is the greatest integer that does not exceed Q?`,
         answer: choices(d, A, [A - 1, A + 1, A - B, A + B, (a - b) ** e]),
         check: () => { const big = (x, y) => BigInt(x) ** BigInt(y), f = (big(a, N) - big(b, N)) / (big(a, m) - big(b, m)); return f === BigInt(A) ? '' : `the floor is ${f}`; },
@@ -742,7 +742,7 @@ export const algebra = {
       const [b, p, q] = combo(ctx, [[2, 3, 5], [1, 2, 3], [1, 2]]);
       const n = d.int(2000, 2030), ans = ratio(b ** p + 1, b ** q - 1);
       return {
-        topic: 'Ratios of big powers', rank: 8,
+        topic: 'Ratios of big powers', rank: 2,
         text: `What is <span class="fr"><span>${pow(b, n + p)} + ${pow(b, n)}</span><span>${pow(b, n + q)} − ${pow(b, n)}</span></span>?`,
         answer: choices(d, ans, [ratio(b ** p, b ** q), ratio(b ** p + 1, b ** q + 1), ratio(b ** p - 1, b ** q - 1), ratio(b ** p + 1, b ** q), ratio(b ** (p + 1), b ** q - 1)], showFrac),
         check: () => {
@@ -761,7 +761,7 @@ export const algebra = {
       const opt = ([b, k]) => [b + k / 1000, pow(b, k * g)];       // listed by base, not by size
       const right = opt(pick);
       return {
-        topic: 'Ratios of big powers', rank: 10,
+        topic: 'Ratios of big powers', rank: 4,
         text: `Which of the numbers ${items.map(([b, k]) => pow(b, k * g)).join(', ')} is the ${which}?`,
         answer: labelled(right, items.filter((x) => x !== pick).map(opt)),
         check: () => { const bases = items.map(([b, k]) => b ** k), best = which === 'largest' ? Math.max(...bases) : Math.min(...bases); return bases.filter((v) => v === best).length === 1 && pick[0] ** pick[1] === best ? '' : 'the pick is wrong or tied'; },   // same exponent g, so compare b^k exactly
@@ -777,7 +777,7 @@ export const algebra = {
       const g = range(lo - 1, lo + 8).find((x) => divisorsOf(x).length === D), z = range(2, g + gap).find((k) => (g + gap) % k === 0), ans = g + gap + z;
       const [kid, A, B] = d.shuffle(NAMES).slice(0, 3);
       return {
-        topic: 'Age multiples', rank: 19,
+        topic: 'Age multiples', rank: 12,
         text: `Today ${kid} turns 1, and it is also the birthday of both of ${kid}’s parents, ${A} and ${B}. ${A} is between ${lo} and ${lo + 9} years old, and ${B} is ${gap} years older than ${A}. Today is the first of exactly ${D} birthdays on which ${A}’s age is a whole-number multiple of ${kid}’s age. How old will ${B} be the next time ${B}’s age is a multiple of ${kid}’s age?`,
         answer: choices(d, ans, [2 * (g + gap), g + gap + 2, g + z, ans + 1, g + 1 + gap]),
         check: () => {
@@ -794,7 +794,7 @@ export const algebra = {
       const [G] = combo(ctx, [range(18, 60).filter((g) => g !== 36)]);
       const [kid, A] = d.shuffle(NAMES).slice(0, 2), divs = divisorsOf(G), D = divs.length;
       return {
-        topic: 'Age multiples', rank: 9,
+        topic: 'Age multiples', rank: 5,
         text: `${A} is exactly ${G} years older than ${kid}, and they share a birthday. Counting from ${kid}’s 1st birthday on, on how many of ${kid}’s birthdays will ${A}’s age be a whole-number multiple of ${kid}’s age?`,
         answer: choices(d, D, [D - 1, D + 1, D - 2, Math.floor(G / 2), 2 * D]),
         check: () => { const count = range(1, 500).filter((y) => (G + y) % y === 0).length; return count === D ? '' : `counted ${count}`; },
@@ -812,7 +812,7 @@ export const algebra = {
       const g = range(lo - 1, lo + 8).find((x) => divisorsOf(x).length === D), [kid, A] = d.shuffle(NAMES).slice(0, 2);
       const near = range(lo, lo + 9).filter((a) => a !== g + 1);
       return {
-        topic: 'Age multiples', rank: 12,
+        topic: 'Age multiples', rank: 8,
         text: `Today ${kid} turns 1, and it is also ${A}’s birthday. ${A} is between ${lo} and ${lo + 9} years old. Today is the first of exactly ${D} birthdays on which ${A}’s age is a whole-number multiple of ${kid}’s age. How old is ${A} today?`,
         answer: choices(d, g + 1, [g, g + 2, ...d.shuffle(near)]),
         check: () => { const fits = range(lo, lo + 9).filter((a) => range(1, 300).filter((y) => (a - 1 + y) % y === 0).length === D); return fits.length === 1 && fits[0] === g + 1 ? '' : `fits: ${fits}`; },
@@ -824,7 +824,7 @@ export const algebra = {
       const [C, y, m] = combo(ctx, [range(3, 14), range(2, 15), [2, 3, 4]], (C, y, m) => { const P = m * (C + y) - y; return P >= 25 && P <= 60; });
       const P = m * (C + y) - y, [kid, A] = d.shuffle(NAMES).slice(0, 2), times = { 2: 'twice', 3: 'three times', 4: 'four times' }[m];
       return {
-        topic: 'Age multiples', rank: 6,
+        topic: 'Age multiples', rank: 2,
         text: `${A} is ${P} years old and ${kid} is ${C}. In how many years will ${A} be exactly ${times} as old as ${kid}?`,
         answer: choices(d, y, [P - m * C, Math.round(P / m - C), y + 1, y - 1, Math.round((P - C) / m)]),
         check: () => { const yy = range(1, 100).find((t) => P + t === m * (C + t)); return yy === y ? '' : `it happens in ${yy} years`; },

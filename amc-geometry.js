@@ -208,7 +208,7 @@ export const geometry = {
       const [W, X, Y, Z, F] = d.pick(NAMES).split(''), c2 = a * a + b * b, ans = [a ** 3 * b, 2 * c2];
       const { T, at, marks } = rectangle([W, X, Y, Z], a, b), pF = T([a ** 3 / c2, (a * a * b) / c2]);
       return {
-        topic: 'Perpendicular to a diagonal', rank: 15,
+        topic: 'Perpendicular to a diagonal', rank: 10,
         text: `In rectangle ${W}${X}${Y}${Z}, side ${W}${X} is ${a} long and side ${X}${Y} is ${b} long. A perpendicular dropped from ${X} meets the diagonal ${W}${Y} at ${F}. What is the area of triangle ${W}${F}${Z}?`,
         figure: svg(360, 250, `Rectangle ${W}${X}${Y}${Z} with the perpendicular from ${X} to ${W}${Y}`, [
           poly([at[0], pF, at[3]]), poly(at), seg(at[0], at[2]), seg(at[1], pF, 'seg'), corner(pF, at[1], at[2]), ...marks, label(away(pF, at[1], 16), F)]),
@@ -223,7 +223,7 @@ export const geometry = {
       const [W, X, Y, Z, F] = d.pick(NAMES).split(''), ans = lowest(a * b, c), c2 = c * c;
       const { T, at, marks } = rectangle([W, X, Y, Z], a, b), pF = T([a ** 3 / c2, (a * a * b) / c2]);
       return {
-        topic: 'Perpendicular to a diagonal', rank: 12,
+        topic: 'Perpendicular to a diagonal', rank: 4,
         text: `In rectangle ${W}${X}${Y}${Z}, ${W}${X} = ${a} and ${X}${Y} = ${b}. The perpendicular from ${X} to the diagonal ${W}${Y} meets it at ${F}. How long is ${X}${F}?`,
         figure: svg(360, 250, `Rectangle ${W}${X}${Y}${Z} with the perpendicular from ${X} to ${W}${Y}`, [
           poly(at), seg(at[0], at[2]), seg(at[1], pF, 'seg'), corner(pF, at[1], at[2]), ...marks, label(away(pF, at[1], 16), F)]),
@@ -238,7 +238,7 @@ export const geometry = {
       const [W, X, Y, Z, F] = d.pick(NAMES).split(''), c2 = a * a + b * b, correct = ratio(a * a, b * b);
       const { T, at, marks } = rectangle([W, X, Y, Z], a, b), pF = T([a ** 3 / c2, (a * a * b) / c2]);
       return {
-        topic: 'Perpendicular to a diagonal', rank: 13,
+        topic: 'Perpendicular to a diagonal', rank: 7,
         text: `In rectangle ${W}${X}${Y}${Z}, ${W}${X} = ${a} and ${X}${Y} = ${b}. The perpendicular from ${X} to the diagonal ${W}${Y} meets it at ${F}. What is the ratio ${W}${F} : ${F}${Y}?`,
         figure: svg(360, 250, `Rectangle ${W}${X}${Y}${Z} with the perpendicular from ${X} to ${W}${Y}`, [
           poly(at), seg(at[0], at[2]), seg(at[1], pF, 'seg'), corner(pF, at[1], at[2]), ...marks, label(away(pF, at[1], 16), F)]),
@@ -253,7 +253,7 @@ export const geometry = {
       const [W, X, Y, Z, F, G] = d.pick(NAMES).split(''), c2 = c * c, ans = lowest(Math.abs(a * a - b * b), c);
       const { T, at, marks } = rectangle([W, X, Y, Z], a, b), pF = T([a ** 3 / c2, (a * a * b) / c2]), pG = T([(a * b * b) / c2, b ** 3 / c2]);
       return {
-        topic: 'Perpendicular to a diagonal', rank: 16,
+        topic: 'Perpendicular to a diagonal', rank: 9,
         text: `In rectangle ${W}${X}${Y}${Z}, ${W}${X} = ${a} and ${X}${Y} = ${b}. Perpendiculars from ${X} and from ${Z} meet the diagonal ${W}${Y} at ${F} and ${G}. How long is ${F}${G}?`,
         figure: svg(360, 250, `Rectangle ${W}${X}${Y}${Z} with perpendiculars from ${X} and ${Z} to ${W}${Y}`, [
           poly(at), seg(at[0], at[2]), seg(at[1], pF, 'seg'), seg(at[3], pG, 'seg'), corner(pF, at[1], at[2]), corner(pG, at[3], at[0]), ...marks,
@@ -271,7 +271,7 @@ export const geometry = {
       const [[p, q]] = combo(ctx, [[[2, 1], [1, 1], [1, 2], [3, 2], [1, 3], [2, 3]]]);
       const t = d.int(2, 6), T0 = q * q * t, cornerA = t * p * (p + q), ans = T0 + 3 * cornerA, mT = q === 1 ? num(p, 0) : frac(p, q);
       return {
-        topic: 'Extending the sides', rank: 19,
+        topic: 'Extending the sides', rank: 10,
         text: `Triangle PQR has area ${T0}. Each side is extended past one end: PQ past Q to Q′, QR past R to R′, and RP past P to P′, each extension ${TIMES[`${p}/${q}`]} the side it extends. What is the area of triangle P′Q′R′?`,
         figure: extended(p / q),
         answer: choices(d, ans, [t * (p + q) ** 2, t * (2 * p + q) ** 2, 3 * cornerA, t * (q * q + 3 * p * p), t * (q * q + 2 * p * (p + q))]),
@@ -284,7 +284,7 @@ export const geometry = {
       const [[p, q], t] = combo(ctx, [[[2, 1], [1, 1], [1, 2], [3, 2], [1, 3], [2, 3]], [2, 3, 4, 5]]);
       const T0 = q * q * t, cornerA = t * p * (p + q), T1 = T0 + 3 * cornerA, mT = q === 1 ? num(p, 0) : frac(p, q);
       return {
-        topic: 'Extending the sides', rank: 17,
+        topic: 'Extending the sides', rank: 10,
         text: `Each side of triangle PQR is extended past one end: PQ past Q to Q′, QR past R to R′, and RP past P to P′, each extension ${TIMES[`${p}/${q}`]} the side it extends. Triangle P′Q′R′ has area ${T1}. What is the area of triangle PQR?`,
         figure: extended(p / q),
         answer: choices(d, T0, [cornerA, 3 * cornerA, T1 - cornerA, 2 * T0, T1 - 2 * T0]),
@@ -297,7 +297,7 @@ export const geometry = {
       const [[p, q], t] = combo(ctx, [[[1, 1], [2, 1], [3, 1], [1, 2], [3, 2], [2, 3], [1, 3], [4, 1]], [1, 2, 3]]);
       const T0 = q * q * t, T1 = t * (q * q + 3 * p * (p + q)), kk = lowest(T1 - T0, 3 * T0);
       return {
-        topic: 'Extending the sides', rank: 20,
+        topic: 'Extending the sides', rank: 13,
         text: `Triangle PQR has area ${T0}. Each side is extended past one end, PQ past Q to Q′, QR past R to R′ and RP past P to P′, every extension being the same number k times as long as the side it extends. Triangle P′Q′R′ has area ${T1}. What is k?`,
         figure: extended(p / q),
         answer: choices(d, lowest(p, q), [kk, lowest(p + q, q), lowest(2 * p, q), lowest(p, 2 * q), lowest(T1 - T0, T0), lowest(3 * p, q), lowest(p + 2 * q, 2 * q)], showFrac),
@@ -313,7 +313,7 @@ export const geometry = {
       const big = [ext(sq[3], sq[0]), ext(sq[0], sq[1]), ext(sq[1], sq[2]), ext(sq[2], sq[3])];
       const Tf = fit([...sq, ...big], 340, 300, 28), ps = sq.map(Tf), pb = big.map(Tf), g = centre(ps);
       return {
-        topic: 'Extending the sides', rank: 14,
+        topic: 'Extending the sides', rank: 7,
         text: `Square ABCD has side ${s}. Each side is extended past one end: AB past B to B′, BC past C to C′, CD past D to D′ and DA past A to A′, each extension ${TIMES[`${p}/${q}`]} the side it extends. What is the area of A′B′C′D′?`,
         figure: svg(340, 300, 'Square ABCD with its sides extended', [poly(ps), poly(pb), ...ps.map((pt, i) => seg(pt, pb[i], 'side dash')),
           ...'ABCD'.split('').map((n, i) => label(away(ps[i], g, 13), n)), ...'ABCD'.split('').map((n, i) => label(away(pb[i], g, 15), n + '′'))]),
@@ -331,7 +331,7 @@ export const geometry = {
       const [r, L] = combo(ctx, [[2, 4, 5, 6], [5, 6, 7, 8, 9, 10, 11, 12, 14, 15]]);
       const [vp, vq] = lowest(3 * r * r * L + 4 * r ** 3, 3), V = piShow([vp, vq]), [X, Y] = d.pick([['X', 'Y'], ['M', 'N'], ['U', 'V']]);
       return {
-        topic: 'Points near a segment', rank: 11,
+        topic: 'Points near a segment', rank: 7,
         text: `The points of space that are at most ${units(r)} from segment ${X}${Y} fill a solid with volume ${V}. How long is ${X}${Y}?`,
         figure: capsule(r, L, X, Y),
         answer: choices(d, [L, 1], [[3 * r * r * L + 4 * r ** 3, 3 * r * r], [3 * L + 2 * r, 3], [3 * L - 4 * r, 3], [L + 2 * r, 1]], showFrac),
@@ -344,7 +344,7 @@ export const geometry = {
       const [r, L] = combo(ctx, [[1, 2, 3, 4, 5, 6], [2, 3, 4, 5, 6, 8, 9, 10, 12]]);
       const ans = lowest(3 * r * r * L + 4 * r ** 3, 3);
       return {
-        topic: 'Points near a segment', rank: 9,
+        topic: 'Points near a segment', rank: 6,
         text: `What is the volume of the solid made of all the points of space that are at most ${units(r)} from a segment ${units(L)} long?`,
         figure: capsule(r, L, 'A', 'B'),
         answer: choices(d, ans, [[r * r * L, 1], lowest(3 * r * r * L + 8 * r ** 3, 3), lowest(3 * r * r * L + 2 * r ** 3, 3), [r * r * L + 4 * r ** 3, 1], lowest(3 * r * r * L + 4 * r * r, 3)], piShow),
@@ -357,7 +357,7 @@ export const geometry = {
       const [r, L] = combo(ctx, [[1, 2, 3, 4, 5], [2, 3, 4, 5, 6, 7, 8, 10]]);
       const k = 2 * r * L + 4 * r * r;
       return {
-        topic: 'Points near a segment', rank: 12,
+        topic: 'Points near a segment', rank: 6,
         text: `The points of space that are at most ${units(r)} from a segment ${units(L)} long fill a solid. What is the surface area of that solid?`,
         figure: capsule(r, L, 'A', 'B'),
         answer: choices(d, k, [2 * r * L, 2 * r * L + 2 * r * r, 2 * r * L + 8 * r * r, r * L + 4 * r * r, 4 * r * L + 4 * r * r], (v) => piShow([v, 1])),
@@ -371,7 +371,7 @@ export const geometry = {
       const [r, L] = combo(ctx, [[1, 2, 3, 4, 5], [3, 4, 5, 6, 8, 10]]);
       const correct = plusPi(2 * r * L, r * r);
       return {
-        topic: 'Points near a segment', rank: 10,
+        topic: 'Points near a segment', rank: 4,
         text: `In a flat plane, the points that are at most ${units(r)} from a segment ${units(L)} long fill a region. What is the area of the region?`,
         figure: capsule(r, L, 'A', 'B'),
         answer: labelled(correct, [plusPi(2 * r * L, 2 * r * r), plusPi(r * L, r * r), [2 * r * L + 4 * r * r, num(2 * r * L + 4 * r * r, 0)], plusPi(4 * r * L, r * r), [r * r * L * Math.PI, piShow([r * r * L, 1])]]),
@@ -387,7 +387,7 @@ export const geometry = {
       const [[a, b, c]] = combo(ctx, [[[2, 3, 4], [2, 3, 5], [3, 4, 6], [2, 4, 6], [3, 5, 6], [4, 5, 6], [2, 6, 7], [3, 4, 8], [4, 6, 9], [3, 6, 7]]]);
       const abc = a * b * c, { at, parts } = octahedron(a, c, b);
       return {
-        topic: 'Octahedron in a box', rank: 17,
+        topic: 'Octahedron in a box', rank: 9,
         text: `A box measures ${a} by ${b} by ${c}. The centres of its six faces are the corners of an octahedron. What is the volume of the octahedron?`,
         figure: svg(380, 280, 'A box with the octahedron joining the centres of its faces', [...parts,
           label([mid(at[0], at[1])[0], at[0][1] + 20], a, 'ang'), label([at[0][0] - 14, mid(at[0], at[4])[1]], b, 'ang'), label(mid(at[1], at[2]).map((v, i) => v + [14, 8][i]), c, 'ang')]),
@@ -407,7 +407,7 @@ export const geometry = {
       const [[a, b, c]] = combo(ctx, [[[2, 3, 4], [2, 3, 5], [3, 4, 6], [2, 4, 6], [3, 5, 6], [4, 5, 6], [2, 6, 7], [3, 4, 8], [4, 6, 9], [3, 6, 7]]]);
       const V = lowest(a * b * c, 6), { at, parts } = octahedron(a, b, c);
       return {
-        topic: 'Octahedron in a box', rank: 15,
+        topic: 'Octahedron in a box', rank: 9,
         text: `A box has a ${a}-by-${b} bottom, and its height h is unknown. The centres of its six faces are the corners of an octahedron with volume ${frac(...V)}. What is h?`,
         figure: svg(380, 280, 'A box with the octahedron joining the centres of its faces', [...parts,
           label([mid(at[0], at[1])[0], at[0][1] + 20], a, 'ang'), label(mid(at[1], at[2]).map((v, i) => v + [12, 10][i]), b, 'ang'), label([at[2][0] + 14, mid(at[2], at[6])[1]], 'h', 'ang')]),
@@ -426,7 +426,7 @@ export const geometry = {
       const [s] = combo(ctx, [[2, 4, 6, 8, 10, 12]]);
       const correct = surd(s * s, 3), { at, parts } = octahedron(s, s, s, 340, 280);
       return {
-        topic: 'Octahedron in a box', rank: 18,
+        topic: 'Octahedron in a box', rank: 7,
         text: `The centres of the six faces of a cube with edge ${s} are the corners of a regular octahedron. What is the surface area of the octahedron?`,
         figure: svg(340, 280, 'A cube with the octahedron joining the centres of its faces', [...parts, label([mid(at[0], at[1])[0], at[0][1] + 20], s, 'ang')]),
         answer: labelled(correct, [surd(2 * s * s, 3), fracSurd(s * s, 2, 3), surd(s * s, 2), fracSurd(s * s, 4, 3), [s * s, num(s * s, 0)], surd(4 * s * s, 3)]),
@@ -446,7 +446,7 @@ export const geometry = {
       const correct = fracSurd(1, 2, a * a + b * b), { P, at, ctr, edges } = boxPicture(a, b, c, 380, 280);
       const p1 = P([a / 2, 0, c / 2]), p2 = P([a, b / 2, c / 2]);
       return {
-        topic: 'Octahedron in a box', rank: 14,
+        topic: 'Octahedron in a box', rank: 5,
         text: `A box measures ${a} by ${b} by ${c}, with its ${a}-by-${c} face at the front and its ${b}-by-${c} face on the right, so the two faces share an edge. How far apart are the centres of those two faces?`,
         figure: svg(380, 280, 'A box with the centres of two neighbouring faces joined', [...edges, seg(p1, p2, 'seg'), ring(p1, 3, 'seg'), ring(p2, 3, 'seg'), ...boxSides(at, a, b, c)]),
         answer: labelled(correct, [surd(1, a * a + b * b), fracSurd(1, 2, a * a + b * b + c * c), fracSurd(a + b, 2), fracSurd(1, 2, a * a + c * c), fracSurd(1, 2, b * b + c * c)]),
@@ -484,7 +484,7 @@ export const geometry = {
       const [[a, b, c]] = combo(ctx, [[[4, 2, 3], [2, 3, 4], [5, 2, 3], [4, 3, 2], [6, 1, 3], [3, 2, 4], [5, 3, 2], [6, 2, 5], [3, 4, 5], [2, 5, 6]]]);
       const abc = a * b * c, ans = lowest(abc, 6), { at, ctr, edges } = boxPicture(a, b, c, 380, 280);
       return {
-        topic: 'Pyramid in a box', rank: 8,
+        topic: 'Pyramid in a box', rank: 3,
         text: `In the box ABCDEFGH shown, AB = ${a}, AD = ${b} and AE = ${c}. The plane through B, D and E slices the corner at A off the box. What is the volume of the piece it slices off?`,
         figure: svg(380, 280, 'Box ABCDEFGH with the corner at A sliced off', [...edges, seg(at[1], at[3], 'seg'), seg(at[3], at[4], 'seg'), seg(at[4], at[1], 'seg'), ...boxLetters(at, ctr),
           label([mid(at[0], at[1])[0], at[0][1] + 20], a, 'ang'), label([at[0][0] - 14, mid(at[0], at[4])[1]], c, 'ang'), label(mid(at[1], at[2]).map((v, i) => v + [12, 10][i]), b, 'ang')]),
@@ -499,7 +499,7 @@ export const geometry = {
       const [[a, b, c]] = combo(ctx, [[[4, 2, 3], [2, 3, 4], [5, 2, 3], [4, 3, 2], [6, 1, 3], [3, 2, 4], [5, 3, 2], [4, 1, 3], [6, 2, 5], [2, 1, 5]]]);
       const V = lowest(a * b * c, 3), { P, at, ctr, top, edges } = boxPicture(a, b, c, 380, 280), M3 = [a, b / 2, c], pM = P(M3);
       return {
-        topic: 'Pyramid in a box', rank: 11,
+        topic: 'Pyramid in a box', rank: 10,
         text: `In the box ABCDEFGH shown, AB = ${a} and BC = ${b}, and M is the midpoint of edge FG. The pyramid whose base is the rectangle BCHE and whose apex is M has volume ${frac(...V)}. How long is CG?`,
         figure: svg(380, 280, 'Box ABCDEFGH with the pyramid on BCHE', [poly([at[1], at[2], at[7], at[4]]), ...edges,
           ...[at[1], at[2], at[7], at[4]].map((p) => seg(pM, p, 'seg')), ...boxLetters(at, ctr, 'F'), label(away(at[5], at[6], 14), 'F'), label(away(pM, top, 15), 'M'),
@@ -515,7 +515,7 @@ export const geometry = {
       const abc = a * b * c, ans = lowest(abc, 3), { at, ctr, edges } = boxPicture(a, b, c, 380, 280);
       const [A, C, F, H] = [at[0], at[2], at[5], at[7]];
       return {
-        topic: 'Pyramid in a box', rank: 17,
+        topic: 'Pyramid in a box', rank: 9,
         text: `In the box ABCDEFGH shown, AB = ${a}, BC = ${b} and CG = ${c}. What is the volume of the tetrahedron ACFH, whose corners are four corners of the box with no two on the same edge?`,
         figure: svg(380, 280, 'Box ABCDEFGH with the tetrahedron ACFH', [...edges, seg(A, C, 'seg dash'), seg(A, F, 'seg'), seg(A, H, 'seg'), seg(C, F, 'seg'), seg(C, H, 'seg'), seg(F, H, 'seg'),
           ...boxLetters(at, ctr), ...boxSides(at, a, b, c)]),
@@ -533,7 +533,7 @@ export const geometry = {
       const ans = [2 * r * R, R - r], yc = -Math.sqrt((R - r) ** 2 - r * r), k = R / (R - r);
       const w = 320, h = 320, T = frame([-R, R], [-R, R], w, h, 26), O = T([0, 0]), A = T([-r * k, yc * k]), B = T([r * k, yc * k]);
       return {
-        topic: 'Circles inside a circle', rank: 15,
+        topic: 'Circles inside a circle', rank: 9,
         text: `Two circles of radius ${r} touch each other, and each of them touches the inside of a circle of radius ${R}: one at A, the other at B. How far apart are A and B?`,
         figure: svg(w, h, 'Two equal circles inside a larger circle, touching it at A and B', [
           ring(O, R * T.s), ring(T([-r, yc]), r * T.s), ring(T([r, yc]), r * T.s), seg(A, B, 'seg dash'), label(away(A, O, 14), 'A'), label(away(B, O, 14), 'B')]),
@@ -552,7 +552,7 @@ export const geometry = {
       const AB = lowest(2 * r * R, R - r), yc = -Math.sqrt((R - r) ** 2 - r * r), k = R / (R - r);
       const w = 320, h = 320, T = frame([-R, R], [-R, R], w, h, 26), O = T([0, 0]), A = T([-r * k, yc * k]), B = T([r * k, yc * k]);
       return {
-        topic: 'Circles inside a circle', rank: 16,
+        topic: 'Circles inside a circle', rank: 9,
         text: `Two equal circles touch each other, and each touches the inside of a circle of radius ${R}: one at A, the other at B. If AB = ${frac(...AB)}, what is the radius of the two equal circles?`,
         figure: svg(w, h, 'Two equal circles inside a larger circle, touching it at A and B', [
           ring(O, R * T.s), ring(T([-r, yc]), r * T.s), ring(T([r, yc]), r * T.s), seg(A, B, 'seg dash'), label(away(A, O, 14), 'A'), label(away(B, O, 14), 'B')]),
@@ -570,7 +570,7 @@ export const geometry = {
       const correct = surd(1, R * R - 2 * R * r), yc = -Math.sqrt((R - r) ** 2 - r * r);
       const w = 320, h = 320, T = frame([-R, R], [-R, R], w, h, 26), O = T([0, 0]), Tp = T([0, yc]);
       return {
-        topic: 'Circles inside a circle', rank: 14,
+        topic: 'Circles inside a circle', rank: 6,
         text: `Two circles of radius ${r} touch each other at T, and each of them touches the inside of a circle of radius ${R} whose centre is O. How far is T from O?`,
         figure: svg(w, h, 'Two equal circles touching at T inside a larger circle with centre O', [
           ring(O, R * T.s), ring(T([-r, yc]), r * T.s), ring(T([r, yc]), r * T.s), seg(O, Tp, 'seg dash'), ring(O, 2.5, 'seg'), label([O[0] + 12, O[1] - 4], 'O'), label([Tp[0] + 11, Tp[1] - 12], 'T')]),
@@ -586,7 +586,7 @@ export const geometry = {
       const centres = [0, 1, 2].map((i) => [cd * Math.cos(Math.PI / 2 + (i * 2 * Math.PI) / 3), cd * Math.sin(Math.PI / 2 + (i * 2 * Math.PI) / 3)]);
       const w = 300, h = 300, T = frame([-R, R], [-R, R], w, h, 18);
       return {
-        topic: 'Circles inside a circle', rank: 18,
+        topic: 'Circles inside a circle', rank: 10,
         text: `Three circles of radius ${r} each touch the other two, and all three touch the inside of a larger circle. What is the radius of the larger circle?`,
         figure: svg(w, h, 'Three equal circles inside a larger circle', [ring(T([0, 0]), R * T.s), ...centres.map((p) => ring(T(p), r * T.s))]),
         answer: labelled(correct, [[9 * k, num(9 * k, 0)], plusRoot(3 * k, 3 * k, 3), plusRoot(3 * k, k, 3), [6 * k, num(6 * k, 0)], plusRoot(6 * k, 2 * k, 3)]),
@@ -609,7 +609,7 @@ export const geometry = {
       const w = 380, h = 270, T = fit([[0, 0], [b, 0], [0, a]], w, h, 32), [pQ, pR, pP] = [[0, 0], [b, 0], [0, a]].map(T);
       const foot = T([(a * a * b) / c2, (a * b * b) / c2]), other = T([b * 0.72, a * 0.28]), ctr = centre([pP, pQ, pR]);
       return {
-        topic: 'Segments to the hypotenuse', rank: 16,
+        topic: 'Segments to the hypotenuse', rank: 10,
         text: `Right triangle PQR has its right angle at Q, with PQ = ${a} and QR = ${b}. Segments are drawn from Q to points of the hypotenuse PR. Counting PQ and QR themselves, how many of these segments have a whole-number length?`,
         figure: svg(w, h, 'Right triangle PQR with segments from Q to the hypotenuse', [poly([pP, pQ, pR]), corner(pQ, pP, pR), seg(pQ, foot, 'seg dash'), seg(pQ, other, 'seg'),
           label(away(pP, ctr, 14), 'P'), label(away(pQ, ctr, 14), 'Q'), label(away(pR, ctr, 14), 'R'), label([pQ[0] - 14, mid(pQ, pP)[1]], a, 'ang'), label([mid(pQ, pR)[0], pQ[1] + 20], b, 'ang')]),
@@ -635,7 +635,7 @@ export const geometry = {
       const count = (a - low + 1) + (b - low + 1) - (hWhole ? 1 : 0), c = Math.sqrt(c2), hText = fracSurd(a * b, c2, c2)[1];
       const w = 380, h = 270, T = fit([[0, 0], [b, 0], [0, a]], w, h, 32), [pQ, pR, pP] = [[0, 0], [b, 0], [0, a]].map(T), foot = T([(a * a * b) / c2, (a * b * b) / c2]), ctr = centre([pP, pQ, pR]);
       return {
-        topic: 'Segments to the hypotenuse', rank: 14,
+        topic: 'Segments to the hypotenuse', rank: 9,
         text: `Right triangle PQR has its right angle at Q, with PQ = ${a} and QR = ${b}. A segment is drawn from Q to a point of the hypotenuse PR. How many different whole-number lengths can the segment have?`,
         figure: svg(w, h, 'Right triangle PQR with the altitude from Q', [poly([pP, pQ, pR]), corner(pQ, pP, pR), seg(pQ, foot, 'seg dash'),
           label(away(pP, ctr, 14), 'P'), label(away(pQ, ctr, 14), 'Q'), label(away(pR, ctr, 14), 'R'), label([pQ[0] - 14, mid(pQ, pP)[1]], a, 'ang'), label([mid(pQ, pR)[0], pQ[1] + 20], b, 'ang')]),
@@ -659,7 +659,7 @@ export const geometry = {
       const h2 = s * s - t * t, low = shortest(h2), hWhole = low * low === h2, side = s - low + 1, count = 2 * side - (hWhole ? 1 : 0), hS = root(h2);
       const w = 380, h = 250, T = fit([[-t, 0], [t, 0], [0, Math.sqrt(h2)]], w, h, 30), [pB, pC, pA] = [[-t, 0], [t, 0], [0, Math.sqrt(h2)]].map(T), foot = T([0, 0]), ctr = centre([pA, pB, pC]);
       return {
-        topic: 'Segments to the hypotenuse', rank: 15,
+        topic: 'Segments to the hypotenuse', rank: 8,
         text: `Triangle ABC has AB = AC = ${s} and BC = ${2 * t}. Segments are drawn from A to points of side BC. Counting AB and AC themselves, how many of these segments have a whole-number length?`,
         figure: svg(w, h, 'Isosceles triangle ABC with segments from A to BC', [poly([pA, pB, pC]), seg(pA, foot, 'seg dash'), corner(foot, pC, pA), seg(pA, T([t * 0.55, 0]), 'seg'),
           label(away(pA, ctr, 14), 'A'), label(away(pB, ctr, 14), 'B'), label(away(pC, ctr, 14), 'C'), label(away(mid(pA, pB), ctr, 14), s, 'ang'), label(away(mid(pA, pC), ctr, 14), s, 'ang')]),
@@ -689,7 +689,7 @@ export const geometry = {
       const w = 360, h = 270, T = fit([[-0.12 * s, -0.12 * t], [1.15 * s, 1.15 * t]], w, h, 22), [O, X, Y] = [[0, 0], [s, 0], [0, t]].map(T);
       const foot = T([(s * t * t) / (s * s + t * t), (s * s * t) / (s * s + t * t)]);
       return {
-        topic: 'Altitudes of a triangle', rank: 13,
+        topic: 'Altitudes of a triangle', rank: 6,
         text: `The x-axis, the y-axis and the line ${eq} are the three sides of a triangle. What is the total length of its three altitudes?`,
         figure: svg(w, h, `The triangle cut off by ${eq}`, [poly([O, X, Y]), seg(T([-0.12 * s, 0]), T([1.15 * s, 0]), 'arc'), seg(T([0, -0.12 * t]), T([0, 1.15 * t]), 'arc'),
           seg(O, foot, 'seg dash'), corner(O, X, Y), label([X[0], X[1] + 20], s, 'ang'), label([Y[0] - 14, Y[1]], t, 'ang'), label([O[0] - 12, O[1] + 16], 'O')]),
@@ -706,7 +706,7 @@ export const geometry = {
       const [[x, y, z, A], which] = combo(ctx, [HERON, ['shortest', 'longest']]);
       const side = which === 'shortest' ? z : x, ans = lowest(2 * A, side), s = (x + y + z) / 2;
       return {
-        topic: 'Altitudes of a triangle', rank: 11,
+        topic: 'Altitudes of a triangle', rank: 6,
         text: `A triangle has sides ${x}, ${y} and ${z}. How long is its ${which} altitude?`,
         figure: triangleFigure(x, y, z, which === 'shortest'),
         answer: choices(d, ans, [lowest(2 * A, which === 'shortest' ? x : z), lowest(A, side), lowest(2 * A, y), lowest(4 * A, side), lowest(A, y)], showFrac),
@@ -720,7 +720,7 @@ export const geometry = {
       const P = x + y + z, ans = lowest(P, 2 * A), s = P / 2;
       const recip = (i) => `<span class="fr"><span>1</span><span>h<sub>${i}</sub></span></span>`;
       return {
-        topic: 'Altitudes of a triangle', rank: 16,
+        topic: 'Altitudes of a triangle', rank: 8,
         text: `A triangle has sides ${x}, ${y} and ${z}, and its altitudes are h<sub>1</sub>, h<sub>2</sub> and h<sub>3</sub>. What is ${recip(1)} + ${recip(2)} + ${recip(3)}?`,
         figure: triangleFigure(x, y, z, false),
         answer: choices(d, ans, [lowest(2 * A, P), lowest(P, A), lowest(P, 4 * A), lowest(3, s), lowest(P + 1, 2 * A)], showFrac),
@@ -739,7 +739,7 @@ export const geometry = {
       const T = fit([[0, 0], [x0 + c, 0], [0, Math.max(a, hgt)]], 520, 220, 26);
       const xy = '<span class="fr"><span>x</span><span>y</span></span>';
       return {
-        topic: 'Squares in a right triangle', rank: 21,
+        topic: 'Squares in a right triangle', rank: 12,
         text: `Two copies of a right triangle with sides ${a}, ${b} and ${c} each hold a square. In the first, a square of side x shares the triangle’s right angle, and its far corner touches the hypotenuse. In the second, a square of side y has one side lying along the hypotenuse and its other two corners on the legs. What is ${xy}?`,
         figure: svg(520, 220, 'A square at the right angle of one triangle, and a square on the hypotenuse of another', ['<g/>',
           poly([[0, 0], [b, 0], [0, a]].map(T)), poly([[0, 0], [x, 0], [x, x], [0, x]].map(T), 'arc'),
@@ -761,7 +761,7 @@ export const geometry = {
       const [[a, b, c]] = combo(ctx, [[[3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25], [20, 21, 29], [6, 8, 10], [9, 12, 15], [12, 16, 20], [9, 40, 41], [12, 35, 37]]]);
       const ans = lowest(a * b, a + b);
       return {
-        topic: 'Squares in a right triangle', rank: 12,
+        topic: 'Squares in a right triangle', rank: 6,
         text: `A right triangle has sides ${a}, ${b} and ${c}. A square sits in the corner at the right angle, with two of its sides along the legs and its far corner on the hypotenuse. How long is a side of the square?`,
         figure: cornerSquare(a, b),
         answer: choices(d, ans, [lowest(a * b, c), lowest(a + b, 4), lowest(a * b, 2 * (a + b)), lowest(a * b * c, c * c + a * b), lowest(c, 2)], showFrac),
@@ -775,7 +775,7 @@ export const geometry = {
       const [[a, b, c]] = combo(ctx, [[[3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25], [20, 21, 29], [6, 8, 10], [9, 12, 15], [12, 16, 20], [9, 40, 41], [12, 35, 37]]]);
       const ans = lowest(a * b * c, c * c + a * b), hgt = (a * b) / c, foot = (a * a) / c;
       return {
-        topic: 'Squares in a right triangle', rank: 17,
+        topic: 'Squares in a right triangle', rank: 11,
         text: `A right triangle has sides ${a}, ${b} and ${c}. A square has one side lying along the hypotenuse and its other two corners on the legs. How long is a side of the square?`,
         figure: hypotenuseSquare(a, b, c),
         answer: choices(d, ans, [lowest(a * b, a + b), lowest(a * b, c), lowest(a * b * c, c * c + 2 * a * b), lowest(c, 2), lowest(a * b, 2 * c)], showFrac),
@@ -793,7 +793,7 @@ export const geometry = {
       const [[a, b]] = combo(ctx, [[[3, 4], [5, 12], [8, 15], [7, 24], [20, 21], [2, 3], [1, 2], [3, 5], [4, 7], [2, 5]]]);
       const ans = lowest(2 * a * b, (a + b) ** 2);
       return {
-        topic: 'Squares in a right triangle', rank: 14,
+        topic: 'Squares in a right triangle', rank: 6,
         text: `A right triangle has legs ${a} and ${b}. A square sits in the corner at the right angle, with two of its sides along the legs and its far corner on the hypotenuse. What fraction of the triangle’s area does the square cover?`,
         figure: cornerSquare(a, b),
         answer: choices(d, ans, [lowest(a * b, (a + b) ** 2), lowest(a * b, a * a + b * b), lowest(2 * a * b, a * a + b * b), [1, 2], lowest(4 * a * b, (a + b) ** 2)], showFrac),
@@ -812,7 +812,7 @@ export const geometry = {
       const V1 = [a, b + a / r3], V2 = [a, -a / r3], V3 = [(-b * r3) / 2, b / 2];
       const w = 360, h = 300, T = fit([[V3[0] - 0.8, V2[1] - 0.8], [a + 0.9, V1[1] + 0.8]], w, h, 18), lo = V3[0] - 0.8, hi = a + 0.9;
       return {
-        topic: 'Lines making an equilateral triangle', rank: 17,
+        topic: 'Lines making an equilateral triangle', rank: 11,
         text: `Three lines enclose an equilateral triangle: the vertical line x = ${a}, the line y = ${b} + ${k3}x, and a third line that passes through the origin. What is the perimeter of the triangle?`,
         figure: svg(w, h, 'Three lines enclosing an equilateral triangle', [poly([V1, V2, V3].map(T)),
           seg(T([lo, 0]), T([hi, 0]), 'arc'), seg(T([0, V2[1] - 0.8]), T([0, V1[1] + 0.8]), 'arc'),
@@ -834,7 +834,7 @@ export const geometry = {
       const r3 = Math.sqrt(3), correct = surd(2 * hh, 3), xe = hh / r3;
       const w = 320, h = 260, T = frame([-xe - 1, xe + 1], [-0.8, hh + 0.8], w, h, 22);
       return {
-        topic: 'Lines making an equilateral triangle', rank: 13,
+        topic: 'Lines making an equilateral triangle', rank: 4,
         text: `The lines y = √3·x, y = −√3·x and y = ${hh} enclose a triangle. What is its perimeter?`,
         figure: svg(w, h, 'Two lines through the origin and a horizontal line enclosing a triangle', [poly([[0, 0], [xe, hh], [-xe, hh]].map(T)),
           seg(T([-xe - 1, 0]), T([xe + 1, 0]), 'arc'), seg(T([0, -0.8]), T([0, hh + 0.8]), 'arc'), seg(T([-xe - 1, hh]), T([xe + 1, hh])),
@@ -854,7 +854,7 @@ export const geometry = {
       const r3 = Math.sqrt(3), correct = fracSurd(p * p, 3, 3), xe = p / r3;
       const w = 320, h = 250, T = frame([-xe - 1, xe + 1], [-0.8, p + 0.8], w, h, 22);
       return {
-        topic: 'Lines making an equilateral triangle', rank: 14,
+        topic: 'Lines making an equilateral triangle', rank: 4,
         text: `The lines y = √3·x + ${p} and y = −√3·x + ${p} and the x-axis enclose a triangle. What is its area?`,
         figure: svg(w, h, 'Two lines and the x-axis enclosing a triangle', [poly([[-xe, 0], [xe, 0], [0, p]].map(T)),
           seg(T([-xe - 1, 0]), T([xe + 1, 0]), 'arc'), seg(T([0, -0.8]), T([0, p + 0.8]), 'arc'), label(T([0, 0]).map((v, i) => v + [10, 14][i]), 'O')]),
@@ -868,7 +868,7 @@ export const geometry = {
       const [a, b] = combo(ctx, [[1, 2, 3], [1, 2, 3, 4, 5, 6]], (a, b) => a !== 1 || b !== 1);
       const r3 = Math.sqrt(3), per = `${3 * b} + ${sA(2 * a)}`;
       return {
-        topic: 'Lines making an equilateral triangle', rank: 15,
+        topic: 'Lines making an equilateral triangle', rank: 12,
         text: `Three lines enclose an equilateral triangle: the vertical line x = ${a}, a line y = c + ${k3}x for some number c > 0, and a third line through the origin. The perimeter of the triangle is ${per}. What is c?`,
         answer: choices(d, b, [3 * b, b + a, 2 * b, b + 2 * a, Math.max(1, b - a), 4 * b]),
         solution: `The line y = c + ${k3}x rises at 30° and x = ${a} is vertical, so the third side falls at 30°: y = −${k3}x. On the line x = ${a} the two sloping lines are at y = c + ${fracSurd(a, 3, 3)[1]} and y = −${fracSurd(a, 3, 3)[1]}, so each side is c + ${fracSurd(2 * a, 3, 3)[1]} and the perimeter is 3c + ${sA(2 * a)}. That is ${per}, so 3c = ${3 * b}, and c = <b>${b}</b>.`,
@@ -895,7 +895,7 @@ export const geometry = {
       const { X, Y, ratio: rr } = solve(W, H, e, g, f), cr = crossings(W, H, e, f);
       const pX = meet([[W - e, H], [f, 0]], [[0, H], [W, g]]), pY = meet([[W - e, H], [f, 0]], [[0, H], [W, 0]]);
       return {
-        topic: 'Cutting a segment in a rectangle', rank: 19,
+        topic: 'Cutting a segment in a rectangle', rank: 12,
         text: `Rectangle KLMN has KL = ${W} and LM = ${H}. Point S is on side KL with SL = ${e}, point T is on side LM with MT = ${g}, and point U is on side MN with NU = ${f}. Segment SU crosses segment KT at X and diagonal KM at Y. What is <span class="fr"><span>XY</span><span>SU</span></span>?`,
         figure: rectangleKLMN(W, H, e, f, [[[0, H], [W, g]], [[0, H], [W, 0]]], [[[W, g], 'T', 13, 0], [pX, 'X', 12, -4], [pY, 'Y', -12, 4]]),
         answer: choices(d, rr, [X, Y, [rr[1] - rr[0], rr[1]], [2 * rr[0], rr[1]], [rr[0], rr[1] + 1]].map((v) => lowest(...v)), showFrac),
@@ -908,7 +908,7 @@ export const geometry = {
       const [W, H, e, f] = combo(ctx, [[4, 5, 6, 7, 8, 9], [3, 4, 5, 6], [1, 2, 3, 4], [1, 2, 3, 4, 5]], (W, H, e, f) => e < W && f < W && e !== f && !!cut([W - e, H], [f, 0], [0, H], [W, 0]));
       const correct = ratio(W - e, W - f), pY = meet([[W - e, H], [f, 0]], [[0, H], [W, 0]]);
       return {
-        topic: 'Cutting a segment in a rectangle', rank: 14,
+        topic: 'Cutting a segment in a rectangle', rank: 7,
         text: `Rectangle KLMN has KL = ${W} and LM = ${H}. Point S is on side KL with SL = ${e}, and point U is on side MN with NU = ${f}. Segment SU crosses the diagonal KM at Y. What is KY : YM?`,
         figure: rectangleKLMN(W, H, e, f, [[[0, H], [W, 0]]], [[pY, 'Y', 13, -4]]),
         answer: labelled(correct, [ratio(W - f, W - e), ratio(e, f), ratio(W - e, f), ratio(e, W - f), ratio(W - e, 2 * W - e - f), ratio(f, e), ratio(W - e, W), ratio(W - f, W)]),
@@ -928,7 +928,7 @@ export const geometry = {
       const { X, Y, ratio: rr } = solve(W, H, e, f), cr = crossings(W, H, e, f);
       const pX = meet([[W - e, H], [f, 0]], [[W, H], [0, 0]]), pY = meet([[W - e, H], [f, 0]], [[0, H], [W, 0]]);
       return {
-        topic: 'Cutting a segment in a rectangle', rank: 21,
+        topic: 'Cutting a segment in a rectangle', rank: 12,
         text: `Rectangle KLMN has KL = ${W} and LM = ${H}. Point S is on side KL with SL = ${e}, and point U is on side MN with NU = ${f}. Segment SU crosses the diagonal LN at X and the diagonal KM at Y. What is <span class="fr"><span>XY</span><span>SU</span></span>?`,
         figure: rectangleKLMN(W, H, e, f, [[[0, H], [W, 0]], [[W, H], [0, 0]]], [[pX, 'X', 13, -4], [pY, 'Y', -13, 4]]),
         answer: choices(d, rr, [X, Y, [rr[1] - rr[0], rr[1]], [2 * rr[0], rr[1]], [rr[0], rr[1] + 1]].map((v) => lowest(...v)), showFrac),
@@ -941,7 +941,7 @@ export const geometry = {
       const [W, H, e, f] = combo(ctx, [[4, 5, 6, 7, 8], [2, 3, 4, 5, 6], [1, 2, 3], [1, 2, 3, 4, 5]], (W, H, e, f) => e < W && f < W && !!cut([W - e, H], [f, 0], [0, H], [W, 0]));
       const ks = W - e, mu = W - f, depth = lowest(H * ks, ks + mu), ans = lowest(ks * ks * H, 2 * (ks + mu)), pY = meet([[W - e, H], [f, 0]], [[0, H], [W, 0]]);
       return {
-        topic: 'Cutting a segment in a rectangle', rank: 18,
+        topic: 'Cutting a segment in a rectangle', rank: 8,
         text: `Rectangle KLMN has KL = ${W} and LM = ${H}. Point S is on side KL with SL = ${e}, and point U is on side MN with NU = ${f}. Segment SU crosses the diagonal KM at Y. What is the area of triangle KYS?`,
         figure: rectangleKLMN(W, H, e, f, [[[0, H], [W, 0]]], [[pY, 'Y', 13, -4]]),
         answer: choices(d, ans, [lowest(ks * H, 2), lowest(mu * mu * H, 2 * (ks + mu)), lowest(ks * H, 4), lowest(ks * ks * H, ks + mu), lowest(ks * mu * H, 2 * (ks + mu))], showFrac),
@@ -957,7 +957,7 @@ export const geometry = {
       const [r, given] = combo(ctx, [[2, 3, 4, 5], ['dough', 'cookie']]);
       const correct = surd(r, 2), { ring6, figure } = flower(r);
       return {
-        topic: 'Cookies from a sheet of dough', rank: 15,
+        topic: 'Cookies from a sheet of dough', rank: 5,
         text: (given === 'dough' ? `Seven equal round cookies are cut from a round sheet of dough of radius ${3 * r}` : `Seven round cookies, each of radius ${r}, are cut from a round sheet of dough`) +
           ': one in the middle and six in a ring around it. Each cookie touches the ones next to it, and the six outer ones touch the edge of the dough. The leftover dough is rolled out, just as thick, into one more round cookie. What is the radius of that cookie?',
         figure,
@@ -976,7 +976,7 @@ export const geometry = {
       const R = r1 + r2, correct = surd(1, 2 * r1 * r2), c1 = [-R + r1, 0], c2 = [R - r2, 0];
       const T = frame([-R, R], [-R, R], 300, 300, 14);
       return {
-        topic: 'Cookies from a sheet of dough', rank: 13,
+        topic: 'Cookies from a sheet of dough', rank: 4,
         text: `Two round cookies, of radii ${r1} and ${r2}, are cut from a round sheet of dough of radius ${R}: they touch each other, and each touches the edge of the dough. The leftover dough is rolled out, just as thick, into one more round cookie. What is the radius of that cookie?`,
         figure: svg(300, 300, 'Two cookies cut from a round sheet of dough', [ring(T([0, 0]), R * T.s), ring(T(c1), r1 * T.s), ring(T(c2), r2 * T.s)]),
         answer: labelled(correct, [surd(1, r1 * r1 + r2 * r2), fracSurd(r1 + r2, 2), surd(1, r1 * r2), surd(2, r1 * r2), [r2 - r1 + 1, num(r2 - r1 + 1, 0)]]),
@@ -994,7 +994,7 @@ export const geometry = {
       const cookies = [];
       for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) cookies.push([(2 * i + 1) * r, (2 * j + 1) * r]);
       return {
-        topic: 'Cookies from a sheet of dough', rank: 12,
+        topic: 'Cookies from a sheet of dough', rank: 3,
         text: `A square sheet of dough, ${s} cm on each side, is cut into ${n} rows of ${n} equal round cookies, each touching its neighbours, with the outer cookies touching the edges of the sheet. What is the area of the leftover dough, in square centimetres?`,
         figure: svg(280, 280, 'Round cookies cut from a square sheet of dough', [poly([[0, 0], [s, 0], [s, s], [0, s]].map(T)), ...cookies.map((c) => ring(T(c), r * T.s))]),
         answer: labelled(correct, [minusPi(s * s, (s * s) / 2), minusPi(s * s, (s * s) / 8), [(s * s * Math.PI) / 4, piShow([(s * s) / 4, 1])], [s * s, num(s * s, 0)]]),
@@ -1007,7 +1007,7 @@ export const geometry = {
       const [k] = combo(ctx, [[2, 3, 4, 5, 6]]);
       const scrap = surd(k, 2), { figure } = flower(k);
       return {
-        topic: 'Cookies from a sheet of dough', rank: 11,
+        topic: 'Cookies from a sheet of dough', rank: 5,
         text: `Seven equal round cookies are cut from a round sheet of dough: one in the middle and six in a ring around it, each touching the ones next to it, with the six outer ones touching the edge of the dough. The leftover dough is rolled out, just as thick, into one more round cookie, of radius ${scrap[1]}. What was the radius of the sheet of dough?`,
         figure,
         answer: choices(d, 3 * k, [2 * k, 4 * k, 6 * k, 2 * k + 1]),

@@ -1,4 +1,4 @@
-// Harder AMC 10–style algebra, for problems 15 to 20: five topics modelled on ideas from recent contests (the roots of a
+// Harder AMC 10–style algebra, for problems 4 to 14: five topics modelled on ideas from recent contests (the roots of a
 // polynomial without solving it, remainders of polynomials, sums and products that telescope, floors of square roots,
 // and sequences that repeat), with new numbers and wording; the real problems are the MAA's copyright. Each topic asks
 // its idea three or four ways, and every check() gets the answer a second way: from the actual roots, by dividing
@@ -97,11 +97,11 @@ const near = (z, v, what) => (Math.abs(z[0] - v) <= 1e-7 * Math.max(1, Math.abs(
 
 // ---------- Roots without solving ----------
 const QUAD_ASKS = {
-  ratio: [15, `${over('r', 's')} + ${over('s', 'r')}`],
-  gap: [15, '(r − s)<sup>2</sup>'],
-  recip: [16, `${over(1, sup('r', 2))} + ${over(1, sup('s', 2))}`],
-  cubes: [16, `${sup('r', 3)} + ${sup('s', 3)}`],
-  plus: [17, `(${sup('r', 2)} + 1)(${sup('s', 2)} + 1)`],
+  ratio: [6, `${over('r', 's')} + ${over('s', 'r')}`],
+  gap: [5, '(r − s)<sup>2</sup>'],
+  recip: [7, `${over(1, sup('r', 2))} + ${over(1, sup('s', 2))}`],
+  cubes: [7, `${sup('r', 3)} + ${sup('s', 3)}`],
+  plus: [8, `(${sup('r', 2)} + 1)(${sup('s', 2)} + 1)`],
 };
 const roots = [
   // a quadratic's roots: r/s + s/r, (r − s)², 1/r² + 1/s², r³ + s³ or (r² + 1)(s² + 1), from the coefficients alone
@@ -156,7 +156,7 @@ const roots = [
       pairs: [cut(-A * D - B * C, A * A), cut(-B * C, A * A), cut(B * C - A * D, A * A), cut(-D, A), cut(A * D - B * C, A)],
     }[ask];
     return {
-      topic: 'Roots without solving', rank: { mean: 17, squares: 16, recip: 18, pairs: 18 }[ask],
+      topic: 'Roots without solving', rank: { mean: 8, squares: 8, recip: 10, pairs: 9 }[ask],
       text: `Let r, s and t be the three roots of ${poly([D, C, B, A])} = 0. ` + {
         mean: 'The harmonic mean of three numbers is 3 divided by the sum of their reciprocals. What is the harmonic mean of r, s and t?',
         squares: `What is ${sup('r', 2)} + ${sup('s', 2)} + ${sup('t', 2)}?`,
@@ -200,7 +200,7 @@ const roots = [
     }[ask];
     const kk = k > 0 ? `+ ${k}` : `− ${-k}`;
     return {
-      topic: 'Roots without solving', rank: { shift: 17, sums: 19, products: 19, squares: 20 }[ask],
+      topic: 'Roots without solving', rank: { shift: 10, sums: 11, products: 12, squares: 12 }[ask],
       tip: 'Write the new roots in terms of r, s and t, then use P(x) = (x − r)(x − s)(x − t) or Vieta’s formulas instead of finding the roots.',
       text: `Let r, s and t be the roots of P(x) = ${poly([e, c, b, 1])}. The polynomial Q(x) = ${sup('x', 3)} + ⋯, with leading coefficient 1, has roots ${{
         shift: `r ${kk}, s ${kk} and t ${kk}`, sums: 'r + s, s + t and t + r', products: 'rs, st and tr', squares: `${sup('r', 2)}, ${sup('s', 2)} and ${sup('t', 2)}`,
@@ -255,7 +255,7 @@ const roots = [
           : ` A pair and its negative give two values of a that add up to ${both}, so all the values add up to ${count / 2}·${both} = <b>${num(total)}</b>.`);
     }
     return {
-      topic: 'Roots without solving', rank: form === 'given' ? 15 : (form === 'times' ? 19 : 18) + (ask === 'sum' ? 1 : 0),
+      topic: 'Roots without solving', rank: form === 'given' ? 5 : (form === 'times' ? 13 : 12) + (ask === 'sum' ? 1 : 0),
       text: form === 'given' ? `For how many integers b does ${eq} have two different roots that are both integers?`
         : ask === 'count' ? `For how many integers a does ${eq} have only integer roots?` : `What is the sum of all the integers a for which ${eq} has only integer roots?`,
       answer: choices(d, ans, ask === 'sum' ? [posSum, n * count, total + 2 * both, 2 * tau]
@@ -281,11 +281,11 @@ const TRIPLES = [[[-1, 1, 2], 3], [[-2, -1, 1], 2], [[0, 1, 2], -1], [[-1, 0, 1]
 const factors = (xs) => (xs.includes(0) ? 'x' : '') + xs.filter((a) => a !== 0).map((a) => `(${minus(a)})`).join('');
 // dividing by each of these, the powers of x go round: x^r leaves table[r] (coefficients, lowest first) for r = 0 … period − 1
 const CYCLES = {
-  'x2-1': { cs: [-1, 0, 1], rank: 14, table: [[1, 0], [0, 1]], why: `Dividing by ${poly([-1, 0, 1])}, x<sup>2</sup> leaves remainder 1, so every even power of x leaves 1 and every odd power leaves x.` },
-  'x2+1': { cs: [1, 0, 1], rank: 15, table: [[1, 0], [0, 1], [-1, 0], [0, -1]], why: `Dividing by ${poly([1, 0, 1])}, x<sup>2</sup> leaves remainder −1, so x<sup>4</sup> leaves 1 and the powers of x go round in fours: x<sup>e</sup> leaves 1, x, −1 or −x as e leaves remainder 0, 1, 2 or 3 on division by 4.` },
-  'x2+x+1': { cs: [1, 1, 1], rank: 16, table: [[1, 0], [0, 1], [-1, -1]], why: `Since x<sup>3</sup> − 1 = (x − 1)(${poly([1, 1, 1])}), x<sup>3</sup> leaves remainder 1, so the powers of x go round in threes: x<sup>e</sup> leaves 1, x or x<sup>2</sup> as e leaves remainder 0, 1 or 2 on division by 3, and x<sup>2</sup> itself leaves −x − 1.` },
-  'x2-x+1': { cs: [1, -1, 1], rank: 17, table: [[1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [1, -1]], why: `Since x<sup>3</sup> + 1 = (x + 1)(${poly([1, -1, 1])}), x<sup>3</sup> leaves remainder −1 and x<sup>6</sup> leaves 1, so the powers of x go round in sixes: x<sup>e</sup> leaves 1, x, x − 1, −1, −x or 1 − x as e leaves remainder 0, 1, 2, 3, 4 or 5 on division by 6.` },
-  'x4+x3': { cs: [1, 1, 1, 1, 1], rank: 17, table: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [-1, -1, -1, -1]], why: `Since x<sup>5</sup> − 1 = (x − 1)(${poly([1, 1, 1, 1, 1])}), x<sup>5</sup> leaves remainder 1, so the powers of x go round in fives: x<sup>e</sup> leaves the same as x<sup>r</sup>, where r is the remainder of e on division by 5, and x<sup>4</sup> itself leaves −x<sup>3</sup> − x<sup>2</sup> − x − 1.` },
+  'x2-1': { cs: [-1, 0, 1], rank: 6, table: [[1, 0], [0, 1]], why: `Dividing by ${poly([-1, 0, 1])}, x<sup>2</sup> leaves remainder 1, so every even power of x leaves 1 and every odd power leaves x.` },
+  'x2+1': { cs: [1, 0, 1], rank: 7, table: [[1, 0], [0, 1], [-1, 0], [0, -1]], why: `Dividing by ${poly([1, 0, 1])}, x<sup>2</sup> leaves remainder −1, so x<sup>4</sup> leaves 1 and the powers of x go round in fours: x<sup>e</sup> leaves 1, x, −1 or −x as e leaves remainder 0, 1, 2 or 3 on division by 4.` },
+  'x2+x+1': { cs: [1, 1, 1], rank: 9, table: [[1, 0], [0, 1], [-1, -1]], why: `Since x<sup>3</sup> − 1 = (x − 1)(${poly([1, 1, 1])}), x<sup>3</sup> leaves remainder 1, so the powers of x go round in threes: x<sup>e</sup> leaves 1, x or x<sup>2</sup> as e leaves remainder 0, 1 or 2 on division by 3, and x<sup>2</sup> itself leaves −x − 1.` },
+  'x2-x+1': { cs: [1, -1, 1], rank: 10, table: [[1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [1, -1]], why: `Since x<sup>3</sup> + 1 = (x + 1)(${poly([1, -1, 1])}), x<sup>3</sup> leaves remainder −1 and x<sup>6</sup> leaves 1, so the powers of x go round in sixes: x<sup>e</sup> leaves 1, x, x − 1, −1, −x or 1 − x as e leaves remainder 0, 1, 2, 3, 4 or 5 on division by 6.` },
+  'x4+x3': { cs: [1, 1, 1, 1, 1], rank: 10, table: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [-1, -1, -1, -1]], why: `Since x<sup>5</sup> − 1 = (x − 1)(${poly([1, 1, 1, 1, 1])}), x<sup>5</sup> leaves remainder 1, so the powers of x go round in fives: x<sup>e</sup> leaves the same as x<sup>r</sup>, where r is the remainder of e on division by 5, and x<sup>4</sup> itself leaves −x<sup>3</sup> − x<sup>2</sup> − x − 1.` },
 };
 // the same reduction with the wrong rules (for wrong answers): another divisor's cycle, or a sign slip
 const SLIPS = {
@@ -336,7 +336,7 @@ const remainders = [
     if (ask === 'three') {
       const ans = R[0] + R[1] * t + R[2] * t * t, line = u1 + (f12 * (t - x1));
       return {
-        topic: 'Polynomial remainders', rank: 17,
+        topic: 'Polynomial remainders', rank: 10,
         text: `A polynomial P(x) leaves remainder ${num(u1)} when divided by ${minus(x1)}, remainder ${num(u2)} when divided by ${minus(x2)}, and remainder ${num(u3)} when divided by ${minus(x3)}. Let R(x) be the remainder when P(x) is divided by ${factors(xs)}. What is R(${num(t)})?`,
         answer: choices(d, ans, [line, u1 + u2 + u3, -ans, R[0] - R[1] * t + R[2] * t * t, R[0]].filter(Number.isInteger)),
         check: () => check() || (ans === R[0] + R[1] * t + R[2] * t * t ? '' : 'R(t) wrong'),
@@ -346,7 +346,7 @@ const remainders = [
     const [a, b] = xs, [u, v] = us, [n, m] = R;
     const correct = polyChoice(R);
     return {
-      topic: 'Polynomial remainders', rank: ask === 'line' ? 15 : 16,
+      topic: 'Polynomial remainders', rank: ask === 'line' ? 7 : 8,
       text: `When a polynomial P(x) is divided by ${minus(a)}, the remainder is ${num(u)}, and when it is divided by ${minus(b)}, the remainder is ${num(v)}. What is the remainder when P(x) is divided by ${ask === 'line' ? factors(xs) : poly([a * b, -(a + b), 1])}?`,
       answer: labelled(correct, [[v + m * a, -m], [n, -m], [u - (v - u) * a, v - u], [m, n], [-n, m], [u + v, 0], [u, v - u], [n + 1, m]].map(polyChoice)),
       check,
@@ -388,7 +388,7 @@ const remainders = [
     const shownAt = (x) => fs.map(([cs, n]) => (n > 1 ? `${paren(at(cs, x))}<sup>${n}</sup>` : paren(at(cs, x)))).join('·');
     const ones = `Write P(x) for the product. Putting x = 1 adds up all of its coefficients, and putting x = −1 adds the coefficients of the even powers and subtracts those of the odd powers. Here P(1) = ${shownAt(1)} = ${num(P1)} and P(−1) = ${shownAt(-1)} = ${num(Pm)}.`;
     return {
-      topic: 'Polynomial remainders', rank: { even: 15, odd: 15, noconst: 14, evenx: 16 }[ask],
+      topic: 'Polynomial remainders', rank: { even: 6, odd: 6, noconst: 4, evenx: 7 }[ask],
       tip: 'Put in x = 1, x = −1 or x = 0: they add up all the coefficients, add and subtract them in turn, or give the constant term.',
       text: `When ${factorText(fs)} is multiplied out, what is the sum of ${{
         even: 'the coefficients of the even powers of x (x<sup>0</sup>, x<sup>2</sup>, x<sup>4</sup>, …), counting the constant term', odd: 'the coefficients of the odd powers of x (x, x<sup>3</sup>, x<sup>5</sup>, …)',
@@ -419,7 +419,7 @@ const remainders = [
       // xP(x) − 1 = c(x − 1)⋯(x − N), with c = −1/f where f = (−1)(−2)⋯(−N), so P(m) = (1 − prod(m)/f)/m
       const N = n, m = [N + 1, N + 2, -1][w], f = prod(0, N), c = cut(-1, f), ans = cut(f - prod(m, N), f * m), cp = cut(-prod(m, N), f);
       return {
-        topic: 'Polynomial remainders', rank: 19,
+        topic: 'Polynomial remainders', rank: 14,
         tip: 'Find a simple polynomial that is 0 at all the given points, such as xP(x) − 1, and write it as c times (x − 1)(x − 2)⋯.',
         text: `A polynomial P(x) of degree ${N - 1} has ${listing(range(1, N).map((k) => `P(${k}) = ${frac(1, k)}`))}. What is P(${num(m)})?`,
         answer: fchoices(d, ans, [cut(1, m), cut(f + prod(m, N), f * m), cut(-prod(m, N), f * m), [0, 1], cut(f - prod(m, N), f)]),
@@ -432,7 +432,7 @@ const remainders = [
     const P0 = L(0) + C * prod(0), ans = L(m) + C * prod(m), values = range(1, n).map((k) => `P(${k}) = ${num(L(k))}`);
     const D = `D(x) = P(x) − ${Lp === 'sq' || Lp[1] === 0 ? Ltext : `(${Ltext})`}`;
     return {
-      topic: 'Polynomial remainders', rank: ask === 'monic' ? 16 : 17,
+      topic: 'Polynomial remainders', rank: ask === 'monic' ? 8 : 10,
       tip: 'Take away the simple polynomial that has the given values; what is left is 0 at those points, so it is a multiple of (x − 1)(x − 2)⋯.',
       text: ask === 'monic' ? `A polynomial P(x) of degree ${n} with leading coefficient 1 has ${listing(values)}. What is P(${num(m)})?`
         : `A polynomial P(x) of degree ${n} has ${listing([...values, `P(0) = ${num(P0)}`])}. What is P(${num(m)})?`,
@@ -469,7 +469,7 @@ const telescoping = [
       triple: [cut(A * B - 2, 2 * A * B), [1, 4], cut(B * (B + 1) - 2, 4 * B * (B + 1)), cut(N, 2 * B), cut(A * B - 1, 4 * A * B)],
     }[ask];
     return {
-      topic: 'Telescoping sums', rank: { odd: 14, gap: 15, square: 16, triple: 16 }[ask],
+      topic: 'Telescoping sums', rank: { odd: 5, gap: 7, square: 7, triple: 9 }[ask],
       text: `What is ${[from, from + 1, from + 2].map((k) => over(1, shown(k))).join(' + ')} + ⋯ + ${over(1, shown(N))}?`,
       answer: fchoices(d, ans, wrong),
       check: () => { let sum = Q(0); for (let k = from; k <= N; k++) sum = qadd(sum, Q(1, bottom(k))); return said(sum, ans); },
@@ -498,7 +498,7 @@ const telescoping = [
       plus: [cut(A, B), cut(2 * N, A), [2, 1], cut(2 * B, N + 3), [A, 1]],
     }[ask];
     return {
-      topic: 'Telescoping sums', rank: { squares: 15, pairs: 17, cubes: 18, plus: 16 }[ask],
+      topic: 'Telescoping sums', rank: { squares: 5, pairs: 7, cubes: 12, plus: 7 }[ask],
       tip: 'Factor each term into two fractions, and watch each one cancel against a piece of a neighbouring term.',
       text: `What is ${ask === 'cubes' ? `${[2, 3, 4].map(shown).join(' · ')} · ⋯ · ${shown(N)}` : `${[from, from + 1, from + 2].map(shown).join('')}⋯${shown(N)}`}?`,
       answer: fchoices(d, ans, wrong),
@@ -524,7 +524,7 @@ const telescoping = [
     if (ask === 'consecutive') {
       const [a, B] = v, r = isqrt(B), s0 = isqrt(a), ans = r - s0;
       return {
-        topic: 'Telescoping sums', rank: 15,
+        topic: 'Telescoping sums', rank: 5,
         text: `What is ${t(1, `√${a}`, `√${a + 1}`)} + ${t(1, `√${a + 1}`, `√${a + 2}`)} + ${t(1, `√${a + 2}`, `√${a + 3}`)} + ⋯ + ${t(1, `√${B - 1}`, `√${B}`)}?`,
         answer: labelled([ans, num(ans)], [[Math.sqrt(B - 1) - s0, `${surd(1, B - 1)[1]} − ${s0}`], [r + s0, num(r + s0)], [r, num(r)], [ans - 1, num(ans - 1)], [ans + 1, num(ans + 1)]]),
         check: () => { let sum = 0; for (let k = a; k < B; k++) sum += 1 / (Math.sqrt(k) + Math.sqrt(k + 1)); return near([sum, 0], ans, 'sum'); },
@@ -534,7 +534,7 @@ const telescoping = [
     if (ask === 'odd') {
       const N = v, q = isqrt(2 * N + 1), ans = (q - 1) / 2;
       return {
-        topic: 'Telescoping sums', rank: 16,
+        topic: 'Telescoping sums', rank: 6,
         text: `What is ${t(1, '√1', '√3')} + ${t(1, '√3', '√5')} + ${t(1, '√5', '√7')} + ⋯ + ${t(1, `√${2 * N - 1}`, `√${2 * N + 1}`)}?`,
         answer: fchoices(d, ans, [q - 1, (q + 1) / 2, cut(q, 2), q, ans - 1]),
         check: () => { let sum = 0; for (let k = 1; k <= N; k++) sum += 1 / (Math.sqrt(2 * k - 1) + Math.sqrt(2 * k + 1)); return near([sum, 0], ans, 'sum'); },
@@ -545,7 +545,7 @@ const telescoping = [
       const q = v, N = q * q - 1, ans = cut(q - 1, q);
       const term = (k) => over(1, `${k + 1}√${k} + ${k}√${k + 1}`);
       return {
-        topic: 'Telescoping sums', rank: 18,
+        topic: 'Telescoping sums', rank: 10,
         text: `What is ${term(1)} + ${term(2)} + ${term(3)} + ⋯ + ${term(N)}?`,
         answer: fchoices(d, ans, [cut(N, N + 1), [1, q], cut(q, q + 1), cut(q - 1, q + 1), cut(q - 2, q - 1)]),
         check: () => { let sum = 0; for (let k = 1; k <= N; k++) sum += 1 / ((k + 1) * Math.sqrt(k) + k * Math.sqrt(k + 1)); return near([sum, 0], ans[0] / ans[1], 'sum'); },
@@ -554,7 +554,7 @@ const telescoping = [
     }
     const S = v, n = (S + 1) ** 2 - 1;
     return {
-      topic: 'Telescoping sums', rank: 15,
+      topic: 'Telescoping sums', rank: 5,
       text: `For a positive integer n, the sum ${t(1, '√1', '√2')} + ${t(1, '√2', '√3')} + ${t(1, '√3', '√4')} + ⋯ + ${t(1, '√n', '√(n + 1)')} is equal to ${S}. What is n?`,
       answer: choices(d, n, [(S + 1) ** 2, S * S - 1, S * S, n - 1, (S + 2) ** 2 - 1]),
       check: () => { let sum = 0; for (let k = 1; k <= n; k++) sum += 1 / (Math.sqrt(k) + Math.sqrt(k + 1)); return near([sum, 0], S, 'sum'); },
@@ -581,7 +581,7 @@ const telescoping = [
       cubes: [cut(N ** 3 - 1, N ** 3), cut(A * A - 1, A * A), [1, 1], cut((N + 2) ** 3 - 1, (N + 2) ** 3), cut(N, A)],
     }[ask];
     return {
-      topic: 'Telescoping sums', rank: { squares: 16, factorial: 17, quartic: 18, cubes: 17 }[ask],
+      topic: 'Telescoping sums', rank: { squares: 7, factorial: 8, quartic: 11, cubes: 8 }[ask],
       text: `What is ${[1, 2, 3].map(shown).join(' + ')} + ⋯ + ${shown(N)}?`,
       answer: fchoices(d, ans, wrong),
       check: () => {
@@ -620,7 +620,7 @@ const floors = [
     const other = ask === 'ceil' ? range(1, N).reduce((x, k) => x + isqrt(k), 0) : ans + cnt;
     const f = (k) => ({ floor: `⌊√${k}⌋`, ceil: `⌈√${k}⌉`, cube: `⌊∛${k}⌋` }[ask]);
     return {
-      topic: 'Floors and square roots', rank: { floor: 15, ceil: 16, cube: 17 }[ask],
+      topic: 'Floors and square roots', rank: { floor: 6, ceil: 7, cube: 7 }[ask],
       text: `What is ${f(1)} + ${f(2)} + ${f(3)} + ⋯ + ${f(N)}? ${ask === 'ceil' ? '(⌈x⌉ means the least integer greater than or equal to x.)' : FLOOR}`,
       answer: choices(d, ans, [full, full + M * len(M), ans - M, range(1, M - 1).reduce((x, m) => x + m * slip(m), 0) + M * cnt, other]),
       check: () => {
@@ -643,7 +643,7 @@ const floors = [
     if (ask === 'next') {
       const ans = isqrt(N + 1) - (isqrt(N + 1) * (isqrt(N + 1) + 1) > N ? 1 : 0), M = isqrt(N);
       return {
-        topic: 'Floors and square roots', rank: 16,
+        topic: 'Floors and square roots', rank: 9,
         text: `For how many positive integers n ≤ ${num(N)} does ⌊√n⌋ + 1 divide n? ${FLOOR}`,
         answer: choices(d, ans, [M, M - 1, 2 * ans, ans + 1, ans - 1, M + 1]),
         check: check(ans),
@@ -653,7 +653,7 @@ const floors = [
     if (ask === 'sqrt') {
       const M = isqrt(N), last = [M * M, M * M + M, M * M + 2 * M].filter((x) => x <= N), ans = 3 * (M - 1) + last.length;
       return {
-        topic: 'Floors and square roots', rank: 17,
+        topic: 'Floors and square roots', rank: 9,
         text: `For how many positive integers n ≤ ${N} is ⌊√n⌋ a divisor of n? ${FLOOR}`,
         answer: choices(d, ans, [3 * M, 3 * (M - 1), 2 * (M - 1) + Math.min(last.length, 2), M, ans + 1]),
         check: check(ans),
@@ -662,7 +662,7 @@ const floors = [
     }
     const M = icbrt(N), per = range(1, M - 1).map((m) => 3 * m + 4), full = per.reduce((x, y) => x + y, 0), part = Math.floor((N - M ** 3) / M) + 1, ans = full + part;
     return {
-      topic: 'Floors and square roots', rank: 19,
+      topic: 'Floors and square roots', rank: 11,
       text: `For how many positive integers n ≤ ${num(N)} is ⌊∛n⌋ a divisor of n? ${FLOOR}`,
       answer: choices(d, ans, [full, full + 3 * M + 4, full - (M - 1) + part, ans + 1, ans - 1]),
       check: check(ans),
@@ -676,7 +676,7 @@ const floors = [
     if (ask === 'same') {
       const per = range(1, M - 1).map((m) => m + 1), full = per.reduce((x, y) => x + y, 0), part = Math.floor((N - M * M) / 2) + 1, ans = full + part;
       return {
-        topic: 'Floors and square roots', rank: 17,
+        topic: 'Floors and square roots', rank: 10,
         text: `For how many integers k with 1 ≤ k ≤ ${N} are k and ⌊√k⌋ both even or both odd? ${FLOOR}`,
         answer: choices(d, ans, [N - ans, Math.floor(N / 2), full, full + M + 1, ans + 1]),
         check: () => { let c = 0; for (let k = 1; k <= N; k++) if ((k - isqrt(k)) % 2 === 0) c++; return c === ans ? '' : `counted ${c}`; },
@@ -686,7 +686,7 @@ const floors = [
     const p = ask === 'even' ? 0 : 1, ms = range(1, M - 1).filter((m) => m % 2 === p), per = ms.map((m) => 2 * m + 1), full = per.reduce((x, y) => x + y, 0);
     const part = M % 2 === p ? cnt : 0, ans = full + part;
     return {
-      topic: 'Floors and square roots', rank: 15,
+      topic: 'Floors and square roots', rank: 6,
       text: `For how many integers k with 1 ≤ k ≤ ${N} is ⌊√k⌋ ${ask}? ${FLOOR}`,
       answer: choices(d, ans, [N - ans, full + (part ? 0 : 2 * M + 1), Math.round(N / 2), part ? full : full + cnt, ans + 1]),
       check: () => { let c = 0; for (let k = 1; k <= N; k++) if (isqrt(k) % 2 === p) c++; return c === ans ? '' : `counted ${c}`; },
@@ -700,7 +700,7 @@ const floors = [
       const c = v, ranges = range(1, c + 2).map((m) => [m, Math.max(m * m, c * m), Math.min(m * m + 2 * m, c * m + c - 1)]).filter(([, lo, hi]) => lo <= hi);
       const ans = ranges.reduce((x, [, lo, hi]) => x + hi - lo + 1, 0);
       return {
-        topic: 'Floors and square roots', rank: 18,
+        topic: 'Floors and square roots', rank: 11,
         text: `For how many positive integers n is ⌊√n⌋ = ⌊${over('n', c)}⌋? ${FLOOR}`,
         answer: choices(d, ans, [ans + 1, ans - 1, ans + 2, ranges.length * c, ans + c]),
         check: () => { let k = 0; for (let n = 1; n <= (c + 3) ** 2; n++) if (isqrt(n) === Math.floor(n / c)) k++; return k === ans ? '' : `counted ${k}`; },
@@ -710,7 +710,7 @@ const floors = [
     const [a, b] = v, { cand, good } = floorEq(a, b), bad = cand.filter((n) => !good.includes(n)), sq = good.map((n) => a * n - b), total = sq.reduce((x, y) => x + y, 0);
     const ans = ask === 'count' ? good.length : total;
     return {
-      topic: 'Floors and square roots', rank: ask === 'count' ? 17 : 18,
+      topic: 'Floors and square roots', rank: ask === 'count' ? 10 : 11,
       tip: 'Call n = ⌊x⌋, solve for x in terms of n, then keep only the n for which n ≤ x < n + 1.',
       text: ask === 'count' ? `How many real numbers x satisfy x<sup>2</sup> + ${b} = ${a}⌊x⌋? ${FLOOR}` : `What is the sum of the squares of all the real numbers x with x<sup>2</sup> + ${b} = ${a}⌊x⌋? ${FLOOR}`,
       answer: choices(d, ans, ask === 'count' ? [cand.length, 2 * good.length, 2 * cand.length, good.length + 1, good.length - 1]
@@ -766,7 +766,7 @@ const repeating = [
     const wrong = ask === 'product' ? [fmul(ans, [-1, 1]), last, partP, ...range(1, P).map((k) => fmul(sign, upTo(k).reduce(fmul, [1, 1]))), [1, 1], [-1, 1], ...o]
       : [fmul(cycleS, [q, 1]), fadd(fmul(cycleS, [q + 1, 1]), [0, 1]), partS, fadd(ans, last), fadd(ans, fmul(last, [-1, 1])), ...range(1, P).map((k) => fadd(fmul(cycleS, [q, 1]), upTo(k).reduce(fadd, [0, 1])))];
     return {
-      topic: 'Repeating patterns', rank: ask === 'product' ? 17 : 16,
+      topic: 'Repeating patterns', rank: ask === 'product' ? 8 : 7,
       text: `A sequence has ${an(1)} = ${fr(x0)} and ${an('n+1')} = ${rule === 'three' ? over(1, `1 − ${an('n')}`) : over(`1 + ${an('n')}`, `1 − ${an('n')}`)} for every n ≥ 1. What is ${ask === 'product' ? `the product ${an(1)}·${an(2)}·${an(3)}·⋯·${an(N)}` : `the sum ${an(1)} + ${an(2)} + ${an(3)} + ⋯ + ${an(N)}`}?`,
       answer: fchoices(d, ans, wrong),
       check: () => {
@@ -787,7 +787,7 @@ const repeating = [
     if (ask === 'direct') {
       const r = d.pick([1, 2, 3, 4, 5].filter((k) => S(k) !== 0)), N = big(r), ans = S(r);
       return {
-        topic: 'Repeating patterns', rank: 15,
+        topic: 'Repeating patterns', rank: 6,
         text: `A sequence has ${an(1)} = ${num(x)}, ${an(2)} = ${num(y)}, and ${an('n+2')} = ${an('n+1')} − ${an('n')} for every n ≥ 1. What is ${an(1)} + ${an(2)} + ${an(3)} + ⋯ + ${an(N)}?`,
         answer: choices(d, ans, [S((r + 1) % 6), S((r + 5) % 6), T(r % 6), 0, x + y]),
         check: () => { let [p, q] = [x, y], sum = 0; for (let n = 1; n <= N; n++) { sum += p; [p, q] = [q, q - p]; } return sum === ans ? '' : `added up to ${sum}`; },
@@ -803,7 +803,7 @@ const repeating = [
     const firstR = (r) => ['x', 'y', '(y − x)', '(−x)', '(−y)'].slice(0, r).join(' + ');
     const say = (K, rK) => (ask === 'terms' ? `${an(K)} = ${an(rK || 6)} = ${xy(SIX_T[rK])}` : rK === 1 ? `the sum of the first ${K} terms is just x` : `the sum of the first ${K} terms is ${firstR(rK)} = ${xy(SIX_S[rK])}`);
     return {
-      topic: 'Repeating patterns', rank: ask === 'terms' ? 16 : 18,
+      topic: 'Repeating patterns', rank: ask === 'terms' ? 9 : 12,
       text: ask === 'terms'
         ? `In a sequence, ${an('n+2')} = ${an('n+1')} − ${an('n')} for every n ≥ 1. If ${an(A)} = ${num(U)} and ${an(B)} = ${num(V)}, what is the sum of the first ${C} terms?`
         : `In a sequence of numbers, every term from the third on is the term before it minus the term before that. The sum of the first ${A} terms is ${num(U)}, and the sum of the first ${B} terms is ${num(V)}. What is the sum of the first ${C} terms?`,
@@ -825,7 +825,7 @@ const repeating = [
     const ans = { term: n, sum: sq + n * r, row: r, rowsum: tet + tri(r) }[ask];
     const reps = ask === 'term' || ask === 'sum';
     return {
-      topic: 'Repeating patterns', rank: { term: 14, row: 15, sum: 16, rowsum: 16 }[ask],
+      topic: 'Repeating patterns', rank: { term: 6, row: 6, sum: 8, rowsum: 9 }[ask],
       tip: 'The blocks end at the triangular numbers 1, 3, 6, 10, …, so find the two that the position falls between.',
       text: (reps ? 'In the sequence 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, …, each positive integer n appears n times in a row.' : 'The sequence 1, 1, 2, 1, 2, 3, 1, 2, 3, 4, 1, … counts from 1 up to 1, then from 1 up to 2, then from 1 up to 3, and so on.')
         + (ask === 'term' || ask === 'row' ? ` What is its ${ord(N)} term?` : ` What is the sum of its first ${num(N)} terms?`),
@@ -861,7 +861,7 @@ const repeating = [
     if (ask === 'mobius') {
       const [m, x0] = v, o = mobOrbit(m, x0), P = m[4], M = N + (N % P ? 0 : 1), r = M % P, ans = o[r], [p, q, rr, s] = m;
       return {
-        topic: 'Repeating patterns', rank: 17,
+        topic: 'Repeating patterns', rank: 7,
         text: `Let f(x) = ${over(linear(p, q), linear(rr, s))}. ${name} starts with ${fr(x0)} and applies f again and again: ${fr(x0)}, f(${fr(x0)}), f(f(${fr(x0)})), and so on. What number does ${name} have after applying f ${num(M)} times?`,
         answer: fchoices(d, ans, [...o.filter((x) => x !== ans), cut(-x0[0], x0[1])]),
         check: () => { let a = Q(...x0); for (let i = 0; i < M; i++) a = qdiv(qadd(qmul(Q(p), a), Q(q)), qadd(qmul(Q(rr), a), Q(s))); return said(a, ans); },
@@ -872,7 +872,7 @@ const repeating = [
     const [seq, start] = path(n0, f), L = seq.length - start, at = (k) => (k < seq.length ? seq[k] : seq[start + ((k - start) % L)]), ans = at(N);
     const cycle = seq.slice(start);
     return {
-      topic: 'Repeating patterns', rank: ask === 'digits' ? 15 : 14,
+      topic: 'Repeating patterns', rank: ask === 'digits' ? 6 : 5,
       text: ask === 'digits'
         ? `${name} starts with the number ${n0} and keeps replacing it with the sum of the squares of its digits (so 12 would become 1 + 4 = 5). What is the number after ${num(N)} replacements?`
         : `${name} starts with ${n0}. At each step, an even number is halved and an odd number has ${v[0]} added to it. What is the number after ${num(N)} steps?`,

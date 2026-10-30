@@ -1,4 +1,4 @@
-// Harder counting for the AMC 10 practice (ranks 12 to 23): six topics modelled on ideas from recent contests, with
+// Harder counting for the AMC 10 practice (ranks 2 to 14): six topics modelled on ideas from recent contests, with
 // new numbers and wording: counting with a recursion, stars and bars, lattice points in a diamond, coloring a ring,
 // the pigeonhole principle and binomial coefficients. Each topic asks its idea four ways (another unknown, the
 // question turned around, another setting), and check() gets every answer again another way: by listing every string,
@@ -257,7 +257,7 @@ export const hardCounting = {
       }[kind]);
       const write = S.what ? `Write each ${S.what} as a string of 0s and 1s, with 1 for ${S.one}. ` : '';
       return {
-        topic: 'Counting with recursion', rank: { line2: 17, line3: 18, ring2: 20 }[kind],
+        topic: 'Counting with recursion', rank: { line2: 7, line3: 10, ring2: 12 }[kind],
         text: S.text,
         answer: choices(d, ans, { line2: [a[n - 1], a[n + 1], a[n] - 1, ring(n)], line3: [t[n - 1], t[n + 1], t[n - 1] + t[n - 2], a[n]], ring2: [a[n], a[n - 1], ring(n - 1), ring(n + 1)] }[kind]),
         check: () => {
@@ -285,7 +285,7 @@ export const hardCounting = {
       const slip3 = grow([1, 1], (s, m) => s[m - 1] + 3 * s[m - 2], n), slip2 = grow([1, 2], (s, m) => 2 * s[m - 1] + 2 * s[m - 2], n);
       const path = `A garden path 2 feet wide and ${n} feet long is paved with 1 × 2 bricks, which may lie along the path or across it, and 2 × 2 tiles, with no gaps or overlaps. One way is shown.`;
       return {
-        topic: 'Counting with recursion', rank: { mixed: 19, some: 20, colors: 18, rods: 18 }[kind],
+        topic: 'Counting with recursion', rank: { mixed: 9, some: 10, colors: 9, rods: 6 }[kind],
         text: {
           mixed: `${path} In how many ways can the path be paved?`,
           some: `${path} In how many of the ways is at least one 2 × 2 tile used?`,
@@ -323,7 +323,7 @@ export const hardCounting = {
       const moves = big === 3 ? '1, 2 or 3' : '1 or 2', unit = frog ? 'pad' : 'step';
       const rec = (f) => range(1, big).map((j) => `${f}(m − ${j})`).join(' + ');
       return {
-        topic: 'Counting with recursion', rank: 17 + (big === 3 ? 1 : 0) + (b2 ? 2 : 0),
+        topic: 'Counting with recursion', rank: 6 + (big === 3 ? 1 : 0) + (b2 ? 2 : 0),
         text: frog
           ? `A frog sits on the bank of a pond, facing a straight row of ${n} lily pads numbered 1 to ${n}. It hops forward ${moves} pads at a time until it lands on pad ${n}, and it never lands on pad ${b1}${b2 ? ` or pad ${b2}, which have` : ', which has'} sunk. In how many ways can the frog reach pad ${n}?`
           : `A staircase has ${n} steps. ${name} starts on the floor and climbs to the top step, going up ${moves} steps at a time. Step ${b1}${b2 ? ` and step ${b2} are` : ' is'} broken, and ${name} must never land on a broken step. In how many ways can ${name} reach the top?`,
@@ -358,7 +358,7 @@ export const hardCounting = {
       const ans = { noAB: tAB[n], apart: apart[n], clumpy: cl[n], smooth4: smooth(n), smooth5: smooth(n) }[kind];
       const [x, y, z] = XYZ[n - 1], [w, c] = WC[n];
       return {
-        topic: 'Counting with recursion', rank: { noAB: 21, apart: 21, clumpy: 22, smooth4: 22, smooth5: 23 }[kind],
+        topic: 'Counting with recursion', rank: { noAB: 11, apart: 10, clumpy: 13, smooth4: 10, smooth5: 11 }[kind],
         text: {
           noAB: `How many strings of ${n} letters, each A, B or C, never have an A immediately followed by a B? (The pair AB may not appear anywhere: BBAC is fine, but CABC is not.)`,
           apart: `A signal is a row of ${n} flags, each red, white or blue, and a red flag may never be right next to a blue flag. How many signals are possible?`,
@@ -407,7 +407,7 @@ export const hardCounting = {
       const none = names.filter((_, i) => low[i] === 0);
       const shift = vars.map((v, i) => (low[i] ? `${v} = ${v}′ ${low[i] > 0 ? '+' : '−'} ${Math.abs(low[i])}` : `${v} = ${v}′`));
       return {
-        topic: 'Stars and bars', rank: eq ? (low.some((v) => v < 0) ? 15 : 14) : 10 + k,
+        topic: 'Stars and bars', rank: eq ? (low.some((v) => v < 0) ? 7 : 6) : 2 + k,
         text: eq
           ? `How many ordered ${k === 3 ? 'triples (x, y, z)' : 'quadruples (w, x, y, z)'} of integers satisfy ${vars.join(' + ')} = ${n}, with ${listing(vars.map((v, i) => `${v} ≥ ${num(low[i])}`))}?`
           : `A teacher shares ${n} identical ${item} among ${listing(names)} so that ${listing(atLeast)}${none.length ? `, while ${listing(none)} may get none` : ''}. In how many ways can this be done?`,
@@ -431,7 +431,7 @@ export const hardCounting = {
       const ta = choose(S - 9 + k - 1, k - 1), tb = choose(S - 10 + k - 1, k - 1), ua = S >= 19 ? choose(S - 19 + k - 1, k - 1) : 0, ub = S >= 20 ? choose(S - 20 + k - 1, k - 1) : 0;
       const back = [ua ? `${k - 1}·C(${S - 19 + k - 1}, ${k - 1}) = ${num((k - 1) * ua)} with a′ and another digit both over` : '', ub ? `${choose(k - 1, 2)}·C(${S - 20 + k - 1}, ${k - 1}) = ${num(choose(k - 1, 2) * ub)} with two of the others over` : ''].filter(Boolean);
       return {
-        topic: 'Stars and bars', rank: digits ? 18 : k === 3 ? 16 : 17,
+        topic: 'Stars and bars', rank: digits ? 10 : k === 3 ? 8 : 9,
         text: {
           share: `${name} shares ${n} identical ${item} among ${WORDS[k]} friends, and no friend may get more than ${cap} (a friend may get none). In how many ways can this be done?`,
           eq: `How many ordered ${k === 3 ? 'triples (x, y, z)' : 'quadruples (w, x, y, z)'} of whole numbers satisfy ${(k === 3 ? ['x', 'y', 'z'] : ['w', 'x', 'y', 'z']).join(' + ')} = ${n}, with each of them at most ${cap}?`,
@@ -458,7 +458,7 @@ export const hardCounting = {
       const ans = { oneEmpty: k * choose(n - 1, k - 2), someEmpty: choose(n + k - 1, k - 1) - T, more: (T - E) / 2 }[kind];
       const [A, B] = names;
       return {
-        topic: 'Stars and bars', rank: { oneEmpty: 15, someEmpty: 14, more: 17 }[kind],
+        topic: 'Stars and bars', rank: { oneEmpty: 7, someEmpty: 7, more: 9 }[kind],
         text: {
           oneEmpty: `${Cap(WORDS[n])} identical balls are dropped into ${WORDS[k]} boxes labelled ${listing(['A', 'B', 'C', 'D', 'E'].slice(0, k))}. In how many of the ways the balls can land is exactly one box left empty?`,
           someEmpty: `${Cap(WORDS[n])} identical ${item} are put into ${WORDS[k]} different jars. In how many ways can this be done so that at least one jar stays empty?`,
@@ -499,7 +499,7 @@ export const hardCounting = {
       const ans = { terms: choose(n + k - 1, k - 1), terms1: choose(n + k - 1, k - 1), ups: choose(n + k - 1, k), gaps: choose(n - (k - 1) * (g - 1), k) }[kind];
       const left = n - k - (k - 1) * (g - 1), shop = d.chance(0.5);
       return {
-        topic: 'Stars and bars', rank: { terms: 15, terms1: 17, ups: 16, gaps: 17 }[kind],
+        topic: 'Stars and bars', rank: { terms: 6, terms1: 7, ups: 7, gaps: 8 }[kind],
         text: {
           terms: `When (${vars.join(' + ')})<sup>${n}</sup> is multiplied out and like terms are combined, how many different terms are there?`,
           terms1: `When (1 + ${xyz.join(' + ')})<sup>${n}</sup> is multiplied out and like terms are combined, how many different terms are there? (The constant term counts.)`,
@@ -563,7 +563,7 @@ export const hardCounting = {
       const [h, k] = d.pick(CENTERS), corners = [pt(h + p, k), pt(h, k + p), pt(h - p, k), pt(h, k - p)];
       const rows = range(-p, p).map((t) => 2 * (p - Math.abs(t)) + 1);
       return {
-        topic: 'Lattice points in a diamond', rank: kind === 'offaxes' ? 17 : 16,
+        topic: 'Lattice points in a diamond', rank: kind === 'offaxes' ? 7 : 6,
         text: {
           ring: `How many points (x, y) with integer coordinates satisfy ${p} ≤ |x| + |y| ≤ ${q}?`,
           offaxes: `How many points with integer coordinates lie strictly inside the square with vertices ${listing([pt(p, 0), pt(0, p), pt(-p, 0), pt(0, -p)])}, but on neither coordinate axis?`,
@@ -596,7 +596,7 @@ export const hardCounting = {
       const [n] = pick(ctx, 'solid', [range(3, 10)]);
       const ans = ball(n), layers = range(0, n).map((t) => disk(n - t)), solid = d.chance(0.5);
       return {
-        topic: 'Lattice points in a diamond', rank: 19,
+        topic: 'Lattice points in a diamond', rank: 10,
         text: solid
           ? `How many points with integer coordinates lie inside or on the octahedron with vertices ${pt(n, 0, 0)}, ${pt(-n, 0, 0)}, ${pt(0, n, 0)}, ${pt(0, -n, 0)}, ${pt(0, 0, n)} and ${pt(0, 0, -n)}?`
           : `How many points (x, y, z) with integer coordinates satisfy |x| + |y| + |z| ≤ ${n}?`,
@@ -610,7 +610,7 @@ export const hardCounting = {
       const [kind, n] = pickKind(ctx, 'shell', ['surface', 'nonzero', 'planes'], [range(4, 15)], (kind, n) => (kind === 'nonzero' ? n >= 5 : true));
       const in8 = choose(n - 1, 2), ans = { surface: sphere(n), nonzero: 8 * in8, planes: 12 * (n - 1) + 6 }[kind];
       return {
-        topic: 'Lattice points in a diamond', rank: { surface: 18, nonzero: 17, planes: 18 }[kind],
+        topic: 'Lattice points in a diamond', rank: { surface: 9, nonzero: 8, planes: 9 }[kind],
         text: {
           surface: `How many points (x, y, z) with integer coordinates satisfy |x| + |y| + |z| = ${n}?`,
           nonzero: `How many points (x, y, z) with integer coordinates satisfy |x| + |y| + |z| = ${n} with none of x, y and z equal to 0?`,
@@ -643,7 +643,7 @@ export const hardCounting = {
       const ans = { skew2: n * n + n + 1, skew3: slabs[0] + 2 * total(slabs.slice(1)), walk2: (n + 1) ** 2, walk3: total(same.map(sphere)) }[kind];
       const who = d.pick(['A robot', 'A beetle', 'A game piece']);
       return {
-        topic: 'Lattice points in a diamond', rank: { skew2: 18, skew3: 20, walk2: 18, walk3: 20 }[kind],
+        topic: 'Lattice points in a diamond', rank: { skew2: 8, skew3: 10, walk2: 8, walk3: 10 }[kind],
         text: {
           skew2: `How many points (x, y) with integer coordinates satisfy |x| + 2|y| ≤ ${n}?`,
           skew3: `How many points (x, y, z) with integer coordinates satisfy |x| + |y| + 2|z| ≤ ${n}?`,
@@ -678,7 +678,7 @@ export const hardCounting = {
       const [n, k] = pick(ctx, 'row', [range(5, 9), [3, 4, 5]], (n, k) => k * (k - 1) ** (n - 1) <= 30000);
       const P = k * (k - 1) ** (n - 1), ans = R(k, n - 1), name = d.pick(NAMES), beads = d.chance(0.5);
       return {
-        topic: 'Coloring a ring', rank: k === 3 ? 18 : 19,
+        topic: 'Coloring a ring', rank: k === 3 ? 10 : 11,
         text: beads
           ? `${name} threads ${n} beads, each one of ${k} colors, so that beads next to each other always differ in color. How many more ways are there to do this on an open string, with two loose ends, than on a closed loop, where the last bead also touches the first? (The beads sit in places 1 to ${n}, so turning the loop gives a different coloring.)`
           : `A potter glazes ${n} tiles laid in a straight row, giving each tile one of ${k} glazes so that tiles side by side never get the same glaze. Another ${n} tiles are laid in a ring, where each tile touches the two beside it, and are glazed by the same rule. Both are shown, with the tiles numbered. How many more ways are there to glaze the row than the ring?`,
@@ -697,7 +697,7 @@ export const hardCounting = {
       const [n, k, exactly] = pick(ctx, 'once', [range(5, 8), [4, 5], [false, true]], (n, k) => k * (k - 1) ** (n - 1) <= 25000);
       const one = (k - 1) * (k - 2) ** (n - 2), ans = (exactly ? 0 : R(k - 1, n)) + n * one, flavor = d.pick(['chocolate', 'raspberry', 'pistachio']);
       return {
-        topic: 'Coloring a ring', rank: 20,
+        topic: 'Coloring a ring', rank: 13,
         text: `A round cake is cut into ${n} wedges, as shown. Each wedge is iced with one of ${k} flavors, one of them ${flavor}, so that wedges that share a cut get different flavors. There is only enough ${flavor} icing for one wedge, so ${exactly ? 'exactly one wedge is' : 'at most one wedge may be'} ${flavor}. How many icings are possible? (Turning the cake gives a different icing.)`,
         figure: svg(320, 260, `A round cake cut into ${n} wedges`, roundParts(n, [160, 130], 0, 112)),
         answer: choices(d, ans, exactly
@@ -718,7 +718,7 @@ export const hardCounting = {
       const [n, k] = pick(ctx, 'window', [range(4, 7), [4, 5, 6]], (n, k) => n <= 11 - k);
       const same = R(k - 1, n), diff = R(k - 2, n), ans = k * same + k * (k - 1) * diff;
       return {
-        topic: 'Coloring a ring', rank: 21,
+        topic: 'Coloring a ring', rank: 14,
         text: `A round stained-glass window has a small disk in the middle, a ring of ${n} panes around it and an outer rim, as shown. Each pane touches the disk, the rim and the two panes beside it, but the disk and the rim do not touch each other. Each of the ${n + 2} pieces gets one of ${k} colors so that pieces that touch get different colors. How many colorings are possible?`,
         figure: svg(320, 270, `A round window: a middle disk, a ring of ${n} panes and an outer rim`, roundParts(n, [160, 135], 44, 92, { r3: 122 })),
         answer: choices(d, ans, [k * (k - 1) * diff, k * same, k * (k - 1) * (k - 2) ** (n - 1) + k * (k - 1) * (k - 2) * (k - 3) ** (n - 1), k * k * diff, k * (k - 1) * same]),
@@ -736,7 +736,7 @@ export const hardCounting = {
       const [n, k] = pick(ctx, 'limit', [[6, 8, 10], [3, 4, 5, 6]], (n, k) => R(k, n) - 2 * k * (k - 1) ** (n / 2) + k * (k - 1) <= 20000);
       const h = n / 2, all = R(k, n), once = 2 * (k - 1) ** h, ans = all - k * once + k * (k - 1);
       return {
-        topic: 'Coloring a ring', rank: 22,
+        topic: 'Coloring a ring', rank: 13,
         text: `A round tray is divided into ${n} wedges, as shown. Each wedge is filled with one of ${k} kinds of candy so that wedges that share a side hold different kinds, and no kind may fill more than ${WORDS[h - 1]} wedges. How many fillings are possible? (Turning the tray gives a different filling.)`,
         figure: svg(320, 260, `A round tray divided into ${n} wedges`, roundParts(n, [160, 130], 0, 112)),
         answer: choices(d, ans, [all, all - k * once, all - (k * once) / 2, all - k * once + (k * (k - 1)) / 2]),
@@ -765,7 +765,7 @@ export const hardCounting = {
       const P = total(have), ans = { pairs: 2 * k + c - 1, same: total(have.map((a) => Math.min(a, 2 * k - 1))) + 1, gloves: P + 1 }[kind];
       const what = (a, col, thing) => `${WORDS[a]} ${col} ${thing}${a === 1 ? '' : 's'}`;
       return {
-        topic: 'Pigeonhole', rank: { pairs: 12, same: 14, gloves: 13 }[kind],
+        topic: 'Pigeonhole', rank: { pairs: 5, same: 6, gloves: 7 }[kind],
         text: kind === 'gloves'
           ? `A box holds ${listing(have.map((a, i) => what(a, colors[i], 'pair')))} of gloves, each pair a left glove and a right glove. In the dark, ${name} takes gloves out one at a time. How many must ${name} take to be sure of having a left glove and a right glove of the same color?`
           : `A drawer holds ${listing(have.map((a, i) => what(a, colors[i], 'sock')))}. In the dark, ${name} takes socks out one at a time. How many must ${name} take to be sure of having ${kind === 'pairs' ? `${WORDS[k]} pairs (a pair is two socks of the same color, and different pairs may be different colors)` : `${WORDS[2 * k]} socks of the same color (${WORDS[k]} pairs of one color)`}?`,
@@ -803,7 +803,7 @@ export const hardCounting = {
       const safeMult = total(sides) + (cnt[0] ? 1 : 0) + (v % 2 === 0 && cnt[v / 2] ? 1 : 0);
       const safe = { sum: N - p, diff: safeDiff, mult: safeMult }[kind], ans = safe + 1;
       return {
-        topic: 'Pigeonhole', rank: kind === 'sum' ? 15 : 16,
+        topic: 'Pigeonhole', rank: kind === 'sum' ? 8 : 9,
         text: `What is the least number of different integers that must be chosen from 1, 2, 3, …, ${N} to be sure that two of the chosen numbers ${{ sum: `add up to ${S}`, diff: `differ by exactly ${v}`, mult: `have a sum divisible by ${v}` }[kind]}?`,
         answer: choices(d, ans, {
           sum: [p + 1, N / 2 + 1, N - p, N - p + 2],
@@ -832,7 +832,7 @@ export const hardCounting = {
       const ans = kind === 'reverse' ? Math.ceil(N / h) : boxes * (k - 1) + 1;
       const label = { 7: ['were born on the same day of the week', 'days of the week'], 12: ['were born in the same month', 'months'], 26: ['have first names that start with the same letter (from A to Z)', 'letters'], 31: ['were born on the same day of a month (the 1st to the 31st)', 'days of a month'] }[h];
       return {
-        topic: 'Pigeonhole', rank: kind === 'two' || kind === 'leap' ? 13 : 12,
+        topic: 'Pigeonhole', rank: kind === 'two' || kind === 'leap' ? 3 : 2,
         text: {
           forward: `What is the least number of people that must be in a room to be sure that at least ${k} of them ${label[0]}?`,
           reverse: `A school has ${N} students. What is the largest number n for which you can be sure that at least n of the students ${label[0]}?`,
@@ -862,7 +862,7 @@ export const hardCounting = {
         square: (b === 2 || b === 3) && a % b === 0, track: b <= 4 && a >= 4 && a <= 9, midpoint: a <= 3 && b <= 1,
       })[kind]);
       const C = [360, 400, 480, 500, 600][b % 5], L = [24, 30, 32, 40, 45, 48, 50, 60, 75, 36][a], strict = kind === 'track' && a % 2 === 0;
-      let ans = 0, text = '', solution = '', rank = 16, wrongs = [], check;
+      let ans = 0, text = '', solution = '', rank = 6, wrongs = [], check;
       if (kind === 'square') {
         const m = b, s = a, dist = surd(s / m, 2)[1];
         ans = m * m + 1;
@@ -878,7 +878,7 @@ export const hardCounting = {
       } else if (kind === 'track') {
         ans = strict ? Math.floor(C / L) + 1 : Math.ceil(C / L);
         const q = ans - 1, whole = C % L === 0;
-        rank = whole ? 17 : 16;
+        rank = whole ? 7 : 6;
         text = `A circular running track is ${C} meters around. Some flags are planted on the track. What is the least number of flags that guarantees that two of them are ${strict ? 'less than' : 'at most'} ${L} meters apart, measured along the track?`;
         wrongs = [ans - 1, ans + 1, Math.floor(C / L), Math.ceil(C / L) + 1, Math.round(C / L)];
         solution = `If ${q} flags are spaced evenly, every gap between neighboring flags is ${frac(C, q)} meters, which is ${strict ? 'not less than' : 'more than'} ${L}, so ${q} flags are not enough. With ${ans} flags, the ${ans} gaps around the track add up to ${C} meters, so the smallest gap is at most ${frac(C, ans)} meters. That is ${strict ? 'less than' : 'at most'} ${L}${whole ? ` (the ${strict ? 'strict' : 'equal'} case is what makes the difference here)` : ''}, so the answer is <b>${ans}</b>.`;
@@ -892,7 +892,7 @@ export const hardCounting = {
       } else {
         const dim = a === 2 || a === 3 ? a : 2, even = b === 1, boxes = 2 ** (dim - (even ? 1 : 0));
         ans = boxes + 1;
-        rank = even ? 17 : 16;
+        rank = even ? 7 : 6;
         const space = dim === 2 ? (even ? 'points (x, y) with integer coordinates and x + y even' : 'points (x, y) in the plane with integer coordinates')
           : (even ? 'points (x, y, z) with integer coordinates and x + y + z even' : 'points (x, y, z) in space with integer coordinates');
         text = `What is the least number of ${space} that guarantees that some two of them have a midpoint whose coordinates are all integers?`;
@@ -919,7 +919,7 @@ export const hardCounting = {
       if (kind === 'equal') {
         const c = [(n - k) / gcd(n - k, k + 1), (k + 1) / gcd(n - k, k + 1)];
         return {
-          topic: 'Binomial coefficients', rank: 16,
+          topic: 'Binomial coefficients', rank: 6,
           text: `For a certain positive number c, the coefficients of ${xPow(k)} and ${xPow(k + 1)} in the expansion of (x + c)<sup>${n}</sup> are equal. What is c?`,
           answer: choices(d, c, [[k + 1, n - k], [n - k - 1, k + 1], [k, n - k], [n - k, k], [1, 1]], showFrac),
           check: () => {
@@ -932,7 +932,7 @@ export const hardCounting = {
       }
       const ans = choose(n, k) * a ** k * b ** (n - k), poly = `${term(a, 1)} ${plusMinus(b, Math.abs(b))}`;
       return {
-        topic: 'Binomial coefficients', rank: b < 0 ? 14 : 13,
+        topic: 'Binomial coefficients', rank: b < 0 ? 4 : 3,
         text: `What is the coefficient of ${xPow(k)} in the expansion of (${poly})<sup>${n}</sup>?`,
         answer: choices(d, ans, [choose(n, k) * a ** (n - k) * b ** k, choose(n, k) * a ** k * Math.abs(b) ** (n - k), choose(n, k) * b ** (n - k), choose(n, k - 1) * a ** k * b ** (n - k), -ans, choose(n, k) * a * b]),
         check: () => { const c = coefOf(expand([[1, a], [0, b]], n), k); return c === BigInt(ans) ? '' : `expanded to ${c}, said ${ans}`; },
@@ -949,7 +949,7 @@ export const hardCounting = {
       const j = (al * n) / (al + be), ans = choose(n, j) * p ** (n - j) * q ** j;
       const jHalf = Math.round(n / 2), first = term(p, al);
       return {
-        topic: 'Binomial coefficients', rank: p === 1 && q > 0 ? 15 : 16,
+        topic: 'Binomial coefficients', rank: p === 1 && q > 0 ? 6 : 7,
         text: `What is the constant term in the expansion of (${first} ${plusMinus(q, overX(q, be))})<sup>${n}</sup>?`,
         answer: choices(d, ans, nonzero([choose(n, j) * q ** j, choose(n, j) * p ** j * q ** (n - j), -ans, choose(n, jHalf) * p ** (n - jHalf) * q ** jHalf, choose(n, j - 1) * p ** (n - j + 1) * q ** (j - 1), choose(n, j + 1) * p ** (n - j - 1) * q ** (j + 1), choose(n, j)]).filter((v) => v !== ans)),
         check: () => { const c = coefOf(expand([[al, p], [-be, q]], n), 0); return c === BigInt(ans) ? '' : `expanded to ${c}, said ${ans}`; },
@@ -968,7 +968,7 @@ export const hardCounting = {
       const poly = kind === 'tri' ? `x<sup>2</sup> ${plusMinus(b, Math.abs(b) === 1 ? 'x' : `${Math.abs(b)}x`)} ${plusMinus(a, a)}` : `${term(a, 1)} ${plusMinus(b, Math.abs(b))}`;
       const which = kind === 'odd' ? 'odd' : 'even';
       return {
-        topic: 'Binomial coefficients', rank: kind === 'tri' ? 17 : 16,
+        topic: 'Binomial coefficients', rank: kind === 'tri' ? 7 : 6,
         text: `What is the sum of the coefficients of the ${which} powers of x${which === 'even' ? ' (the constant term included)' : ''} in the expansion of (${poly})<sup>${n}</sup>?`,
         answer: choices(d, ans, nonzero([P1, kind === 'odd' ? even : odd, P1 / 2, Pm, -ans]).filter((v) => Number.isInteger(v) && v !== ans)),
         check: () => {
@@ -989,7 +989,7 @@ export const hardCounting = {
       const ans = { plain: hockey, late, products: prod, coef: late }[kind];
       const C = (m, j) => `C(${m}, ${j})`;
       return {
-        topic: 'Binomial coefficients', rank: { plain: 16, late: 17, products: 17, coef: 18 }[kind],
+        topic: 'Binomial coefficients', rank: { plain: 7, late: 8, products: 8, coef: 9 }[kind],
         text: {
           plain: `What is ${C(k, k)} + ${C(k + 1, k)} + ${C(k + 2, k)} + ⋯ + ${C(n, k)}? (Here C(m, j) is the number of ways to choose j things from m.)`,
           late: `What is ${C(a, k)} + ${C(a + 1, k)} + ${C(a + 2, k)} + ⋯ + ${C(n, k)}? (Here C(m, j) is the number of ways to choose j things from m.)`,

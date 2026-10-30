@@ -122,7 +122,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [n, ask] = combo(ctx, [range(5, 12), ['prime', 'composite']]), value = ask === 'prime' ? 2 : n - 2;
       return {
-        rank: 9,
+        rank: 8,
         text: `The list 11, 101, 1001, 10001, 100001, … goes on the same way: its k-th number is a 1, then k − 1 zeros, then a 1 (that is, 10<sup>k</sup> + 1). How many of the first ${n} numbers in the list are ${ask}?`,
         answer: choices(d, value, ask === 'prime' ? [1, 3, 4, 0, n - 2] : [n - 1, n - 3, n - 4, n]),
         check: () => { const primes = range(1, n).filter((k) => isPrimeBig(10n ** BigInt(k) + 1n)).length; return (ask === 'prime' ? primes : n - primes) === value ? '' : `found ${primes} primes`; },
@@ -133,7 +133,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [N] = combo(ctx, [range(15, 60)]), value = Math.floor(N / 2);
       return {
-        rank: 8,
+        rank: 5,
         text: `A number is written as a 1, then m zeros, then another 1 (so m = 2 gives 1001). For how many values of m from 1 to ${N} is the number a multiple of 11?`,
         answer: choices(d, value, [Math.ceil(N / 2) === value ? value + 1 : Math.ceil(N / 2), N, Math.floor(N / 3), value - 1, Math.floor(N / 11)]),
         check: () => { const k = range(1, N).filter((m) => (10n ** BigInt(m + 1) + 1n) % 11n === 0n).length; return k === value ? '' : `found ${k}`; },
@@ -146,7 +146,7 @@ export const numberTheory = Object.fromEntries([
       const [ab, n, ask] = combo(ctx, [primesTo(97).filter((p) => p > 10), range(5, 10), ['prime', 'composite']]), value = ask === 'prime' ? 1 : n - 1;
       const term = (k) => String(ab).repeat(k);
       return {
-        rank: 6,
+        rank: 4,
         text: `The numbers ${ab}, ${term(2)}, ${term(3)}, … are made by writing the prime ${ab} once, twice, three times, and so on. How many of the first ${n} of them are ${ask}?`,
         answer: choices(d, value, ask === 'prime' ? [0, 2, n, Math.ceil(n / 2)] : [n, n - 2, 0, Math.floor(n / 2)]),
         check: () => { const primes = range(1, n).filter((k) => isPrimeBig(BigInt(term(k)))).length; return (ask === 'prime' ? primes : n - primes) === value ? '' : `found ${primes} primes`; },
@@ -175,7 +175,7 @@ export const numberTheory = Object.fromEntries([
       const [P] = combo(ctx, [[36, 40, 48, 54, 60, 72, 84, 90, 96, 100, 108, 120, 126, 150, 168, 180, 200, 216, 240, 252]]);
       const all = triples(P), sums = [...new Set(all.map(total))].sort((a, b) => a - b), best = all.find((t) => total(t) === sums[0]);
       return {
-        rank: 5,
+        rank: 3,
         text: `Three positive integers have a product of ${P}. What is the smallest their sum can be?`,
         answer: choices(d, sums[0], [search(P).s, sums[1], 2 + P, sums[2], sums[0] - 1]),
         check: () => { let low = Infinity; for (let x = 1; x <= P; x++) for (let y = 1; y <= P; y++) if (P % (x * y) === 0) low = Math.min(low, x + y + P / (x * y)); return low === sums[0] ? '' : `brute force says ${low}`; },
@@ -188,7 +188,7 @@ export const numberTheory = Object.fromEntries([
       const [x, y, z] = d.pick(pinned(P)), S = x + y + z, others = triples(P).filter((t) => t.join() !== [x, y, z].join());
       const near = others.sort((a, b) => Math.abs(total(a) - S) - Math.abs(total(b) - S)).slice(0, 3);
       return {
-        rank: 9,
+        rank: 4,
         text: `Three positive integers have a product of ${P} and a sum of ${S}. What is the largest of the three?`,
         answer: choices(d, z, [y, x, ...near.map((t) => t[2]), S - z, P / z]),
         check: () => { const hits = []; for (let a = 1; a <= P; a++) for (let b = a; b <= P; b++) { const c = P / (a * b); if (Number.isInteger(c) && c >= b && a + b + c === S) hits.push(c); } return hits.length === 1 && hits[0] === z ? '' : `found ${hits.join(', ')}`; },
@@ -221,7 +221,7 @@ export const numberTheory = Object.fromEntries([
       const [G, K] = combo(ctx, [[1, 2, 3, 4, 5, 6, 10, 12], [6, 10, 12, 18, 20, 30, 36, 42, 60, 70, 84, 90, 210]], (G, K) => G * K <= 3000);
       const L = G * K, f = factor(K), w = f.length, value = 2 ** w;
       return {
-        rank: 13,
+        rank: 9,
         text: `Positive integers a and b have greatest common divisor ${G} and least common multiple ${num(L, 0)}. How many ordered pairs (a, b) are possible?`,
         answer: choices(d, value, [2 ** (w - 1), w, divisors(K).length, value + 2, 2 * divisors(K).length]),
         check: () => { const ds = divisors(L); let k = 0; for (const x of ds) for (const y of ds) if (gcd(x, y) === G && lcm(x, y) === L) k++; return k === value ? '' : `brute force found ${k}`; },
@@ -236,7 +236,7 @@ export const numberTheory = Object.fromEntries([
       const [G, [x, y]] = combo(ctx, [[2, 3, 4, 5, 6, 7, 8, 9, 12, 15], [[2, 3], [3, 4], [3, 5], [4, 5], [2, 5], [5, 6], [4, 7], [3, 7], [5, 8], [7, 9]]]);
       const a = G * x, b = G * y, L = G * x * y;
       return {
-        rank: 5,
+        rank: 2,
         text: `Two positive integers have greatest common divisor ${G} and least common multiple ${L}. One of them is ${a}. What is the other?`,
         answer: choices(d, b, [y, x * y, L - a, b + G, 2 * b]),
         check: () => { const hits = range(1, L).filter((c) => gcd(a, c) === G && lcm(a, c) === L); return hits.length === 1 && hits[0] === b ? '' : `found ${hits.join(', ')}`; },
@@ -248,7 +248,7 @@ export const numberTheory = Object.fromEntries([
       const [[a, b, c], r] = combo(ctx, [[[4, 6, 9], [6, 8, 10], [4, 10, 15], [6, 9, 15], [8, 12, 18], [10, 12, 15], [9, 12, 14], [6, 14, 21], [8, 14, 20], [12, 15, 20]], [1, 2, 3]], (t, r) => r < t[0]);
       const L = lcm(lcm(a, b), c), value = L + r;
       return {
-        rank: 6,
+        rank: 2,
         text: `What is the smallest integer greater than ${r} that leaves a remainder of ${r} when divided by ${a}, by ${b} and by ${c}?`,
         answer: choices(d, value, [a * b * c + r, L, 2 * L + r, a * b + r, lcm(a, b) + r]),
         check: () => { let n = r + 1; while (n % a !== r || n % b !== r || n % c !== r) n++; return n === value ? '' : `search found ${n}`; },
@@ -270,7 +270,7 @@ export const numberTheory = Object.fromEntries([
       const evens = f.filter((x) => x % 2 === 0), oddCount = 3 - evens.length, oddParts = f.map((x) => x / 2 ** vp(x, 2));
       const takeOut = `${and(evens.map((x) => `${x} = ${pw(2, vp(x, 2))} · ${x / 2 ** vp(x, 2)}`))}${oddCount === 2 ? ', and the other two are odd' : oddCount === 1 ? ', and the other one is odd' : ''}`;
       return {
-        rank: 9,
+        rank: 6,
         text: `Let N = ${f.join(' · ')}. Add up all the odd positive divisors of N, and separately add up all the even ones. What is the ratio of the odd total to the even total?`,
         answer: labelled(ratio(r), [2 ** a, 2 ** (a + 1), 2 ** (a + 1) - 1, 2 ** a - 1, 2 ** (a + 2) - 2, a + 1, 2 * a].filter((v) => v > 0).map(ratio)),
         check: () => { let odd = 0, even = 0; for (const x of divisors(N)) if (x % 2) odd += x; else even += x; return even === r * odd ? '' : `sums ${odd} and ${even}`; },
@@ -283,7 +283,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [a, m] = combo(ctx, [[1, 2, 3, 4, 5], [9, 15, 21, 25, 27, 35, 45, 49, 63, 75, 81, 99, 105]]), N = 2 ** a * m, value = sigma(m);
       return {
-        rank: 7,
+        rank: 5,
         text: `What is the sum of all the odd positive divisors of ${ints(N)}?`,
         answer: choices(d, value, [sigma(N), sigma(N) - value, value - m, value - 1, 2 * value], ints),
         check: () => { const s = divisors(N).filter((x) => x % 2).reduce((t, x) => t + x, 0); return s === value ? '' : `brute force says ${s}`; },
@@ -294,7 +294,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [a, m] = combo(ctx, [[1, 2, 3, 4, 5, 6], [3, 5, 7, 9, 15, 21, 25, 27, 35, 45]]), N = 2 ** a * m;
       return {
-        rank: 8,
+        rank: 3,
         text: `What fraction of the positive divisors of ${ints(N)} are even?`,
         answer: choices(d, [a, a + 1], [[1, 2], [1, a + 1], [a, a + 2], [a + 1, a + 2], [divisors(m).length, divisors(N).length], [1, 3], [3, 4], [1, 4]], showFrac),
         check: () => { const ds = divisors(N), even = ds.filter((x) => x % 2 === 0).length; return even * (a + 1) === ds.length * a ? '' : `${even} of ${ds.length}`; },
@@ -306,7 +306,7 @@ export const numberTheory = Object.fromEntries([
       const [a, m] = combo(ctx, [[1, 2, 3, 4], [9, 15, 21, 25, 27, 35, 45, 49, 63, 75]]), N = 2 ** a * m, s = sigma(m), value = (2 ** (a + 1) - 2) * s;
       const powers = range(1, a).map((i) => 2 ** i);
       return {
-        rank: 9,
+        rank: 2,
         text: `What is the sum of all the even positive divisors of ${ints(N)}?`,
         answer: choices(d, value, [sigma(N), s, 2 * s, (2 ** a) * s, sigma(N) - 2 * s].filter((v) => v !== value), ints),
         check: () => { const t = divisors(N).filter((x) => x % 2 === 0).reduce((u, x) => u + x, 0); return t === value ? '' : `brute force says ${t}`; },
@@ -331,7 +331,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [ab] = combo(ctx, [range(12, 98)], (ab) => gcd(ab, 99) > 1 && ab % 11 !== 0), g = gcd(ab, 99), p = ab / g, q = 99 / g, value = p + q;
       return {
-        rank: 9,
+        rank: 3,
         text: `The repeating decimal 0.${ab}${ab}${ab}…, in which the digits ${ab} repeat forever, is written as a fraction p/q in lowest terms. What is p + q?`,
         answer: choices(d, value, [ab + 99, ab + 100, p + 99, q + ab, value + 1]),
         check: () => (gcd(p, q) === 1 && Math.abs(p / q - Number(`0.${String(ab).repeat(8)}`)) < 1e-12 ? '' : 'fraction wrong'),
@@ -343,7 +343,7 @@ export const numberTheory = Object.fromEntries([
       const [a, bc] = combo(ctx, [range(1, 9), range(10, 98)], (a, bc) => bc % 11 !== 0 && bc % 10 !== a);
       const top = 99 * a + bc, g = gcd(top, 990), q = 990 / g;
       return {
-        rank: 11,
+        rank: 5,
         text: `When the repeating decimal 0.${a}${bc}${bc}${bc}… (the digit ${a}, then the digits ${bc} repeating forever) is written as a fraction in lowest terms, what is the denominator?`,
         answer: choices(d, q, [990, 99, 900, 999, 1000].filter((v) => v !== q), ints),
         check: () => (Math.abs(top / g / q - Number(`0.${a}${String(bc).repeat(7)}`)) < 1e-12 && gcd(top / g, q) === 1 ? '' : 'fraction wrong'),
@@ -355,7 +355,7 @@ export const numberTheory = Object.fromEntries([
       const [[p, q], N] = combo(ctx, [[[1, 7], [2, 7], [3, 7], [4, 7], [5, 7], [6, 7], [1, 13], [2, 13], [1, 27], [5, 27], [5, 11], [7, 11], [1, 37], [10, 37]], range(2001, 2040)]);
       const digits = block(p, q), L = digits.length, i = (N - 1) % L, value = +digits[i];
       return {
-        rank: 8,
+        rank: 3,
         text: `What is the ${ord(N)} digit after the decimal point in the decimal form of ${frac(p, q)}?`,
         answer: choices(d, value, [+digits[(i + 1) % L], +digits[(i + L - 1) % L], ...d.shuffle(digits.split('').map(Number)), ...d.shuffle(range(0, 9))]),
         check: () => { let r = p, digit = -1; for (let k = 0; k < N; k++) { r *= 10; digit = Math.floor(r / q); r %= q; } return digit === value ? '' : `long division says ${digit}`; },
@@ -374,7 +374,7 @@ export const numberTheory = Object.fromEntries([
       } while (value === 7);
       const ua = unit(a, b), uc = unit(c, e);
       return {
-        rank: 8,
+        rank: 4,
         text: `What is the units digit of ${sup(a, b)} + ${sup(c, e)}?`,
         answer: choices(d, value, [ua, uc, (a + c) % 10, (unit(a, b + 1) + uc) % 10, (ua + unit(c, e + 1)) % 10, ...d.shuffle(range(0, 9))]),
         check: () => ((powMod(a, b, 10) + powMod(c, e, 10)) % 10 === value ? '' : 'units digit wrong'),
@@ -386,7 +386,7 @@ export const numberTheory = Object.fromEntries([
       const a = 10 * d.int(10, 99) + d.pick([2, 3, 7, 8, 9]), c = 10 * d.int(10, 99) + d.pick([3, 4, 7, 9]), b = d.int(50, 999), e = d.int(50, 999);
       const ua = unit(a, b), uc = unit(c, e), value = (ua * uc) % 10;
       return {
-        rank: 7,
+        rank: 4,
         text: `What is the units digit of ${sup(a, b)} × ${sup(c, e)}?`,
         answer: choices(d, value, [(ua + uc) % 10, ua, uc, (a * c) % 10, ...d.shuffle(range(0, 9))]),
         check: () => ((powMod(a, b, 10) * powMod(c, e, 10)) % 10 === value ? '' : 'units digit wrong'),
@@ -398,7 +398,7 @@ export const numberTheory = Object.fromEntries([
       const [a, N] = combo(ctx, [[2, 3, 7, 8, 12, 13, 17, 18, 22, 23, 27, 28], range(40, 120)]);
       const cyc = cycle(a % 10, 10), t = cyc[ctx.k % cyc.length], r = cyc.indexOf(t) + 1, value = Math.floor((N - r) / 4) + 1;
       return {
-        rank: 9,
+        rank: 4,
         text: `How many of the numbers ${a}<sup>1</sup>, ${a}<sup>2</sup>, ${a}<sup>3</sup>, …, ${sup(a, N)} end in the digit ${t}?`,
         answer: choices(d, value, [Math.floor(N / 4) === value ? value + 1 : Math.floor(N / 4), Math.ceil(N / 4) === value ? value - 1 : Math.ceil(N / 4), Math.floor(N / 10), value + 2, Math.round(N / 3)]),
         check: () => { const k = range(1, N).filter((i) => powMod(a, i, 10) === t).length; return k === value ? '' : `brute force found ${k}`; },
@@ -410,7 +410,7 @@ export const numberTheory = Object.fromEntries([
       const [B, n] = combo(ctx, [[7, 43, 57, 93], range(2001, 2060)]), cyc = cycle(B, 100), value = cyc[(n - 1) % 4];
       const two = (v) => String(v).padStart(2, '0');
       return {
-        rank: 12,
+        rank: 7,
         text: `What are the last two digits of ${sup(B, n)}?`,
         answer: labelled(opt(value, two(value)), [...cyc.filter((v) => v !== value).map((v) => opt(v, two(v))), opt((value + 10) % 100, two((value + 10) % 100))]),
         check: () => (powMod(B, n, 100) === value ? '' : 'last two digits wrong'),
@@ -427,7 +427,7 @@ export const numberTheory = Object.fromEntries([
       const k = d.int(2025, 2060), sum = S(b, t), F = sum % m, seq = cycle(b, m), L = seq.length, x = seq[(k - 1) % L], value = (F * x) % m;
       const terms = range(0, t - 1).map((i) => sup(b, k + i)).join(' + '), small = range(0, t - 1).map((i) => (i === 0 ? '1' : pw(b, i))).join(' + ');
       return {
-        rank: 7,
+        rank: 5,
         text: `What is the remainder when ${terms} is divided by ${m}?`,
         answer: choices(d, value, [F, x, (F + x) % m, (t * x) % m, (F * seq[k % L]) % m, ...d.shuffle(range(0, m - 1))]),
         check: () => (range(0, t - 1).reduce((s, i) => s + powMod(b, k + i, m), 0) % m === value ? '' : 'remainder wrong'),
@@ -441,7 +441,7 @@ export const numberTheory = Object.fromEntries([
       const [[b, m], k] = combo(ctx, [[[10, 11], [26, 27], [16, 17], [8, 9], [12, 13], [14, 13], [22, 21], [20, 19], [100, 101], [99, 100], [34, 35], [50, 49]], range(2021, 2060)]);
       const up = b % m === 1, value = up || k % 2 === 0 ? 1 : m - 1;
       return {
-        rank: 6,
+        rank: 2,
         text: `What is the remainder when ${sup(b, k)} is divided by ${m}?`,
         answer: choices(d, value, [1, m - 1, 0, b % m, 2, k % m]),
         check: () => (powMod(b, k, m) === value ? '' : 'remainder wrong'),
@@ -456,7 +456,7 @@ export const numberTheory = Object.fromEntries([
       const L = cycle(b, m).length, seq = range(0, L - 1).map((i) => powMod(b, i, m)), S = total(seq);
       const full = Math.floor((n + 1) / L), left = (n + 1) % L, part = total(seq.slice(0, left)), value = part % m;
       return {
-        rank: 10,
+        rank: 6,
         text: `What is the remainder when 1 + ${b} + ${sup(b, 2)} + ${sup(b, 3)} + ⋯ + ${sup(b, n)} is divided by ${m}?`,
         answer: choices(d, value, [(n + 1) % m, (value + 1) % m, (full * S) % m === value ? (value + 2) % m : (full * S) % m, powMod(b, n, m), ...d.shuffle(range(0, m - 1))]),
         check: () => { let s = 0; for (let i = 0; i <= n; i++) s = (s + powMod(b, i, m)) % m; return s === value ? '' : `adding up gives ${s}`; },
@@ -474,7 +474,7 @@ export const numberTheory = Object.fromEntries([
       const pairList = divisors(c).filter((u) => u * u <= c && (u + c / u) % 2 === 0).map((u) => [(c / u - u) / 2, (u + c / u) / 2]);   // [m, n]
       const count = 2 * pairList.length, withNegM = count + 2 * pairList.filter(([m]) => m > 0).length, allPairs = 2 * divisors(c).filter((u) => u * u <= c).length;
       return {
-        rank: 11,
+        rank: 8,
         text: `For how many ordered pairs (m, n) of integers is √(n<sup>2</sup> − ${c}) equal to m?`,
         answer: labelled(opt(count), [[1e9, 'infinitely many'], opt(count / 2), opt(withNegM), opt(count + 2), opt(count - 2), opt(allPairs)]),
         check: () => { let k = 0; for (let n = -c - 1; n <= c + 1; n++) for (let m = 0; m <= c; m++) if (m * m === n * n - c) k++; return k === count ? '' : `brute force found ${k}`; },
@@ -485,7 +485,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [N] = combo(ctx, [[30, 40, 50, 60, 75, 80, 90, 100, 120, 150, 200, 250, 300]]), bad = Math.floor((N + 2) / 4), value = N - bad;
       return {
-        rank: 14,
+        rank: 7,
         text: `How many of the integers 1, 2, 3, …, ${N} can be written as x<sup>2</sup> − y<sup>2</sup> for some integers x and y?`,
         answer: choices(d, value, [Math.ceil(N / 2), N, Math.floor(N / 2), N - Math.floor(N / 4), value - Math.floor(N / 4)]),
         check: () => { const k = range(1, N).filter((t) => divisors(t).some((u) => u * u <= t && (u + t / u) % 2 === 0)).length; return k === value ? '' : `brute force found ${k}`; },
@@ -496,7 +496,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [x, gap] = combo(ctx, [range(12, 60), [2, 3, 4, 5, 6, 7, 8]]), y = x - gap, D = x * x - y * y, s = x + y;
       return {
-        rank: 5,
+        rank: 2,
         text: `Two positive integers differ by ${gap}, and their squares differ by ${D}. What is the larger of the two integers?`,
         answer: choices(d, x, [s, y, Math.round(Math.sqrt(D)), x + gap, Math.round(D / gap / 2)]),
         check: () => { const hits = range(gap + 1, D).filter((u) => u * u - (u - gap) * (u - gap) === D); return hits.length === 1 && hits[0] === x ? '' : `found ${hits.join(', ')}`; },
@@ -507,7 +507,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [c, e] = combo(ctx, [[300, 500, 700, 800, 1000, 1200, 1500, 2000, 2500, 3000], range(2, 15)]), A = c + e, B = c - e, value = A * A - B * B;
       return {
-        rank: 3,
+        rank: 1,
         text: `What is ${ints(A)}<sup>2</sup> − ${ints(B)}<sup>2</sup>?`,
         answer: choices(d, value, [(2 * e) ** 2, 2 * c * e, value + 4 * e * e, value / 2, value * 2], ints),
         check: () => (BigInt(A) ** 2n - BigInt(B) ** 2n === BigInt(value) ? '' : 'difference wrong'),
@@ -520,7 +520,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [a, b] = combo(ctx, [range(2, 9), range(2, 9)]), ab = a * b, t = divisors(ab).length, value = 2 * t;
       return {
-        rank: 14,
+        rank: 10,
         text: `How many ordered pairs (m, n) of integers satisfy mn = ${a}m + ${b}n?`,
         answer: choices(d, value, [t, 2 * t - 1, 2 * t + 2, t + 1, 4 * t]),
         check: () => { let k = 0; for (let m = b - ab; m <= b + ab; m++) if (m !== b && ab % (m - b) === 0) { const n = a + ab / (m - b); if (m * n === a * m + b * n) k++; } return k === value ? '' : `brute force found ${k}`; },
@@ -531,7 +531,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [k] = combo(ctx, [range(2, 12)]), K = k * k, t = divisors(K).length, value = 2 * t - 1;
       return {
-        rank: 14,
+        rank: 10,
         text: `How many ordered pairs (m, n) of nonzero integers satisfy ${fr(1, 'm')} + ${fr(1, 'n')} = ${fr(1, k)}?`,
         answer: choices(d, value, [t, 2 * t, t - 1, 2 * t + 1, 2 * t - 3]),
         check: () => { let c = 0; for (let m = k - K; m <= k + K; m++) { if (!m || m === k || (m * k) % (m - k)) continue; const n = (m * k) / (m - k); if (n && n * k + m * k === m * n) c++; } return c === value ? '' : `brute force found ${c}`; },
@@ -542,7 +542,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [a, b] = combo(ctx, [range(2, 9), range(2, 9)]), ab = a * b, value = divisors(ab).length;
       return {
-        rank: 12,
+        rank: 8,
         text: `How many ordered pairs (m, n) of positive integers satisfy mn = ${a}m + ${b}n?`,
         answer: choices(d, value, [2 * value, value - 1, value + 1, 2 * value - 1, value + 2]),
         check: () => { let k = 0; for (let m = 1; m <= b + ab; m++) for (let n = 1; n <= a + ab; n++) if (m * n === a * m + b * n) k++; return k === value ? '' : `brute force found ${k}`; },
@@ -553,7 +553,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [k] = combo(ctx, [range(3, 18)]), value = (k + 1) ** 2;
       return {
-        rank: 12,
+        rank: 7,
         text: `Positive integers m and n satisfy ${fr(1, 'm')} + ${fr(1, 'n')} = ${fr(1, k)}. What is the largest possible value of m + n?`,
         answer: choices(d, value, [4 * k, k * k + 1, k * k + k, value - 1, k * k + 2 * k]),
         check: () => { let best = 0; for (let m = k + 1; m <= k + k * k; m++) if ((m * k) % (m - k) === 0) best = Math.max(best, m + (m * k) / (m - k)); return best === value ? '' : `search found ${best}`; },
@@ -569,7 +569,7 @@ export const numberTheory = Object.fromEntries([
       const odd = exps.filter(([, e]) => e % 2).map(([p]) => p), m = product(odd);
       const sqfree = (k) => product(primesTo(k).filter((p) => legendre(k, p) % 2));
       return {
-        rank: 15,
+        rank: 12,
         text: `The product 1! · 2! · 3! ⋯ ${n}! is multiplied by a positive integer m, and the result is a perfect square. What is the smallest m that works?`,
         answer: choices(d, m, [sqfree(h), sqfree(n), m % 2 ? 2 * m : m / 2, product(primesTo(h)), m * primesTo(n).find((p) => m % p)], ints),
         check: () => {
@@ -587,7 +587,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [n] = combo(ctx, [range(6, 22)]), ps = primesTo(n), odd = ps.filter((p) => legendre(n, p) % 2), m = product(odd);
       return {
-        rank: 10,
+        rank: 6,
         text: `What is the smallest positive integer m for which m · ${n}! is a perfect square?`,
         answer: choices(d, m, [product(ps), n, m % 2 ? 2 * m : m / 2, product(ps.filter((p) => 2 * p > n)), m * (ps.find((p) => m % p) ?? 1)], ints),
         check: () => { let f = 1n; for (let k = 2; k <= n; k++) f *= BigInt(k); const r = iroot(BigInt(m) * f, 2); const smaller = divisors(m).filter((x) => x < m).some((x) => isSquare(BigInt(x) * f)); return r * r === BigInt(m) * f && !smaller ? '' : 'not the smallest square'; },
@@ -600,7 +600,7 @@ export const numberTheory = Object.fromEntries([
       const [n] = combo(ctx, [[12, 20, 24, 28, 36, 40, 44]]), h = n / 2, options = [h, h - 1, h + 1, n - 1, n];
       const leaves = (k) => primesTo(n).every((p) => (total(range(1, n).map((j) => legendre(j, p))) - legendre(k, p)) % 2 === 0);
       return {
-        rank: 16,
+        rank: 13,
         text: `One factor is removed from the product 1! · 2! · 3! ⋯ ${n}!, and what is left is a perfect square. Which factor was removed?`,
         answer: labelled(opt(h, `${h}!`), options.slice(1).map((k) => opt(k, `${k}!`))),
         check: () => { const works = options.filter(leaves); return works.length === 1 && works[0] === h ? '' : `works: ${works.join(', ')}`; },
@@ -611,7 +611,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [n] = combo(ctx, [range(6, 16)]), each = range(1, n).map((j) => legendre(j, 2)), value = total(each);
       return {
-        rank: 13,
+        rank: 10,
         text: `What is the largest integer k for which 2<sup>k</sup> divides 1! · 2! · 3! ⋯ ${n}!?`,
         answer: choices(d, value, [legendre(n, 2), total(range(1, n).map((j) => Math.floor(j / 2))), value - 1, value + legendre(n, 2), Math.floor(n / 2)]),
         check: () => { let P = 1n, f = 1n; for (let j = 1; j <= n; j++) { f *= BigInt(j); P *= f; } let k = 0; while (P % 2n === 0n) { P /= 2n; k++; } return k === value ? '' : `the product has 2^${k}`; },
@@ -632,7 +632,7 @@ export const numberTheory = Object.fromEntries([
       const hi = lo + q * t - 1, count = good.length * t, D = ds.join('');
       const poly = [[ds[0], 'b<sup>3</sup>'], [ds[1], 'b<sup>2</sup>'], [ds[2], 'b'], [ds[3], '']].filter(([c]) => c).map(([c, x]) => (c === 1 && x ? x : `${c}${x}`)).join(' + ');
       return {
-        rank: 18,
+        rank: 13,
         text: `For how many integers b with ${lo} ≤ b ≤ ${ints(hi)} is the base-b numeral ${D}<sub>b</sub> divisible by ${q}? (Here ${q} is an ordinary base-ten number.)`,
         answer: choices(d, count, [good.length * (t + 1), good.length * (t - 1), (good.length + 1) * t, t, count + 1], ints),
         check: () => { const k = range(lo, hi).filter((b) => value(ds, b) % q === 0).length; return k === count ? '' : `brute force found ${k}`; },
@@ -659,7 +659,7 @@ export const numberTheory = Object.fromEntries([
         : E === 0 ? `which factors as ${A === 1 ? '' : A}b(b − ${b}) = 0, and a base can’t be 0`
           : `which factors as (b − ${b})(${quad([0, A, E])}) = 0, and ${quad([0, A, E])} can’t be 0 when b is positive`;
       return {
-        rank: 12,
+        rank: 6,
         text: `In which base b is it true that ${X}<sub>b</sub> × ${Y}<sub>b</sub> = ${Z}<sub>b</sub>?`,
         answer: choices(d, b, [b - 2, b - 1, b + 1, b + 2, b + 3]),
         check: () => { const works = range(Math.max(...(X + Y + Z).split('').map(Number)) + 1, 40).filter((j) => inBase(X, j) * inBase(Y, j) === inBase(Z, j)); return works.length === 1 && works[0] === b ? '' : `works in ${works.join(', ')}`; },
@@ -671,7 +671,7 @@ export const numberTheory = Object.fromEntries([
       const [[pat, low, poly, root], N] = combo(ctx, [[['121', 3, 'b<sup>2</sup> + 2b + 1', 'b + 1'], ['12321', 4, 'b<sup>4</sup> + 2b<sup>3</sup> + 3b<sup>2</sup> + 2b + 1', 'b<sup>2</sup> + b + 1'], ['144', 5, 'b<sup>2</sup> + 4b + 4', 'b + 2']], [20, 30, 40, 50, 60, 75, 100]]);
       const value = N - low + 1;
       return {
-        rank: 9,
+        rank: 6,
         text: `For how many integers b with 2 ≤ b ≤ ${N} is ${pat}<sub>b</sub> a perfect square? (A base-b numeral can only use digits less than b.)`,
         answer: choices(d, value, [N - 1, N, value - 1, Math.floor(Math.sqrt(N)), value + 1]),
         check: () => { const k = range(2, N).filter((b) => Math.max(...pat.split('').map(Number)) < b && isSquare(inBase(pat, b))).length; return k === value ? '' : `brute force found ${k}`; },
@@ -683,7 +683,7 @@ export const numberTheory = Object.fromEntries([
       const [b] = combo(ctx, [range(7, 16)]), top = Math.min(9, b - 1), len = d.int(4, 5);
       const digits = [d.int(1, top), ...range(2, len).map(() => d.int(0, top))], X = digits.join(''), s = total(digits), value = s % (b - 1);
       return {
-        rank: 10,
+        rank: 6,
         text: `What is the remainder when the base-${b} number ${X}<sub>${b}</sub> is divided by ${b - 1}?`,
         answer: choices(d, value, [s % b, digits.at(-1) % (b - 1), (value + 1) % (b - 1), s % 9, ...d.shuffle(range(0, b - 2))]),
         check: () => (inBase(X, b) % (b - 1) === value ? '' : `it leaves ${inBase(X, b) % (b - 1)}`),
@@ -718,7 +718,7 @@ export const numberTheory = Object.fromEntries([
       const value = p ** x * q ** y;
       const works = (A) => range(-x, y).every((n) => (n >= 0 ? (BigInt(A) * BigInt(p) ** BigInt(n)) % BigInt(q) ** BigInt(n) === 0n : (BigInt(A) * BigInt(q) ** BigInt(-n)) % BigInt(p) ** BigInt(-n) === 0n));
       return {
-        rank: 9,
+        rank: 5,
         text: `What is the smallest positive integer A for which A · (${frac(p, q)})<sup>n</sup> is an integer for every integer n from −${x} to ${y}?`,
         answer: choices(d, value, [p ** y * q ** x, (p * q) ** Math.max(x, y), p ** x, q ** y, value * p], ints),
         check: () => (works(value) && divisors(value).filter((v) => v < value).every((v) => !works(v)) ? '' : 'not the smallest'),
@@ -730,7 +730,7 @@ export const numberTheory = Object.fromEntries([
       const [[p, q], x, y] = combo(ctx, [[[2, 3], [3, 2], [2, 5], [5, 2], [3, 5], [5, 3]], range(1, 5), range(1, 5)], ([p, q], x, y) => x !== y && p ** x * q ** y <= 20000);
       const A = p ** x * q ** y, big = Math.max(p, q), small = Math.min(p, q), value = big ** (x + y), at = p > q ? y : -x;
       return {
-        rank: 10,
+        rank: 6,
         text: `For some integers n, the number ${ints(A)} · (${frac(p, q)})<sup>n</sup> is an integer. What is the largest integer value it can take?`,
         answer: choices(d, value, [A, small ** (x + y), A * big, big ** (x + y - 1), p ** y * q ** x], ints),
         check: () => {
@@ -762,7 +762,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [N] = combo(ctx, [[20, 25, 30, 36, 40, 50, 60, 72, 80, 100]]), odd = primesTo(N + 1).filter((p) => p > 2), value = odd.length;
       return {
-        rank: 12,
+        rank: 10,
         text: `For how many positive integers n ≤ ${N} is n! not a multiple of 1 + 2 + ⋯ + n?`,
         answer: choices(d, value, [primesTo(N).length === value ? value + 2 : primesTo(N).length, value + 1, value - 1, Math.floor(N / 2), Math.floor(N / 3)]),
         check: () => { const k = range(1, N).filter((n) => !sumDivides(n)).length; return k === value ? '' : `brute force found ${k}`; },
@@ -778,7 +778,7 @@ export const numberTheory = Object.fromEntries([
       const split = (v) => { const s = primesTo(v).find((q) => v % q === 0); return `${v} = ${s} · ${v / s}`; };
       const notPrime = [evens.length ? `${and(evens)} ${evens.length > 1 ? 'are' : 'is'} even` : '', odds.length ? and(odds.map(split)) : ''].filter(Boolean).join(', and ');
       return {
-        rank: 9,
+        rank: 8,
         text: `Each choice below is a value of n between ${Math.min(n, ...wrongs)} and ${Math.max(n, ...wrongs)}. For which of them is n! <i>not</i> a multiple of 1 + 2 + ⋯ + n?`,
         answer: choices(d, n, wrongs),
         check: () => { const fails = [n, ...wrongs].filter((k) => !sumDivides(k)); return fails.length === 1 && fails[0] === n ? '' : `fails for ${fails.join(', ')}`; },
@@ -796,7 +796,7 @@ export const numberTheory = Object.fromEntries([
       const D = (x - y) * (cnt[0] + 10 * cnt[1] + 100 * cnt[2]);
       const places = [[cnt[0], 'units', 1], [cnt[1], 'tens', 10], [cnt[2], 'hundreds', 100]].filter(([c]) => c);
       return {
-        rank: 6,
+        rank: 3,
         text: `Rosa writes the whole numbers from 1 to ${N}. Theo copies her list, but wherever the digit ${x} appears he writes ${y} instead. Each of them adds up the numbers on their own list. How much greater is Rosa's total than Theo's?`,
         answer: choices(d, D, [(x - y) * (cnt[0] + cnt[1] + cnt[2]), (x - y) * cnt[0], (x - y) * 10 * cnt[1], D + 10 * (x - y), D - (x - y)].filter((v) => v > 0), ints),
         check: () => { let s = 0; for (let k = 1; k <= N; k++) s += k - Number(String(k).replaceAll(String(x), String(y))); return s === D ? '' : `brute force says ${s}`; },
@@ -812,7 +812,7 @@ export const numberTheory = Object.fromEntries([
       const lastU = N - ((N - x) % 10 + 10) % 10, runs = range(0, Math.floor(N / 100)).map((hh) => [100 * hh + 10 * x, Math.min(100 * hh + 10 * x + 9, N)]).filter(([s]) => s <= N);
       const span = ([s, e]) => (s === e ? `${s}` : `${s} to ${e}`), times = (c) => `${c} time${c === 1 ? '' : 's'}`;
       return {
-        rank: 5,
+        rank: 2,
         text: `How many times is the digit ${x} written when the whole numbers from 1 to ${N} are written out?`,
         answer: choices(d, value, [containing === value ? value + 1 : containing, value - 1, u, t, value + 10]),
         check: () => { const k = range(1, N).map(String).join('').split('').filter((c) => c === String(x)).length; return k === value ? '' : `counting gives ${k}`; },
@@ -827,7 +827,7 @@ export const numberTheory = Object.fromEntries([
       const [N] = combo(ctx, [range(20, 99)], (N) => N % 10 !== 0 || N % 20 === 0);
       const f = Math.floor(N / 10), r = N % 10, U = 45 * f + (r * (r + 1)) / 2, T = (10 * (f - 1) * f) / 2 + f * (r + 1), value = U + T;
       return {
-        rank: 8,
+        rank: 4,
         text: `Ana writes out the whole numbers from 1 to ${N}. What is the sum of all the digits she writes?`,
         answer: choices(d, value, [(N * (N + 1)) / 2, U, T, value + 10, value - 9], ints),
         check: () => { const s = total(range(1, N).map(digitSum)); return s === value ? '' : `adding up gives ${s}`; },
@@ -841,7 +841,7 @@ export const numberTheory = Object.fromEntries([
       const [P] = combo(ctx, [range(105, 600)]), D = 189 + 3 * (P - 99);
       const digitsUpTo = (n) => range(1, n).reduce((s, k) => s + String(k).length, 0);
       return {
-        rank: 7,
+        rank: 3,
         text: `The pages of a book are numbered 1, 2, 3, and so on. Printing all the page numbers takes ${ints(D)} digits. How many pages does the book have?`,
         answer: choices(d, P, [Math.floor(D / 3), D - 189, P - 9, Math.round((D - 9) / 2), P + 33], ints),
         check: () => (digitsUpTo(P) === D ? '' : `${P} pages take ${digitsUpTo(P)} digits`),
@@ -860,7 +860,7 @@ export const numberTheory = Object.fromEntries([
       if (e > 0) steps.push(`A first digit of ${c} and a second digit of ${upto(Math.min(e - 1, 9))} gives ${Math.min(e, 10)} · 10 = ${part2}.`);
       steps.push(e <= 9 ? `First digits ${c}${e} and a last digit of ${upto(Math.min(f, 9))} give ${part3}.` : `The second base-${B} digit of ${ints(N)} is a letter, so every number starting ${c} with no letters is already counted.`);
       return {
-        rank: 18,
+        rank: 11,
         text: `In base ${B}, numbers are written with the digits 0 through 9 and ${letters(B)}. How many of the integers 1, 2, 3, …, ${ints(N)} have a base-${B} form that uses no letters?`,
         answer: choices(d, value, [all, part1 - 1, value + 10, value - 10, part1 + 99], ints),
         check: () => { const k = range(1, N).filter((x) => /^[0-9]+$/.test(x.toString(B))).length; return k === value ? '' : `brute force found ${k}`; },
@@ -871,7 +871,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [B] = combo(ctx, [[11, 12, 13, 14, 15, 16]]), all = (B - 1) * B * B, value = all - 900;
       return {
-        rank: 10,
+        rank: 6,
         text: `In base ${B}, numbers are written with the digits 0 through 9 and ${letters(B)}. How many three-digit base-${B} numbers (with no leading zero) contain at least one letter?`,
         answer: choices(d, value, [all, 900, (B - 10) ** 3, (B - 10) * B * B, all - 1000], ints),
         check: () => { const k = range(B * B, B ** 3 - 1).filter((x) => /[a-f]/.test(x.toString(B))).length; return k === value ? '' : `brute force found ${k}`; },
@@ -886,7 +886,7 @@ export const numberTheory = Object.fromEntries([
       do { c = d.int(1, B - 1); e = d.int(0, B - 1); f = d.int(0, B - 1); } while (Math.max(c, e, f) < 10);
       const X = digitOf(c) + digitOf(e) + digitOf(f), value = c * B * B + e * B + f;
       return {
-        rank: 6,
+        rank: 2,
         text: `In base ${B}, numbers are written with the digits 0 through 9 and ${letters(B)}. What number, in base ten, is ${X}<sub>${B}</sub>?`,
         answer: choices(d, value, [c * 100 + e * 10 + f, c * B * B + f * B + e, value + B, value - B, c * B + e * B + f], ints),
         check: () => (parseInt(X, B) === value ? '' : `it is ${parseInt(X, B)}`),
@@ -899,7 +899,7 @@ export const numberTheory = Object.fromEntries([
       const [B, N] = combo(ctx, [[11, 12, 13, 14, 15, 16], [100, 150, 200, 250, 300, 400, 500]]);
       const q = Math.floor(N / B), r = N % B, extra = Math.max(0, r - 9), value = q * (B - 10) + extra;
       return {
-        rank: 9,
+        rank: 5,
         text: `In base ${B}, numbers are written with the digits 0 through 9 and ${letters(B)}. How many of the integers 1, 2, 3, …, ${N} end in a letter when written in base ${B}?`,
         answer: choices(d, value, [q, value + (B - 10), Math.round((N * (B - 10)) / 10), N - value, value - 1], ints),
         check: () => { const k = range(1, N).filter((x) => /[a-f]$/.test(x.toString(B))).length; return k === value ? '' : `brute force found ${k}`; },
@@ -921,7 +921,7 @@ export const numberTheory = Object.fromEntries([
         if (!range(Math.max(a, b) + 1, 80).some((j) => j !== k && (a * j + b) * q === p * (j * j - 1))) break;
       }
       return {
-        rank: 18,
+        rank: 10,
         text: `For some integer k, the base-k expansion of the fraction ${frac(p, q)} is 0.${a}${b}${a}${b}${a}${b}…<sub>k</sub>, with the two digits ${a}${b} repeating forever. What is k?`,
         answer: choices(d, k, [k - 2, k - 1, k + 1, k + 2, k + 3, k + 4].filter((j) => j > Math.max(a, b))),
         check: () => { const want = [a, b, a, b, a, b].join(','), hits = range(Math.max(a, b) + 1, k + 4).filter((j) => expand(p, q, j, 6).join(',') === want); return hits.length === 1 && hits[0] === k ? '' : `long division matches ${hits.join(', ')}`; },
@@ -936,7 +936,7 @@ export const numberTheory = Object.fromEntries([
       const [k, a, b] = combo(ctx, [range(5, 16), range(1, 9), range(0, 9)], (k, a, b) => k !== 10 && a < k && b < k && a !== b);
       const top = a * k + b, bottom = k * k - 1, g = gcd(top, bottom), p = top / g, q = bottom / g, value = p + q;
       return {
-        rank: 14,
+        rank: 7,
         text: `In base ${k}, the repeating expansion 0.${a}${b}${a}${b}${a}${b}…<sub>${k}</sub> equals a fraction p/q in lowest terms. What is p + q?`,
         answer: choices(d, value, [top + bottom, 10 * a + b + 99, value + 1, q, a + b + k]),
         check: () => (expand(p, q, k, 8).join(',') === [a, b, a, b, a, b, a, b].join(',') ? '' : 'long division disagrees'),
@@ -947,7 +947,7 @@ export const numberTheory = Object.fromEntries([
     (d, ctx) => {
       const [k, a] = combo(ctx, [range(5, 16), range(1, 9)], (k, a) => k !== 10 && a < k - 1);   // (all k − 1s would be 1)
       return {
-        rank: 10,
+        rank: 5,
         text: `In base ${k}, what fraction is 0.${a}${a}${a}${a}…<sub>${k}</sub>, with the digit ${a} repeating forever?`,
         answer: choices(d, [a, k - 1], [[a, k], [a, 9], [a, k + 1], [1, k - 1], [a + 1, k - 1]], showFrac),
         check: () => (expand(a, k - 1, k, 6).every((v) => v === a) ? '' : 'long division disagrees'),
@@ -959,7 +959,7 @@ export const numberTheory = Object.fromEntries([
       const [q, N] = combo(ctx, [[6, 10, 12, 14, 15, 18, 20, 21, 30, 35], [40, 50, 60, 75, 80, 100, 120]]);
       const primes = factor(q).map(([p]) => p), rad = product(primes), value = Math.floor(N / rad);
       return {
-        rank: 15,
+        rank: 8,
         text: `For how many integers b with 2 ≤ b ≤ ${N} does the fraction ${frac(1, q)} have an expansion in base b that ends, rather than repeating forever?`,
         answer: choices(d, value, [Math.floor(N / q) === value ? value + 1 : Math.floor(N / q), Math.floor(N / primes[0]), Math.floor(N / primes.at(-1)), N - value, value - 1]),
         check: () => { const k = range(2, N).filter((b) => { let r = 1; for (let i = 0; i < 40 && r; i++) r = (r * b) % q; return r === 0; }).length; return k === value ? '' : `long division ends in ${k} bases`; },
@@ -974,7 +974,7 @@ export const numberTheory = Object.fromEntries([
       const [g, [u, v]] = combo(ctx, [[2, 3, 4, 5, 6], [[2, 3], [2, 5], [3, 4], [3, 5], [3, 7], [4, 5], [4, 7], [5, 6], [5, 7], [2, 7]]], (g, uv) => g * uv[1] <= 42);
       const m = g * u, n = g * v, count = m + n - g;
       return {
-        rank: 10,
+        rank: 7,
         text: `A rectangular hall ${m} meters wide and ${n} meters long is covered with ${ints(m * n)} square tiles, each 1 meter on a side. A robot rolls in a straight line from one corner of the hall to the opposite corner. How many tiles does it roll across, counting the first and the last? (Just touching the corner of a tile doesn't count.)`,
         answer: choices(d, count, [m + n, m + n - 1, m + n - 2 * g, count - 1, u + v - 1]),
         check: () => { let k = 0; for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) if (Math.max(j * m, n * i) < Math.min((j + 1) * m, n * (i + 1))) k++; return k === count ? '' : `tile by tile: ${k}`; },
@@ -986,7 +986,7 @@ export const numberTheory = Object.fromEntries([
       const [g, [u, v], sx, sy] = combo(ctx, [[2, 3, 4, 5, 6, 8, 12], [[1, 2], [2, 3], [3, 4], [1, 3], [3, 5], [2, 5], [4, 5], [1, 4]], [-1, 1], [-1, 1]]);
       const x1 = d.int(-6, 6), y1 = d.int(-6, 6), dx = g * u * sx, dy = g * v * sy, x2 = x1 + dx, y2 = y1 + dy, value = g + 1;
       return {
-        rank: 8,
+        rank: 5,
         text: `How many points with integer coordinates lie on the line segment from (${num(x1, 0)}, ${num(y1, 0)}) to (${num(x2, 0)}, ${num(y2, 0)}), counting both ends?`,
         answer: choices(d, value, [g, g - 1, g + 2, u + v, Math.abs(dx) + 1]),
         check: () => { let k = 0; for (let x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) if (((x - x1) * dy) % dx === 0) k++; return k === value ? '' : `counting gives ${k}`; },
@@ -999,7 +999,7 @@ export const numberTheory = Object.fromEntries([
       const [a, b, c] = combo(ctx, [[2, 3, 4, 6], [3, 4, 5, 6, 8, 9, 10], [4, 5, 6, 8, 9, 10, 12, 15]], (a, b, c) => a < b && b < c);
       const g3 = gcd(gcd(a, b), c), value = a + b + c - gcd(a, b) - gcd(b, c) - gcd(a, c) + g3;
       return {
-        rank: 18,
+        rank: 14,
         text: `A ${a} × ${b} × ${c} box is built from unit cubes. A straight line runs from one corner of the box to the opposite corner. How many of the unit cubes does it pass through the inside of?`,
         answer: choices(d, value, [a + b + c, a + b + c - 2, a + b + c - gcd(a, b) - gcd(b, c) - gcd(a, c), value + 1, a * b * c > 200 ? value + g3 + 2 : a * b * c]),
         check: () => { const seen = new Set(); for (const s of [a, b, c]) for (let i = 1; i < s; i++) { const g = gcd(i, s); seen.add(`${i / g}/${s / g}`); } return seen.size + 1 === value ? '' : `crossings give ${seen.size + 1}`; },
@@ -1016,7 +1016,7 @@ export const numberTheory = Object.fromEntries([
       const [[p, q], e] = combo(ctx, [[[5, 17], [7, 13], [11, 13], [13, 17], [3, 37], [7, 11], [3, 41], [5, 23]], [6, 7, 8, 10, 11, 12]]), base = p * q;
       const f = (k) => Math.floor(e / k) + 1, sq = f(2) ** 2, cu = f(3) ** 2, six = f(6) ** 2, value = sq + cu - six;
       return {
-        rank: 11,
+        rank: 9,
         text: `How many positive divisors of ${sup(base, e)} are perfect squares, perfect cubes, or both?`,
         answer: choices(d, value, [sq + cu, sq, sq + cu - 2 * six, value + f(2), cu + six]),
         check: () => {
@@ -1032,7 +1032,7 @@ export const numberTheory = Object.fromEntries([
       const [[p, q, r], a, b, c] = combo(ctx, [[[2, 3, 5], [2, 3, 7], [2, 5, 7], [3, 5, 7]], range(2, 9), range(1, 7), range(1, 5)]);
       const h = (e) => Math.floor(e / 2) + 1, value = h(a) * h(b) * h(c), N = `${pw(p, a)} · ${pw(q, b)} · ${pw(r, c)}`;
       return {
-        rank: 9,
+        rank: 5,
         text: `How many positive divisors of ${N} are perfect squares?`,
         answer: choices(d, value, [(a + 1) * (b + 1) * (c + 1), Math.ceil(a / 2) * Math.ceil(b / 2) * Math.ceil(c / 2), value + 1, Math.floor(a / 2) * Math.floor(b / 2) * Math.floor(c / 2), h(a) + h(b) + h(c)]),
         check: () => { let k = 0; for (let i = 0; i <= a; i++) for (let j = 0; j <= b; j++) for (let l = 0; l <= c; l++) if (isSquare(BigInt(p) ** BigInt(i) * BigInt(q) ** BigInt(j) * BigInt(r) ** BigInt(l))) k++; return k === value ? '' : `brute force found ${k}`; },
@@ -1045,7 +1045,7 @@ export const numberTheory = Object.fromEntries([
       const [[p, q], a, b] = combo(ctx, [[[2, 3], [2, 5], [3, 5], [2, 7]], range(3, 13), range(3, 13)], (pq, a, b) => a <= b);
       const t = (e) => Math.floor(e / 3) + 1, s = (e) => Math.floor(e / 6) + 1, cubes = t(a) * t(b), both = s(a) * s(b), value = cubes - both;
       return {
-        rank: 12,
+        rank: 6,
         text: `How many positive divisors of ${pw(p, a)} · ${pw(q, b)} are perfect cubes but not perfect squares?`,
         answer: choices(d, value, [cubes, both, cubes + both, value + 1, (Math.floor(a / 2) + 1) * (Math.floor(b / 2) + 1)]),
         check: () => { let k = 0; for (let i = 0; i <= a; i++) for (let j = 0; j <= b; j++) { const N = BigInt(p) ** BigInt(i) * BigInt(q) ** BigInt(j); if (iroot(N, 3) ** 3n === N && !isSquare(N)) k++; } return k === value ? '' : `brute force found ${k}`; },
@@ -1060,7 +1060,7 @@ export const numberTheory = Object.fromEntries([
       const T = firstMeet(a, M, j), at = range(a, M).filter((k) => T % k === 0), small = range(a, a + j - 1).reduce((x, k) => lcm(x, k), 1);
       const laps = (t) => range(a, M).filter((k) => t % k === 0), near = range(1, T - 1).reverse().find((t) => laps(t).length === j - 1);   // the latest near miss
       return {
-        rank: 16,
+        rank: 6,
         text: `On a circular track, ${M - a + 1} go-karts leave the start line together. Kart k takes exactly k minutes per lap, for each k from ${a} to ${M}, and every kart keeps a steady speed. After how many minutes are at least ${j} of the karts at the start line at the same moment for the first time?`,
         answer: choices(d, T, [small, 2 * T, T + a, T - 1, T + j]),
         check: () => { let best = Infinity; const ks = range(a, M); const walk = (s, c, l) => { if (c === j) { best = Math.min(best, l); return; } for (let i = s; i < ks.length; i++) walk(i + 1, c + 1, lcm(l, ks[i])); }; walk(0, 0, 1); return best === T ? '' : `subsets say ${best}`; },
@@ -1072,7 +1072,7 @@ export const numberTheory = Object.fromEntries([
       const [[x, y, z]] = combo(ctx, [[[4, 6, 10], [6, 8, 9], [5, 6, 8], [6, 10, 15], [8, 12, 18], [9, 12, 15], [10, 12, 16], [4, 9, 15], [6, 14, 21], [12, 16, 20], [8, 10, 14], [9, 10, 12]]]);
       const value = lcm(lcm(x, y), z);
       return {
-        rank: 5,
+        rank: 2,
         text: `Three runners leave the start line of a track together. They run at steady speeds and take ${x}, ${y} and ${z} minutes per lap. After how many minutes are all three at the start line together again for the first time?`,
         answer: choices(d, value, [x * y * z, x + y + z, lcm(x, y), lcm(y, z), 2 * value], ints),
         check: () => { let t = 1; while (t % x || t % y || t % z) t++; return t === value ? '' : `search found ${t}`; },
@@ -1084,7 +1084,7 @@ export const numberTheory = Object.fromEntries([
       const [[a, b], T] = combo(ctx, [[[4, 6], [6, 9], [8, 12], [10, 15], [6, 10], [12, 18], [9, 15], [14, 21], [16, 24], [15, 20]], [120, 180, 240, 300, 360, 600]]);
       const L = lcm(a, b), value = Math.floor(T / L);
       return {
-        rank: 7,
+        rank: 3,
         text: `Two lights start blinking at the same moment. One blinks every ${a} seconds and the other every ${b} seconds. How many times in the next ${T} seconds do they blink at the same moment? (Count the very end of that time if they blink together then, but not the start.)`,
         answer: choices(d, value, [Math.floor(T / (a * b)), Math.floor(T / a) + Math.floor(T / b), value + 1, Math.floor(T / gcd(a, b)), value - 1]),
         check: () => { const k = range(1, T).filter((t) => t % a === 0 && t % b === 0).length; return k === value ? '' : `counting gives ${k}`; },
@@ -1105,7 +1105,7 @@ export const numberTheory = Object.fromEntries([
       const shownWrong = answer.choices.map((c) => Number(c.replace(/,/g, ''))).filter((w) => w !== value), big = shownWrong.filter((w) => w > s + 1), off = shownWrong.filter((w) => w <= s + 1);
       const ruledOut = [big.length ? `${and(big.map(ints))} ${big.length > 1 ? 'are' : 'is'} more than ${ints(s + 1)}` : '', off.length ? `${and(off.map(ints))} leave${off.length > 1 ? '' : 's'} remainder${off.length > 1 ? 's' : ''} ${and(off.map((w) => w % 9))}` : ''].filter(Boolean).join(', and ');
       return {
-        rank: 20,
+        rank: 15,
         text: `Let S(n) be the sum of the digits of the positive integer n; for example, S(4096) = 19. For a certain n, S(n) = ${ints(s)}. Which of the following could be the value of S(n + 1)?`,
         answer,
         check: () => {
@@ -1121,7 +1121,7 @@ export const numberTheory = Object.fromEntries([
       const [s] = combo(ctx, [range(20, 60)]), k = Math.floor(s / 9), r = s % 9, str = (r ? String(r) : '') + '9'.repeat(k), value = Number(str), len = str.length;
       const wrongs = [Number('9'.repeat(k) + (r ? String(r) : '')), r < 8 ? Number(String(r + 1) + '8' + '9'.repeat(k - 1)) : value + 9, Number('1' + String(r ? r - 1 : 8) + '9'.repeat(r ? k : k - 1)), value + 9, value * 10];
       return {
-        rank: 8,
+        rank: 3,
         text: `What is the smallest positive integer whose digits add up to ${s}?`,
         answer: choices(d, value, wrongs, ints),
         check: () => {
@@ -1137,7 +1137,7 @@ export const numberTheory = Object.fromEntries([
       const [s] = combo(ctx, [range(4, 24)]), each = range(1, 9).map((a) => pairs(s - a)), value = total(each);
       const used = each.map((v, i) => [i + 1, v]).filter(([, v]) => v);
       return {
-        rank: 12,
+        rank: 7,
         text: `How many three-digit positive integers have digits that add up to ${s}?`,
         answer: choices(d, value, [value + pairs(s), ((s + 2) * (s + 1)) / 2, value - 1, value + 1, (s * (s + 1)) / 2]),
         check: () => { const k = range(100, 999).filter((n) => digitSum(n) === s).length; return k === value ? '' : `brute force found ${k}`; },
@@ -1150,7 +1150,7 @@ export const numberTheory = Object.fromEntries([
       const [k, m] = combo(ctx, [range(12, 40), [7, 13, 37, 48, 99, 123, 250, 999, 2025, 77]]);
       const L = String(m).length, tail = 10 ** L - m, value = 9 * (k - L) + digitSum(tail);
       return {
-        rank: 10,
+        rank: 5,
         text: `What is the sum of the digits of 10<sup>${k}</sup> − ${ints(m)}?`,
         answer: choices(d, value, [9 * k, 9 * k - digitSum(m), 9 * (k - L), value + 9, value - 9]),
         check: () => (digitSum((10n ** BigInt(k) - BigInt(m)).toString()) === value ? '' : 'digit sum wrong'),

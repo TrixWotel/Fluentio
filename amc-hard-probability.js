@@ -1,4 +1,4 @@
-// Harder AMC 10 probability: 5 topics with ranks from 9 to 22, modelled on ideas from recent contests (a random walk
+// Harder AMC 10 probability: 5 topics with ranks from 3 to 14, modelled on ideas from recent contests (a random walk
 // that stops at either end, two people side by side at a round table, the expected largest count, people getting their
 // own things back, and the AMC’s own scoring), with new numbers, wording and settings. Each topic asks its idea three or
 // four ways, and check() gets every answer a second way: the state equations solved exactly with BigInt fractions, or
@@ -138,7 +138,7 @@ export const hardProbability = {
       const wrongs = far ? [cut(k, n), cut(S - top, S), flipped, cut(a ** (n - k), (a + b) ** (n - k)), p, cut(a * k, a * k + b * (n - k))]
         : [cut(n - k, n), right, minus(ONE, flipped), cut(b ** k, (a + b) ** k), q, cut(b * (n - k), a * k + b * (n - k))];
       return {
-        topic: 'Random walks and states', rank: 20,
+        topic: 'Random walks and states', rank: 11,
         text: `A token starts on square ${k} of a strip of squares numbered 0 to ${n}, as shown. Each turn, ${how}. The game ends as soon as the token reaches square 0 or square ${n}. What is the probability that the game ends on square ${far ? n : 0}?`,
         figure: row(n, k, { left: 'stop', right: 'stop', name: `A strip of squares numbered 0 to ${n} with the token on square ${k}` }),
         answer: choices(d, ans, wrongs.filter(under1), showFrac),
@@ -182,7 +182,7 @@ export const hardProbability = {
         first: 'Ask what happens after the very first flip, whichever way it lands.',
       }[kind];
       return {
-        topic: 'Random walks and states', rank: { start: 19, next: 18, first: 18, states: 20 }[kind],
+        topic: 'Random walks and states', rank: { start: 10, next: 7, first: 7, states: 13 }[kind],
         ...(tip ? { tip } : {}),
         text: `${fair ? 'A fair coin' : `A coin that lands heads with probability ${fr(p)}`} is flipped again and again, and the results are written in a row, H for heads and T for tails. The flipping stops as soon as ${X} or ${Y} appears as consecutive letters. What is the probability that ${A} appears before ${B}?`,
         answer: choices(d, ans, [[1, 2], minus(ONE, ans), ask ? minus(ONE, ratio) : ratio, c(A), ask ? minus(ONE, pp) : pp, kind === 'states' ? over(ONE, plus(ONE, pp)) : times(pp, pp), [2, 3], [1, 4]].filter(under1), showFrac),
@@ -222,7 +222,7 @@ export const hardProbability = {
       }
       const what = { HH: die ? 'two sixes come up in a row' : 'it lands heads twice in a row', HHH: 'it lands heads three times in a row', HT: die ? 'a six is followed right away by a roll that is not a six' : 'a head is followed right away by a tail', same: 'it lands the same way twice in a row' }[kind];
       return {
-        topic: 'Random walks and states', rank: { HH: 19, HHH: fair ? 19 : 21, HT: 18, same: 21 }[kind],
+        topic: 'Random walks and states', rank: { HH: 11, HHH: fair ? 12 : 14, HT: 10, same: 13 }[kind],
         text: `${die ? 'A fair die is rolled' : fair ? 'A fair coin is flipped' : `A coin that lands heads with probability ${fr(p)} is flipped`} until ${what}. What is the expected number of ${unit}s?`,
         answer: choices(d, E, wrongs, showFrac),
         check: () => {
@@ -238,7 +238,7 @@ export const hardProbability = {
       const wall = kind === 'wall', E = wall ? n * n - k * k : k * (n - k), half = frac(1, 2);
       const odds = range(k, n - 1).map((j) => 2 * j + 1), drops = range(0, k - 1).map((j) => n - 1 - 2 * j);
       return {
-        topic: 'Random walks and states', rank: wall ? 22 : 20,
+        topic: 'Random walks and states', rank: wall ? 13 : 9,
         text: wall
           ? `Lily pads numbered 0 to ${n} lie in a straight row across a pond, as shown: pad 0 is against a rock wall, and pad ${n} is at the far bank. A frog starts on pad ${k}. Each jump takes it to a neighboring pad: from pad 0 it always jumps to pad 1, and from any other pad it jumps one pad left or one pad right with equal chance. It stops as soon as it reaches pad ${n}. What is the expected number of jumps it makes?`
           : `Lily pads numbered 0 to ${n} lie in a straight row across a pond, as shown, with pad 0 at one bank and pad ${n} at the other. A frog starts on pad ${k}. Each jump takes it one pad left or one pad right, with equal chance, and it stops as soon as it reaches pad 0 or pad ${n}. What is the expected number of jumps it makes?`,
@@ -269,7 +269,7 @@ export const hardProbability = {
         const wrongs = kind === 'neither' ? [cut(n - 3, n - 1), times(cut(n - 3, n - 1), cut(n - 3, n - 1)), minus(ONE, neither), minus(ONE, cut(4, n - 1)), cut(n - 4, n - 1)]
           : [cut(4, n - 1), cut(2, n - 1), neither, minus(ONE, times(cut(n - 3, n - 1), cut(n - 3, n - 1))), cut(3, n - 1)];
         return {
-          topic: 'Round table chances', rank: 16,
+          topic: 'Round table chances', rank: 6,
           text: `${Cap(WORDS[n])} people, among them ${A}, ${B} and ${C}, sit in random order around a round table with ${n} seats. What is the probability that ${kind === 'neither' ? `neither ${B} nor ${C} sits next to ${A}` : `${A} sits next to at least one of ${B} and ${C}`}?`,
           answer: choices(d, ans, wrongs.filter(under1), showFrac),
           check: () => {
@@ -289,7 +289,7 @@ export const hardProbability = {
       const where = { next: 'in neighboring chairs', across: 'in chairs directly across the table from each other', near: 'with at most one chair between them (in neighboring chairs, or with exactly one chair between)' }[kind];
       const which = { next: 'the 2 chairs beside', across: 'the 1 chair directly across from', near: 'the 4 chairs within two places of' }[kind];
       return {
-        topic: 'Round table chances', rank: 15,
+        topic: 'Round table chances', rank: 6,
         text: `${Cap(WORDS[m])} friends, ${A} and ${B} among them, choose ${m} of the ${n} chairs around a round table at random and sit down, one to a chair; the other chairs stay empty. What is the probability that ${A} and ${B} sit ${where}?`,
         answer: choices(d, ans, [cut(good, m - 1), cut(good, n), cut(good === 1 ? 2 : good / 2, n - 1), cut(good, n - 2), cut(good, m)].filter(under1), showFrac),
         check: () => {
@@ -317,7 +317,7 @@ export const hardProbability = {
       }[kind];
       const sepText = `Fix ${A}’s seat. ${B} and ${C} take 2 of the other ${n - 1} seats, and all C(${n - 1}, 2) = ${all} pairs of seats are equally likely. Those ${n - 1} seats form a row from the seat on ${A}’s left around to the seat on ${A}’s right; ${B} and ${C} must avoid both ends of that row (they are next to ${A}), so they use the middle ${n - 3} seats, and they must not take two neighbors there. Of the C(${n - 3}, 2) = ${mid} pairs of middle seats, ${n - 4} are neighbors, which leaves ${sep}. So no two friends sit together with probability ${ratio(sep, all)}`;
       return {
-        topic: 'Round table chances', rank: kind === 'pair' ? 18 : 17,
+        topic: 'Round table chances', rank: kind === 'pair' ? 9 : 8,
         text: `${Cap(WORDS[n])} people, among them three friends ${A}, ${B} and ${C}, sit in random order around a round table with ${n} seats. What is the probability that ${{ apart: 'no two of the three friends sit next to each other', touch: 'at least two of the three friends sit next to each other', pair: 'exactly two of the three friends sit next to each other, with the third friend next to neither of them' }[kind]}?`,
         answer: choices(d, ans, wrongs.filter(under1), showFrac),
         check: () => {
@@ -354,7 +354,7 @@ export const hardProbability = {
       const terms = range(0, m).map((j) => (j ? `${j % 2 ? '−' : '+'} C(${m}, ${j})·${2 ** j}·${N - j - 1}!` : `${N - 1}!`)).join(' ');
       const incl = `Counting seatings up to turning the table, there are (${N} − 1)! = ${num(total)} in all. If j particular couples sit together, glue each of them into a block that can face 2 ways, and then the ${N} − j units around the table give (${N} − j − 1)!·2<sup>j</sup> seatings. By inclusion–exclusion, the seatings with no couple together number ${terms} = ${S.map((v, j) => (j ? `${j % 2 ? '−' : '+'} ${num(v)}` : num(v))).join(' ')} = ${num(noneCount)}, so no couple sits together with probability ${num(noneCount)}/${num(total)} = `;
       return {
-        topic: 'Round table chances', rank: { all: 17, none: 19, some: 19, given: 16 }[kind],
+        topic: 'Round table chances', rank: { all: 8, none: 12, some: 12, given: 8 }[kind],
         tip: {
           all: 'Glue each couple into a block, then count the ways to seat the blocks around the table and to turn each block.',
           none: 'Glue the couples that sit together into blocks, and count the seatings with no couple together by inclusion–exclusion.',
@@ -392,7 +392,7 @@ export const hardProbability = {
       const wrongs = alt ? [cut(2, choose(N, b)), cut(1, choose(N, b)), cut(1, 2 ** (N - 1)), cut(b, all), cut(2, all)]
         : [cut(choose(g, b), choose(N, b)), cut(choose(g + 1, b), choose(N, b)), cut(choose(g - 1, b), all), cut(choose(g, b), choose(N - 1, b - 1)), cut(g, N)];
       return {
-        topic: 'Round table chances', rank: alt ? 16 : 17,
+        topic: 'Round table chances', rank: alt ? 6 : 8,
         text: `${Cap(WORDS[b])} ${X} and ${WORDS[g]} ${Y} sit in random order around a round table with ${N} seats. What is the probability that ${alt ? `${X} and ${Y} alternate all the way around the table` : `no two ${X} sit next to each other`}?`,
         answer: choices(d, ans, wrongs.filter(under1), showFrac),
         check: () => {
@@ -439,7 +439,7 @@ export const hardProbability = {
         sol = `${tail}. Here X is the ${n === 2 ? 'smaller' : 'smallest'} number, which is at least k exactly when ${n === 2 ? 'both dice show' : 'all three dice show'} k or more. So P(X ≥ k) = ((${s} − k + 1)/${s})<sup>${n}</sup>. Adding these for k = 1 to ${s} gives E(X) = (${powers(1, s)})/${S}${s <= 4 ? '' : `. The first ${s} ${sq} add up to ${formula(s)} = ${num(low + S)}, so E(X)`} = ${ratio(low + S, S)}<b>${fr(E)}</b>.`;
       }
       return {
-        topic: 'Expected maximum', rank: n === 3 || kind === 'gap' ? 20 : 19,
+        topic: 'Expected maximum', rank: n === 3 || kind === 'gap' ? 10 : 9,
         text: `${dice} rolled. What is the expected value of ${which}?${kind === 'max2' || kind === 'min2' ? ' (If the two numbers are equal, that number counts.)' : ''}`,
         answer: choices(d, E, wrongs.filter((w) => Array.isArray(w) && w[0] > 0), showFrac),
         check: () => {
@@ -477,7 +477,7 @@ export const hardProbability = {
         range: `Going from the smallest ${thing} up to the largest, you pass the other ${k - 1} ${verb} numbers and the ${k - 1} gaps between them, so the difference is ${k - 1} plus those gaps, ${k - 1} + ${k - 1}·${fr(g)} = <b>${fr(E)}</b>.`,
       }[kind];
       return {
-        topic: 'Expected maximum', rank: kind === 'min' || kind === 'max' ? 20 : 21,
+        topic: 'Expected maximum', rank: kind === 'min' || kind === 'max' ? 11 : 13,
         tip: 'The numbers drawn split the others into gaps, and by symmetry every gap has the same expected size.',
         text: `${setup} What is the expected value of ${ask}?`,
         answer: choices(d, E, wrongs.filter((w) => w[0] > 0), showFrac),
@@ -520,12 +520,12 @@ export const hardProbability = {
         E = cut((n - 1) ** b, n ** (b - 1));
         wrongs = [cut((n - 1) ** b, n ** b), minus([n, 1], E), cut((n - 1) ** (b - 1), n ** (b - 2)), [Math.max(n - b, 0), 1], cut(n, b + 1)];
         sol = `Use linearity of expectation, adding up, ${box} by ${box}, the chance that it ends up empty. A given ${box} is missed by one ${item} with probability ${frac(n - 1, n)}, and by all ${b} of them with probability (${frac(n - 1, n)})<sup>${b}</sup> = ${frac((n - 1) ** b, N)}. There are ${n} ${boxes}, so the expected number of empty ones is ${n}·${frac((n - 1) ** b, N)} = <b>${fr(E)}</b>.`;
-        rank = 19;
+        rank = 8;
       } else if (kind === 'single') {
         E = cut(b * (n - 1) ** (b - 1), n ** (b - 1));
         wrongs = [cut(b * (n - 1) ** (b - 1), N), cut((n - 1) ** (b - 1), n ** (b - 1)), cut(b, n), cut((n - 1) ** b, n ** (b - 1)), cut(b * (n - 1) ** (b - 1), n ** (b - 2))];
         sol = `Use linearity of expectation, adding up, ${box} by ${box}, the chance that it gets exactly one ${item}. For a given ${box}, that ${item} can be any of the ${b} (each lands there with probability ${frac(1, n)}), and the other ${b - 1} must all miss it, so the chance is ${b}·${frac(1, n)}·(${frac(n - 1, n)})<sup>${b - 1}</sup> = ${frac(b * (n - 1) ** (b - 1), N)}. Over all ${n} ${boxes} that gives ${n}·${frac(b * (n - 1) ** (b - 1), N)} = <b>${fr(E)}</b>.`;
-        rank = 20;
+        rank = 10;
       } else {
         const byMax = {};
         for (const list of parts) byMax[list[0]] = (byMax[list[0]] || 0) + ways(list);
@@ -534,7 +534,7 @@ export const hardProbability = {
         wrongs = [cut(b, n), [Math.ceil(b / n), 1], cut(parts.reduce((t, l) => t + l[0], 0), parts.length), minus(E, ONE), plus(cut(b, n), ONE)];
         const full = (l) => [...l, ...Array(n - l.length).fill(0)].join(' + '), ex = parts[1], exBoxes = ways(ex) / (fact(b) / ex.reduce((t, x) => t * fact(x), 1));
         sol = `Sort the ${n}<sup>${b}</sup> = ${N} equally likely outcomes by how the ${items} are shared out, ignoring which ${box} is which: ${parts.map((l, i) => `${i === parts.length - 1 ? 'and ' : ''}${full(l)} in ${ways(l)}`).join(', ')}. For example, ${full(ex)} happens in ${exBoxes}·${ways(ex) / exBoxes} = ${ways(ex)} ways, with ${exBoxes} ways to decide which ${box} gets how many and ${ways(ex) / exBoxes} ways to decide which ${items} go where. So the fullest ${box} has ${tops.map((m, i) => `${i && i === tops.length - 1 ? 'and ' : ''}${m} in ${byMax[m]}`).join(', ')} of the outcomes, and the expected number is (${tops.map((m) => `${m}·${byMax[m]}`).join(' + ')})/${N} = ${top}/${N} = <b>${fr(E)}</b>.`;
-        rank = b >= 5 || n === 4 ? 22 : 21;
+        rank = b >= 5 || n === 4 ? 12 : 11;
       }
       const ask = { empty: `What is the expected number of ${boxes} that end up empty?`, single: `What is the expected number of ${boxes} that end up with exactly one ${item}?`, largest: `What is the expected number of ${items} in the ${box} that gets the most? (If several tie for the most, that number counts.)` }[kind];
       return {
@@ -578,7 +578,7 @@ export const hardProbability = {
       }[kind];
       const k = { record: 'card', see: 'student from the front', changes: 'player', peaks: '' }[kind];
       return {
-        topic: 'Expected maximum', rank: { record: 21, see: 21, changes: 22, peaks: 20 }[kind],
+        topic: 'Expected maximum', rank: { record: 12, see: 12, changes: 13, peaks: 10 }[kind],
         text,
         answer: choices(d, E, wrongs, showFrac),
         check: () => {
@@ -619,7 +619,7 @@ export const hardProbability = {
         loops: [D, fact(n - 1), D - choose(n, 2) * DER[n - 2], n === 6 ? 200 : ans + fact(n - 2), ans - fact(n - 2)],
       }[kind];
       return {
-        topic: 'Derangements and matching', rank: { none: 17, given: 19, loops: n >= 6 ? 21 : 20 }[kind],
+        topic: 'Derangements and matching', rank: { none: 8, given: 11, loops: n >= 6 ? 13 : 11 }[kind],
         text: `${setup} In how many of the ${n}! ways of handing them out does ${ask}?`,
         answer: choices(d, ans, wrongs.filter((w) => Number.isInteger(w) && w > 0)),
         check: () => {
@@ -652,7 +652,7 @@ export const hardProbability = {
       const derText = m === 2 ? 'just 1 way (they swap)' : m === 3 ? '2 ways (passing along a loop of three, one way round or the other)'
         : `${m}! − ${m}!/1! + ${m}!/2! − ⋯ = ${range(0, m).map((j) => (j ? `${j % 2 ? '−' : '+'} ${num(fact(m) / fact(j))}` : num(fact(m)))).join(' ')} = ${DER[m]} ways, by inclusion–exclusion`;
       return {
-        topic: 'Derangements and matching', rank: k === 1 ? 18 : 19,
+        topic: 'Derangements and matching', rank: k === 1 ? 8 : 9,
         text: `${setup} What is the probability that exactly ${WORDS[k]} of the ${things} ${k === 1 ? one : many}?`,
         answer: choices(d, ans, [cut(choose(n, k), fact(n)), cut(1, fact(k)), cut(choose(n, k) * (n - 1) ** m, n ** n), cut(DER[m], fact(n)), cut(DER[m], fact(m))].filter(under1), showFrac),
         check: () => {
@@ -683,7 +683,7 @@ export const hardProbability = {
         loop: [cut(1, n), cut(1, n - 1), cut(fact(n - 1), F), cut(fact(n - 2), D), cut(D - fact(n - 1), D)],
       }[kind];
       return {
-        topic: 'Derangements and matching', rank: kind === 'nobody' ? 18 : 20,
+        topic: 'Derangements and matching', rank: kind === 'nobody' ? 7 : 10,
         text,
         answer: choices(d, ans, wrongs.filter(under1), showFrac),
         check: () => {
@@ -729,7 +729,7 @@ export const hardProbability = {
         expect: [ONE, [2, 1], plus(ONE, cut(D, F)), cut(F - D, F), cut(n, n - 1)],
       }[kind];
       return {
-        topic: 'Derangements and matching', rank: { one: 17, two: 19, expect: 21 }[kind],
+        topic: 'Derangements and matching', rank: { one: 8, two: 8, expect: 11 }[kind],
         text: `${setup} ${text}`,
         answer: choices(d, ans, wrongs.filter(kind === 'expect' ? (w) => w[0] > 0 : under1), showFrac),
         check: () => {
@@ -772,20 +772,20 @@ export const hardProbability = {
         wrongs = [1.5 * x1 + 2 * x2 + 3 * x3, 0.3 * x1 + 0.8 * x2 + 1.8 * x3, 0.5 * (x2 + x3), 1.5 * (x2 + x3), ans + 0.5 * x1];
         text = `${amc} ${who} has ${x1 + x2 + x3} questions left. On ${x1} of them ${who} can rule out exactly one choice as wrong, on ${x2} exactly two, and on ${x3} exactly three. If ${who} guesses at random among the choices not ruled out on all ${x1 + x2 + x3} of these questions, instead of leaving them blank, how many more points can ${who} expect to score?`;
         sol = `Compare each kind of question with the 1.5 points of a blank. With e choices ruled out, 5 − e are left, so a guess is right with probability 1/(5 − e) and is worth 6/(5 − e) points on average. Ruling out one leaves 4 choices, worth 6/4 = 1.5, exactly a blank, so those ${x1} questions gain nothing. Ruling out two is worth 6/3 = 2, a gain of 0.5 each, and ruling out three is worth 6/2 = 3, a gain of 1.5 each. In all, ${x2}·0.5 + ${x3}·1.5 = <b>${num(ans)}</b>.`;
-        rank = 9;
+        rank = 4;
       } else if (kind === 'plan') {
         const blank = rest - g;
         ans = 6 * s + g * score(e) + 1.5 * blank;
         wrongs = [6 * s + g * score(e), 6 * s + g * 1.2 + 1.5 * blank, 6 * s + 1.5 * rest, 6 * s + (6 * g * (e + 1)) / 5 + 1.5 * blank, 6 * (s + g) + 1.5 * blank];
         text = `${amc} ${who} answers ${s} questions and is sure of them, and they are all right. On ${g} other questions ${who} ${e ? `can rule out ${WORDS[e]} of the five choices as wrong, and guesses at random among the other ${WORDS[5 - e]}` : 'has no idea at all, and guesses at random among all five choices'}. ${who} leaves the remaining ${blank} questions blank. What is ${who}’s expected score?`;
         sol = `Add up the expected points question by question, since expectation adds. The ${s} sure answers give 6·${s} = ${6 * s}. A guess among ${5 - e} choices is right with probability 1/${5 - e}, so it is worth 6/${5 - e} = ${num(score(e))} points on average, and the ${g} guesses give ${g}·${num(score(e))} = ${num(g * score(e))}. The ${blank} blanks give 1.5·${blank} = ${num(1.5 * blank)}. In all, ${6 * s} + ${num(g * score(e))} + ${num(1.5 * blank)} = <b>${num(ans)}</b>.`;
-        rank = 10;
+        rank = 3;
       } else {
         ans = 6 * s + 1.5 * x0 + 1.5 * x1 + 2 * x2 + 3 * x3;
         wrongs = [6 * s + 1.2 * x0 + 1.5 * x1 + 2 * x2 + 3 * x3, 6 * s + 1.5 * (rest), 6 * s + 1.5 * (x0 + x1 + x2) + 3 * x3, 6 * s + 2 * x2 + 3 * x3, 6 * s + 1.5 * x0 + 1.2 * x1 + 2 * x2 + 3 * x3];
         text = `${amc} ${who} answers ${s} questions and is sure of them, and they are all right. Of the other ${rest}, ${who} has no idea on ${x0}, can rule out exactly one choice as wrong on ${x1}, exactly two on ${x2}, and exactly three on ${x3}. On each of these ${rest}, ${who} either guesses at random among the choices not ruled out or leaves it blank. What is the largest expected score ${who} can get?`;
         sol = `Decide question by question, since expected points add up. A guess with e choices ruled out is right with probability 1/(5 − e), so it is worth 6/(5 − e) points on average, against 1.5 for a blank. That gives 6/5 = 1.2 with nothing ruled out (worse than a blank), 6/4 = 1.5 with one ruled out (a tie), 2 with two and 3 with three (both better). So leave blank the ${x0} with nothing ruled out, take 1.5 either way on the ${x1} with one ruled out, and guess on the other ${x2 + x3}. The best expected score is 6·${s} + 1.5·${x0 + x1} + 2·${x2} + 3·${x3} = <b>${num(ans)}</b>.`;
-        rank = 11;
+        rank = 5;
       }
       return {
         topic: 'Guess or leave blank', rank,
@@ -827,7 +827,7 @@ export const hardProbability = {
       const wrongText = W ? `loses ${-W} point${W === -1 ? '' : 's'}` : 'earns 0';
       const lines = range(0, ans).map((e) => `with ${e} ruled out, ${e === 4 ? 'the answer is certain' : `a guess is right with probability ${frac(1, 5 - e)}`} and is worth ${!W && gcd(R, 5 - e) === 1 && 5 - e === 3 ? fr(guess(e)) : `${W ? `(${R} − ${-W}·${4 - e})` : R}/${5 - e} = ${val(guess(e))}`} on average, ${beats(e) ? 'more than' : 2 * R + 2 * W * (4 - e) === 2 * B * (5 - e) ? 'only equal to' : 'less than'} ${num(B)}`);
       return {
-        topic: 'Guess or leave blank', rank: W ? 11 : 10,
+        topic: 'Guess or leave blank', rank: W ? 5 : 4,
         text: `In a math contest, each question has five choices, exactly one of them right. A right answer earns ${R} points, a question left blank earns ${num(B)}, and a wrong answer ${wrongText}. ${who} will guess at random among the choices not ruled out as wrong. What is the smallest number of wrong choices ${who} must rule out for a guess to have a higher expected score than leaving the question blank?`,
         answer: choices(d, ans, [0, 1, 2, 3, 4]),
         check: () => {
@@ -850,7 +850,7 @@ export const hardProbability = {
         wrong: [rows[0][2], 25 - Math.ceil(S / 6), ans - 3, ans + 1, ans - 1],
       }[kind].filter((v) => Number.isInteger(v) && v >= 0 && v <= 25);
       return {
-        topic: 'Guess or leave blank', rank: kind === 'wrong' ? 13 : 12,
+        topic: 'Guess or leave blank', rank: kind === 'wrong' ? 6 : 5,
         tip: 'Write the score as 6r + 1.5b, with r right and b blank and r + b at most 25, and list the whole numbers that fit.',
         text: `The AMC 10 has 25 questions; each right answer earns 6 points, each question left blank 1.5, and each wrong answer 0. ${who} scored ${num(S)}. ${{ count: `How many different possibilities are there for the numbers of questions ${who} got right, left blank and got wrong?`, fewest: `What is the fewest questions ${who} could have answered correctly?`, wrong: `What is the largest number of questions ${who} could have answered wrong?` }[kind]}`,
         answer: choices(d, ans, wrongs),
@@ -871,7 +871,7 @@ export const hardProbability = {
       const all = c ** n, P = (r) => choose(n, r) * (c - 1) ** (n - r), atLeast = (k) => cut(range(k, n).reduce((s, r) => s + P(r), 0), all);
       const ans = atLeast(t), below = range(0, t - 1);
       return {
-        topic: 'Guess or leave blank', rank: t >= 2 ? 14 : 13,
+        topic: 'Guess or leave blank', rank: t >= 2 ? 7 : 5,
         tip: 'Find how many right answers it takes to beat the blank score, then count the opposite, too few right.',
         text: `On the AMC 10, a right answer earns 6 points, a question left blank 1.5, and a wrong answer 0. ${who} has ${n} questions left and, on each of them, ${c === 5 ? 'has no idea, so all five choices are left' : `can rule out exactly ${WORDS[5 - c]} of the five choices, leaving ${WORDS[c]}`}. Leaving all ${n} blank would earn ${num(blank)} points. If ${who} instead guesses at random among the choices left on all ${n}, what is the probability of earning ${strict ? 'more than' : 'at least'} ${num(blank)} points on them?`,
         answer: choices(d, ans, [t > 1 ? atLeast(t - 1) : atLeast(t + 1), atLeast(t + 1), cut(P(t), all), [1, 2], minus(ONE, ans), atLeast(1)].filter(under1), showFrac),

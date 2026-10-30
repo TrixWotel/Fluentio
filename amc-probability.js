@@ -49,7 +49,7 @@ export const probability = {
       const [P, Q] = d.pick(NAMES), wA = p1 * q2, wB = (q1 - p1) * p2, who = second ? Q : P, ans = cut(second ? wB : wA, wA + wB);
       const a = p1 / q1, b = p2 / q2, g = gcd(wA, wB);
       return {
-        topic: 'Taking turns', rank: 18,
+        topic: 'Taking turns', rank: 9,
         text: `${P} and ${Q} take turns throwing a ball at a can, ${P} first. Each of ${P}’s throws knocks the can over with probability ${frac(p1, q1)}, and each of ${Q}’s with probability ${frac(p2, q2)}, all independently. The first to knock it over wins. What is the probability that ${who} wins?`,
         answer: choices(d, ans, [second ? cut(p2 * q1, p1 * q2 + p2 * q1) : cut(p1 * q2, p1 * q2 + p2 * q1), second ? cut(wB, q1 * q2) : [p1, q1], cut(second ? wA : wB, wA + wB), [1, 2],
           second ? [p2, q2] : cut(p1 * (q2 - p2), q1 * q2), [q1 - p1, q1], [1, 3]].filter(under1), showFrac),
@@ -66,7 +66,7 @@ export const probability = {
       const [[p, q]] = pick(ctx, 'fair', [[[1, 3], [1, 4], [1, 5], [2, 5], [1, 6], [2, 7], [3, 8], [3, 7], [2, 9], [1, 7], [3, 10], [4, 9]]]);
       const [P, Q] = d.pick(NAMES), b = cut(p, q - p), a = p / q;
       return {
-        topic: 'Taking turns', rank: 17,
+        topic: 'Taking turns', rank: 10,
         text: `${P} and ${Q} take turns shooting at a target, ${P} first, and the first to hit it wins. Each of ${P}’s shots hits with probability ${frac(p, q)}. What must the probability of each of ${Q}’s shots be for the game to be fair, with each of them equally likely to win?`,
         answer: choices(d, b, [[p, q], cut(q - p, q), [1, 2], cut(p, q + p), cut(2 * p, q)].filter(under1), showFrac),
         check: () => {
@@ -83,7 +83,7 @@ export const probability = {
       const [[p, q], who] = pick(ctx, 'three', [[[1, 2], [1, 3], [1, 4], [2, 3], [2, 5], [1, 5], [3, 4], [3, 5]], [0, 1, 2]]);
       const names = d.pick(TRIOS), m = q - p, w = [q * q, m * q, m * m], S = w[0] + w[1] + w[2], ans = cut(w[who], S), a = p / q;
       return {
-        topic: 'Taking turns', rank: 19,
+        topic: 'Taking turns', rank: 9,
         text: `${names[0]}, ${names[1]} and ${names[2]} take turns, in that order, rolling a ball at a single pin, and the first to knock it down wins. Every roll knocks it down with probability ${frac(p, q)}, independently. What is the probability that ${names[who]} wins?`,
         answer: choices(d, ans, [[1, 3], [p, q], cut(m ** who * p * q ** (2 - who), q ** 3), cut(w[2 - who], S), cut(w[who], w[0] + w[1])].filter(under1), showFrac),
         check: () => {
@@ -102,7 +102,7 @@ export const probability = {
       for (let i = 0; i < n; i++) top += R ** i * win * Q1 ** (n - 1 - i);
       const ans = cut(top, Q1 ** n), r = cut(R, Q1), many = range(0, n - 1).reduce((s, i) => s + R ** i * Q1 ** (n - 1 - i), 0);
       return {
-        topic: 'Taking turns', rank: 16,
+        topic: 'Taking turns', rank: 7,
         tip: 'Find the chance that one round ends with this player scoring and the chance that nobody scores in it, then add up this player’s chances over the rounds there is time for.',
         text: `${P} and ${Q} take turns at a basketball shot, ${P} first, and the first to score wins. Each of ${P}’s shots goes in with probability ${frac(p1, q1)}, and each of ${Q}’s with probability ${frac(p2, q2)}. They only have time for ${n} shots each; if nobody has scored by then, nobody wins. What is the probability that ${second ? Q : P} wins?`,
         answer: choices(d, ans, [cut(win, Q1 - R), cut(win, Q1), cut(Q1 ** n - R ** n, Q1 ** n), cut(top - R ** (n - 1) * win, Q1 ** n), cut(n * win, Q1)].filter(under1), showFrac),
@@ -130,7 +130,7 @@ export const probability = {
       const base = kind === 'coin' ? 2 : 3, fail = (j) => (N * (base - 1) ** j) / base ** j, E = N - fail(k);
       const miss = frac((base - 1) ** k, base ** k), hit = frac(base ** k - (base - 1) ** k, base ** k);
       return {
-        topic: 'Expected value', rank: 18,
+        topic: 'Expected value', rank: 6,
         text: kind === 'coin'
           ? `A teacher gives each of ${N} students a fair coin. Everyone flips. Anyone showing tails flips again, and so on, stopping at the first heads, but nobody flips more than ${k} times in all. What is the expected number of students who end up with heads?`
           : `Each of ${N} players rolls a fair die, hoping for a 5 or a 6. Anyone who misses rolls again, and so on, stopping at the first 5 or 6, but nobody rolls more than ${k} times in all. What is the expected number of players who get a 5 or a 6?`,
@@ -152,7 +152,7 @@ export const probability = {
       const base = kind === 'coin' ? 2 : 3, word = kind === 'coin' ? 'flip' : 'roll';
       const total = (j) => range(0, j - 1).reduce((s, i) => s + (N * (base - 1) ** i) / base ** i, 0), E = total(k);
       return {
-        topic: 'Expected value', rank: 17,
+        topic: 'Expected value', rank: 8,
         text: kind === 'coin'
           ? `Each of ${N} students flips a fair coin until it shows heads, but gives up after ${k} flips if it never does. What is the expected total number of flips?`
           : `Each of ${N} players rolls a fair die until it shows a 5 or a 6, but gives up after ${k} rolls if it never does. What is the expected total number of rolls?`,
@@ -170,7 +170,7 @@ export const probability = {
       const [n, s] = pick(ctx, 'faces', [[2, 3, 4], [4, 6, 8]]);
       const E = cut(s ** n - (s - 1) ** n, s ** (n - 1)), shows = frac(s ** n - (s - 1) ** n, s ** n);
       return {
-        topic: 'Expected value', rank: 19,
+        topic: 'Expected value', rank: 11,
         text: `${Cap(WORDS[n])} fair ${s}-sided dice, numbered 1 to ${s}, are rolled. What is the expected number of different numbers that show?`,
         answer: choices(d, E, [[n, 1], cut(n * s - choose(n, 2), s), cut(s ** n - (s - 1) ** n, s ** n), cut((s - 1) ** n, s ** (n - 1)), cut(n * (s + 1), 2 * s)], showFrac),
         check: () => {
@@ -186,7 +186,7 @@ export const probability = {
       const [n, [a, b]] = pick(ctx, 'pairs', [[6, 8, 10, 11, 13], [[1, 2], [1, 3], [2, 3]]]);
       const E = cut((n - 1) * a * a, b * b), coin = b === 2 ? 'A fair coin is' : `A bent coin lands heads with probability ${frac(a, b)}. It is`;
       return {
-        topic: 'Expected value', rank: 16,
+        topic: 'Expected value', rank: 9,
         text: `${coin} tossed ${n} times in a row. What is the expected number of places where two heads come up back to back? (So HHH has two such places.)`,
         answer: choices(d, E, [cut(n * a * a, b * b), cut((n - 1) * a, b), cut((n - 2) * a * a, b * b), cut(Math.floor(n / 2) * a * a, b * b), cut((n - 1) * a * a, 2 * b * b)], showFrac),
         check: () => {
@@ -208,7 +208,7 @@ export const probability = {
     (d, ctx) => {
       const [n, e] = pick(ctx, 'low', [[4, 5, 6, 8, 9], [2, 3, 4, 5]]), s = n + e, m = choose(s - 1, n - 1);
       return {
-        topic: 'Many dice', rank: 11,
+        topic: 'Many dice', rank: 7,
         text: `A board game uses ${n} ordinary six-sided dice, rolled together. Of the 6<sup>${n}</sup> equally likely ways they can land, how many show a total of exactly ${s}?`,
         answer: choices(d, m, [choose(s - 1, n), choose(s, n - 1), choose(s, n), choose(n, e), n * e]),
         check: () => (totals(n)[s] === m ? '' : `counted ${totals(n)[s]}, said ${m}`),
@@ -219,7 +219,7 @@ export const probability = {
     (d, ctx) => {
       const [n, e] = pick(ctx, 'high', [[3, 4, 5, 6, 7], [2, 3, 4, 5]]), s = 6 * n - e, m = choose(e + n - 1, n - 1);
       return {
-        topic: 'Many dice', rank: 12,
+        topic: 'Many dice', rank: 9,
         text: `${Cap(WORDS[n])} ordinary dice are thrown at once. In how many of the 6<sup>${n}</sup> equally likely outcomes is the total exactly ${s}?`,
         tip: 'Turn every die upside down in your mind: x becomes 7 − x, so a big total becomes a small one, which is easier to count.',
         answer: choices(d, m, [choose(e + n, n), choose(e + n - 1, n), choose(e + n, n - 1), choose(e + n - 2, n - 1), n * e, choose(s - 1, n - 1)].filter((v) => v < 6 ** n)),
@@ -232,7 +232,7 @@ export const probability = {
       const [n, t] = pick(ctx, 'cap', [[3, 4], range(9, 14)], (n, t) => (n === 3 ? t <= 12 : t >= 10));
       const X = choose(t - 1, n - 1), Y = choose(t - 7, n - 1), m = X - n * Y;
       return {
-        topic: 'Many dice', rank: 14,
+        topic: 'Many dice', rank: 5,
         text: `${n === 3 ? 'Three' : 'Four'} ordinary dice are rolled. In how many of the ${6 ** n} equally likely outcomes do the numbers add up to exactly ${t}?`,
         answer: choices(d, m, [X, X - Y, choose(t, n - 1) - n * choose(t - 6, n - 1), X - n * choose(t - 6, n - 1)].filter((v) => v > 0)),
         check: () => (totals(n)[t] === m ? '' : `counted ${totals(n)[t]}, said ${m}`),
@@ -243,7 +243,7 @@ export const probability = {
     (d, ctx) => {
       const [n, e] = pick(ctx, 'atmost', [[3, 4, 5, 6], [2, 3, 4, 5]]), m = choose(n + e, n);
       return {
-        topic: 'Many dice', rank: 13,
+        topic: 'Many dice', rank: 3,
         text: `${Cap(WORDS[n])} ordinary dice are rolled. In how many of the 6<sup>${n}</sup> equally likely outcomes is the total ${n + e} or less?`,
         answer: choices(d, m, [choose(n + e - 1, n - 1), choose(n + e, n - 1), choose(n + e + 1, n), choose(n + e - 1, n)]),
         check: () => { const w = totals(n), c = range(n, n + e).reduce((s, t) => s + w[t], 0); return c === m ? '' : `counted ${c}, said ${m}`; },
@@ -260,7 +260,7 @@ export const probability = {
       const a = choose(k, j), b = choose(n - k, k - j), C = choose(n, k), ans = cut(a * b, C);
       let atLeast = 0; for (let i = j; i <= k; i++) atLeast += choose(k, i) * choose(n - k, k - i);
       return {
-        topic: 'Choices in common', rank: 11,
+        topic: 'Choices in common', rank: 6,
         text: `A film club has a list of ${n} films. ${P} and ${Q} each choose ${k} of them to watch, at random and independently. What is the probability that exactly ${j} of the films ${j === 1 ? 'is' : 'are'} on both of their lists?`,
         answer: choices(d, ans, [cut(atLeast, C), cut(a * k ** j * (n - k) ** (k - j), n ** k), [1, k + 1], cut(b, C), cut(a, C)], showFrac),
         check: () => {
@@ -277,7 +277,7 @@ export const probability = {
       const [n, k] = pick(ctx, 'atleast', [[8, 9, 10, 11, 12], [2, 3, 4]], (n, k) => 2 * k <= n);
       const [P, Q] = d.pick(NAMES), none = choose(n - k, k), C = choose(n, k), ans = cut(C - none, C);
       return {
-        topic: 'Choices in common', rank: 10,
+        topic: 'Choices in common', rank: 6,
         text: `${P} and ${Q} each pick ${k} of the ${n} songs on an album at random, independently. What is the probability that at least one song is on both of their lists?`,
         answer: choices(d, ans, [cut(none, C), cut(k * k, n), cut(k * choose(n - k, k - 1), C), cut(k, n), [1, 2]].filter(under1), showFrac),
         check: () => {
@@ -294,7 +294,7 @@ export const probability = {
       const [n, a, b] = pick(ctx, 'expect', [[10, 12, 15, 20], [3, 4, 5, 6], [2, 3, 4, 5]], (n, a, b) => a !== b);
       const [P, Q] = d.pick(NAMES), E = cut(a * b, n);
       return {
-        topic: 'Choices in common', rank: 13,
+        topic: 'Choices in common', rank: 8,
         text: `A menu has ${n} dishes. ${P} picks ${a} different dishes at random, and ${Q}, separately, picks ${b} at random. What is the expected number of dishes that both of them pick?`,
         tip: 'Add up, one of the second person’s dishes at a time, the chance that it is also on the first person’s list.',
         answer: choices(d, E, [cut(a * b, n * n), cut(Math.min(a, b), n), cut(a + b, n), cut(a * b, n - 1), cut(a * b, 2 * n)], showFrac),
@@ -311,7 +311,7 @@ export const probability = {
       const [n, m, k] = pick(ctx, 'inside', [[8, 9, 10, 12], [4, 5, 6], [2, 3]], (n, m, k) => k < m && m < n);
       const [P, Q] = d.pick(NAMES), top = choose(m, k), C = choose(n, k), ans = cut(top, C);
       return {
-        topic: 'Choices in common', rank: 9,
+        topic: 'Choices in common', rank: 3,
         text: `${P} marks ${m} of the ${n} books on a shelf as favorites. ${Q}, without knowing which, picks ${k} of the ${n} books at random. What is the probability that ${k === 2 ? 'both' : `all ${k}`} of ${Q}’s books are among ${P}’s favorites?`,
         answer: choices(d, ans, [cut(m, n), cut(m ** k, n ** k), cut(top, choose(n, m)), cut(k, m), cut(choose(m - 1, k - 1), C)].filter(under1), showFrac),
         check: () => {
@@ -330,7 +330,7 @@ export const probability = {
       const [t, r] = pick(ctx, 'within', [[2, 4, 5, 6], [2, 3, 4, 5]], (t, r) => r <= t);
       const ms = range(1, r), top = ms.reduce((s, m) => s + choose(t - 1, m - 1) * 6 ** (r - m), 0), ans = cut(top, 6 ** r);
       return {
-        topic: 'Running totals', rank: 7,
+        topic: 'Running totals', rank: 9,
         tip: 'Split by how many rolls it takes to land exactly on the square, and count the ordered ways that many rolls can add up to it.',
         text: `A token starts on square 0 of a long track. Each turn a fair die is rolled and the token moves forward that many squares. After ${r} turns, what is the probability that the token has stopped on square ${t} at some point?`,
         answer: choices(d, ans, [[1, 6], cut(top - choose(t - 1, r - 1), 6 ** r), cut(choose(t - 1, r - 1), 6 ** r), cut(6 ** r - 5 ** r, 6 ** r)], showFrac),
@@ -349,7 +349,7 @@ export const probability = {
       for (let k = 1; k <= t; k++) N.push(range(1, 6).reduce((s, j) => s + (k - j >= 0 ? N[k - j] * 6 ** (j - 1) : 0), 0));
       const P = (k) => cut(N[k], 6 ** k), ans = P(t);
       return {
-        topic: 'Running totals', rank: 12,
+        topic: 'Running totals', rank: 10,
         text: `A token starts on square 0. A fair die is rolled again and again, and each time the token moves forward that many squares, until it has gone past square ${t}. What is the probability that it stops on square ${t} along the way?`,
         answer: choices(d, ans, [[1, 6], [2, 7], P(t - 1), cut(6 ** t - 5 ** t, 6 ** t), cut(t, 21)].filter(under1), showFrac),
         check: () => {
@@ -368,7 +368,7 @@ export const probability = {
       for (let k = 1; k <= t; k++) N.push((k >= s1 ? N[k - s1] * 2 ** (s1 - 1) : 0) + (k >= s2 ? N[k - s2] * 2 ** (s2 - 1) : 0));
       const P = (k) => cut(N[k], 2 ** k), ans = P(t);
       return {
-        topic: 'Running totals', rank: 10,
+        topic: 'Running totals', rank: 8,
         text: `A frog starts on stone 0 of a long row of stones. Every second it flips a fair coin: on heads it jumps ${s1} stone${s1 > 1 ? 's' : ''} forward, and on tails ${s2} stones forward. What is the probability that it ever lands on stone ${t}?`,
         answer: choices(d, ans, [[1, 2], cut(2, s1 + s2), P(t - 1), [1, t], cut(1, s2)].filter(under1), showFrac),
         check: () => {
@@ -390,7 +390,7 @@ export const probability = {
       let n = 1; while (!enough(n)) n++;
       const miss = frac(36 - c, 36), bound = Math.log(tq / (tq - tp)) / Math.log(36 / (36 - c)), exact = Number.isInteger((tp / tq) * 1e4);
       return {
-        topic: 'At least once', rank: 12,
+        topic: 'At least once', rank: 9,
         text: `Two fair dice are thrown together, again and again. What is the smallest number of throws for which the probability of a total of ${s} turning up at least once is greater than ${frac(tp, tq)}?`,
         answer: choices(d, n, [n - 1, n + 1, Math.ceil((36 * tp) / (tq * c)), n + 2, n - 2].filter((x) => x >= 1)),
         check: () => (enough(n) && !enough(n - 1) ? '' : `${n} is not the least`),
@@ -404,7 +404,7 @@ export const probability = {
       let c = 0; for (let x = 1; x <= 6; x++) for (let y = 1; y <= 6; y++) if (test(x, y)) c++;
       const ans = cut(36 ** n - (36 - c) ** n, 36 ** n);
       return {
-        topic: 'At least once', rank: 9,
+        topic: 'At least once', rank: 4,
         text: `A pair of fair dice is thrown ${n === 2 ? 'twice' : `${n} times`}. What is the probability of getting ${ev} at least once?`,
         answer: choices(d, ans, [cut(n * c, 36), cut(c ** n, 36 ** n), cut((36 - c) ** n, 36 ** n), cut(n * c * (36 - c) ** (n - 1), 36 ** n)], showFrac),
         check: () => {
@@ -420,7 +420,7 @@ export const probability = {
       const [[face, a], n] = pick(ctx, 'twice', [[['a 6', 1], ['a 5 or a 6', 2], ['an even number', 3], ['a 1 or a 2', 2]], [3, 4, 5]]);
       const none = (6 - a) ** n, once = n * a * (6 - a) ** (n - 1), ans = cut(6 ** n - none - once, 6 ** n);
       return {
-        topic: 'At least once', rank: 14,
+        topic: 'At least once', rank: 4,
         tip: 'Count the opposite, which here is getting it never or exactly once.',
         text: `A fair die is rolled ${n} times. What is the probability of getting ${face} at least twice?`,
         answer: choices(d, ans, [cut(6 ** n - none, 6 ** n), cut(choose(n, 2) * a * a * (6 - a) ** (n - 2), 6 ** n), cut(6 ** n - none - a * (6 - a) ** (n - 1), 6 ** n), cut(a * a, 36)], showFrac),
@@ -440,7 +440,7 @@ export const probability = {
       const bare = (s) => s.replace(/\ban? (?=\d|odd)/g, '');   // 'a 5 or a 6' → '5 or 6', 'an odd number' → 'odd number'
       const a1 = xs.length, a2 = ys.length, top = 6 ** n - (6 - a1) ** n - (6 - a2) ** n + (6 - a1 - a2) ** n, ans = cut(top, 6 ** n);
       return {
-        topic: 'At least once', rank: 15,
+        topic: 'At least once', rank: 4,
         text: `A fair die is rolled ${n === 2 ? 'twice' : `${n} times`}. What is the probability that at least one roll shows ${X} and at least one roll shows ${Y}?`,
         tip: 'Take away the outcomes that miss the first thing and those that miss the second, then add back the ones that miss both.',
         answer: choices(d, ans, [cut((6 ** n - (6 - a1) ** n) * (6 ** n - (6 - a2) ** n), 6 ** (2 * n)), cut(6 ** n - (6 - a1) ** n - (6 - a2) ** n, 6 ** n), cut(6 ** n - (6 - a1 - a2) ** n, 6 ** n), cut(a1 * a2 * n * (n - 1), 36), [a1 * a2, 36], cut(a1 + a2, 6), [1, 6]].filter(under1), showFrac),
@@ -462,7 +462,7 @@ export const probability = {
       const prod = (f) => exps.reduce((a, e) => a * f(e), 1), D = prod((e) => e + 1), S = prod((e) => Math.floor(e / r) + 1), ans = cut(S, D), value = ans[0] + ans[1];
       const word = r === 2 ? 'square' : 'cube', fact = primes.map((p, i) => pw(p, exps[i])).join(' · ');
       return {
-        topic: 'Random divisors', rank: 15,
+        topic: 'Random divisors', rank: 9,
         text: `Ravi writes each positive divisor of ${F}! on its own card, shuffles the cards, and draws one. The probability that his number is a perfect ${word} is a/b, where a and b are relatively prime positive integers. What is a + b?`,
         answer: choices(d, value, [S + D, sum(cut(prod((e) => Math.floor(e / (5 - r)) + 1), D)), sum(cut(S, prod((e) => e))), prod((e) => Math.floor(e / r)) ? sum(cut(prod((e) => Math.floor(e / r)), D)) : NaN]),
         check: () => {
@@ -479,7 +479,7 @@ export const probability = {
       const [N, m] = pick(ctx, 'multiple', [[720, 1080, 480, 1800, 432, 600, 2160], [4, 6, 9, 10, 12, 15, 18]], (N, m) => N % m === 0 && N / m > 1);
       const D = tau(N), K = tau(N / m), ans = cut(K, D);
       return {
-        topic: 'Random divisors', rank: 12,
+        topic: 'Random divisors', rank: 5,
         text: `A positive divisor of ${N} is chosen at random, each equally likely. What is the probability that it is a multiple of ${m}?`,
         answer: choices(d, ans, [[1, m], cut(tau(m), D), cut(D - K, D), cut(K + 1, D), cut(1, tau(m))].filter(under1), showFrac),
         check: () => { const ds = divisorsOf(N), hit = ds.filter((x) => x % m === 0).length; return hit * ans[1] === ds.length * ans[0] ? '' : `counted ${hit}/${ds.length}, said ${ans[0]}/${ans[1]}`; },
@@ -491,7 +491,7 @@ export const probability = {
       const [[N, M]] = pick(ctx, 'divides', [[[360, 60], [720, 48], [540, 90], [1260, 84], [1800, 120], [840, 56], [600, 75], [1000, 40]]]);
       const D = tau(N), K = tau(M), ans = cut(K, D);
       return {
-        topic: 'Random divisors', rank: 13,
+        topic: 'Random divisors', rank: 4,
         text: `A positive divisor of ${N} is chosen at random, each equally likely. What is the probability that it is also a divisor of ${M}?`,
         answer: choices(d, ans, [cut(M, N), cut(tau(N / M), D), cut(K - 1, D), [1, N / M], cut(K, D + K)].filter(under1), showFrac),
         check: () => { const ds = divisorsOf(N), hit = ds.filter((x) => M % x === 0).length; return hit * ans[1] === ds.length * ans[0] ? '' : `counted ${hit}/${ds.length}, said ${ans[0]}/${ans[1]}`; },
@@ -503,7 +503,7 @@ export const probability = {
       const [n, k, [base, p, q]] = pick(ctx, 'power', [[4, 5, 6, 8, 9], [1, 2, 3], [[10, 2, 5], [6, 2, 3], [15, 3, 5]]], (n, k) => k < n);
       const ans = cut((n - k + 1) ** 2, (n + 1) ** 2);
       return {
-        topic: 'Random divisors', rank: 14,
+        topic: 'Random divisors', rank: 4,
         text: `A positive divisor of ${pw(base, n)} is chosen at random, each equally likely. What is the probability that it is a multiple of ${pw(base, k)}?`,
         answer: choices(d, ans, [cut(n - k + 1, n + 1), cut((n - k) ** 2, (n + 1) ** 2), [1, base ** k], cut(n - k, n), cut((n - k + 1) ** 2, n * n)].filter(under1), showFrac),
         check: () => { let hit = 0; for (let i = 0; i <= n; i++) for (let j = 0; j <= n; j++) if (i >= k && j >= k) hit++; return hit * ans[1] === (n + 1) ** 2 * ans[0] ? '' : `counted ${hit}, said ${ans[0]}/${ans[1]}`; },
@@ -518,7 +518,7 @@ export const probability = {
       const [[p, M], e] = pick(ctx, 'fermat', [[[3, 2025], [7, 2023], [11, 2024], [13, 2015], [7, 2030]], [6, 8, 9, 10, 12, 15, 18, 20, 24, 30]], ([p], e) => gcd(e, p - 1) > 1);
       const good = range(1, p - 1).filter((r) => modpow(r, e, p) === 1), g = good.length, ans = cut(g, p), small = e % (p - 1);
       return {
-        topic: 'Remainders by chance', rank: 14,
+        topic: 'Remainders by chance', rank: 7,
         text: `A whole number N is chosen at random from 1 to ${M}, each equally likely. What is the probability that N<sup>${e}</sup> − 1 is a multiple of ${p}?`,
         answer: choices(d, ans, [cut(p - 1, p), [1, p], cut(g, p - 1), cut(p - 1 - g, p), [1, p - 1]], showFrac),
         check: () => { let hit = 0; for (let N = 1; N <= M; N++) if (modpow(N, e, p) === 1) hit++; return hit * ans[1] === M * ans[0] ? '' : `counted ${hit}/${M}, said ${ans[0]}/${ans[1]}`; },
@@ -530,7 +530,7 @@ export const probability = {
       const [[p, M], k] = pick(ctx, 'square', [[[5, 2025], [13, 2028], [7, 2023], [11, 2024], [17, 2023]], [1, 2, 3, 4, 6]], ([p], k) => range(0, p - 1).some((r) => (r * r + k) % p === 0));
       const good = range(0, p - 1).filter((r) => (r * r + k) % p === 0), ans = cut(good.length, p);
       return {
-        topic: 'Remainders by chance', rank: 13,
+        topic: 'Remainders by chance', rank: 7,
         text: `A whole number N is chosen at random from 1 to ${M}, each equally likely. What is the probability that N<sup>2</sup> + ${k} is a multiple of ${p}?`,
         answer: choices(d, ans, [[1, p], cut(good.length, p - 1), [1, p - 1], cut(p - good.length, p), [1, 2]], showFrac),
         check: () => { let hit = 0; for (let N = 1; N <= M; N++) if ((N * N + k) % p === 0) hit++; return hit * ans[1] === M * ans[0] ? '' : `counted ${hit}/${M}, said ${ans[0]}/${ans[1]}`; },
@@ -542,7 +542,7 @@ export const probability = {
       const [m] = pick(ctx, 'product', [[4, 6, 8, 9, 10, 12]]), M = d.pick([60, 120, 360].filter((x) => x % m === 0));
       const g = range(0, m - 1).map((x) => gcd(x, m) || m), cnt = g.reduce((a, b) => a + b, 0), ans = cut(cnt, m * m);
       return {
-        topic: 'Remainders by chance', rank: 12,
+        topic: 'Remainders by chance', rank: 8,
         text: `Two whole numbers a and b are chosen independently at random from 1 to ${M}. What is the probability that the product ab is a multiple of ${m}?`,
         answer: choices(d, ans, [[1, m], cut(2 * m - 1, m * m), [2, m], cut(m * m - cnt, m * m), cut(cnt - m, m * m)].filter(under1), showFrac),
         check: () => { let hit = 0; for (let a = 1; a <= M; a++) for (let b = 1; b <= M; b++) if ((a * b) % m === 0) hit++; return hit * ans[1] === M * M * ans[0] ? '' : `counted ${hit}/${M * M}, said ${ans[0]}/${ans[1]}`; },
@@ -555,7 +555,7 @@ export const probability = {
       const cyc = []; let v = 1; do { v = (v * b) % m; cyc.push(v); } while (v !== 1);
       const ord = cyc.length, ans = [1, ord], phi = range(1, m).filter((x) => gcd(x, m) === 1).length;
       return {
-        topic: 'Remainders by chance', rank: 15,
+        topic: 'Remainders by chance', rank: 4,
         text: `A whole number N is chosen at random from 1 to ${M}. What is the probability that ${b}<sup>N</sup> leaves a remainder of 1 when divided by ${m}?`,
         answer: choices(d, ans, [[1, m], [1, m - 1], [1, phi], [1, 2], cut(ord - 1, ord)].filter(under1), showFrac),
         check: () => { let hit = 0; for (let N = 1; N <= M; N++) if (modpow(b, N, m) === 1) hit++; return hit * ord === M ? '' : `counted ${hit}/${M}, said 1/${ord}`; },
@@ -575,7 +575,7 @@ export const probability = {
       const cycle = (m) => range(1, 4).map((i) => modpow(m, i, 10)).join(', ');
       const shifted = per(set, t, lo + 1, hi + 1).reduce((a, b) => a + b, 0), able = set.filter((m) => range(1, 4).some((i) => modpow(m, i, 10) === t)).length;
       return {
-        topic: 'Units digits by chance', rank: 19,
+        topic: 'Units digits by chance', rank: 7,
         text: `A fair spinner lands on one of the numbers ${set.slice(0, -1).join(', ')} or ${set.at(-1)}, each equally likely; call it a. Separately, a year Y from ${lo} through ${hi} is chosen at random. What is the probability that a<sup>Y</sup> has units digit ${t}?`,
         answer: choices(d, ans, [[1, 4], [1, 5], cut(able, 5), cut(shifted, total), cut(hits, 4 * N)], showFrac),
         check: () => {
@@ -592,7 +592,7 @@ export const probability = {
       const [[e, t]] = pick(ctx, 'power', [[[2, 1], [2, 4], [2, 6], [2, 9], [2, 5], [4, 1], [4, 6], [3, 7], [4, 5], [3, 3]]]), M = d.pick([100, 200, 500]);
       const good = ends(e, t), ans = cut(good.length, 10);
       return {
-        topic: 'Units digits by chance', rank: 11,
+        topic: 'Units digits by chance', rank: 5,
         text: `A whole number n is chosen at random from 1 to ${M}. What is the probability that n<sup>${e}</sup> ends in the digit ${t}?`,
         answer: choices(d, ans, [[1, 10], [1, 4], cut(good.length + 1, 10), cut(good.length, 9), [1, 5], [2, 5], [3, 10], [1, 2]].filter(under1), showFrac),
         check: () => { let hit = 0; for (let n = 1; n <= M; n++) if (modpow(n, e, 10) === t) hit++; return hit * ans[1] === M * ans[0] ? '' : `counted ${hit}/${M}, said ${ans[0]}/${ans[1]}`; },
@@ -606,7 +606,7 @@ export const probability = {
       const cnt = count(t), ans = cut(cnt, 100), many = (u) => SQ.filter((x) => x === u).length;
       const ways = [0, 1, 4, 5, 6, 9].flatMap((u) => [0, 1, 4, 5, 6, 9].filter((v) => (u + v) % 10 === t).map((v) => [u, v]));
       return {
-        topic: 'Units digits by chance', rank: 15,
+        topic: 'Units digits by chance', rank: 6,
         text: `Two whole numbers a and b are chosen independently at random from 1 to ${M}. What is the probability that a<sup>2</sup> + b<sup>2</sup> ends in the digit ${t}?`,
         answer: choices(d, ans, [[1, 10], cut(cnt, 50), cut(ways.length, 36), cut(cnt + 10, 100), cut(cnt, 90)].filter(under1), showFrac),
         check: () => { let hit = 0; for (let a = 1; a <= M; a++) for (let b = 1; b <= M; b++) if ((a * a + b * b) % 10 === t) hit++; return hit * ans[1] === M * M * ans[0] ? '' : `counted ${hit}/${M * M}, said ${ans[0]}/${ans[1]}`; },
@@ -618,7 +618,7 @@ export const probability = {
       const [t] = pick(ctx, 'product', [[0, 2, 4, 5, 6, 8, 1]]), M = d.pick([30, 50, 100]);
       const per = range(0, 9).map((x) => range(0, 9).filter((y) => (x * y) % 10 === t).length), cnt = per.reduce((a, b) => a + b, 0), ans = cut(cnt, 100);
       return {
-        topic: 'Units digits by chance', rank: 13,
+        topic: 'Units digits by chance', rank: 7,
         text: `Two whole numbers are chosen independently at random from 1 to ${M}. What is the probability that their product ends in the digit ${t}?`,
         answer: choices(d, ans, [[1, 10], cut(cnt, 50), cut(cnt - per[0], 100), cut(cnt + 1, 100), cut(cnt, 81)].filter(under1), showFrac),
         check: () => { let hit = 0; for (let a = 1; a <= M; a++) for (let b = 1; b <= M; b++) if ((a * b) % 10 === t) hit++; return hit * ans[1] === M * M * ans[0] ? '' : `counted ${hit}/${M * M}, said ${ans[0]}/${ans[1]}`; },
@@ -633,7 +633,7 @@ export const probability = {
       const [[S, desc]] = pick(ctx, 'digits', [[[[1, 3, 5, 7, 9], 'every digit is odd'], [[1, 3, 7, 9], 'every digit is 1, 3, 7 or 9'], [[1, 4, 9], 'every digit is a perfect square (1, 4 or 9)'], [[1, 2, 3], 'every digit is 1, 2 or 3'], [[1, 2, 4, 8], 'every digit is 1, 2, 4 or 8']]]);
       const nums = [...S, ...S.flatMap((a) => S.map((b) => 10 * a + b))], primes = nums.filter(isPrime), cnt = primes.length, tot = nums.length, ans = cut(cnt, tot);
       return {
-        topic: 'Prime chances', rank: 11,
+        topic: 'Prime chances', rank: 3,
         text: `Zoe picks at random one of the positive integers below 100 in which ${desc}. What is the probability that the number she picks is prime?`,
         answer: choices(d, ans, [cut(cnt, 99), cut(primes.filter((x) => x > 9).length, S.length ** 2), cut(cnt, S.length ** 2), cut(cnt + 1, tot), [1, 2]], showFrac),
         check: () => {
@@ -653,7 +653,7 @@ export const probability = {
       const cnt = pairs.filter((pr) => isPrime(f(pr))).length, ans = cut(cnt, s * s);
       const sums = range(2, 2 * s).filter(isPrime), small = range(2, s).filter(isPrime);
       return {
-        topic: 'Prime chances', rank: 9,
+        topic: 'Prime chances', rank: 3,
         ...(op === 'product' ? { tip: 'Ask when a product of two whole numbers can be prime at all.' } : {}),
         text: `Two fair ${s}-sided dice, numbered 1 to ${s}, are rolled. What is the probability that the ${op} of the two numbers is prime?`,
         answer: choices(d, ans, op === 'sum'
@@ -675,7 +675,7 @@ export const probability = {
       const [[lo, hi]] = pick(ctx, 'stretch', [[[20, 39], [30, 49], [40, 59], [50, 69], [60, 79], [70, 89], [80, 99], [100, 119], [10, 29]]]);
       const primes = range(lo, hi).filter(isPrime), cnt = primes.length, ans = cut(cnt, hi - lo + 1);
       return {
-        topic: 'Prime chances', rank: 8,
+        topic: 'Prime chances', rank: 1,
         text: `A whole number is chosen at random from ${lo} to ${hi}, each equally likely. What is the probability that it is prime?`,
         answer: choices(d, ans, [cut(cnt, hi - lo), cut(cnt + 1, hi - lo + 1), [1, 4], cut(cnt - 1, hi - lo + 1), [1, 5], [3, 10], [1, 2]].filter(under1), showFrac),
         check: () => { let hit = 0; for (let x = lo; x <= hi; x++) { let p = x > 1; for (let i = 2; i < x; i++) if (x % i === 0) p = false; if (p) hit++; } return hit * ans[1] === (hi - lo + 1) * ans[0] ? '' : `counted ${hit}, said ${ans[0]}/${ans[1]}`; },
@@ -687,7 +687,7 @@ export const probability = {
       const [[S, desc]] = pick(ctx, 'made', [[[[1, 2, 3, 4, 5, 6], 'An ordinary die is rolled twice'], [[1, 2, 3, 4], 'A four-sided die numbered 1 to 4 is rolled twice'], [[1, 2, 3, 4, 5, 6, 7, 8], 'An eight-sided die numbered 1 to 8 is rolled twice'], [[2, 3, 5, 7], 'A spinner showing 2, 3, 5 and 7 is spun twice'], [[1, 5, 7, 9], 'A spinner showing 1, 5, 7 and 9 is spun twice']]]);
       const made = S.flatMap((a) => S.map((b) => 10 * a + b)), primes = made.filter(isPrime), ans = cut(primes.length, made.length);
       return {
-        topic: 'Prime chances', rank: 10,
+        topic: 'Prime chances', rank: 2,
         text: `${desc}: the first result is the tens digit and the second the units digit of a two-digit number. What is the probability that this number is prime?`,
         answer: choices(d, ans, [cut(primes.length, 90), cut(primes.length + 1, made.length), cut(S.filter(isPrime).length, S.length), cut(primes.length, made.length + S.length), [1, 2]].filter(under1), showFrac),
         check: () => { let hit = 0; for (const a of S) for (const b of S) { const x = 10 * a + b; let p = true; for (let i = 2; i * i <= x; i++) if (x % i === 0) p = false; if (p) hit++; } return hit * ans[1] === made.length * ans[0] ? '' : `counted ${hit}, said ${ans[0]}/${ans[1]}`; },
@@ -709,7 +709,7 @@ export const probability = {
         + `<line class="side dash" style="stroke-width:1" x1="14" y1="130" x2="266" y2="130"/><line class="side dash" style="stroke-width:1" x1="140" y1="8" x2="140" y2="252"/>`
         + `<text class="vx" x="264" y="152" text-anchor="middle">(${a}, 0)</text><text class="vx" x="176" y="22" text-anchor="middle">(0, ${a})</text></svg>`;
       return {
-        topic: 'Geometric probability', rank: 14,
+        topic: 'Geometric probability', rank: 9,
         text: `A tile is the region of the coordinate plane where |x| + |y| ≤ ${a}. The part of the tile where (x<sup>2</sup> + y<sup>2</sup> − ${c})<sup>2</sup> ≤ ${w * w} is painted gold. A grain of rice lands at a random point of the tile, every point equally likely. The probability that it lands on gold is <span class="fr"><span>m</span><span>n</span></span>·π, where m and n are relatively prime positive integers. What is m + n?`,
         figure,
         answer: choices(d, value, [sum(cut(c + w, 2 * a * a)), sum(cut(2 * w, a * a)), sum(cut(w, 2 * a * a)), w + a * a]),
@@ -726,7 +726,7 @@ export const probability = {
       const [T, w] = pick(ctx, 'meet', [[30, 40, 60, 90], [10, 12, 15, 20, 30]], (T, w) => w < T);
       const [P, Q] = d.pick(NAMES), end = { 30: '4:30', 40: '4:40', 60: '5:00', 90: '5:30' }[T], ans = cut(w * (2 * T - w), T * T);
       return {
-        topic: 'Geometric probability', rank: 12,
+        topic: 'Geometric probability', rank: 6,
         text: `${P} and ${Q} each arrive at the park at a random time between 4:00 and ${end}, independently, every moment equally likely. Whoever comes first waits ${w} minutes for the other, then leaves. What is the probability that they meet?`,
         answer: choices(d, ans, [cut(w, T), cut(2 * w, T), cut((T - w) ** 2, T * T), cut(w * w, T * T), cut(w * (2 * T - w), 2 * T * T)].filter(under1), showFrac),
         check: () => { const got = share(T, T, (x, y) => Math.abs(x - y) <= w); return Math.abs(got - ans[0] / ans[1]) < 0.004 ? '' : `grid gives ${got}, said ${ans[0]}/${ans[1]}`; },
@@ -744,7 +744,7 @@ export const probability = {
         + quarter(o, o, 1, 1) + quarter(o + S, o, -1, 1) + quarter(o, o + S, 1, -1) + quarter(o + S, o + S, -1, -1)
         + `<text class="vx" x="${o + S / 2}" y="${o + S + 24}" text-anchor="middle">${s}</text><text class="vx" x="${o + rp / 2}" y="${o - 8}" text-anchor="middle">${r}</text></svg>`;
       return {
-        topic: 'Geometric probability', rank: 15,
+        topic: 'Geometric probability', rank: 4,
         text: `A point is chosen at random inside a square of side ${s}, every point equally likely. The probability that it is within ${r} of at least one corner of the square is <span class="fr"><span>m</span><span>n</span></span>·π, where m and n are relatively prime positive integers. What is m + n?`,
         figure,
         answer: choices(d, value, [sum(cut(r * r, 4 * s * s)), sum(cut(r, s)), sum(cut(4 * r * r, s * s)), sum(cut(r * r, 2 * s * s)), r * r + s * s]),
@@ -761,7 +761,7 @@ export const probability = {
       const [a, b, c] = pick(ctx, 'sum', [[4, 5, 6, 8, 10], [2, 3, 4, 5, 6], [1, 2, 3, 4]], (a, b, c) => a > b && c <= b);
       const ans = cut(c * c, 2 * a * b);
       return {
-        topic: 'Geometric probability', rank: 11,
+        topic: 'Geometric probability', rank: 3,
         text: `A number x is chosen at random between 0 and ${a}, and a number y at random between 0 and ${b}, independently, with every real value equally likely. What is the probability that x + y ≤ ${c}?`,
         answer: choices(d, ans, [cut(c, a + b), cut(c * c, a * b), cut(c, 2 * b), cut(c * c, 2 * a * a), cut(c, a * b)].filter(under1), showFrac),
         check: () => { const got = share(a, b, (x, y) => x + y <= c); return Math.abs(got - ans[0] / ans[1]) < 0.004 ? '' : `grid gives ${got}, said ${ans[0]}/${ans[1]}`; },

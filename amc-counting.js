@@ -149,7 +149,7 @@ export const counting = {
       const n = a + b, shakes = choose(b, 2) + a * b;
       const [who, greet] = d.pick([['former teammates', 'bump fists'], ['cousins', 'hug'], ['old classmates', 'wave']]);
       return {
-        topic: 'Handshakes', rank: 8,
+        topic: 'Handshakes', rank: 4,
         text: `At a reunion of ${n} guests, ${a} are ${who} who all know one another, and each of the other ${b} guests knows nobody there. Two guests who know each other ${greet}; two guests who have never met shake hands. How many handshakes take place?`,
         answer: choices(d, shakes, [a * b, a * b + b * (b - 1), choose(n, 2), 2 * a * b, choose(b, 2)]),
         check: () => { let c = 0; for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) if (j >= a) c++; return c === shakes ? '' : `counted ${c}, said ${shakes}`; },
@@ -160,7 +160,7 @@ export const counting = {
     (d, ctx) => {
       const [n] = combo(ctx, [range(8, 40)]), h = choose(n, 2), where = d.pick(['a club meeting', 'a science fair', 'a family reunion', 'a chess camp']);
       return {
-        topic: 'Handshakes', rank: 4,
+        topic: 'Handshakes', rank: 1,
         text: `At ${where}, each of the ${n} people there shakes hands exactly once with each of the others. How many handshakes take place?`,
         answer: choices(d, h, [n * (n - 1), n * n, h + n, choose(n - 1, 2), 2 * n]),
         check: () => { let c = 0; for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) c++; return c === h ? '' : `counted ${c}, said ${h}`; },
@@ -171,7 +171,7 @@ export const counting = {
     (d, ctx) => {
       const [n] = combo(ctx, [range(9, 45)]), h = choose(n, 2);
       return {
-        topic: 'Handshakes', rank: 6,
+        topic: 'Handshakes', rank: 2,
         text: `At a party, everyone shook hands exactly once with everyone else, and there were ${num(h)} handshakes in all. How many people were at the party?`,
         answer: choices(d, n, [n - 1, n + 1, Math.round(Math.sqrt(h)), Math.round(h / n), 2 * n]),
         check: () => { const fit = range(2, 200).filter((m) => choose(m, 2) === h); return fit.length === 1 && fit[0] === n ? '' : `people that fit: ${fit}`; },
@@ -183,7 +183,7 @@ export const counting = {
     (d, ctx) => {
       const [p, q, r] = combo(ctx, [range(5, 15), range(5, 15), [2, 3, 4]], (p, q) => p <= q), total = p * q + r * (p + q);
       return {
-        topic: 'Handshakes', rank: 5,
+        topic: 'Handshakes', rank: 2,
         text: `After a match, each of the ${p} players on one team shakes hands with each of the ${q} players on the other team. Then each of the ${r} referees shakes hands with every player. Nobody else shakes hands. How many handshakes are there in all?`,
         answer: choices(d, total, [p * q, p * q + r, choose(p + q, 2), p * q + r * (p + q) + choose(r, 2), p * q + r * q]),
         check: () => {
@@ -215,7 +215,7 @@ export const counting = {
         return `For k = ${k}, of the C(${n - 1}, ${k}) = ${choose(n - 1, k)} choices, ${list(rs.map(([j, c]) => `${c} make${c === 1 ? 's' : ''} ${runWord(j)} (${orders(k, j)} orders each)`))}, so ${rs.map(([j, c]) => num(c * fact(n - k) * 2 ** j)).join(' + ')} = ${num(terms[k])}.`;
       };
       return {
-        topic: 'Separated neighbors', rank: 10,
+        topic: 'Separated neighbors', rank: 8,
         text: `${name} has ${WORDS[n]} letter tiles: ${list(letters)}. In how many orders can the tiles be laid in a row so that no two tiles side by side are neighbors in the alphabet (like ${letters[1]} and ${letters[2]})?`,
         answer: choices(d, ways, n === 5 ? [10, 12, 16, 24] : [72, 84, 96, 120]),
         check: () => {
@@ -232,7 +232,7 @@ export const counting = {
     (d, ctx) => {
       const [n] = combo(ctx, [[5, 6, 7, 8]]), names = d.shuffle(NAMES).slice(0, n), [A, B] = names, ways = 2 * fact(n - 1);
       return {
-        topic: 'Separated neighbors', rank: 6,
+        topic: 'Separated neighbors', rank: 2,
         text: `${Cap(WORDS[n])} friends, ${list(names)}, line up in a row for a photo. In how many orders can they stand so that ${A} and ${B} are side by side?`,
         answer: choices(d, ways, [fact(n - 1), fact(n), fact(n) - ways, 2 * fact(n - 2), (n - 1) * fact(n - 2)]),
         check: () => { let c = 0; eachPerm(n, (a) => { if (Math.abs(a.indexOf(0) - a.indexOf(1)) === 1) c++; }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -244,7 +244,7 @@ export const counting = {
       const [n] = combo(ctx, [[5, 6, 7, 8]]), names = d.shuffle(NAMES).slice(0, n), [A, B, C, D] = names;
       const all = fact(n), one = 2 * fact(n - 1), both = 4 * fact(n - 2), ways = all - 2 * one + both;
       return {
-        topic: 'Separated neighbors', rank: 9,
+        topic: 'Separated neighbors', rank: 6,
         text: `${Cap(WORDS[n])} people, ${list(names)}, line up in a row. ${A} and ${B} are rivals, and so are ${C} and ${D}; no two rivals may stand side by side. In how many orders can they line up?`,
         answer: choices(d, ways, [all - 2 * one, all - one, all - 2 * one + both / 2, all - one + both, both]),
         check: () => { let c = 0; eachPerm(n, (a) => { if (Math.abs(a.indexOf(0) - a.indexOf(1)) !== 1 && Math.abs(a.indexOf(2) - a.indexOf(3)) !== 1) c++; }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -256,7 +256,7 @@ export const counting = {
       const [n] = combo(ctx, [[5, 6, 7, 8]]), names = d.shuffle(NAMES).slice(0, n), [A, B, C, D] = names;
       const one = 2 * fact(n - 1), both = 4 * fact(n - 2), ways = one - both;
       return {
-        topic: 'Separated neighbors', rank: 8,
+        topic: 'Separated neighbors', rank: 5,
         text: `${Cap(WORDS[n])} children, ${list(names)}, stand in a line for the bus. ${A} and ${B} insist on standing side by side, but ${C} and ${D} refuse to. In how many orders can the children line up?`,
         answer: choices(d, ways, [one, one - both / 2, both, fact(n) - one, one + both]),
         check: () => { let c = 0; eachPerm(n, (a) => { if (Math.abs(a.indexOf(0) - a.indexOf(1)) === 1 && Math.abs(a.indexOf(2) - a.indexOf(3)) !== 1) c++; }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -278,7 +278,7 @@ export const counting = {
       walk(0, []);
       const name = d.pick(['Lena', 'Hugo', 'Priya', 'Sam']);
       return {
-        topic: 'Sets with no multiples', rank: 17,
+        topic: 'Sets with no multiples', rank: 14,
         text: `${name} picks ${size} different numbers from 1, 2, 3, …, ${N} so that none of the picked numbers is a multiple of another picked number. Over all the ways to do this, what is the smallest number that can be one of the ${size}?`,
         answer: choices(d, least, [1, 2, 3, 5, 6, 7, 8].filter((v) => v !== least)),
         check: () => {
@@ -302,7 +302,7 @@ export const counting = {
     (d, ctx) => {
       const [N] = combo(ctx, [range(10, 20)]), size = Math.ceil(N / 2), low = Math.floor(N / 2) + 1;
       return {
-        topic: 'Sets with no multiples', rank: 10,
+        topic: 'Sets with no multiples', rank: 6,
         text: `What is the largest number of numbers that can be chosen from 1, 2, 3, …, ${N} so that no chosen number is a multiple of another chosen number?`,
         answer: choices(d, size, [Math.floor(N / 2), size + 1, size - 1, size + 2, odds(N).length + 1]),
         check: () => { const best = largest(N, (x, y) => x % y === 0 || y % x === 0); return best === size ? '' : `search found ${best}, said ${size}`; },
@@ -313,7 +313,7 @@ export const counting = {
     (d, ctx) => {
       const [N] = combo(ctx, [range(10, 20)]), size = Math.ceil(N / 2), low = Math.floor(N / 2) + 1;
       return {
-        topic: 'Sets with no multiples', rank: 15,
+        topic: 'Sets with no multiples', rank: 10,
         text: `What is the smallest number k such that any k different numbers chosen from 1, 2, 3, …, ${N} must include two numbers where one is a multiple of the other?`,
         answer: choices(d, size + 1, [size, size + 2, Math.floor(N / 2), N - 1, odds(N).length + 2]),
         check: () => { const best = largest(N, (x, y) => x % y === 0 || y % x === 0); return best + 1 === size + 1 ? '' : `the biggest set without such a pair has ${best}`; },
@@ -329,7 +329,7 @@ export const counting = {
       const values = n === 3 ? [0, 1, 2, 3] : [0, 1, 4, 5, 6, 7, 8, 9, 10], total = values.reduce((s, v) => s + v, 0), value = ask === 'sum' ? total : values.length;
       const wrong = n === 3 ? (ask === 'sum' ? [3, 4, 5, 7, 10] : [2, 3, 5, 6]) : (ask === 'sum' ? [55, 53, 52, 47, 45] : [11, 10, 8, 7]);
       return {
-        topic: 'Crossing lines', rank: n === 3 ? 7 : 14,
+        topic: 'Crossing lines', rank: n === 3 ? 3 : 11,
         text: `${Cap(WORDS[n])} different straight lines are drawn in a plane, and N is the number of points that lie on two or more of them. ${ask === 'sum' ? 'What is the sum of all the different values that N can take?' : 'How many different values can N take?'}`,
         answer: choices(d, value, wrong),
         check: () => {
@@ -362,7 +362,7 @@ export const counting = {
     (d, ctx) => {
       const [n] = combo(ctx, [range(6, 30)]), most = choose(n, 2);
       return {
-        topic: 'Crossing lines', rank: 5,
+        topic: 'Crossing lines', rank: 1,
         text: `In a plane, ${n} straight lines are drawn. What is the greatest possible number of points where two of the lines cross?`,
         answer: choices(d, most, [n * (n - 1), n * n, most + n, choose(n - 1, 2), 2 * n]),
         check: () => { const c = crossings(range(1, n).map((i) => [i, i * i])); return c === most ? '' : `${n} lines in general position cross at ${c} points`; },
@@ -373,7 +373,7 @@ export const counting = {
     (d, ctx) => {
       const [n, k] = combo(ctx, [range(7, 14), [2, 3, 4, 5]], (n, k) => k <= n - 3), all = choose(n, 2), lost = choose(k, 2), N = all - lost;
       return {
-        topic: 'Crossing lines', rank: 8,
+        topic: 'Crossing lines', rank: 3,
         text: `In a plane, ${n} straight lines are drawn. Exactly ${k} of them are parallel to one another, no other two lines are parallel, and no three of the lines pass through one point. How many points lie on two of the lines?`,
         answer: choices(d, N, [all, all - k, choose(n - k, 2), all - 2 * lost, N + 1]),
         check: () => { const c = crossings([...range(1, k).map((c) => [0, c]), ...range(1, n - k).map((i) => [i, i * i])]); return c === N ? '' : `counted ${c}, said ${N}`; },
@@ -384,7 +384,7 @@ export const counting = {
     (d, ctx) => {
       const [n, m] = combo(ctx, [range(6, 14), [3, 4, 5, 6]], (n, m) => m <= n - 2), all = choose(n, 2), joined = choose(m, 2), N = all - joined + 1;
       return {
-        topic: 'Crossing lines', rank: 11,
+        topic: 'Crossing lines', rank: 4,
         text: `In a plane, ${n} straight lines are drawn, no two of them parallel. Exactly ${m} of the lines pass through one common point, and apart from that point, no three of the lines meet at a single point. How many points lie on two or more of the lines?`,
         answer: choices(d, N, [all, all - joined, all - m + 1, N + m - 1, all - joined - 1]),
         check: () => { const c = crossings([...range(1, m).map((s) => [s, 0]), ...range(m + 1, n).map((s) => [s, s ** 3 + 1])]); return c === N ? '' : `counted ${c}, said ${N}`; },
@@ -403,7 +403,7 @@ export const counting = {
       // for each size that fits, the choices of b for a = 1 … M − s added up
       const sizeSums = range(1, M).filter((s) => bySize[s - 1]).map((s) => `side ${s} gives ${range(1, M - s).map((a) => Math.max(0, tops[a - 1] - s + 1)).join(' + ')} = ${bySize[s - 1]} (a from 1 to ${M - s})`);
       return {
-        topic: 'Lattice squares', rank: 14,
+        topic: 'Lattice squares', rank: 11,
         text: `The region R is bounded by the line y = x√${k}, the line y = −0.1 and the line x = ${M}.1. How many squares with sides parallel to the axes and all four corners at lattice points (points whose coordinates are integers) fit completely inside R?`,
         answer: choices(d, count, [bySize[0], loose, count - bySize[1], count + M]),
         check: () => {
@@ -425,7 +425,7 @@ export const counting = {
       const grid = `<rect class="side" x="10" y="10" width="${W.toFixed(1)}" height="${H.toFixed(1)}"/>` + range(1, n - 1).map((i) => `<line class="side" style="stroke-width:1" x1="${(10 + i * cell).toFixed(1)}" y1="10" x2="${(10 + i * cell).toFixed(1)}" y2="${(10 + H).toFixed(1)}"/>`).join('')
         + range(1, m - 1).map((j) => `<line class="side" style="stroke-width:1" x1="10" y1="${(10 + j * cell).toFixed(1)}" x2="${(10 + W).toFixed(1)}" y2="${(10 + j * cell).toFixed(1)}"/>`).join('');
       return {
-        topic: 'Lattice squares', rank: 8,
+        topic: 'Lattice squares', rank: 3,
         text: `A rectangle is drawn on graph paper, ${n} squares wide and ${m} squares tall, as shown. How many squares of any size, with sides along the grid lines, can be found in it?`,
         figure: svg(Math.ceil(W + 20), Math.ceil(H + 20), `A ${n} by ${m} grid`, grid),
         answer: choices(d, count, [m * n, count - m * n, range(1, m).reduce((s, v) => s + v * v, 0), (m + 1) * (n + 1), count + m]),
@@ -437,7 +437,7 @@ export const counting = {
     (d, ctx) => {
       const [a] = combo(ctx, [range(4, 13)]), terms = range(1, Math.floor(a / 2)).map((s) => choose(a - 2 * s + 2, 2)), count = terms.reduce((x, y) => x + y, 0);
       return {
-        topic: 'Lattice squares', rank: 12,
+        topic: 'Lattice squares', rank: 8,
         text: `How many squares with sides parallel to the axes and all four corners at lattice points lie inside the triangle with corners (0, 0), (${a}, 0) and (0, ${a})? (A square may touch the sides of the triangle.)`,
         answer: choices(d, count, [terms[0], count + terms[0], choose(a + 1, 2), choose(a, 2), count - 1]),
         check: () => { let t = 0; for (let s = 1; s <= a; s++) for (let x = 0; x <= a; x++) for (let y = 0; y <= a; y++) if (x + s + y + s <= a) t++; return t === count ? '' : `counted ${t}, said ${count}`; },
@@ -449,7 +449,7 @@ export const counting = {
       const [k, M] = combo(ctx, [[2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15], range(4, 8)]);
       const tops = range(1, M).map((x) => Math.floor(x * Math.sqrt(k))), count = tops.reduce((s, v) => s + v + 1, 0);
       return {
-        topic: 'Lattice squares', rank: 9,
+        topic: 'Lattice squares', rank: 5,
         text: `How many points (x, y) with whole-number coordinates satisfy 1 ≤ x ≤ ${M}, y ≥ 0 and y &lt; x√${k}?`,
         answer: choices(d, count, [count - M, count + M, tops.reduce((s, v) => s + v, 0) - M, count + 1]),
         check: () => { let t = 0; for (let x = 1; x <= M; x++) for (let y = 0; y * y < k * x * x; y++) t++; return t === count ? '' : `counted ${t}, said ${count}`; },
@@ -468,7 +468,7 @@ export const counting = {
       const fixed = (p) => all.filter((s) => moved(s.split(''), p) === s).length, turnFix = fixed(TURN), flipFix = fixed(FLIP);
       const paint = list(counts.map((c, i) => `${WORDS[c]} ${colors[i]}`));
       return {
-        topic: 'Colorings up to symmetry', rank: 18,
+        topic: 'Colorings up to symmetry', rank: 12,
         text: `Six equal disks are arranged in a triangle, as shown. Each disk is painted one color: ${paint}. Two paintings count as the same if turning or flipping the whole triangle carries one onto the other. How many different paintings are there?`,
         figure: svg(300, 176, 'Six disks in a triangle', '<title>Six disks in a triangle</title>' + DISKS.map(([x, y]) => `<circle class="side" cx="${x}" cy="${y}" r="29"/>`).join('')),
         answer: choices(d, ways, [all.length / 6, all.length / 3, all.length / 2, all.length, ways + 2].filter(Number.isInteger)),
@@ -481,7 +481,7 @@ export const counting = {
       const [k, flips] = combo(ctx, [[2, 3, 4, 5, 6], [false, true]]);
       const turns = (k ** 4 + k ** 2 + 2 * k) / 4, ways = flips ? (k ** 4 + 2 * k ** 3 + 3 * k ** 2 + 2 * k) / 8 : turns;
       return {
-        topic: 'Colorings up to symmetry', rank: 16,
+        topic: 'Colorings up to symmetry', rank: 13,
         text: `Four beads sit at the corners of a square frame, as shown, and each bead is painted one of ${k} colors (colors may repeat). Two paintings count as the same if ${flips ? 'turning or flipping' : 'turning'} the frame carries one onto the other. How many different paintings are there?`,
         figure: beads(4, 'Four beads at the corners of a square'),
         answer: choices(d, ways, [k ** 4, k ** 4 / 4, flips ? turns : (k ** 4 + 2 * k ** 3 + 3 * k ** 2 + 2 * k) / 8, (k ** 4 + 2 * k) / 4, ways + k].filter(Number.isInteger)),
@@ -501,7 +501,7 @@ export const counting = {
       const fixed = (p) => all.filter((s) => moved(s.split(''), p) === s).length, [f0, f60, f120, f180] = [0, 1, 2, 3].map((j) => fixed(perms[j]));
       const fc = flips ? fixed(perms[6]) : 0, fe = flips ? fixed(perms[7]) : 0, sum = f0 + 2 * f60 + 2 * f120 + f180 + 3 * fc + 3 * fe;
       return {
-        topic: 'Colorings up to symmetry', rank: 18,
+        topic: 'Colorings up to symmetry', rank: 14,
         text: `The six corners of a regular hexagon, as shown, are painted: ${list(counts.map((c, i) => `${WORDS[c]} ${colors[i]}`))}. Two paintings count as the same if ${flips ? 'turning or flipping' : 'turning'} the hexagon carries one onto the other. How many different paintings are there?`,
         figure: beads(6, 'A regular hexagon with a bead at each corner'),
         answer: choices(d, ways, [all.length, all.length / 6, all.length / 12, ways + 1, ways - 1, flips ? orbits(all, dihedral(6, false)) : orbits(all, dihedral(6, true))].filter((v) => Number.isInteger(v) && v > 0)),
@@ -527,7 +527,7 @@ export const counting = {
       const byDeg = [...new Set(deg)].sort((x, y) => x - y).map((g) => [g, deg.filter((x) => x === g).length]);
       const degText = list(byDeg.map(([g, cnt], i) => (i ? `${cnt} ${cnt === 1 ? 'has' : 'have'} ${g}` : `${cnt} seat${cnt === 1 ? ' has' : 's have'} ${g} close neighbors`)));
       return {
-        topic: 'Seating with rules', rank: 18,
+        topic: 'Seating with rules', rank: 14,
         text: `Two pairs of twins and ${WORDS[n - 4]} other children ride in a minibus with ${WORDS[rows]} rows of ${WORDS[cols]} seats. No child may sit right beside his or her twin in the same row, and no child may sit directly behind his or her twin. In how many ways can the ${n} children be seated?`,
         answer: choices(d, ways, [fact(n) - 2 * c.one, fact(n) - c.one, rowsOnly, ways + c.both / 2, ways - c.both / 2]),
         check: () => {
@@ -543,7 +543,7 @@ export const counting = {
     (d, ctx) => {
       const [n] = combo(ctx, [range(5, 9)]), [A, B] = d.shuffle(NAMES), all = fact(n), next = 2 * fact(n - 1), ways = all - next;
       return {
-        topic: 'Seating with rules', rank: 6,
+        topic: 'Seating with rules', rank: 3,
         text: `${Cap(WORDS[n])} people, including ${A} and ${B}, sit in a row of ${n} chairs at a concert. ${A} and ${B} refuse to sit next to each other. In how many ways can the ${n} people be seated?`,
         answer: choices(d, ways, [all, next, all - fact(n - 1), all - 2 * fact(n - 2), fact(n - 1)]),
         check: () => { let c = 0; eachPerm(n, (a) => { if (Math.abs(a.indexOf(0) - a.indexOf(1)) !== 1) c++; }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -554,7 +554,7 @@ export const counting = {
     (d, ctx) => {
       const [n, together] = combo(ctx, [range(5, 9), [true, false]]), [A, B] = d.shuffle(NAMES), round = fact(n - 1), side = 2 * fact(n - 2), ways = together ? side : round - side;
       return {
-        topic: 'Seating with rules', rank: 9,
+        topic: 'Seating with rules', rank: 5,
         text: `${Cap(WORDS[n])} friends, including ${A} and ${B}, sit around a round table. Seatings that differ only by turning the whole table count as the same. In how many ways can they sit if ${A} and ${B} ${together ? 'must sit next to each other' : 'must not sit next to each other'}?`,
         answer: choices(d, ways, together ? [2 * fact(n - 1), fact(n - 2), round - side, round] : [round, fact(n) - 2 * fact(n - 1), side, round - fact(n - 2)]),
         check: () => {
@@ -571,7 +571,7 @@ export const counting = {
     (d, ctx) => {
       const [[b, g]] = combo(ctx, [[[2, 2], [3, 2], [3, 3], [4, 3], [4, 4], [5, 4]]]), ways = (b === g ? 2 : 1) * fact(b) * fact(g);
       return {
-        topic: 'Seating with rules', rank: 8,
+        topic: 'Seating with rules', rank: 2,
         text: `${Cap(WORDS[b])} boys and ${WORDS[g]} girls line up in a row so that boys and girls alternate: no two boys and no two girls stand side by side. In how many ways can they line up?`,
         answer: choices(d, ways, b === g ? [ways / 2, fact(b + g), fact(b) + fact(g), 4 * fact(b) * fact(g)] : [2 * ways, fact(b + g), fact(b) + fact(g), choose(b + g, b)]),
         check: () => { let c = 0; eachPerm(b + g, (a) => { if (a.every((x, i) => !i || (x < b) !== (a[i - 1] < b))) c++; }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -588,7 +588,7 @@ export const counting = {
       const sums = [...new Set(SNAKES.map((g) => g[0] + g[2] + g[6] + g[8]))].filter((s) => s !== 18).sort((x, y) => x - y);
       const [S] = combo(ctx, [sums]), center = 25 - S, name = d.pick(['Kai', 'Mara', 'Jonah', 'Ines']);
       return {
-        topic: 'Number snakes in a grid', rank: 15,
+        topic: 'Number snakes in a grid', rank: 8,
         text: `${name} writes the numbers 1 through 9 in a 3 × 3 grid, one in each square, so that every two consecutive numbers (1 and 2, 2 and 3, …, 8 and 9) are in squares that share a side. The four corner squares hold numbers that add up to ${S}. What number is in the center square?`,
         answer: choices(d, center, range(1, 9).filter((v) => v !== center)),
         check: () => { const centers = new Set(SNAKES.filter((g) => g[0] + g[2] + g[6] + g[8] === S).map((g) => g[4])); return centers.size === 1 && centers.has(center) ? '' : `centers found: ${[...centers].join(', ')}`; },
@@ -599,7 +599,7 @@ export const counting = {
     (d, ctx) => {
       const [c] = combo(ctx, [CENTERS.filter((v) => v !== 7)]), S = 25 - c, name = d.pick(['Leo', 'Nia', 'Omar', 'Sofia']);
       return {
-        topic: 'Number snakes in a grid', rank: 14,
+        topic: 'Number snakes in a grid', rank: 7,
         text: `${name} writes 1 through 9 in a 3 × 3 grid, one number per square, so that consecutive numbers are always in squares that share a side. The center square holds ${c}. What is the sum of the numbers in the four corner squares?`,
         answer: choices(d, S, [20, 25, 45 - c, 20 - c, S + 2, S - 2].filter((v) => v !== S && v > 0)),
         check: () => { const sums = new Set(SNAKES.filter((g) => g[4] === c).map((g) => g[0] + g[2] + g[6] + g[8])); return sums.size === 1 && sums.has(S) ? '' : `corner sums found: ${[...sums]}`; },
@@ -612,7 +612,7 @@ export const counting = {
       const kindOf = (x) => { const k = new Set(SNAKES.map((g) => SQUARE_KIND(g.indexOf(x)))); return k.has('edge') ? (k.size === 1 ? 1 : 4) : k.has('corner') && k.has('center') ? 3 : k.has('center') ? 2 : 0; };
       const [x] = combo(ctx, [range(1, 9).filter((v) => kindOf(v) === 1 || kindOf(v) === 3)]), right = KINDS[kindOf(x)];
       return {
-        topic: 'Number snakes in a grid', rank: 12,
+        topic: 'Number snakes in a grid', rank: 6,
         text: `The numbers 1 through 9 are written in a 3 × 3 grid, one per square, so that consecutive numbers are always in squares that share a side. Where in the grid can the number ${x} be?`,
         answer: labelled(right, KINDS.filter((k) => k !== right)),
         check: () => { const k = new Set(SNAKES.map((g) => SQUARE_KIND(g.indexOf(x)))); const want = x % 2 ? ['corner', 'center'] : ['edge']; return want.every((w) => k.has(w)) && k.size === want.length ? '' : `${x} found in ${[...k]}`; },
@@ -630,7 +630,7 @@ export const counting = {
       go([0]);
       const all = ends.length, back = ends.filter((e) => [1, 2, 4].includes(e)).length, far = ends.filter((e) => e === 7).length, value = { back, all, far }[ask];
       return {
-        topic: 'Paths on a cube', rank: 20,
+        topic: 'Paths on a cube', rank: 12,
         text: `A beetle starts at a corner of a cube and crawls along exactly 7 edges, passing through every corner of the cube exactly once (its starting corner included). ${{ back: 'When it stops, it is one edge away from the corner where it started.', all: '', far: 'When it stops, it is at the corner of the cube farthest from where it started.' }[ask]} How many such walks are possible?`.replace('  ', ' '),
         answer: choices(d, value, [3, 6, 9, 12, 18, 24, 36].filter((v) => v !== value)),
         check: () => {
@@ -653,7 +653,7 @@ export const counting = {
       const [[a, b, c]] = combo(ctx, [[[1, 1, 2], [1, 2, 2], [1, 1, 3], [2, 2, 2], [1, 2, 3], [2, 2, 3], [1, 3, 3], [2, 3, 3]]]), n = a + b + c;
       const routes = fact(n) / (fact(a) * fact(b) * fact(c));
       return {
-        topic: 'Paths on a cube', rank: 10,
+        topic: 'Paths on a cube', rank: 4,
         text: `A box is built from little cubes, ${a} by ${b} by ${c}. An ant crawls along the edges of the little cubes from one corner of the box to the opposite corner, always along a shortest route. How many shortest routes are there?`,
         answer: choices(d, routes, [fact(n), choose(n, a), (a + 1) * (b + 1) * (c + 1), routes / 2, 6].filter((v) => Number.isInteger(v) && v !== routes)),
         check: () => { const ways = (x, y, z) => (x < 0 || y < 0 || z < 0 ? 0 : x + y + z === 0 ? 1 : ways(x - 1, y, z) + ways(x, y - 1, z) + ways(x, y, z - 1)); const w = ways(a, b, c); return w === routes ? '' : `counted ${w}, said ${routes}`; },
@@ -668,7 +668,7 @@ export const counting = {
       for (let s = 1; s <= L; s++) { const [a, b, c, e] = rows.at(-1); rows.push([b, 3 * a + 2 * c, 2 * b + 3 * e, c]); }
       const ways = rows[L][target];
       return {
-        topic: 'Paths on a cube', rank: 18,
+        topic: 'Paths on a cube', rank: 10,
         text: `A bug sits at a corner of a cube and crawls along exactly ${L} edges, one after another; it may go back along an edge it has already used. How many different walks end ${target ? 'at the corner of the cube farthest from where it started' : 'back at the corner where it started'}?`,
         answer: choices(d, ways, [3 ** L, ways * 3, Math.round(3 ** L / 8), ways + 3, ways - 3].filter((v) => v > 0)),
         check: () => { const walk = (at, left) => (left === 0 ? (at === (target ? 7 : 0) ? 1 : 0) : [1, 2, 4].reduce((s, b) => s + walk(at ^ b, left - 1), 0)); const w = walk(0, L); return w === ways ? '' : `counted ${w}, said ${ways}`; },
@@ -679,7 +679,7 @@ export const counting = {
     (d, ctx) => {
       const [what] = combo(ctx, [['edges', 'faces', 'inside', 'notEdges']]), value = { edges: 12, faces: 12, inside: 4, notEdges: 16 }[what];
       return {
-        topic: 'Paths on a cube', rank: 7,
+        topic: 'Paths on a cube', rank: 2,
         text: `Every pair of corners of a cube is joined by a straight segment. How many of these segments ${{ edges: 'are edges of the cube', faces: 'are diagonals of the faces of the cube', inside: 'pass through the inside of the cube', notEdges: 'are not edges of the cube' }[what]}?`,
         answer: choices(d, value, [4, 6, 8, 12, 16, 24, 28].filter((v) => v !== value)),
         check: () => { const by = [0, 0, 0, 0]; for (let p = 0; p < 8; p++) for (let q = p + 1; q < 8; q++) by[[1, 2, 4].filter((b) => (p ^ q) & b).length]++; const got = { edges: by[1], faces: by[2], inside: by[3], notEdges: by[2] + by[3] }[what]; return got === value ? '' : `counted ${got}`; },
@@ -703,7 +703,7 @@ export const counting = {
       const body = '<rect class="side" x="10" y="10" width="300" height="110"/><line class="side" x1="10" y1="65" x2="310" y2="65"/>'
         + top.map((v) => `<line class="side" x1="${X(v)}" y1="10" x2="${X(v)}" y2="65"/>`).join('') + bottom.map((v) => `<line class="side" x1="${X(v)}" y1="65" x2="${X(v)}" y2="120"/>`).join('');
       return {
-        topic: 'Coloring a map', rank: 9,
+        topic: 'Coloring a map', rank: 7,
         text: `A rectangle is divided into ${n} regions, as shown. Each region is painted one of ${k} colors, and colors may be used more than once, but any two regions that share a border must get different colors. How many paintings are possible?`,
         figure: svg(320, 130, `A rectangle cut into ${n} regions in two rows`, body),
         answer: choices(d, ways, [k * (k - 1) ** (n - 1), k * (k - 1) ** 2 * (k - 2) ** (n - 3), k * (k - 1) * (k - 2) * (k - 3) ** (n - 3), k ** n]),
@@ -727,7 +727,7 @@ export const counting = {
     (d, ctx) => {
       const [n, k] = combo(ctx, [range(3, 7), [3, 4, 5, 6]]), ways = k * (k - 1) ** (n - 1);
       return {
-        topic: 'Coloring a map', rank: 5,
+        topic: 'Coloring a map', rank: 2,
         text: `A flag has ${n} vertical stripes side by side, as shown. Each stripe is painted one of ${k} colors; colors may be used more than once, but stripes that touch must be different colors. How many flags are possible?`,
         figure: svg(300, 110, `A flag with ${n} stripes`, '<rect class="side" x="10" y="10" width="280" height="90"/>' + range(1, n - 1).map((i) => `<line class="side" x1="${(10 + (280 * i) / n).toFixed(1)}" y1="10" x2="${(10 + (280 * i) / n).toFixed(1)}" y2="100"/>`).join('')),
         answer: choices(d, ways, [k ** n, k * (k - 1) * (k - 2) ** (n - 2), (k - 1) ** n, k * (k - 1) ** (n - 2), n * k]),
@@ -741,7 +741,7 @@ export const counting = {
       for (let m = 3; m <= n; m++) R[m] = k * (k - 1) ** (m - 1) - R[m - 1];
       const ways = R[n];
       return {
-        topic: 'Coloring a map', rank: 14,
+        topic: 'Coloring a map', rank: 10,
         text: `A round table top is divided into ${n} wedges, like slices of a pie, as shown. Each wedge is painted one of ${k} colors so that wedges sharing an edge get different colors. How many paintings are possible? (Paintings that differ only by turning the table count as different.)`,
         figure: wheel(n, 0, `A circle cut into ${n} wedges`),
         answer: choices(d, ways, [k * (k - 1) ** (n - 1), k * (k - 1) * (k - 2) ** (n - 2), (k - 1) ** n, ways / n, k ** n].filter(Number.isInteger)),
@@ -753,7 +753,7 @@ export const counting = {
     (d, ctx) => {
       const [n, k] = combo(ctx, [[4, 5, 6], [4, 5, 6]]), c = k - 1, ring = (c - 1) ** n + (n % 2 ? -1 : 1) * (c - 1), ways = k * ring;
       return {
-        topic: 'Coloring a map', rank: 16,
+        topic: 'Coloring a map', rank: 11,
         text: `A round window has a circle in the middle and a ring of ${n} panes around it, as shown; every pane of the ring touches the middle circle and the two panes beside it. Each piece is painted one of ${k} colors so that pieces that touch get different colors. How many paintings are possible?`,
         figure: wheel(n, 34, `A circle in the middle of a ring of ${n} panes`),
         answer: choices(d, ways, [k * (k - 1) ** n, k * ((k - 1) ** n + (n % 2 ? -1 : 1) * (k - 1)), ring, k * (k - 1) * (k - 2) ** (n - 1), k ** (n + 1)]),
@@ -779,7 +779,7 @@ export const counting = {
           why: `A multiple of 25 ends in 00, 25, 50 or 75, and only 75 uses odd digits. ${k === 3 ? 'The other digit can be 1, 3, 5, 7 or 9, so the count is' : `Each of the other ${k - 2} digits can be 1, 3, 5, 7 or 9, so the count is 5<sup>${k - 2}</sup> =`}` },
       }[rule];
       return {
-        topic: 'Digit rules', rank: 6,
+        topic: 'Digit rules', rank: 4,
         text: `How many integers from ${num(lo)} to ${num(hi)} have ${R.what}?`,
         answer: choices(d, R.ways, R.wrong),
         check: () => {
@@ -797,7 +797,7 @@ export const counting = {
       const later = range(0, k - 2).map((i) => 9 - i), mid = range(0, k - 3).map((i) => 8 - i);
       const ways = odd ? 5 * 8 * mid.reduce((p, v) => p * v, 1) : 9 * later.reduce((p, v) => p * v, 1);
       return {
-        topic: 'Digit rules', rank: 7,
+        topic: 'Digit rules', rank: 1,
         text: `How many ${k}-digit numbers ${odd ? 'are odd and ' : ''}have all their digits different?`,
         answer: choices(d, ways, odd ? [5 * 9 * mid.reduce((p, v) => p * v, 1), 9 * later.reduce((p, v) => p * v, 1) / 2, 5 * 10 ** (k - 1), 4 * 8 * mid.reduce((p, v) => p * v, 1)] : [9 * 10 ** (k - 1), 10 * later.reduce((p, v) => p * v, 1), 9 ** k, 9 * later.reduce((p, v) => p * v, 1) - 9]),
         check: () => { let c = 0; for (let x = 10 ** (k - 1); x < 10 ** k; x++) { const s = String(x); if (new Set(s).size === k && (!odd || x % 2)) c++; } return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -810,7 +810,7 @@ export const counting = {
     (d, ctx) => {
       const [k, digit] = combo(ctx, [[2, 3, 4], range(1, 9)]), all = 9 * 10 ** (k - 1), none = 8 * 9 ** (k - 1), ways = all - none;
       return {
-        topic: 'Digit rules', rank: 8,
+        topic: 'Digit rules', rank: 2,
         text: `How many ${k}-digit numbers contain the digit ${digit} at least once?`,
         answer: choices(d, ways, [10 ** (k - 1), k * 10 ** (k - 1), all - 9 ** k, k * 9 ** (k - 1), none]),
         check: () => { let c = 0; for (let x = 10 ** (k - 1); x < 10 ** k; x++) if (String(x).includes(String(digit))) c++; return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -822,7 +822,7 @@ export const counting = {
       const [k, kind] = combo(ctx, [[3, 4, 5, 6], ['all', 'five', 'even']]), half = Math.ceil(k / 2), free = 10 ** (half - 1);
       const ways = { all: 9, five: 1, even: 4 }[kind] * free;
       return {
-        topic: 'Digit rules', rank: 9,
+        topic: 'Digit rules', rank: 2,
         text: `A palindrome reads the same forward and backward, like 4774 or 12321. How many ${k}-digit palindromes ${{ all: 'are there', five: 'are multiples of 5', even: 'are even' }[kind]}?`,
         answer: choices(d, ways, [9 * 10 ** half, 10 ** half, 9 * free, 5 * free, 2 * free, 4 * 10 ** half].filter((v) => v !== ways)),
         check: () => { let c = 0; for (let x = 10 ** (k - 1); x < 10 ** k; x++) { const s = String(x); if (s === [...s].reverse().join('') && (kind === 'all' || (kind === 'five' ? x % 5 === 0 : x % 2 === 0))) c++; } return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -855,7 +855,7 @@ export const counting = {
         return `${head} gaps ${kinds.map(([g, c]) => `${g} (${c} ways)`).join(' or ')}, ${byCount[t]} ways in all.`;
       });
       return {
-        topic: 'Pairing friends', rank: 17,
+        topic: 'Pairing friends', rank: 11,
         text: `At a dinner, ${n} guests sit evenly spaced around a round table. Each guest is friends with exactly three of the others: the two guests on either side and the guest sitting directly opposite. In how many ways can all ${n} guests be split into ${m} pairs so that the two guests in every pair are friends?`,
         answer: choices(d, ways, [ways - 2, ways - 1, ways + 1, ways + 2, m + 2, 2 * m]),
         check: () => { const c = pairings(range(0, n - 1), (i, j) => [1, n - 1, m].includes((j - i + n) % n)); return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -867,7 +867,7 @@ export const counting = {
     (d, ctx) => {
       const [n] = combo(ctx, [[4, 6, 8, 10, 12]]), ways = doubleFact(n - 1), factors = odds(n - 1).reverse();
       return {
-        topic: 'Pairing friends', rank: 8,
+        topic: 'Pairing friends', rank: 3,
         text: `A coach splits the ${n} players of a team into ${n / 2} practice pairs. In how many ways can this be done? (Only who is paired with whom matters.)`,
         answer: choices(d, ways, [fact(n) / 2 ** (n / 2), fact(n), choose(n, 2), ways * fact(n / 2) / 2, ways * 2].filter(Number.isInteger)),
         check: () => { const c = pairings(range(0, n - 1), () => true); return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -880,7 +880,7 @@ export const counting = {
       for (let m = 3; m <= n; m++) T[m] = T[m - 1] + T[m - 2];
       const ways = T[n];
       return {
-        topic: 'Pairing friends', rank: 12,
+        topic: 'Pairing friends', rank: 5,
         text: `A class of ${2 * n} students sits in two rows of ${n}, each student in the back row directly behind one in the front row. They split into pairs, and the two students in a pair must sit side by side in the same row or one directly behind the other. In how many ways can they pair up?`,
         answer: choices(d, ways, [2 ** (n - 1), T[n - 1], T[n + 1] ?? T[n] + T[n - 1], n + 1, 2 * n]),
         check: () => { const c = pairings(range(0, 2 * n - 1), (p, q) => { const [rp, cp, rq, cq] = [p % 2, p >> 1, q % 2, q >> 1]; return (rp === rq && Math.abs(cp - cq) === 1) || (cp === cq && rp !== rq); }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -891,7 +891,7 @@ export const counting = {
     (d, ctx) => {
       const [m] = combo(ctx, [[2, 3, 4, 5]]), terms = range(0, m).map((j) => choose(m, j) * doubleFact(2 * m - 2 * j - 1)), ways = terms.reduce((s, t, j) => s + (j % 2 ? -t : t), 0);
       return {
-        topic: 'Pairing friends', rank: 16,
+        topic: 'Pairing friends', rank: 13,
         text: `${Cap(WORDS[m])} married couples come to a dance class, and the teacher splits all ${2 * m} people into ${m} pairs so that nobody is paired with their own partner. In how many ways can this be done? (Only who is paired with whom matters.)`,
         answer: choices(d, ways, [doubleFact(2 * m - 1), doubleFact(2 * m - 1) - m, terms[0] - terms[1], ways + 1, fact(m)].filter((v) => v > 0)),
         check: () => { const c = pairings(range(0, 2 * m - 1), (p, q) => p >> 1 !== q >> 1); return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -915,7 +915,7 @@ export const counting = {
         jokerTokens: ['How many tokens did the Jokers receive in all?', 3 * A2, [y3, 2 * y3, y2 + y3, 3 * y3 + (N - y1), 3 * (N - y1 + y3)], `Only the ${y3} Jokers who lied first got tokens, three each: 3·${y3} = <b>${3 * A2}</b>.`],
       }[ask];
       return {
-        topic: 'Knights, knaves and jokers', rank: 12,
+        topic: 'Knights, knaves and jokers', rank: 11,
         text: `A quiz show has ${N} contestants. Each one is a Knight, who always tells the truth; a Knave, who always lies; or a Joker, who switches between the truth and a lie with every answer, starting with either one. The host asks every contestant the same three questions, in this order, and hands out a token for each “yes”. “Are you a Knight?” gets ${y1} yeses, “Are you a Joker?” gets ${y2}, and “Are you a Knave?” gets ${y3}. ${Q[0]}`,
         answer: choices(d, Q[1], Q[2]),
         check: () => {
@@ -934,7 +934,7 @@ export const counting = {
     (d, ctx) => {
       const [n] = combo(ctx, [[6, 8, 10, 12, 14, 16, 18, 20]]), K = n / 2;
       return {
-        topic: 'Knights, knaves and jokers', rank: 14,
+        topic: 'Knights, knaves and jokers', rank: 8,
         text: `On an island, every person is a knight, who always tells the truth, or a knave, who always lies. A line of ${n} islanders is numbered 1 to ${n}, and each of them makes one statement: person number i says, “At least i of us ${n} are knaves.” (So person 1 says “at least 1”, person 2 says “at least 2”, and so on.) How many knaves are there?`,
         answer: choices(d, K, [K - 1, K + 1, n, 1, K + 2]),
         check: () => { const fits = range(0, n).filter((k) => n - range(1, n).filter((i) => k >= i).length === k); return fits.length === 1 && fits[0] === K ? '' : `knave counts that fit: ${fits}`; },
@@ -945,7 +945,7 @@ export const counting = {
     (d, ctx) => {
       const [n] = combo(ctx, [range(5, 14)]);
       return {
-        topic: 'Knights, knaves and jokers', rank: 13,
+        topic: 'Knights, knaves and jokers', rank: 6,
         text: `On an island, ${n} people are each a knight, who always tells the truth, or a knave, who always lies. They are numbered 1 to ${n}, and person number i says, “Exactly i of us are knaves.” (Person 1 says “exactly 1”, and so on up to person ${n}.) Which person is a knight?`,
         answer: choices(d, n - 1, [n, 1, n - 2, Math.floor(n / 2), 2].filter((v) => v !== n - 1)),
         check: () => {
@@ -969,7 +969,7 @@ export const counting = {
       const [[p1, pp], [q1, qq]] = d.pick([[['sixth grader', 'sixth graders'], ['seventh grader', 'seventh graders']], [['violinist', 'violinists'], ['cellist', 'cellists']], [['sophomore', 'sophomores'], ['freshman', 'freshmen']]]);
       const some = (c, one, many) => `${WORDS[c]} ${c === 1 ? one : many}`;
       return {
-        topic: 'Forming teams', rank: 9,
+        topic: 'Forming teams', rank: 6,
         text: `A club has ${J} ${pp} and ${S} ${qq}. They split up into ${WORDS[g]} teams of ${a + b}, and every team must have ${some(a, p1, pp)} and ${some(b, q1, qq)}. In how many ways can the teams be formed? (The teams have no names, so only who is with whom matters.)`,
         answer: choices(d, ways, [ways * fact(g), choose(J, a) * choose(S, b), split + deal, ways / fact(g), ways * 2].filter(Number.isInteger)),
         check: () => {
@@ -1003,7 +1003,7 @@ export const counting = {
       const [[a, s]] = combo(ctx, [[[2, 3], [2, 4], [3, 2], [3, 3], [4, 2], [2, 5], [5, 2], [3, 4], [4, 3]]]), n = a * s;
       const labeled = fact(n) / fact(s) ** a, ways = labeled / fact(a);
       return {
-        topic: 'Forming teams', rank: 8,
+        topic: 'Forming teams', rank: 4,
         text: `A club of ${n} hikers splits up into ${WORDS[a]} groups of ${s} for a trail race. Only who is with whom matters, not the order of the groups. In how many ways can the groups be formed?`,
         answer: choices(d, ways, [labeled, choose(n, s), fact(n) / fact(a), ways * 2, choose(n, s) * choose(n - s, s)].filter(Number.isInteger)),
         check: () => { const groups = (left) => { if (!left.length) return 1; const [p, ...rest] = left; let t = 0; const pick = (i, chosen) => { if (chosen.length === s - 1) { t += groups(rest.filter((x) => !chosen.includes(x))); return; } for (let j = i; j < rest.length; j++) pick(j + 1, [...chosen, rest[j]]); }; pick(0, []); return t; }; const c = groups(range(0, n - 1)); return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -1014,7 +1014,7 @@ export const counting = {
     (d, ctx) => {
       const [b, g, k] = combo(ctx, [range(4, 8), range(3, 6), [3, 4, 5]], (b, g, k) => k <= b), all = choose(b + g, k), none = choose(b, k), ways = all - none;
       return {
-        topic: 'Forming teams', rank: 7,
+        topic: 'Forming teams', rank: 3,
         text: `A class has ${b} boys and ${g} girls. In how many ways can a committee of ${k} be chosen that includes at least one girl?`,
         answer: choices(d, ways, [all, g * choose(b + g - 1, k - 1), all - choose(g, k), none, g * choose(b, k - 1)].filter((v) => v !== ways)),
         check: () => { let c = 0; for (let m = 0; m < 1 << (b + g); m++) { let bits = 0, girls = 0; for (let i = 0; i < b + g; i++) if ((m >> i) & 1) { bits++; if (i >= b) girls++; } if (bits === k && girls) c++; } return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -1025,7 +1025,7 @@ export const counting = {
     (d, ctx) => {
       const [n, k] = combo(ctx, [range(6, 14), [3, 4, 5, 6]], (n, k) => k < n), ways = k * choose(n, k);
       return {
-        topic: 'Forming teams', rank: 6,
+        topic: 'Forming teams', rank: 3,
         text: `From a club of ${n} members, a team of ${k} is picked, and then one member of the team is named captain. How many different teams with a captain are possible?`,
         answer: choices(d, ways, [choose(n, k), n * choose(n, k), choose(n, k) + k, n * choose(n - 1, k), k * choose(n, k - 1)].filter((v) => v !== ways)),
         check: () => { let c = 0; for (let m = 0; m < 1 << n; m++) { let bits = 0; for (let i = 0; i < n; i++) if ((m >> i) & 1) bits++; if (bits === k) c += k; } return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -1041,7 +1041,7 @@ export const counting = {
       const [N, twice] = combo(ctx, [range(14, 20), [true, false]]);
       const most = twice ? Math.ceil(N / 2) : Math.floor(N / 2) + 1, name = d.pick(['Mia', 'Theo', 'Asha', 'Ben']);
       return {
-        topic: 'Sum-free sets', rank: 14,
+        topic: 'Sum-free sets', rank: 10,
         text: `${name} wants to choose as many numbers as possible from 1, 2, 3, …, ${N} so that no chosen number equals the sum of two ${twice ? 'chosen numbers (a number may be added to itself)' : 'different chosen numbers'}. What is the largest number of numbers ${name} can choose?`,
         answer: choices(d, most, [Math.floor(N / 2) - 1, Math.floor(N / 2), Math.ceil(N / 2), Math.floor(N / 2) + 1, Math.floor(N / 2) + 2, Math.ceil((2 * N) / 3)].filter((v) => v !== most)),
         check: () => {
@@ -1065,7 +1065,7 @@ export const counting = {
     (d, ctx) => {
       const [N] = combo(ctx, [range(8, 18)]), terms = range(3, N).map((s) => Math.floor((s - 1) / 2)), ways = terms.reduce((a, b) => a + b, 0);
       return {
-        topic: 'Sum-free sets', rank: 11,
+        topic: 'Sum-free sets', rank: 4,
         text: `In how many ways can two different numbers be chosen from 1, 2, 3, …, ${N} so that their sum is also at most ${N}?`,
         answer: choices(d, ways, [choose(N, 2), Math.floor((N * N) / 4), ways + Math.floor(N / 2), choose(N - 1, 2), ways - 1]),
         check: () => { let c = 0; for (let x = 1; x <= N; x++) for (let y = x + 1; y <= N; y++) if (x + y <= N) c++; return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -1078,7 +1078,7 @@ export const counting = {
       const [N, shift] = combo(ctx, [range(10, 20), [-4, -2, 0, 1]]), T = N + shift;
       const pairs = range(Math.max(1, T - N), Math.ceil(T / 2) - 1).map((x) => [x, T - x]), free = N - 2 * pairs.length, most = N - pairs.length;
       return {
-        topic: 'Sum-free sets', rank: 9,
+        topic: 'Sum-free sets', rank: 5,
         text: `What is the largest number of numbers that can be chosen from 1, 2, 3, …, ${N} so that no two different chosen numbers add up to ${T}?`,
         answer: choices(d, most, [free, pairs.length, most + 1, Math.ceil(N / 2), most - 1].filter((v) => v !== most)),
         check: () => { const best = largest(N, (x, y) => x + y === T); return best === most ? '' : `search found ${best}, said ${most}`; },
@@ -1091,7 +1091,7 @@ export const counting = {
       const chains = odds(N).map((o) => { const c = []; for (let v = o; v <= N; v *= 2) c.push(v); return c; }), most = chains.reduce((s, c) => s + Math.ceil(c.length / 2), 0);
       const shown = chains.filter((c) => c.length > 1).map((c) => `${c.join(', ')} (${Math.ceil(c.length / 2)})`);
       return {
-        topic: 'Sum-free sets', rank: 15,
+        topic: 'Sum-free sets', rank: 8,
         text: `What is the largest number of numbers that can be chosen from 1, 2, 3, …, ${N} so that no chosen number is exactly twice another chosen number?`,
         answer: choices(d, most, [Math.ceil(N / 2), Math.floor(N / 2), most + 1, most - 1, Math.ceil((2 * N) / 3) + 1].filter((v) => v !== most)),
         check: () => { const best = largest(N, (x, y) => x === 2 * y || y === 2 * x); return best === most ? '' : `search found ${best}, said ${most}`; },
@@ -1107,7 +1107,7 @@ export const counting = {
       const diff = upTo ? range(2, k).reduce((s, j) => s + choose(9, j - 1), 0) : choose(9, k - 1);
       const up = upTo ? range(2, k).reduce((s, j) => s + choose(9, j), 0) : choose(9, k), down = upTo ? range(2, k).reduce((s, j) => s + choose(10, j), 0) : choose(10, k);
       return {
-        topic: 'Rising and falling digits', rank: 16,
+        topic: 'Rising and falling digits', rank: 11,
         text: `Call a number with at least two digits a climber if its digits strictly increase from left to right, like 1479, and a slider if its digits strictly decrease, like 8530. ${upTo ? `Among the numbers from 10 to ${num(10 ** k - 1)}, how many more sliders are there than climbers?` : `How many more ${k}-digit sliders are there than ${k}-digit climbers?`}`,
         answer: choices(d, diff, [down, up, diff + (upTo ? k - 1 : 1), upTo ? diff - 9 : choose(10, k - 1), 0]),
         check: () => {
@@ -1127,7 +1127,7 @@ export const counting = {
     (d, ctx) => {
       const [k, up] = combo(ctx, [[2, 3, 4, 5], [true, false]]), ways = up ? choose(k + 8, 8) : choose(k + 9, 9) - 1, example = (up ? '13357' : '95520').slice(0, k);
       return {
-        topic: 'Rising and falling digits', rank: 15,
+        topic: 'Rising and falling digits', rank: 9,
         text: `How many ${k}-digit numbers have digits that never ${up ? 'decrease' : 'increase'} from left to right (like ${example})?`,
         answer: choices(d, ways, up ? [choose(9, k), choose(k + 9, 9), 9 ** k / 2, choose(k + 8, 8) - 1].filter(Number.isInteger) : [choose(10, k), choose(k + 9, 9), choose(k + 8, 8), choose(k + 9, 9) - 2]),
         check: () => { let c = 0; for (let x = 10 ** (k - 1); x < 10 ** k; x++) { const s = String(x); if ([...s].every((ch, i) => !i || (up ? ch >= s[i - 1] : ch <= s[i - 1]))) c++; } return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -1140,7 +1140,7 @@ export const counting = {
     (d, ctx) => {
       const [dd] = combo(ctx, [range(3, 9)]), ways = 2 ** (dd - 1) - 1;
       return {
-        topic: 'Rising and falling digits', rank: 12,
+        topic: 'Rising and falling digits', rank: 4,
         text: `Call a number a climber if it has at least two digits and its digits strictly increase from left to right, like 1479. How many climbers end in the digit ${dd}?`,
         answer: choices(d, ways, [2 ** (dd - 1), 2 ** dd - 1, choose(dd - 1, 2), dd - 1, 2 ** (dd - 2)]),
         check: () => { let c = 0; for (let m = 1; m < 1 << 9; m++) { const digits = range(1, 9).filter((v) => (m >> (v - 1)) & 1); if (digits.length >= 2 && digits.at(-1) === dd) c++; } return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -1151,7 +1151,7 @@ export const counting = {
     (d, ctx) => {
       const [k, a] = combo(ctx, [[3, 4], range(1, 6)], (k, a) => choose(9 - a, k - 1) > 1), ways = choose(9 - a, k - 1);
       return {
-        topic: 'Rising and falling digits', rank: 10,
+        topic: 'Rising and falling digits', rank: 4,
         text: `Call a number a climber if its digits strictly increase from left to right, like 1479. How many ${k}-digit climbers begin with the digit ${a}?`,
         answer: choices(d, ways, [choose(10 - a, k - 1), choose(9 - a, k), (9 - a) ** (k - 1), choose(9, k - 1), ways + 9 - a].filter((v) => v !== ways && v > 0)),
         check: () => { let c = 0; for (let x = a * 10 ** (k - 1); x < (a + 1) * 10 ** (k - 1); x++) { const s = String(x); if ([...s].every((ch, i) => !i || ch > s[i - 1])) c++; } return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -1169,7 +1169,7 @@ export const counting = {
       const value = { games: G, players: n, leftWins: WL }[ask];
       const wrong = { games: [choose((r + 1) * (L + 1), 2), choose((r + 1) * (L - 1), 2), WL, WR, choose(r * L, 2) + choose(L, 2)], players: [L, r * L, n + r + 1, n - r - 1, 2 * n], leftWins: [WR, G, WL + L, WL - L, choose(L, 2) + r * L * L] }[ask];
       return {
-        topic: 'Round robin', rank: 16,
+        topic: 'Round robin', rank: 14,
         text: `In a badminton league, every player played every other player exactly once, and no game ended in a tie. There were ${['', '', 'twice', 'three times', 'four times'][r]} as many right-handed players as left-handed players, yet the left-handed players won ${pct === 100 ? 'twice as many games as' : `${pct}% more games than`} the right-handed players. ${{ games: 'How many games were played in all?', players: 'How many players were in the league?', leftWins: 'How many games did the left-handed players win?' }[ask]}`,
         answer: choices(d, value, wrong.filter((v) => v > 0)),
         check: () => {
@@ -1187,7 +1187,7 @@ export const counting = {
     (d, ctx) => {
       const [n] = combo(ctx, [range(6, 30)]), G = choose(n, 2);
       return {
-        topic: 'Round robin', rank: 4,
+        topic: 'Round robin', rank: 1,
         text: `In a chess club tournament, each of the ${n} players plays every other player exactly once. How many games are played in all?`,
         answer: choices(d, G, [n * (n - 1), n * n, G + n, choose(n - 1, 2), (n - 1) * (n - 1)]),
         check: () => { let c = 0; for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) c++; return c === G ? '' : `counted ${c}, said ${G}`; },
@@ -1198,7 +1198,7 @@ export const counting = {
     (d, ctx) => {
       const [n] = combo(ctx, [range(6, 24)]), G = n * (n - 1);
       return {
-        topic: 'Round robin', rank: 5,
+        topic: 'Round robin', rank: 2,
         text: `In a soccer league of ${n} teams, every team plays every other team twice, once at home and once away. How many games are played in the season?`,
         answer: choices(d, G, [choose(n, 2), n * n, 2 * n * n, G / 2 + n, 2 * (n - 1)]),
         check: () => { let c = 0; for (let home = 0; home < n; home++) for (let away = 0; away < n; away++) if (home !== away) c++; return c === G ? '' : `counted ${c}, said ${G}`; },
@@ -1209,7 +1209,7 @@ export const counting = {
     (d, ctx) => {
       const [n] = combo(ctx, [range(5, 25, 2)]), G = choose(n, 2), w = (n - 1) / 2;
       return {
-        topic: 'Round robin', rank: 10,
+        topic: 'Round robin', rank: 3,
         text: `In a round-robin tournament with ${n} players, everyone plays everyone else once, no game ends in a tie, and every player wins the same number of games. How many games does each player win?`,
         answer: choices(d, w, [n - 1, (n + 1) / 2, n, G / 2, w - 1].filter((v) => Number.isInteger(v) && v !== w)),
         check: () => { const wins = Array(n).fill(0); for (let i = 0; i < n; i++) for (let j = 1; j <= w; j++) wins[i]++; const games = n * w; return games === G && wins.every((v) => v === w) ? '' : `circle gives ${games} games`; },
@@ -1227,7 +1227,7 @@ export const counting = {
       const example = [`${cars[1]} first`, `${list(tied)} tied for second`, ...cars.slice(g + 1).map((c, i) => `${c} ${PLACES[g + 2 + i]}`)].join('; ');
       const lost = range(2, n).reduce((s, k) => s + choose(n, k) * fact(n - k), 0) + (exactly ? 0 : fact(n));
       return {
-        topic: 'Races with ties', rank: 17,
+        topic: 'Races with ties', rank: 9,
         text: `${Cap(WORDS[n])} toy cars, ${list(cars)}, run a race. ${exactly ? 'There is exactly one tie' : 'There is at most one tie'}, but a tie can involve any number of cars. For example, one possible result is: ${example}. How many different results are possible?`,
         answer: choices(d, ways, [fact(n), exactly ? ways + fact(n) : ways - fact(n), lost, (exactly ? 0 : fact(n)) + choose(n, 2) * fact(n - 1), ways - 1]),
         check: () => {
@@ -1247,7 +1247,7 @@ export const counting = {
     (d, ctx) => {
       const [n] = combo(ctx, [range(4, 8)]), [A, B] = d.shuffle(NAMES), ways = fact(n) / 2;
       return {
-        topic: 'Races with ties', rank: 6,
+        topic: 'Races with ties', rank: 2,
         text: `${Cap(WORDS[n])} runners, including ${A} and ${B}, run a race, and there are no ties. In how many of the possible finishing orders does ${A} finish ahead of ${B}?`,
         answer: choices(d, ways, [fact(n), fact(n - 1), fact(n) - fact(n - 1), fact(n - 2), ways + fact(n - 2)]),
         check: () => { let c = 0; eachPerm(n, (a) => { if (a.indexOf(0) < a.indexOf(1)) c++; }); return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -1259,7 +1259,7 @@ export const counting = {
     (d, ctx) => {
       const [n] = combo(ctx, [range(5, 12)]), ways = n * (n - 1) * (n - 2);
       return {
-        topic: 'Races with ties', rank: 4,
+        topic: 'Races with ties', rank: 1,
         text: `In a race of ${n} swimmers, gold, silver and bronze medals go to the first three, and there are no ties. In how many ways can the three medals be given out?`,
         answer: choices(d, ways, [choose(n, 3), n ** 3, n * (n - 1), 3 * n, ways / 2]),
         check: () => { let c = 0; for (let g = 0; g < n; g++) for (let s = 0; s < n; s++) for (let b = 0; b < n; b++) if (g !== s && s !== b && g !== b) c++; return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -1273,7 +1273,7 @@ export const counting = {
       const S = (m, j) => (j === 0 ? (m === 0 ? 1 : 0) : m === 0 ? 0 : j * S(m - 1, j) + S(m - 1, j - 1));
       const terms = range(1, n).map((j) => fact(j) * S(n, j)), ways = terms.reduce((a, b) => a + b, 0);
       return {
-        topic: 'Races with ties', rank: 19,
+        topic: 'Races with ties', rank: 9,
         text: `${Cap(WORDS[n])} horses run a race, and ties are allowed anywhere: any number of horses can share a place, and several places can have ties. How many different results are possible?`,
         answer: choices(d, ways, [fact(n), fact(n) + 1, 2 ** n, n ** n, ways - fact(n) / 2]),
         check: () => {
@@ -1292,7 +1292,7 @@ export const counting = {
       const [[B, k], m, ask] = combo(ctx, [[[10, 6], [10, 8], [10, 9], [12, 7], [12, 8], [12, 10], [15, 8], [15, 11], [20, 11], [20, 13], [20, 17]], [50, 60, 80, 120, 150], [2, 1]]);
       const N = B * m, total = Math.floor(N / k), twos = total - m, value = ask === 2 ? twos : m - twos, name = d.pick(['Ana', 'Felix', 'Rosa', 'Dev']);
       return {
-        topic: 'Multiples in blocks', rank: 8,
+        topic: 'Multiples in blocks', rank: 6,
         text: `${name} writes the whole numbers from 1 to ${num(N)} on cards and deals them, in order, into ${m} piles of ${B}: the first pile gets 1 to ${B}, the second ${B + 1} to ${2 * B}, and so on. How many piles contain exactly ${ask === 2 ? 'two multiples' : 'one multiple'} of ${k}?`,
         answer: choices(d, value, [value - 1, value + 1, ask === 2 ? m - twos : twos, Math.round(total / 2), m - Math.round(m / k)]),
         check: () => {
@@ -1307,7 +1307,7 @@ export const counting = {
     (d, ctx) => {
       const [k] = combo(ctx, [range(3, 17)]), A = d.int(11, 99), Bn = d.int(300, 999), up = Math.floor(Bn / k), below = Math.floor((A - 1) / k), value = up - below;
       return {
-        topic: 'Multiples in blocks', rank: 4,
+        topic: 'Multiples in blocks', rank: 1,
         text: `How many multiples of ${k} are there from ${A} to ${Bn}, including both?`,
         answer: choices(d, value, [value - 1, value + 1, Math.floor((Bn - A) / k), up, Math.round((Bn - A) / k) + 2].filter((v) => v !== value)),
         check: () => { let c = 0; for (let x = A; x <= Bn; x++) if (x % k === 0) c++; return c === value ? '' : `counted ${c}, said ${value}`; },
@@ -1319,7 +1319,7 @@ export const counting = {
       const [[B, k], m] = combo(ctx, [[[8, 11], [10, 13], [10, 17], [12, 15], [12, 19], [9, 14], [15, 19], [6, 11]], [40, 50, 60, 75, 90]]);
       const N = B * m, hit = Math.floor(N / k), value = m - hit;
       return {
-        topic: 'Multiples in blocks', rank: 9,
+        topic: 'Multiples in blocks', rank: 8,
         text: `A theater has ${m} rows of ${B} seats, numbered 1 to ${num(N)} row by row: the first row has seats 1 to ${B}, the second ${B + 1} to ${2 * B}, and so on. How many rows have no seat whose number is a multiple of ${k}?`,
         answer: choices(d, value, [hit, value - 1, value + 1, m - Math.floor(m / k), Math.round(N / k / 2)].filter((v) => v !== value)),
         check: () => { let c = 0; for (let r = 0; r < m; r++) { let h = 0; for (let x = r * B + 1; x <= (r + 1) * B; x++) if (x % k === 0) h++; if (!h) c++; } return c === value ? '' : `counted ${c}, said ${value}`; },
@@ -1330,7 +1330,7 @@ export const counting = {
     (d, ctx) => {
       const [k, r] = combo(ctx, [range(4, 13), range(1, 12)], (k, r) => r < k), N = d.int(200, 999), Q = Math.floor((N - r) / k), value = Q + 1;
       return {
-        topic: 'Multiples in blocks', rank: 5,
+        topic: 'Multiples in blocks', rank: 2,
         text: `How many whole numbers from 1 to ${N} leave a remainder of ${r} when divided by ${k}?`,
         answer: choices(d, value, [Q, value + 1, Math.floor(N / k), Math.ceil(N / k) + 1].filter((v) => v !== value)),
         check: () => { let c = 0; for (let x = 1; x <= N; x++) if (x % k === r) c++; return c === value ? '' : `counted ${c}, said ${value}`; },
@@ -1348,7 +1348,7 @@ export const counting = {
       while ((N - b * y0) % a) y0++;
       const ways = Math.floor((Y - y0) / a) + 1, last = y0 + a * (ways - 1);
       return {
-        topic: 'Making postage', rank: 14,
+        topic: 'Making postage', rank: 6,
         text: `A post office sells only ${a}-cent and ${b}-cent stamps. In how many ways can exactly ${num(N)} cents of postage be made? (Only how many stamps of each kind are used matters, not their order.)`,
         answer: choices(d, ways, [ways - 1, ways + 1, Math.floor(N / (a * b)), Y, Math.floor(N / (a * b)) + 1]),
         check: () => { let c = 0; for (let y = 0; b * y <= N; y++) for (let x = 0; a * x + b * y <= N; x++) if (a * x + b * y === N) c++; return c === ways ? '' : `counted ${c}, said ${ways}`; },
@@ -1359,7 +1359,7 @@ export const counting = {
     (d, ctx) => {
       const [[a, b]] = combo(ctx, [COPRIME]), g = a * b - a - b;
       return {
-        topic: 'Making postage', rank: 13,
+        topic: 'Making postage', rank: 6,
         text: `A machine sells only ${a}-cent and ${b}-cent stamps. What is the largest amount of postage, in cents, that cannot be made exactly with these stamps?`,
         answer: choices(d, g, [a * b, a * b - 1, g - 1, g + a, a + b]),
         check: () => { const can = Array(a * b + 1).fill(false); can[0] = true; for (let x = 1; x <= a * b; x++) can[x] = (x >= a && can[x - a]) || (x >= b && can[x - b]); const top = can.lastIndexOf(false); return top === g ? '' : `largest that can’t be made: ${top}`; },
@@ -1370,7 +1370,7 @@ export const counting = {
     (d, ctx) => {
       const [[a, b]] = combo(ctx, [COPRIME]), gaps = range(1, a - 1).map((j) => Math.floor((j * b) / a)), count = (a - 1) * (b - 1) / 2;
       return {
-        topic: 'Making postage', rank: 16,
+        topic: 'Making postage', rank: 9,
         text: `With an unlimited supply of ${a}-cent and ${b}-cent stamps, how many whole-number amounts of postage, in cents, cannot be made at all?`,
         answer: choices(d, count, [a * b - a - b, (a - 1) * (b - 1), count + 1, a + b, count - 1]),
         check: () => { const can = Array(a * b + 1).fill(false); can[0] = true; let c = 0; for (let x = 1; x <= a * b; x++) { can[x] = (x >= a && can[x - a]) || (x >= b && can[x - b]); if (!can[x]) c++; } return c === count ? '' : `counted ${c}, said ${count}`; },
@@ -1384,7 +1384,7 @@ export const counting = {
       do { N = d.int(60, 400); y = Math.floor(N / b); while (y >= 0 && (N - b * y) % a) y--; } while (y < 0);
       const x = (N - b * y) / a, fewest = x + y, most = (() => { let yy = 0; while ((N - b * yy) % a) yy++; return (N - b * yy) / a + yy; })();
       return {
-        topic: 'Making postage', rank: 8,
+        topic: 'Making postage', rank: 4,
         text: `A post office has ${a}-cent and ${b}-cent stamps. What is the fewest number of stamps that make exactly ${N} cents of postage?`,
         answer: choices(d, fewest, [most, fewest + 1, Math.ceil(N / b), fewest + a - 1, Math.floor(N / b)].filter((v) => v !== fewest)),
         check: () => { let best = Infinity; for (let yy = 0; b * yy <= N; yy++) if ((N - b * yy) % a === 0) best = Math.min(best, yy + (N - b * yy) / a); return best === fewest ? '' : `fewest found ${best}, said ${fewest}`; },

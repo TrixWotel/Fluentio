@@ -1,4 +1,4 @@
-// Harder geometry for the AMC 10 practice (problems 15 to 23): circles resting on a line and touching each other,
+// Harder geometry for the AMC 10 practice (problems 4 to 16): circles resting on a line and touching each other,
 // circles and squares among the semicircles and quarter circles in a square, cones and pyramids cut by a plane, and
 // reflections that straighten out a bouncing or folded path. Four topics modelled on contest ideas, with new numbers
 // and wording, each asking its idea four ways. Every question type has a figure drawn to scale from its own numbers,
@@ -169,7 +169,7 @@ const tangentCircles = [
       return Math.hypot(x3, r3 - r1) <= r1 + r3 ? 'the outer circles overlap' : near(x3, L, 'PQ');
     };
     if (ask === 'gap') return {
-      topic: 'Tangent circles on a line', rank: 16,
+      topic: 'Tangent circles on a line', rank: 7,
       text: `Three circles rest on a straight line in a row, each touching the next. From left to right their radii are ${r1}, ${r2} and ${r3}, and the outer two touch the line at P and Q. How long is PQ?`,
       figure,
       answer: choices(d, L, [r1 + 2 * r2 + r3, L / 2, 2 * k * s1 * s3, L + r1 + r3]),
@@ -177,7 +177,7 @@ const tangentCircles = [
       check,
     };
     return {
-      topic: 'Tangent circles on a line', rank: 17,
+      topic: 'Tangent circles on a line', rank: 8,
       text: `Three circles rest on a straight line in a row, each touching the next. ${r1 === r3 ? `The outer two both have radius ${r1}` : `The outer two have radii ${r1} and ${r3}`} and touch the line at P and Q, and PQ = ${L}. What is the radius of the middle circle?`,
       figure,
       answer: choices(d, r2, [s2, 4 * r2, lowest(L * L, 4 * (r1 + r3)), lowest(L - r1 - r3, 2)], showFrac),
@@ -197,7 +197,7 @@ const tangentCircles = [
     if (ask === 'small') {
       const k = u, s1 = v, s2 = w, ans = lowest(k * s1 * s1 * s2 * s2, (s1 + s2) ** 2), rt = k * s1 * s2;
       return {
-        topic: 'Tangent circles on a line', rank: 18,
+        topic: 'Tangent circles on a line', rank: 11,
         text: `Two circles, with radii ${r1} and ${r2}, rest on a straight line and touch each other. A third circle fits in the gap below them: it touches both circles and the line. What is the radius of the third circle?`,
         figure: figure([r1, r2, '?']),
         answer: choices(d, ans, [lowest(r1 * r2, r1 + r2), k === 1 ? lowest(s1 * s2, s1 + s2) : lowest(rt, s1 + s2), lowest(r1 * r2, r1 + r2 + rt), lowest(k * s1 * s1 * s2 * s2, 4 * (s1 + s2) ** 2), lowest(4 * k * s1 * s1 * s2 * s2, (s1 + s2) ** 2)], showFrac),
@@ -211,7 +211,7 @@ const tangentCircles = [
       };
     }
     return {
-      topic: 'Tangent circles on a line', rank: 19,
+      topic: 'Tangent circles on a line', rank: 11,
       text: `Two circles rest on a straight line and touch each other; one of them has radius ${r1}. A circle of radius ${r3} fits in the gap below them: it touches both circles and the line. What is the radius of the other circle?`,
       figure: figure([r1, '?', r3]),
       answer: choices(d, r2, [lowest(r1 * r3, r1 - r3), a2, lowest(r1 * r3, (a1 + a3) ** 2), (a1 - a3) ** 2], showFrac),
@@ -227,7 +227,7 @@ const tangentCircles = [
     const intro = 'In the figure, a floor and a wall meet at a right angle at the corner O.';
     const first = `Both circles rest on the floor. ${PAIR}`;
     if (ask === 'r') return {
-      topic: 'Tangent circles on a line', rank: 19,
+      topic: 'Tangent circles on a line', rank: 9,
       text: `${intro} A circle of radius ${R} rests on the floor, touching it at T, where OT = ${D}. A smaller circle is wedged into the corner, touching the floor, the wall and the first circle. What is the radius of the smaller circle?`,
       figure: cornerFigure(R, D, r, [R, D, '?']),
       answer: choices(d, r, [lowest(D * D, 4 * R), D - R, lowest(R, 4), 4 * r, lowest(D, 4)], showFrac),
@@ -235,7 +235,7 @@ const tangentCircles = [
       check: () => near(solve((x) => Math.hypot(D - x, R - x) - (R + x), 0, D), r, 'radius'),
     };
     if (ask === 'D') return {
-      topic: 'Tangent circles on a line', rank: 17,
+      topic: 'Tangent circles on a line', rank: 8,
       text: `${intro} A circle of radius ${R} rests on the floor, touching it at T. A circle of radius ${r} is wedged into the corner, touching the floor, the wall and the first circle. How long is OT?`,
       figure: cornerFigure(R, D, r, [R, '?', r]),
       answer: choices(d, D, [AB, R + r, AB + 2 * r, AB + R, D + r]),
@@ -243,7 +243,7 @@ const tangentCircles = [
       check: () => near(touchRight(r, r, R), D, 'OT'),
     };
     return {
-      topic: 'Tangent circles on a line', rank: 18,
+      topic: 'Tangent circles on a line', rank: 9,
       text: `${intro} A circle rests on the floor, touching it at T, where OT = ${D}. A circle of radius ${r} is wedged into the corner, touching the floor, the wall and the first circle. What is the radius of the first circle?`,
       figure: cornerFigure(R, D, r, ['?', D, r]),
       answer: choices(d, R, [lowest((D - r) ** 2, 2 * r), lowest(D * D, 4 * r), D - r, lowest((D - r) ** 2, 4)], showFrac),
@@ -263,7 +263,7 @@ const tangentCircles = [
       return { xB, xP, th, gap: ([X, Y]) => Math.sin(th) * (X - xP) - Math.cos(th) * Y };
     };
     if (ask === 'next') return {
-      topic: 'Tangent circles on a line', rank: 19,
+      topic: 'Tangent circles on a line', rank: 14,
       text: `Two circles, with radii ${a} and ${b}, rest on level ground and touch each other. A straight ramp starts on the ground beside the smaller circle and touches both circles from above. A third circle, on the far side of the circle of radius ${b}, touches that circle, the ground and the ramp. What is the radius of the third circle?`,
       figure: svg(400, 250, 'Two touching circles on the ground under a ramp, and a third circle beyond them', rampFigure(a, b, nx[0] / nx[1], [a, b, '?'], { names: false })),
       answer: choices(d, nx, [[2 * b - a, 1], [a + b, 1], lowest(b ** 3, a * a), [k * (s + t) ** 2, 1]], showFrac),
@@ -275,7 +275,7 @@ const tangentCircles = [
       },
     };
     if (ask === 'P') return {
-      topic: 'Tangent circles on a line', rank: 20,
+      topic: 'Tangent circles on a line', rank: 11,
       text: `Two circles, with radii ${a} and ${b}, rest on level ground and touch each other; they touch the ground at A and B. A straight ramp starts on the ground at P, on the far side of A from B, and touches both circles from above. How long is PA?`,
       figure: svg(400, 250, 'Two touching circles on the ground under a ramp that starts at P', rampFigure(a, b, 0, [a, b])),
       answer: choices(d, PA, [[AB, 1], PB, lowest(2 * k * s ** 3 * t, t * t + s * s), lowest(AB * a, b), lowest(AB, 2)], showFrac),
@@ -284,7 +284,7 @@ const tangentCircles = [
       check: () => { const { xP } = geo(); return near(-xP, PA[0] / PA[1], 'PA'); },
     };
     return {
-      topic: 'Tangent circles on a line', rank: 21,
+      topic: 'Tangent circles on a line', rank: 12,
       text: `Two circles, with radii ${a} and ${b}, rest on level ground and touch each other. A straight ramp starts on the ground at P, beside the smaller circle, and touches both circles from above; it touches the larger circle at T. How long is PT?`,
       figure: svg(400, 250, 'Two touching circles on the ground under a ramp from P that touches the larger circle at T', rampFigure(a, b, 0, [a, b], { names: 'T' })),
       answer: choices(d, PB, [PA, [AB, 1], [PB[0] + b * PB[1], PB[1]], lowest(AB * b, a + b)], showFrac),
@@ -331,7 +331,7 @@ const semicircles = [
     }[ask];
     const wrongs = { top: [[s, 8], [s, 12], [s, 4], [3 * s, 16], [s, 32]], low: [[s, 2], [s, 4], [3 * s, 16], [s, 3], [5 * s, 8]], three: [[s, 4], [s, 8], [s, 3], [s, 5], [s, 12]] }[ask];
     return {
-      topic: 'Semicircles in a square', rank: { top: 19, low: 18, three: 19 }[ask], text,
+      topic: 'Semicircles in a square', rank: { top: 8, low: 8, three: 11 }[ask], text,
       figure: svg(320, 300, 'Square ABCD with quarter circles about A and B and a circle touching them', parts),
       answer: choices(d, ans, wrongs.map((w) => lowest(...w)), showFrac),
       solution,
@@ -365,7 +365,7 @@ const semicircles = [
     }[ask];
     const wrongs = { 'in-out': [[s, 4], [s, 6], [s, 8], [s, 3], [4 * s, 9]], quarter: [[s, 3], [s, 6], [s, 8], [3 * s, 8], [s, 5]], sides: [[s, 4], [s, 6], [s, 16], [3 * s, 8], [s, 9]] }[ask];
     return {
-      topic: 'Semicircles in a square', rank: { 'in-out': 22, quarter: 20, sides: 18 }[ask], text,
+      topic: 'Semicircles in a square', rank: { 'in-out': 13, quarter: 11, sides: 8 }[ask], text,
       figure: svg(320, 300, 'Square ABCD with arcs drawn inside it and a circle touching them', parts),
       answer: choices(d, ans, wrongs.map((w) => lowest(...w)), showFrac),
       solution,
@@ -389,7 +389,7 @@ const semicircles = [
       const T = frame([-1.25 * c, 1.25 * c], [0, 1.25 * c], w, h, 26), O = [0, 0];
       const region = [...arcPts(O, 1.25 * c, 0, 180), ...arcPts([-c, 0], 0.25 * c, 180, 0), ...arcPts([0.25 * c, 0], c, 180, 0)].map(T);
       return {
-        topic: 'Semicircles in a square', rank: 20,
+        topic: 'Semicircles in a square', rank: 9,
         text: `Points A, C and B lie on a line in that order, and semicircles are drawn on AB, AC and CB, all on the same side of the line. The line through C perpendicular to AB meets the large semicircle at D, and CD = ${c}. What is the area of the region inside the large semicircle but outside both small ones?`,
         figure: svg(w, h, 'Three semicircles on AB, AC and CB, with CD perpendicular to AB', [poly(region), seg(T(A), T(B)), seg(T(C), T(D), 'seg'), corner(T(C), T(B), T(D)),
           ...[[A, 'A', -12, 8], [B, 'B', 12, 8], [C, 'C', 0, 16], [D, 'D', -10, -12]].map(([p, n, dx, dy]) => label(T(p).map((v, i) => v + [dx, dy][i]), n)), label(mid(T(C), T(D)).map((v, i) => v + [-12, 0][i]), c, 'ang')]),
@@ -416,7 +416,7 @@ const semicircles = [
       return near(2 * Math.sqrt(R * R - r * r), c, 'PQ') || near(reg(R, r, e), want, 'area', 0.01) || near(reg(R1, r1, 0.5 * hc), want, 'area with other radii', 0.01);
     };
     if (ask === 'area') return {
-      topic: 'Semicircles in a square', rank: 19,
+      topic: 'Semicircles in a square', rank: 9,
       text: `${same}, and PQ = ${c}. What is the area of the region inside the large semicircle but outside the small one?`,
       figure,
       answer: choices(d, area, [lowest(c * c, 4), lowest(c * c, 2), lowest(c * c, 16), [c, 1]], piShow),
@@ -425,7 +425,7 @@ const semicircles = [
       check,
     };
     return {
-      topic: 'Semicircles in a square', rank: 19,
+      topic: 'Semicircles in a square', rank: 9,
       text: `${same}. The region inside the large semicircle but outside the small one has area ${piShow(area)}. How long is PQ?`,
       figure,
       answer: labelled([c, num(c, 0)], [[c / 2, num(c / 2, 0)], [2 * c, num(2 * c, 0)], surd(c / 2, 2), surd(c, 2)]),
@@ -442,7 +442,7 @@ const semicircles = [
       const sq = [[s / 2 - t / 2, s], [s / 2 + t / 2, s], [s / 2 + t / 2, s - t], [s / 2 - t / 2, s - t]].map(T);
       parts.push(arc(T, [s / 2, 0], s / 2, 0, 180), poly(sq, 'arc'), dot(sq[2]), dot(sq[3]));
       return {
-        topic: 'Semicircles in a square', rank: 21,
+        topic: 'Semicircles in a square', rank: 9,
         text: `Square ABCD has side ${s}, and a semicircle with diameter AB is drawn inside it. A smaller square hangs from side CD: its top side lies along CD, and its two bottom corners are on the semicircle. What is the area of the smaller square?`,
         figure: svg(320, 300, 'Square ABCD with a semicircle on AB and a smaller square hanging from CD onto it', parts),
         answer: choices(d, ans, [lowest(s * s, 5), lowest(s * s, 4), lowest(16 * s * s, 25), lowest(9 * s * s, 16), lowest(s * s, 2)], showFrac),
@@ -455,7 +455,7 @@ const semicircles = [
       const R = v, ans = lowest(2 * R * R, 5), u = R / Math.sqrt(5), T = frame([0, R], [0, R], 320, 290, 30), O = T([0, 0]);
       const sq = [[u, 0], [0, u], [u, 2 * u], [2 * u, u]].map(T);
       return {
-        topic: 'Semicircles in a square', rank: 20,
+        topic: 'Semicircles in a square', rank: 10,
         text: `A quarter circle has centre O and radius ${R}; its straight edges are the radii OX and OY. Square EFGH has E on OX, F on OY, and G and H on the arc. What is the area of the square?`,
         figure: svg(320, 290, 'A quarter circle with a square that has a corner on each straight edge and two on the arc', [poly([O, ...arcPts([0, 0], R, 0, 90).map(T)]), poly(sq, 'arc'),
           label([O[0] - 10, O[1] + 12], 'O'), label(T([R, 0]).map((v2, i) => v2 + [10, 12][i]), 'X'), label(T([0, R]).map((v2, i) => v2 + [-12, -2][i]), 'Y'),
@@ -473,7 +473,7 @@ const semicircles = [
     const m = v, A = 8 * m, x = Math.sqrt(A), R = Math.sqrt(10 * m), correct = piMinus(5 * m, A), T = frame([-R, R], [0, R], 400, 230, 24);
     const region = [[-R, 0], [-x / 2, 0], [-x / 2, x], [x / 2, x], [x / 2, 0], [R, 0], ...arcPts([0, 0], R, 0, 180)].map(T);
     return {
-      topic: 'Semicircles in a square', rank: 19,
+      topic: 'Semicircles in a square', rank: 6,
       text: `A square stands on the diameter of a semicircle, with its two top corners on the arc. The square has area ${A}. What is the area of the part of the semicircle outside the square?`,
       figure: svg(400, 230, 'A square standing on the diameter of a semicircle with its top corners on the arc', [poly(region), poly([[-x / 2, 0], [-x / 2, x], [x / 2, x], [x / 2, 0]].map(T)), label(T([0, x / 2]), A, 'ang')]),
       answer: labelled(correct, [piMinus(10 * m, A), piMinus(4 * m, A), [5 * m * Math.PI, `${5 * m === 1 ? '' : 5 * m}π`], piMinus(5 * m, 4 * m)]),
@@ -534,7 +534,7 @@ const cones = [
     if (ask === 'two') {
       const m = u, n = v, q = m + n, yc = (hc * n) / q, rc = (rb * m) / q, correct = ratio(m ** 3, q ** 3 - m ** 3);
       return {
-        topic: 'Cutting a cone', rank: 16,
+        topic: 'Cutting a cone', rank: 4,
         text: `A plane parallel to the base of a solid cone cuts its height in the ratio ${m} : ${n}, measured from the apex. What is the ratio of the volume of the small cone it cuts off to the volume of the piece that is left?`,
         figure: svg(w, h, 'A cone cut by a plane parallel to its base', [cone(T, 0, rb, hc, true), line(ell(0, yc, rc, 180, 360).map(T)), line(ell(0, yc, rc, 0, 180).map(T), 'side dash'),
           tall(T, -1.2, yc, hc, m), tall(T, -1.2, 0, yc, n)]),
@@ -545,7 +545,7 @@ const cones = [
     }
     const n = u, j = v, ans = lowest(j ** 3 - (j - 1) ** 3, n ** 3), y0 = hc * (1 - j / n), y1 = hc * (1 - (j - 1) / n), r0 = (rb * j) / n, r1 = (rb * (j - 1)) / n;
     return {
-      topic: 'Cutting a cone', rank: 17,
+      topic: 'Cutting a cone', rank: 5,
       text: `Planes parallel to the base cut a solid cone into ${n} slices of equal thickness. Counting from the apex, what fraction of the cone’s volume is in the ${ord(j)} slice?`,
       figure: svg(w, h, `A cone cut into ${n} slices of equal thickness`, [`<g>${poly([...ell(0, y0, r0, 180, 360), ...ell(0, y1, r1, 360, 180)].map(T))}</g>`, cone(T, 0, rb, hc, true),
         ...range(1, n - 1).flatMap((i) => { const y = (hc * i) / n, r = rb * (1 - i / n); return [line(ell(0, y, r, 180, 360).map(T)), line(ell(0, y, r, 0, 180).map(T), 'side dash')]; }),
@@ -564,7 +564,7 @@ const cones = [
       const [a, b, word] = x, H = y, c = cbrt(H / b, a * b * b), wd = hc * Math.cbrt(a / b);
       const sq = surd(H / b, a * b), top = cbrt(H / b, (b - a) * b * b), low = cbrt(H / b, a * a * b);
       return {
-        topic: 'Cutting a cone', rank: 18,
+        topic: 'Cutting a cone', rank: 5,
         text: `A cone-shaped glass stands point down and is ${H} cm deep inside. It holds water filling ${word} of its volume. How deep is the water, in centimetres?`,
         figure: svg(w, h, 'A cone-shaped glass, point down, partly filled with water', [cone(T, 0, rb, hc, false, wd), tall(T, -1.15, 0, hc, H), tall(T, 1.05, 0, wd, '?', 1)]),
         answer: labelled(c, [[(H * a) / b, frac(H * a, b)], sq, [H - c[0], `${H} − ${c[1]}`], top, low]),
@@ -574,7 +574,7 @@ const cones = [
     }
     const p = x, q = y, u = z, Tm = p ** 3 * u, ans = u * (q ** 3 - p ** 3), wd = (hc * p) / q;
     return {
-      topic: 'Cutting a cone', rank: 17,
+      topic: 'Cutting a cone', rank: 6,
       text: `Water pours at a steady rate into a cone-shaped tank that stands point down. After ${Tm} minutes the water is ${frac(p, q)} of the way up the tank, measured by depth. How many more minutes does it take to fill the tank?`,
       figure: svg(w, h, 'A cone-shaped tank, point down, partly filled with water', [cone(T, 0, rb, hc, false, wd), tall(T, -1.15, 0, hc, 'h'), tall(T, 1.05, 0, wd, `${p === 1 ? '' : p}h/${q}`, 1)]),
       answer: choices(d, ans, [lowest(Tm * (q - p), p), lowest(Tm * (q * q - p * p), p * p), u * q ** 3, lowest(Tm * (q - p) ** 3, p ** 3)], showFrac),
@@ -588,7 +588,7 @@ const cones = [
     if (ask === 'volume') {
       const [a, b, h] = [x, y, z], H = (h * a) / (a - b), V = (h * (a * a + a * b + b * b)) / 3;
       return {
-        topic: 'Cutting a cone', rank: 17,
+        topic: 'Cutting a cone', rank: 6,
         text: `A frustum is the part of a pyramid between its base and a cut parallel to the base. This one comes from a square pyramid: its bottom is ${an(a)} ${a}-by-${a} square, its top is ${an(b)} ${b}-by-${b} square, and it is ${h} tall. What is its volume?`,
         figure: frustumFigure(a, b, h, [a, b, h]),
         answer: choices(d, V, [lowest(h * (a * a + b * b), 2), lowest(h * (a + b) ** 2, 4), lowest(a * a * H, 3), lowest(h * (a * a + b * b), 3), h * a * b], showFrac),
@@ -598,7 +598,7 @@ const cones = [
     }
     const [e, h, sl] = x, b = y, a = b + 2 * e, lat = 2 * (a + b) * sl, S = a * a + b * b + lat;
     return {
-      topic: 'Cutting a cone', rank: 18,
+      topic: 'Cutting a cone', rank: 7,
       text: `A frustum of a square pyramid (the part between its base and a cut parallel to the base) has ${an(a)} ${a}-by-${a} square bottom, ${an(b)} ${b}-by-${b} square top, and height ${h}. What is its total surface area, both squares included?`,
       figure: frustumFigure(a, b, h, [a, b, h]),
       answer: choices(d, S, [lat, a * a + b * b + 2 * (a + b) * h, a * a + lat, a * a + b * b + 4 * (a + b) * sl]),
@@ -623,7 +623,7 @@ const cones = [
     if (ask === 'down') {
       const correct = [H - air[0], `${H} − ${air[1]}`], hd = p * u;
       return {
-        topic: 'Cutting a cone', rank: 20,
+        topic: 'Cutting a cone', rank: 9,
         text: `A closed container shaped like a cone is ${H} cm tall. It stands point down, holding water ${hd} cm deep. Then it is turned over to stand on its flat base. How deep is the water now, in centimetres?`,
         figure: svg(w, h, 'A closed cone of water standing point down, and the same cone turned over', [cone(T, 0, rb, hc, false, (hc * p) / q), cone(T, 2.1, rb, hc, true, correct[0] * (hc / H)),
           tall(T, -1.05, 0, hc, H), tall(T, 0.95, 0, (hc * p) / q, hd, 1), tall(T, 3.05, 0, correct[0] * (hc / H), '?', 1)]),
@@ -634,7 +634,7 @@ const cones = [
     }
     const dd = (q - p) * u;
     return {
-      topic: 'Cutting a cone', rank: 19,
+      topic: 'Cutting a cone', rank: 9,
       text: `A closed container shaped like a cone is ${H} cm tall. It stands on its flat base, point up, and the water in it is ${dd} cm deep. Then it is turned over to stand on its point. How deep is the water now, in centimetres?`,
       figure: svg(w, h, 'A closed cone of water standing on its base, and the same cone turned over onto its point', [cone(T, 0, rb, hc, true, (hc * dd) / H), cone(T, 2.1, rb, hc, false, air[0] * (hc / H)),
         tall(T, -1.05, 0, hc, H), tall(T, 0.95, 0, (hc * dd) / H, dd, 1), tall(T, 3.05, 0, air[0] * (hc / H), '?', 1)]),
@@ -716,7 +716,7 @@ const reflections = [
       const [ax, ay, bx, by] = v, L = Math.hypot(ax + bx, ay + by), T = frame([-0.15 * (ax + bx), 1.1 * Math.max(ax, bx)], [-0.15 * (ay + by), 1.1 * Math.max(ay, by)], 360, 270, 22);
       const Hs = T([ax, ay]), Bs = T([bx, by]), O = T([0, 0]);
       return {
-        topic: 'Reflections and shortest paths', rank: 18,
+        topic: 'Reflections and shortest paths', rank: 9,
         text: `A straight river runs east–west, and a straight road runs north–south, crossing it at right angles. ${N}’s house H is ${ax} m east of the road and ${ay} m north of the river, and the barn B is ${bx} m east of the road and ${by} m north of the river. ${N} walks from the house to the river, then to the road, then to the barn. What is the shortest possible length of the walk, in metres?`,
         figure: svg(360, 270, 'A river and a road crossing at right angles, with a house and a barn beside them', [seg(T([-0.15 * (ax + bx), 0]), T([1.1 * Math.max(ax, bx), 0])), seg(T([0, -0.15 * (ay + by)]), T([0, 1.1 * Math.max(ay, by)])),
           dot(Hs), dot(Bs), label([Hs[0] + 11, Hs[1] - 8], 'H'), label([Bs[0] + 11, Bs[1] - 8], 'B'), label([T([1.1 * Math.max(ax, bx), 0])[0] - 4, O[1] + 16], 'river', 'ang', 'end'), label([O[0] - 8, T([0, 1.1 * Math.max(ay, by)])[1] + 4], 'road', 'ang', 'end')]),
@@ -739,7 +739,7 @@ const reflections = [
     const along = (x) => Math.hypot(x, a) + Math.hypot(dd - x, b);
     const tern = () => { let lo = 0, hi = dd; for (let i = 0; i < 200; i++) { const m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3; if (along(m1) < along(m2)) hi = m2; else lo = m1; } return (lo + hi) / 2; };
     if (ask === 'length') return {
-      topic: 'Reflections and shortest paths', rank: 15,
+      topic: 'Reflections and shortest paths', rank: 5,
       text: `${tent} ${N} walks from the tent to the river to fill a bucket, and then to the campfire. What is the shortest possible length of the walk, in metres?`,
       figure,
       answer: labelled([L, num(L, 0)], [[a + b + dd, num(a + b + dd, 0)], rootOf(dd * dd + (a - b) ** 2), plusRoot(a, dd * dd + b * b), plusRoot(b, dd * dd + a * a), [L + 1, num(L + 1, 0)]]),
@@ -748,7 +748,7 @@ const reflections = [
     };
     const ans = lowest(dd * a, a + b);
     return {
-      topic: 'Reflections and shortest paths', rank: 16,
+      topic: 'Reflections and shortest paths', rank: 6,
       text: `${tent} ${N} walks from the tent to the river to fill a bucket, and then to the campfire, by the shortest possible route. How far from the bank point nearest the tent does ${N} fill the bucket, in metres?`,
       figure,
       answer: choices(d, ans, [lowest(dd, 2), lowest(dd * b, a + b), lowest(dd * a, b), lowest(dd * a, 2 * b)], showFrac),
@@ -781,7 +781,7 @@ const reflections = [
     if (ask === 'length') {
       const correct = surd(l, 2);
       return {
-        topic: 'Reflections and shortest paths', rank: 18,
+        topic: 'Reflections and shortest paths', rank: 8,
         text: `${intro} How far does the ball roll?`,
         figure,
         answer: labelled(correct, [surd(m * n, 2), [l, num(l, 0)], surd(m + n, 2), surd(2 * l, 2), surd(l, 1).map((x, i) => (i ? `${num(2 * l, 0)}` : 2 * l))]),
@@ -794,7 +794,7 @@ const reflections = [
     const sideX = across % 2 ? 'an odd number, so it ends on side BC' : 'an even number, so it ends back on side AD';
     const sideY = up % 2 ? 'an odd number, so it ends on side CD' : 'an even number, so it ends back on side AB';
     return {
-      topic: 'Reflections and shortest paths', rank: 19,
+      topic: 'Reflections and shortest paths', rank: 10,
       text: `${intro} How many times does it bounce, and into which corner does it drop?`,
       figure,
       answer: labelled(say(bounces, end), [say(bounces, others[0]), say(bounces, others[1]), say(bounces + 1, end), say(m + n - 2, noGcd), say(bounces + 2, end), say(Math.max(bounces - 1, 0), end)]),
@@ -839,7 +839,7 @@ const reflections = [
     const why = `Instead of reflecting the ray, reflect the mirrors, so that copies of the ${th}° angle fan out around O and the ray goes straight on through them, one reflection for each mirror line it crosses.`;
     const lastLine = `${count}·${th}° = ${count * th}°`, next = (count + 1) * th;
     return {
-      topic: 'Reflections and shortest paths', rank: ask === 'start' ? 20 : 21,
+      topic: 'Reflections and shortest paths', rank: ask === 'start' ? 10 : 11,
       text: ask === 'start'
         ? `Two long flat mirrors stand upright on a table, meeting at O at an angle of ${th}°. A light ray starts at a point P on one mirror and travels into the angle between them, making an angle of ${ph}° with PO. Each time it meets a mirror it reflects, at the same angle it arrived. How many times does it meet a mirror before it travels away for good?`
         : `Two long flat mirrors stand upright on a table, meeting at O at an angle of ${th}°. A light ray comes in between them, travelling toward O parallel to one of the mirrors. Each time it meets a mirror it reflects, at the same angle it arrived. How many times does it meet a mirror before it travels away for good?`,
@@ -859,7 +859,7 @@ const reflections = [
       const c = [(L + W) ** 2 + H * H, (L + H) ** 2 + W * W, (W + H) ** 2 + L * L], best = Math.min(...c), ans = Math.sqrt(best);
       parts.push(dot(at[0]), dot(at[6]), label(away(at[0], ctr, 14), 'A'), label(away(at[6], ctr, 14), 'G'));
       return {
-        topic: 'Reflections and shortest paths', rank: 17,
+        topic: 'Reflections and shortest paths', rank: 7,
         text: `An ant is at corner A of a closed box that is ${L} long, ${W} wide and ${H} tall. It crawls over the outside of the box to G, the corner farthest from A. How long is the shortest route it can take?`,
         figure: svg(380, 280, 'A box with an ant at corner A and the far corner G', parts),
         answer: labelled([ans, num(ans, 0)], [...c.filter((x) => x !== best).map(rootOf), rootOf(L * L + W * W + H * H), [L + W + H, num(L + W + H, 0)]]),
@@ -872,7 +872,7 @@ const reflections = [
       const c1 = (L / 2) ** 2 + (H + W / 2) ** 2, c2 = (W / 2) ** 2 + (H + L / 2) ** 2, best = Math.min(c1, c2), ans = Math.sqrt(best), M = P([L / 2, W / 2, H]);
       parts.push(dot(at[0]), dot(M), label(away(at[0], ctr, 14), 'A'), label([M[0], M[1] - 12], 'M'));
       return {
-        topic: 'Reflections and shortest paths', rank: 19,
+        topic: 'Reflections and shortest paths', rank: 10,
         text: `An ant is at corner A of a closed box that is ${L} long, ${W} wide and ${H} tall. It crawls over the outside of the box to M, the centre of the top face. How long is the shortest route it can take?`,
         figure: svg(380, 280, 'A box with an ant at corner A and the centre M of the top face', parts),
         answer: labelled([ans, num(ans, 0)], [rootOf(Math.max(c1, c2)), rootOf((L / 2) ** 2 + (W / 2) ** 2 + H * H), plusRoot(H, (L / 2) ** 2 + (W / 2) ** 2), [H + L / 2 + W / 2, num(H + L / 2 + W / 2, 0)]]),
@@ -886,7 +886,7 @@ const reflections = [
     const Sl = [at[0][0] - 22, S[1] - 16], Fl = [at[2][0] + 22, F[1] - 14];
     parts.push(seg(P([0, W / 2, 0]), P([0, W / 2, H]), 'arc dash'), seg(P([L, W / 2, 0]), P([L, W / 2, H]), 'arc'), dot(S), dot(F), seg(S, [Sl[0] + 6, Sl[1] + 3], 'arc'), seg(F, [Fl[0] - 6, Fl[1] + 2], 'arc'), label(Sl, 'S'), label(Fl, 'F'));
     return {
-      topic: 'Reflections and shortest paths', rank: 22,
+      topic: 'Reflections and shortest paths', rank: 16,
       text: `A room shaped like a box is ${L} feet long, ${W} feet wide and ${H} feet high. A spider S is on one end wall, halfway across it and 1 foot below the ceiling. A fly F is on the opposite end wall, halfway across it and 1 foot above the floor. Crawling only over the walls, the floor and the ceiling, how long is the spider’s shortest route to the fly, in feet?`,
       figure: svg(380, 280, 'A box-shaped room with a spider on one end wall and a fly on the other', parts),
       answer: labelled([ans, num(ans, 0)], [[L + H, num(L + H, 0)], rootOf(side), rootOf(cs), rootOf(L * L + (H - 2) ** 2)]),

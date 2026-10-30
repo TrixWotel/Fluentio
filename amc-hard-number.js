@@ -1,4 +1,4 @@
-// Harder AMC 10 number theory (ranks 12 to 22): six topics modelled on contest ideas, with new numbers and wording.
+// Harder AMC 10 number theory (ranks 5 to 15): six topics modelled on contest ideas, with new numbers and wording.
 // Divisibility by 11 (the alternating digit sum, with a second test, in palindromes and in repeated blocks), Chinese
 // remainders, fractions in lowest terms (Euler's totient), the gcd of two expressions in n (the Euclidean algorithm),
 // fractions in n that come out whole, and a grid numbered two ways. Each topic asks its idea three or four ways, and
@@ -218,7 +218,7 @@ export const hardNumber = {
         ];
       }
       return {
-        topic: 'Divisibility by 11', rank: M === 88 ? 15 : 16,
+        topic: 'Divisibility by 11', rank: M === 88 ? 6 : 7,
         text: `The ${WORD[L]}-digit number ${shownN} is a multiple of ${M}, where A and B stand for single digits. What is ${ask === 'sum' ? 'A + B' : 'the product A · B'}?`,
         answer: choices(d, value, weave(d.shuffle([...new Set(P.first.map(f))]), d.shuffle([...new Set(P.eleven.map(f))]))),
         check: () => {
@@ -264,7 +264,7 @@ export const hardNumber = {
         ];
       }
       return {
-        topic: 'Divisibility by 11', rank: L === 4 && s % 2 === 0 ? 18 : 19,
+        topic: 'Divisibility by 11', rank: L === 4 && s % 2 === 0 ? 10 : 12,
         text: `How many ${WORD[L]}-digit positive integers are multiples of 11 and have digits that add up to ${s}?`,
         answer: choices(d, count, wrongs),
         check: () => { let k = 0; for (let n = 11 * Math.ceil(10 ** (L - 1) / 11); n < 10 ** L; n += 11) if (digitSum(n) === s) k++; return k === count ? '' : `counted ${k}`; },
@@ -282,7 +282,7 @@ export const hardNumber = {
       const p0 = M / 11, s = digitSum(B), p = p0 / gcd(p0, s), even = B.length % 2 === 0, q = even ? 11 : 2, ans = Math.floor(K / (p * q)), t = alt(B);
       const tText = `${B.split('').reverse().map((c, i) => (i ? `${i % 2 ? '−' : '+'} ${c}` : c)).join(' ')} = ${ints(t)}`, tk = t === 1 ? 'k' : t === -1 ? '−k' : `${ints(t)}k`;
       return {
-        topic: 'Divisibility by 11', rank: M === 99 ? 16 : 15,
+        topic: 'Divisibility by 11', rank: M === 99 ? 10 : 9,
         text: `Write the block of digits ${B} over and over: ${B}, ${B.repeat(2)}, ${B.repeat(3)}, and so on, so that the k-th number has k copies of ${B}. For how many k from 1 to ${K} is the k-th number a multiple of ${M}?`,
         answer: choices(d, ans, [Math.floor(K / p), Math.floor(K / q), Math.floor(K / (p * (even ? 2 : 11))), Math.floor(K / p) + Math.floor(K / q) - ans, Math.floor(K / M)].filter((v) => v > 0)),
         check: () => { let r = 0, hits = 0; for (let k = 1; k <= K; k++) { r = (r * 10 ** B.length + Number(B)) % M; if (r === 0) hits++; } return hits === ans ? '' : `counted ${hits}`; },
@@ -302,7 +302,7 @@ export const hardNumber = {
       let lead0 = 0;   // the count if the first digit could be 0 too (a slip)
       for (let a = 0; a <= 9; a++) for (let b = 0; b <= 9; b++) for (let c = 0; c <= (L === 6 ? 9 : 0); c++) if ((L === 4 ? 1001 * a + 110 * b : 100001 * a + 10010 * b + 1100 * c) % M === 0) lead0++;
       return {
-        topic: 'Divisibility by 11', rank: (L === 4 ? 15 : 16) + ([4, 6, 7, 13].includes(m) ? 1 : 0),
+        topic: 'Divisibility by 11', rank: (L === 4 ? 5 : 7) + ([4, 6, 7, 13].includes(m) ? 1 : 0),
         text: `How many ${WORD[L]}-digit palindromes are multiples of ${M}? (A palindrome reads the same forwards and backwards, like ${d.pick((L === 4 ? ['3773', '5225', '8118', '4994', '6336', '2772'] : ['417714', '250052', '863368', '901109', '537735']).filter((x) => Number(x) % M))}.)`,
         answer: choices(d, count, [lead0, Math.round(many / m), Math.round(many / M), 2 * count, count + many / 10]),
         check: () => {
@@ -331,7 +331,7 @@ export const hardNumber = {
       const L = lcmOf(ms), rs = ms.map((m) => N0 % m), S = sieve(ms, N0), N4 = N0 + L * Math.ceil((1000 - N0) / L), value = ask === 'least' ? N0 : N4;
       const small = climb(rs[0], ms[0], (v) => v % ms[1] === rs[1]).at(-1);   // passes the two smallest tests only
       return {
-        topic: 'Chinese remainders', rank: ask === 'least' ? 12 : 13,
+        topic: 'Chinese remainders', rank: ask === 'least' ? 5 : 6,
         text: `What is the smallest ${ask === 'least' ? 'positive integer' : 'four-digit number'} that leaves ${remText(ms, N0)}?`,
         answer: choices(d, value, ask === 'least' ? [S.x, N0 + L, L - N0, total(rs), small] : [N4 - L, N4 + L, 1000 + N0, L * Math.ceil(1000 / L), N4 + ms[2]]),
         check: () => { const ok = passes(ms, rs), start = ask === 'least' ? 1 : 1000; for (let v = start; v < start + 2 * L; v++) if (ok(v)) return v === value ? '' : `the first is ${v}`; return 'none found'; },
@@ -347,7 +347,7 @@ export const hardNumber = {
       });
       const L = lcmOf(ms), P = ms[0] * ms[1] * ms[2], rs = ms.map((m) => N0 % m), S = sieve(ms, N0), c = Math.floor((B - 1 - N0) / L) + 1;
       return {
-        topic: 'Chinese remainders', rank: 14,
+        topic: 'Chinese remainders', rank: 6,
         text: `How many positive integers less than ${ints(B)} leave ${remText(ms, N0)}?`,
         answer: choices(d, c, [c - 1, c + 1, Math.floor(B / L) === c ? c + 2 : Math.floor(B / L), Math.floor((B - 1 - N0) / P) + 1, Math.floor(B / P)].filter((v) => v > 0)),
         check: () => { const ok = passes(ms, rs); let k = 0; for (let v = 1; v < B; v++) if (ok(v)) k++; return k === c ? '' : `counted ${k}`; },
@@ -368,7 +368,7 @@ export const hardNumber = {
         : `In ${groups} of ${m}, ${rs[i]} ${rs[i] === 1 ? `${thing} is` : `${things} are`} left over.`));
       const told = ms.map((m, i) => [m, short[i], rs[i]]).filter(([, s]) => s);
       return {
-        topic: 'Chinese remainders', rank: 13,
+        topic: 'Chinese remainders', rank: 6,
         text: `${name} has between ${lo} and ${hi} ${things} and tries putting them in equal ${groups} three ways. ${lines.join(' ')} How many ${things} does ${name} have?`,
         answer: choices(d, N, [misread, S.N0, N - L, N + L].filter((v) => v > 0)),
         check: () => {
@@ -389,7 +389,7 @@ export const hardNumber = {
       const c = Math.floor((B - 1 - N0) / L) + 1, terms = range(0, c - 1).map((j) => N0 + j * L), last = terms.at(-1), sum = (c * (N0 + last)) / 2;
       const byP = range(0, Math.floor((B - 1 - N0) / P)).reduce((s, j) => s + N0 + j * P, 0);   // stepping by the product instead
       return {
-        topic: 'Chinese remainders', rank: shared ? 16 : 15,
+        topic: 'Chinese remainders', rank: shared ? 8 : 7,
         text: `What is the sum of all positive integers less than ${ints(B)} that leave ${remText(ms, N0)}?`,
         answer: choices(d, sum, [sum - last, sum + last + L, c * N0, c * (N0 + last), byP, c * last].filter((v) => v > 0)),
         check: () => { const ok = passes(ms, rs); let s = 0; for (let v = 1; v < B; v++) if (ok(v)) s += v; return s === sum ? '' : `added up to ${s}`; },
@@ -407,7 +407,7 @@ export const hardNumber = {
       const value = ask === 'lowest' ? f : n - 1 - f;
       const ie = `${ints(n)} − (${n / p} + ${n / q} + ${n / r}) + (${n / (p * q)} + ${n / (p * r)} + ${n / (q * r)}) − ${n / (p * q * r)}`;
       return {
-        topic: 'Fractions in lowest terms', rank: 15,
+        topic: 'Fractions in lowest terms', rank: 8,
         text: `How many of the fractions ${fr(1, ints(n))}, ${fr(2, ints(n))}, ${fr(3, ints(n))}, …, ${fr(ints(n - 1), ints(n))} ${ask === 'lowest' ? 'are already in lowest terms' : 'can be simplified, that is, written with a smaller denominator'}?`,
         answer: choices(d, value, ask === 'lowest' ? [n - 1 - f, firstStep, missLast, (p - 1) * (q - 1) * (r - 1), f + 1] : [f, n - f, n - 1 - missLast, n / p + n / q + n / r, n - 1 - (p - 1) * (q - 1) * (r - 1)]),
         check: () => { let k = 0; for (let j = 1; j < n; j++) if (gcd(j, n) === 1) k++; return (ask === 'lowest' ? k : n - 1 - k) === value ? '' : `counted ${k} in lowest terms`; },
@@ -424,7 +424,7 @@ export const hardNumber = {
       const [n, a] = pick(ctx, 'phi-sum', [PAIRED, [0, 1, 2]]);
       const f = phi(n), ans = [f * (2 * a + 1), 2];
       return {
-        topic: 'Fractions in lowest terms', rank: a ? 17 : 16,
+        topic: 'Fractions in lowest terms', rank: a ? 10 : 9,
         text: `What is the sum of all the fractions between ${a} and ${a + 1} that have denominator ${n} when written in lowest terms?`,
         answer: choices(d, ans, [[(2 * a + 1) * (n - 1), 2], [f * (a + 1), 1], [f, 1], [f * (2 * a + 1), 1], [f * (2 * a + 1) + 2, 2], ...(a ? [[a * f, 1], [f, 2]] : [[f + 2, 2], [f - 2, 2]])], showFrac),
         check: () => { let top = 0; for (let k = 1; k < n; k++) if (gcd(k, n) === 1) top += a * n + k; return top * ans[1] === ans[0] * n ? '' : `added up to ${top}/${n}`; },
@@ -443,7 +443,7 @@ export const hardNumber = {
       const pairs = total(range(2, N).map((b) => Math.floor((b - 1) / 2)));   // pairs with 2a < b, before reducing
       const lowest = ask === 'lowest';
       return {
-        topic: 'Fractions in lowest terms', rank: { lowest: 17, all: 18, half: 19 }[ask],
+        topic: 'Fractions in lowest terms', rank: { lowest: 9, all: 9, half: 11 }[ask],
         text: lowest ? `How many of the fractions ${fr('a', 'b')} with whole numbers 1 ≤ a &lt; b ≤ ${N} are in lowest terms?`
           : `How many different values ${ask === 'all' ? '' : `less than ${frac(1, 2)} `}does the fraction ${fr('a', 'b')} take, where a and b are whole numbers with 1 ≤ a &lt; b ≤ ${N}?`,
         answer: choices(d, value, ask === 'half' ? [pairs, (S + 1) / 2, value - 1, value + phi(N) / 2, Math.floor(choose(N, 2) / 2)] : [choose(N, 2), S + 1, S - phi(N), S + phi(N + 1), S - 1]),
@@ -473,7 +473,7 @@ export const hardNumber = {
         (n, g) => n % g === 0 && n / g >= 12 && factor(n / g).length >= 2 && factor(n / g).length <= 3);
       const e = n / g, f = phi(e), N = ints(n);
       return {
-        topic: 'Fractions in lowest terms', rank: ask === 'gcd' ? 16 : 17,
+        topic: 'Fractions in lowest terms', rank: ask === 'gcd' ? 9 : 10,
         text: ask === 'gcd' ? `How many integers k with 1 ≤ k ≤ ${N} have gcd(k, ${N}) = ${g}?`
           : `Each of the ${N} fractions ${fr(1, N)}, ${fr(2, N)}, ${fr(3, N)}, …, ${fr(N, N)} is written in lowest terms. How many of them then have denominator ${e}?`,
         answer: choices(d, f, [e, e - 1, phi(g), e - e / primesOf(e)[0], phi(n) / g, phi(n) / phi(g)].filter(Number.isInteger)),
@@ -497,7 +497,7 @@ export const hardNumber = {
       const [p, q, b] = pick(ctx, 'gcd-max', [range(-4, 5), range(1, 45), range(1, 7)], (p, q, b) => { const D = b * b - p * b + q; return D >= 15 && D <= 150 && D > b + 1; });
       const D = b * b - p * b + q, P = poly([[1, 2], [p, 1], [q, 0]]), n0 = D - b, v0 = n0 * n0 + p * n0 + q;
       return {
-        topic: 'GCD of expressions', rank: p ? 16 : 15,
+        topic: 'GCD of expressions', rank: p ? 8 : 7,
         text: `As n runs through the positive integers, what is the largest value that gcd(${P}, n + ${b}) can take?`,
         answer: choices(d, D, [b * b + p * b + q, q, b * b + q, n0, gcd(1 + p + q, 1 + b), D + b].filter((v) => v > 0)),
         // the gcd depends only on n's remainder by the (at most 150) number it divides, so n up to 1,000 meets every value
@@ -516,7 +516,7 @@ export const hardNumber = {
       const { p, a, b, c, e, h, D, m, at } = P, E1 = poly([[a, 1], [b, 0]]), E2 = poly([[c, 1], [e, 0]]), vals = divisors(m), ans = sigma(m);
       const [x, y] = [c / h, a / h], times = (k, E) => `${k === 1 ? '' : k}(${E})`;
       return {
-        topic: 'GCD of expressions', rank: 18,
+        topic: 'GCD of expressions', rank: 8,
         text: `As n runs through the positive integers, gcd(${E1}, ${E2}) takes only a few different values. What is the sum of all the values it can take?`,
         answer: choices(d, ans, [sigma(D), D, m, ans - 1, sigma(D) - ans]),
         // the gcd divides a number of at most 160, so it depends only on n's remainder by that: n up to 2,000 meets every value
@@ -536,7 +536,7 @@ export const hardNumber = {
       const slip = (k) => range(1, N).filter((n) => gcd(k, n + b) > 1).length;   // the count if the gcd were taken with k instead
       const sumOf = total(ps.map((p) => N / p));
       return {
-        topic: 'GCD of expressions', rank: ps.length > 2 ? 19 : 18,
+        topic: 'GCD of expressions', rank: ps.length > 2 ? 10 : 9,
         text: `For how many positive integers n ≤ ${N} is gcd(${P}, n + ${b}) ${ask === 'more' ? 'greater than 1' : 'equal to 1'}?`,
         answer: choices(d, value, (ask === 'more' ? [cop, sumOf, slip(c), N / ps[0], c !== b * b ? slip(Math.abs(c - b * b)) : N - 1] : [N - cop, N - sumOf, N - slip(c), N - N / ps[0], c !== b * b ? N - slip(Math.abs(c - b * b)) : 1]).filter((v) => v > 0)),
         check: () => { let k = 0; for (let n = 1; n <= N; n++) if (gcd(n * n + c, n + b) > 1) k++; return (ask === 'more' ? k : N - k) === value ? '' : `counted ${k} with gcd above 1`; },
@@ -553,7 +553,7 @@ export const hardNumber = {
       const [k, ask] = pick(ctx, 'gcd-next', [range(6, 60), ['max', 'first']]);
       const T = 4 * k + 1, value = ask === 'max' ? T : 2 * k;
       return {
-        topic: 'GCD of expressions', rank: ask === 'max' ? 18 : 19,
+        topic: 'GCD of expressions', rank: ask === 'max' ? 14 : 15,
         text: `For each positive integer n, let a(n) = n<sup>2</sup> + ${k} and d(n) = gcd(a(n), a(n + 1)). ${ask === 'max' ? 'What is the largest value that d(n) can take?' : 'What is the smallest n for which d(n) is as large as it can ever be?'}`,
         answer: choices(d, value, ask === 'max' ? [2 * k + 1, 4 * k - 1, k, k + 1, 4 * k + 3, 2 * k] : [k, 2 * k + 1, 4 * k, T, 2 * k - 1]),
         check: () => {
@@ -581,7 +581,7 @@ export const hardNumber = {
       const R = c * c - a * c + b, Ra = Math.abs(R), t = divisors(Ra).length, top = poly([[1, 2], [a, 1], [b, 0]]), bot = poly([[1, 1], [c, 0]]), quot = poly([[1, 1], [a - c, 0]]);
       const sign = R > 0 ? '+' : '−', pos = divisors(Ra).filter((e) => e - c >= 1).length, R2 = Math.abs(c * c + a * c + b);
       return {
-        topic: 'Whole-number fractions', rank: 14,
+        topic: 'Whole-number fractions', rank: 6,
         text: `For how many integers n (positive, negative or zero) is ${fr(top, bot)} an integer?`,
         answer: choices(d, 2 * t, [t, 2 * divisors(R2).length, pos, 2 * t - 1, 2 * t + 2]),
         check: () => {
@@ -607,7 +607,7 @@ export const hardNumber = {
       const R = c * c - a * c + b, Ra = Math.abs(R), divs = divisors(Ra), t = divs.length, top = poly([[1, 2], [a, 1], [b, 0]]), bot = poly([[1, 1], [c, 0]]), quot = poly([[1, 1], [a - c, 0]]);
       const sign = R > 0 ? '+' : '−', sum = -2 * c * t, shift = `${c > 0 ? '−' : '+'} ${Math.abs(c)}`;
       return {
-        topic: 'Whole-number fractions', rank: 16,
+        topic: 'Whole-number fractions', rank: 7,
         text: `What is the sum of all integers n for which ${fr(top, bot)} is an integer?`,
         answer: choices(d, sum, [total(divs) - c * t, 2 * c * t, -c * t, 0, -2 * c * (t - 1), total(divs)]),
         check: () => {
@@ -634,7 +634,7 @@ export const hardNumber = {
       const top = poly([[c * m, 1], [R + m * k, 0]]), bot = poly([[c, 1], [k, 0]]), divs = divisors(R);
       const good = divs.filter((e) => e >= c + k && (e - k) % c === 0), ns = good.map((e) => (e - k) / c);
       return {
-        topic: 'Whole-number fractions', rank: c === 1 ? 13 : 15,
+        topic: 'Whole-number fractions', rank: c === 1 ? 5 : 6,
         text: `For how many positive integers n is ${fr(top, bot)} an integer?`,
         answer: choices(d, ns.length, [divs.length, divs.filter((e) => e >= c + k).length, divs.filter((e) => (e - k) % c === 0).length, ns.length + 1, ns.length - 1].filter((v) => v > 0)),
         check: () => {
@@ -661,7 +661,7 @@ export const hardNumber = {
       const D = Math.abs(k ** 3 - m), P = poly([[1, 3], [m, 0]]), good = divisors(D).filter((e) => e > k), value = ask === 'largest' ? D - k : good.length;
       const flip = Math.abs(k ** 3 + m);   // the slip of using n = k instead of n = −k
       return {
-        topic: 'Whole-number fractions', rank: ask === 'largest' ? 16 : 17,
+        topic: 'Whole-number fractions', rank: ask === 'largest' ? 8 : 9,
         text: ask === 'largest' ? `What is the largest positive integer n for which n + ${k} divides ${P}?` : `For how many positive integers n does n + ${k} divide ${P}?`,
         answer: choices(d, value, ask === 'largest' ? [flip - k, D, D + k, Math.abs(m) - k, (D / 2) - k].filter((v) => Number.isInteger(v) && v > 0)
           : [divisors(D).length, good.length + 1, good.length - 1, flip ? divisors(flip).filter((e) => e > k).length : 0].filter((v) => v > 0)),
@@ -686,7 +686,7 @@ export const hardNumber = {
       const [r, c] = pick(ctx, 'grid-count', [range(4, 24), range(5, 40)], (r, c) => { const g = gcd(r - 1, c - 1); return r < c && g >= 3 && g <= 12 && r * c <= 900 && gcd(r, c) !== g; });
       const g = gcd(r - 1, c - 1), u = (r - 1) / g, v = (c - 1) / g, [P, Q] = d.pick(DUOS);
       return {
-        topic: 'Numbering a grid two ways', rank: 18,
+        topic: 'Numbering a grid two ways', rank: 9,
         text: `A grid of squares has ${r} rows and ${c} columns. ${byRows(P, r, c)} ${byCols(Q, r)} In how many squares do ${P} and ${Q} write the same number?`,
         answer: choices(d, g + 1, [g, gcd(r, c) + 1, gcd(r, c), 2, g + 2, g - 1].filter((x) => x > 0)),
         check: () => { const k = sameCount(r, c, (i, j) => r * j + i + 1); return k === g + 1 ? '' : `counted ${k}`; },
@@ -703,7 +703,7 @@ export const hardNumber = {
       const [r, c] = pick(ctx, 'grid-sum', [range(4, 24), range(5, 40)], (r, c) => { const g = gcd(r - 1, c - 1); return r < c && g >= 2 && g <= 10 && r * c <= 600; });
       const g = gcd(r - 1, c - 1), u = (r - 1) / g, v = (c - 1) / g, step = (r * c - 1) / g, sum = ((g + 1) * (r * c + 1)) / 2, [P, Q] = d.pick(DUOS);
       return {
-        topic: 'Numbering a grid two ways', rank: 20,
+        topic: 'Numbering a grid two ways', rank: 10,
         text: `A grid of squares has ${r} rows and ${c} columns. ${byRows(P, r, c)} ${byCols(Q, r)} In some squares ${P} and ${Q} write the same number. What is the sum of the numbers in those squares?`,
         answer: choices(d, sum, [(g * (r * c + 1)) / 2, ((g + 1) * r * c) / 2, ((g + 2) * (r * c + 1)) / 2, (g + 1) * (r * c + 1), ((g - 1) * (r * c + 1)) / 2].filter((x) => Number.isInteger(x) && x > 0)),
         check: () => { let s = 0; for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) if (c * i + j + 1 === r * j + i + 1) s += c * i + j + 1; return s === sum ? '' : `added up to ${s}`; },
@@ -726,7 +726,7 @@ export const hardNumber = {
       const second = up ? `${Q} numbers them column by column, going up: the left column gets 1 to ${r} from the bottom square to the top one, the next column gets ${r + 1} to ${2 * r} in the same way, and so on.`
         : `${Q} numbers them column by column from the right: the right-hand column gets 1 to ${r} from top to bottom, the column to its left gets ${r + 1} to ${2 * r}, and so on.`;
       return {
-        topic: 'Numbering a grid two ways', rank: 21,
+        topic: 'Numbering a grid two ways', rank: 11,
         text: `A grid of squares has ${r} rows and ${c} columns. ${byRows(P, r, c)} ${second} In how many squares do ${P} and ${Q} write the same number?`,
         answer: choices(d, g - 1, [gcd(r - 1, c - 1) + 1, g, g + 1, g - 2, (up ? gcd(r + 1, c - 1) : gcd(c + 1, r - 1)) - 1].filter((x) => x > 0)),
         check: () => { const k = sameCount(r, c, up ? (i, j) => r * j + (r - 1 - i) + 1 : (i, j) => r * (c - 1 - j) + i + 1); return k === g - 1 ? '' : `counted ${k}`; },
@@ -755,7 +755,7 @@ export const hardNumber = {
       const ie = `${Mx} − ${ps.map((p) => Math.floor(Mx / p)).join(' − ')}${ps.length > 1 ? ` + ${Math.floor(Mx / (ps[0] * ps[1]))}` : ''}`;
       const wrongShift = range(2, N).filter((c) => gcd(r, c) === G).length;
       return {
-        topic: 'Numbering a grid two ways', rank: G === 1 ? 21 : 22,
+        topic: 'Numbering a grid two ways', rank: G === 1 ? 14 : 15,
         text: `A grid of squares has ${r} rows and c columns. ${P} numbers the squares 1, 2, 3, … row by row (the top row from left to right, then the next row, and so on), and ${Q} numbers them 1, 2, 3, … column by column (the left column from top to bottom, then the next column, and so on). For how many values of c from 2 to ${N} do exactly ${K} squares get the same number from both of them?`,
         answer: choices(d, count, [Math.floor((N - 1) / G), count + 1, count - 1, wrongShift, coprimeUpTo(Math.floor(N / G), ps) === count ? count + 2 : coprimeUpTo(Math.floor(N / G), ps)].filter((x) => x > 0)),
         check: () => { let k = 0; for (let c = 2; c <= N; c++) if (sameCount(r, c, (i, j) => r * j + i + 1) === K) k++; return k === count ? '' : `counted ${k}`; },

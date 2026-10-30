@@ -48,7 +48,7 @@ export const classic = named({
       const [i, gap, dd] = combo(ctx, [[2, 3, 4, 5], [3, 4, 5, 6, 7, 8], [-7, -5, -4, -3, -2, 2, 3, 4, 5, 6, 7, 9]]);
       const a1 = d.int(-15, 30), j = i + gap, n = d.int(j + 8, 40), t = (k) => a1 + (k - 1) * dd;
       return {
-        rank: 5,
+        rank: 2,
         text: `In an arithmetic sequence, the ${ord(i)} term is ${num(t(i))} and the ${ord(j)} term is ${num(t(j))}. What is the ${ord(n)} term?`,
         answer: choices(d, t(n), [t(n) + dd, t(n) - dd, t(i) + (n - i + 1) * dd, t(n) + 2 * dd, t(n) - 2 * dd]),
         check: () => { let v = t(i); const step = (t(j) - t(i)) / (j - i); for (let k = i; k < n; k++) v += step; return v === t(n) ? '' : `walked to ${v}`; },
@@ -60,7 +60,7 @@ export const classic = named({
       const [a, dd, count] = combo(ctx, [[3, 5, 7, 8, 11, 12, 17, 20], [3, 4, 6, 7, 9, 11], [18, 23, 27, 31, 36, 42, 50, 57]]);
       const last = a + (count - 1) * dd;
       return {
-        rank: 4,
+        rank: 1,
         text: `How many numbers are in the list ${a}, ${a + dd}, ${a + 2 * dd}, ${a + 3 * dd}, …, ${num(last)}?`,
         answer: choices(d, count, [count - 1, count + 1, Math.floor(last / dd), count + 2]),
         check: () => { let c = 0; for (let v = a; v <= last; v += dd) c++; return c === count ? '' : `counted ${c}`; },
@@ -72,7 +72,7 @@ export const classic = named({
       const [a, dd, n] = combo(ctx, [[2, 3, 4, 5, 7, 9, 10], [2, 3, 4, 5, 6], [10, 12, 15, 20, 24, 25, 30]]);
       const last = a + (n - 1) * dd, S = (n * (a + last)) / 2;
       return {
-        rank: 7,
+        rank: 3,
         text: `What is the sum of the first ${n} terms of the arithmetic sequence ${a}, ${a + dd}, ${a + 2 * dd}, …?`,
         answer: choices(d, S, [n * (a + last), n * last, S + last + dd, S - last]),
         check: () => { let s = 0; for (let k = 0; k < n; k++) s += a + k * dd; return s === S ? '' : `summed ${s}`; },
@@ -85,7 +85,7 @@ export const classic = named({
       const [a, dd, m] = combo(ctx, [[-20, -13, -7, 4, 9, 15], [3, 4, 5, 6, 7, 8], [14, 19, 23, 28, 31, 37, 42]]);
       const v = a + (m - 1) * dd, show = (x) => `the ${ord(x)} term`;
       return {
-        rank: 6,
+        rank: 2,
         text: `In the arithmetic sequence ${[0, 1, 2, 3].map((k) => num(a + k * dd)).join(', ')}, …, which term is ${num(v)}?`,
         answer: choices(d, m, [m - 1, m + 1, Math.round(v / dd), m + 2], show),
         check: () => { let k = 1, t = a; while (t < v) { t += dd; k++; } return t === v && k === m ? '' : `reached term ${k}`; },
@@ -101,7 +101,7 @@ export const classic = named({
       const [b, m] = combo(ctx, [[2, 3, 5, 6, 7], [5, 7, 9, 11, 13]], (b, m) => gcd(b, m) === 1 && b % m !== 1), k = d.int(20, 150);
       const cyc = cycleOf(b, m), r = cyc[(k - 1) % cyc.length];
       return {
-        rank: 9,
+        rank: 5,
         text: `What is the remainder when ${b}<sup>${k}</sup> is divided by ${m}?`,
         answer: choices(d, r, d.shuffle(range(0, m - 1)).filter((x) => x !== r)),
         check: () => (powMod(b, k, m) === r ? '' : 'remainder wrong'),
@@ -114,7 +114,7 @@ export const classic = named({
       const e = d.int(30, 99), f = d.int(30, 99), cb = cycleOf(b, m), cc = cycleOf(c, m);
       const rb = cb[(e - 1) % cb.length], rc = cc[(f - 1) % cc.length], r = (rb + rc) % m;
       return {
-        rank: 10,
+        rank: 6,
         text: `What is the remainder when ${b}<sup>${e}</sup> + ${c}<sup>${f}</sup> is divided by ${m}?`,
         answer: choices(d, r, [(rb * rc) % m, rb, rc, ...d.shuffle(range(0, m - 1))]),
         check: () => ((powMod(b, e, m) + powMod(c, f, m)) % m === r ? '' : 'remainder wrong'),
@@ -127,7 +127,7 @@ export const classic = named({
       const [b, m, N] = combo(ctx, [[2, 3, 5, 7], [7, 9, 11, 13, 17], [50, 60, 100, 120, 200]], (b, m) => gcd(b, m) === 1 && cycleOf(b, m).length >= 3);
       const cyc = cycleOf(b, m), o = cyc.length, count = Math.floor(N / o);
       return {
-        rank: 12,
+        rank: 8,
         text: `For how many integers k with 1 ≤ k ≤ ${N} is ${b}<sup>k</sup> − 1 a multiple of ${m}?`,
         answer: choices(d, count, [Math.floor(N / (m - 1)), count + 1, count - 1, Math.floor(N / m), Math.floor(N / (o + 1))]),
         check: () => { let c = 0, v = 1; for (let k = 1; k <= N; k++) { v = (v * b) % m; if (v === 1) c++; } return c === count ? '' : `counted ${c}`; },
@@ -139,7 +139,7 @@ export const classic = named({
       const [b, m] = combo(ctx, [[2, 3, 5, 6, 7, 10], [7, 11, 13, 17, 19]], (b, m) => gcd(b, m) === 1 && b % m !== 1);
       const cyc = cycleOf(b, m), o = cyc.length;
       return {
-        rank: 8,
+        rank: 5,
         text: `What is the smallest positive integer k for which ${b}<sup>k</sup> leaves a remainder of 1 when divided by ${m}?`,
         answer: choices(d, o, [m - 1, (m - 1) / 2, o + 1, m, ...range(2, m - 2).filter((x) => (m - 1) % x === 0)]),
         check: () => { let k = 1; while (powMod(b, k, m) !== 1) k++; return k === o ? '' : `found ${k}`; },
@@ -156,7 +156,7 @@ export const classic = named({
       const N = p ** a * q ** b * r ** c, count = (a + 1) * (b + 1) * (c + 1);
       const fac = [[p, a], [q, b], [r, c]].filter(([, e]) => e).map(([x, e]) => (e > 1 ? `${x}<sup>${e}</sup>` : x)).join(' · ');
       return {
-        rank: 7,
+        rank: 4,
         text: `How many positive divisors does ${num(N, 0)} have?`,
         answer: choices(d, count, [a * b * Math.max(c, 1), count - 2, a + b + c + 1, (a + 1) * (b + 1), count + (a + 1)]),
         check: () => (tau(N) === count ? '' : `counted ${tau(N)}`),
@@ -168,7 +168,7 @@ export const classic = named({
       const [a, [q, r], b, c, odd] = combo(ctx, [[1, 2, 3, 4, 5], [[3, 5], [3, 7], [5, 7], [3, 11]], [1, 2, 3], [1, 2], [false, true]], (a, qr, b, c) => 2 ** a * qr[0] ** b * qr[1] ** c <= 2000000);
       const N = 2 ** a * q ** b * r ** c, odds = (b + 1) * (c + 1), evens = a * odds, value = odd ? odds : evens, total = (a + 1) * odds;
       return {
-        rank: 9,
+        rank: 5,
         text: `How many of the positive divisors of ${num(N, 0)} are ${odd ? 'odd' : 'even'}?`,
         answer: choices(d, value, [odd ? evens : odds, total, total / 2, value + 1, (a + 1) * b * c]),
         check: () => { let k = 0; for (let i = 1; i <= N; i++) if (N % i === 0 && i % 2 === (odd ? 1 : 0)) k++; return k === value ? '' : `counted ${k}`; },
@@ -181,7 +181,7 @@ export const classic = named({
       const x = d.int(1, a), y = d.int(1, b), N = p ** a * q ** b * r ** c, M = p ** x * q ** y;
       const value = (a - x + 1) * (b - y + 1) * (c + 1), total = (a + 1) * (b + 1) * (c + 1);
       return {
-        rank: 10,
+        rank: 7,
         text: `How many positive divisors of ${num(N, 0)} are multiples of ${num(M, 0)}?`,
         answer: choices(d, value, [total, (a - x) * (b - y) * (c + 1), total - value, (x + 1) * (y + 1), Math.floor(total / M)]),
         check: () => { let k = 0; for (let i = M; i <= N; i += M) if (N % i === 0) k++; return k === value ? '' : `counted ${k}`; },
@@ -194,7 +194,7 @@ export const classic = named({
       const options = patterns(D).map((e) => [valueOf(e), e]).sort((u, v) => u[0] - v[0]), best = options[0][0];
       const others = []; for (let n = best + 1; others.length < 4; n++) if (tau(n) === D) others.push(n);
       return {
-        rank: 12,
+        rank: 8,
         text: `What is the smallest positive integer that has exactly ${D} positive divisors?`,
         answer: choices(d, best, others),
         check: () => { let n = 1; while (tau(n) !== D) n++; return n === best ? '' : `found ${n}`; },
@@ -221,7 +221,7 @@ export const classic = named({
           : kind === 'atleast' ? `${cap(bySums(range(s, 12)))}, so ${count} of them have a sum of at least ${s}.`
             : `The multiples of ${s} that two dice can make are ${listing(range(2, 12).filter((t) => t % s === 0))}, and ${bySums(range(2, 12).filter((t) => t % s === 0))}.`;
       return {
-        rank: 10,
+        rank: 2,
         text: `Two fair six-sided dice are rolled. What is the probability that ${phrase}?`,
         answer: choices(d, [count, 36], [[count + 1, 36], [Math.max(count - 1, 1), 36], [count, 21], [36 - count, 36], [count, 30]].filter(([p, q]) => p <= q), showFrac),
         check: () => { let c = 0; for (let x = 1; x <= 6; x++) for (let y = 1; y <= 6; y++) if (ok(y, x)) c++; return c === count ? '' : `counted ${c}`; },
@@ -243,7 +243,7 @@ export const classic = named({
       const [[phrase, ok, how]] = combo(ctx, [PRODUCT]);
       const count = countPairs(ok);
       return {
-        rank: 9,
+        rank: 4,
         text: `Two fair six-sided dice are rolled and the two numbers are multiplied. What is the probability that ${phrase}?`,
         answer: choices(d, [count, 36], [[36 - count, 36], [count, 21], [count + 2, 36], [Math.max(count - 2, 1), 36], [count + 4, 36]].filter(([p, q]) => p <= q), showFrac),
         check: () => { let c = 0; for (let n = 0; n < 36; n++) if (ok(1 + Math.floor(n / 6), 1 + (n % 6))) c++; return c === count ? '' : `counted ${c}`; },
@@ -256,7 +256,7 @@ export const classic = named({
       const ok = (x, y) => (mode === 'exactly' ? Math.abs(x - y) === k : Math.abs(x - y) >= k), count = countPairs(ok);
       const phrase = k === 0 ? 'show the same number' : `differ by ${mode} ${k}`;
       return {
-        rank: 9,
+        rank: 3,
         text: `Two fair six-sided dice are rolled. What is the probability that the two numbers ${phrase}?`,
         answer: choices(d, [count, 36], [[count / (k === 0 ? 1 : 2), 36], [count, 21], [count + 1, 36], [36 - count, 36], [count + 2, 36]].filter(([p, q]) => p <= q), showFrac),
         check: () => { let c = 0; for (let x = 1; x <= 6; x++) for (let y = 1; y <= 6; y++) if (mode === 'exactly' ? x - y === k || y - x === k : x - y >= k || y - x >= k) c++; return c === count ? '' : `counted ${c}`; },
@@ -271,7 +271,7 @@ export const classic = named({
       const t = which === 'largest' ? m : 7 - m, count = t ** 3 - (t - 1) ** 3;
       const faces = (lo, hi) => (lo === hi ? `${lo}` : hi === lo + 1 ? `${lo} or ${hi}` : `${lo} to ${hi}`);
       return {
-        rank: 12,
+        rank: 8,
         text: `Three fair six-sided dice are rolled. What is the probability that the ${which} of the three numbers is exactly ${m}?`,
         answer: choices(d, [count, 216], [[t ** 3, 216], [1, 6], [3 * (t - 1) ** 2, 216], [(t - 1) ** 3, 216], [count + 6, 216]], showFrac),
         check: () => { let c = 0; for (let x = 1; x <= 6; x++) for (let y = 1; y <= 6; y++) for (let z = 1; z <= 6; z++) if ((which === 'largest' ? Math.max(x, y, z) : Math.min(x, y, z)) === m) c++; return c === count ? '' : `counted ${c}`; },
@@ -287,7 +287,7 @@ export const classic = named({
       const [n, k] = combo(ctx, [range(7, 14), [3, 4, 5]]), total = choose(n, k), both = choose(n - 2, k - 2), good = total - both;
       const [P1, P2] = d.pick([['Alex', 'Blake'], ['Casey', 'Drew'], ['Emery', 'Finn'], ['Gray', 'Harper'], ['Jordan', 'Kai']]);
       return {
-        rank: 11,
+        rank: 6,
         text: `A club has ${n} members. A committee of ${k} is chosen, but ${P1} and ${P2} refuse to serve together. How many different committees are possible?`,
         answer: choices(d, good, [total, choose(n - 2, k), total - choose(n - 2, k - 1), choose(n - 1, k), good - both]),
         check: () => { const c = committees(n, k, (mask) => (mask & 3) !== 3); return c === good ? '' : `counted ${c}`; },
@@ -299,7 +299,7 @@ export const classic = named({
       const [b, g, k] = combo(ctx, [[4, 5, 6, 7, 8], [3, 4, 5, 6], [3, 4]], (b, g, k) => b >= k && b + g <= 14);
       const total = choose(b + g, k), none = choose(b, k), value = total - none;
       return {
-        rank: 10,
+        rank: 5,
         text: `A team of ${k} is chosen from ${b} boys and ${g} girls. How many different teams include at least one girl?`,
         answer: choices(d, value, [g * choose(b + g - 1, k - 1), total, g * choose(b, k - 1), total - choose(g, k), value - g]),
         check: () => { const c = committees(b + g, k, (mask) => mask >> b !== 0); return c === value ? '' : `counted ${c}`; },
@@ -311,7 +311,7 @@ export const classic = named({
       const [n, k] = combo(ctx, [range(6, 12), [3, 4, 5]], (n, k) => n > k + 1);
       const value = choose(n, k) * k;
       return {
-        rank: 9,
+        rank: 3,
         text: `From a club of ${n} members, a committee of ${k} is chosen, and then one of those ${k} is named its chair. In how many ways can this be done?`,
         answer: choices(d, value, [choose(n, k), choose(n, k) * (k - 1), choose(n, k) + k, n * choose(n, k), choose(n, k) * k * (k - 1)]),
         check: () => { const c = committees(n, k, () => true) * k, other = n * choose(n - 1, k - 1); return c === value && other === value ? '' : `counted ${c}`; },
@@ -326,7 +326,7 @@ export const classic = named({
       const counts = { both: choose(n - 2, k - 2), 'exactly one': 2 * choose(n - 2, k - 1), neither: choose(n - 2, k) }, value = counts[mode];
       const phrase = mode === 'both' ? `both ${P1} and ${P2}` : mode === 'exactly one' ? `exactly one of ${P1} and ${P2}` : `neither ${P1} nor ${P2}`;
       return {
-        rank: 9,
+        rank: 3,
         text: `A club has ${n} members, among them ${P1} and ${P2}. A committee of ${k} is chosen. How many possible committees include ${phrase}?`,
         answer: choices(d, value, [...Object.values(counts), choose(n, k), choose(n - 2, k - 1), choose(n - 1, k - 1)]),
         check: () => { const c = committees(n, k, (mask) => { const has = (mask & 1) + ((mask >> 1) & 1); return mode === 'both' ? has === 2 : mode === 'exactly one' ? has === 1 : has === 0; }); return c === value ? '' : `counted ${c}`; },
@@ -346,7 +346,7 @@ export const classic = named({
       const [[a0, b0, c0], s] = combo(ctx, [TRIPLES, [1, 2, 3]]);
       const a = a0 * s, b = b0 * s, c = c0 * s;
       return {
-        rank: 12,
+        rank: 6,
         text: `A right triangle has legs of length ${a} and ${b}. What is the length of the altitude to the hypotenuse?`,
         answer: choices(d, [a * b, c], [[a * b, a + b], [c, 2], [a * b, 2 * c], [a + b, 2], [a * b, c + 1]], showFrac),
         check: () => (Math.abs((a * b) / Math.hypot(a, b) - (a * b) / c) < 1e-9 ? '' : 'altitude wrong'),
@@ -358,7 +358,7 @@ export const classic = named({
       const [[a0, b0, c0], s] = combo(ctx, [TRIPLES, [1, 2, 3, 4]], (t, s) => t[2] * s <= 120);
       const a = a0 * s, b = b0 * s, c = c0 * s, r = (a + b - c) / 2;
       return {
-        rank: 13,
+        rank: 8,
         text: `A circle is drawn inside a right triangle with legs ${a} and ${b} so that it touches all three sides. What is the radius of the circle?`,
         answer: choices(d, r, [[c, 2], [a * b, c], [a + b + c, 2], a + b - c, c - a], showFrac),
         check: () => (Math.abs((a * b) / (a + b + c) - r) < 1e-9 ? '' : 'radius wrong'),
@@ -371,7 +371,7 @@ export const classic = named({
       const [[a0, b0, c0], s, which] = combo(ctx, [TRIPLES, [1, 2, 3], [0, 1]], (t, s) => t[2] * s <= 90);
       const a = a0 * s, b = b0 * s, c = c0 * s, leg = which ? b : a, other = which ? a : b, area = (a * b) / 2;
       return {
-        rank: 8,
+        rank: 4,
         text: `A right triangle has a hypotenuse of length ${c} and one leg of length ${leg}. What is its area?`,
         answer: choices(d, area, [(c * leg) / 2, leg * other, (c * other) / 2, c * leg]),
         check: () => { const p = (a + b + c) / 2; return Math.abs(Math.sqrt(p * (p - a) * (p - b) * (p - c)) - area) < 1e-6 ? '' : 'Heron disagrees'; },
@@ -383,7 +383,7 @@ export const classic = named({
       const [[a0, b0, c0], ask] = combo(ctx, [TRIPLES.slice(0, 5), ['altitude', 'shorter leg', 'longer leg']]);
       const p = a0 * a0, q = b0 * b0, h = a0 * b0, value = ask === 'altitude' ? h : ask === 'shorter leg' ? a0 * c0 : b0 * c0;
       return {
-        rank: 13,
+        rank: 9,
         text: `The altitude to the hypotenuse of a right triangle cuts the hypotenuse into pieces of lengths ${p} and ${q}. How long is the ${ask === 'altitude' ? 'altitude' : `${ask} of the triangle`}?`,
         answer: choices(d, value, [h, a0 * c0, b0 * c0, p + q, (p + q) / 2, Math.round(Math.sqrt(p * p + q * q))]),
         check: () => { const A = [0, 0], B = [p + q, 0], C = [p, h], leg1 = Math.hypot(C[0] - A[0], C[1]), leg2 = Math.hypot(B[0] - C[0], C[1]); const right = Math.abs((C[0] - A[0]) * (C[0] - B[0]) + C[1] * C[1]) < 1e-6; const got = ask === 'altitude' ? h : ask === 'shorter leg' ? Math.min(leg1, leg2) : Math.max(leg1, leg2); return right && Math.abs(got - value) < 1e-6 ? '' : 'not a right triangle'; },
@@ -401,7 +401,7 @@ export const classic = named({
       const [N, [a, b], neither] = combo(ctx, [[100, 120, 150, 200, 250, 300, 360, 400, 500, 600, 1000], [[2, 3], [2, 5], [3, 4], [3, 5], [4, 6], [4, 10], [5, 6], [6, 9], [6, 10], [7, 11], [8, 12]], [false, true]]);
       const L = lcm(a, b), both = Math.floor(N / L), either = Math.floor(N / a) + Math.floor(N / b) - both, value = neither ? N - either : either;
       return {
-        rank: 8,
+        rank: 5,
         text: `How many integers from 1 to ${num(N)} are divisible by ${neither ? `neither ${a} nor ${b}` : `${a} or ${b}`}?`,
         answer: choices(d, value, neither ? [N - Math.floor(N / a) - Math.floor(N / b), N - either + both, either, N - Math.floor(N / (a * b))] : [Math.floor(N / a) + Math.floor(N / b), Math.floor(N / a) + Math.floor(N / b) - Math.floor(N / (a * b)), both, either + both]),
         check: () => { let c = 0; for (let i = 1; i <= N; i++) { const hit = i % a === 0 || i % b === 0; if (neither ? !hit : hit) c++; } return c === value ? '' : `counted ${c}`; },
@@ -415,7 +415,7 @@ export const classic = named({
       const onlyA = d.int(5, 12), onlyB = d.int(4, 11), neither = N - both - onlyA - onlyB, A = onlyA + both, B = onlyB + both;
       const [act1, act2] = d.pick([['play soccer', 'play chess'], ['take Spanish', 'take music'], ['have a dog', 'have a cat'], ['like pizza', 'like tacos'], ['ride a bike to school', 'take the bus some days']]);
       return {
-        rank: 5,
+        rank: 2,
         text: `In a class of ${N} students, ${A} ${act1}, ${B} ${act2}, and ${neither} do neither. How many students do both?`,
         answer: choices(d, both, [A + B - N, N - neither - A, Math.min(A, B), A + B - neither - both]),
         check: () => { const set = []; for (let i = 0; i < N; i++) set.push([i < A, i >= A - both && i < A - both + B]); const c = set.filter(([x, y]) => x && y).length, none = set.filter(([x, y]) => !x && !y).length; return c === both && none === neither ? '' : `counted ${c}`; },
@@ -427,7 +427,7 @@ export const classic = named({
       const [N, [a, b, c]] = combo(ctx, [[100, 120, 150, 200, 300, 360, 500, 1000], [[2, 3, 5], [2, 3, 7], [2, 5, 7], [3, 5, 7], [2, 3, 11]]]);
       const f = (x) => Math.floor(N / x), singles = f(a) + f(b) + f(c), pairs = f(a * b) + f(a * c) + f(b * c), triple = f(a * b * c), value = singles - pairs + triple;
       return {
-        rank: 11,
+        rank: 7,
         text: `How many integers from 1 to ${num(N)} are divisible by at least one of ${a}, ${b} and ${c}?`,
         answer: choices(d, value, [singles, singles - pairs, N - value, value + triple, singles - pairs - triple]),
         check: () => { let k = 0; for (let i = 1; i <= N; i++) if (i % a === 0 || i % b === 0 || i % c === 0) k++; return k === value ? '' : `counted ${k}`; },
@@ -439,7 +439,7 @@ export const classic = named({
       const [N, [a, b]] = combo(ctx, [[100, 150, 200, 250, 300, 500, 1000], [[2, 3], [3, 4], [4, 6], [3, 5], [5, 7], [6, 9], [4, 10], [6, 8]]]);
       const L = lcm(a, b), value = Math.floor(N / a) - Math.floor(N / L);
       return {
-        rank: 7,
+        rank: 4,
         text: `How many integers from 1 to ${num(N)} are divisible by ${a} but not by ${b}?`,
         answer: choices(d, value, [Math.floor(N / a) - Math.floor(N / b), Math.floor(N / a) - Math.floor(N / (a * b)), Math.floor(N / a), Math.floor(N / b) - Math.floor(N / L)]),
         check: () => { let k = 0; for (let i = 1; i <= N; i++) if (i % a === 0 && i % b !== 0) k++; return k === value ? '' : `counted ${k}`; },
@@ -455,7 +455,7 @@ export const classic = named({
       const [s, p, ask] = combo(ctx, [range(2, 12), [-6, -4, -3, -2, 2, 3, 4, 5, 6, 8, 10, 12, 15], ['squares', 'cubes']]);
       const value = ask === 'squares' ? s * s - 2 * p : s ** 3 - 3 * s * p;
       return {
-        rank: 14,
+        rank: 7,
         text: `Real or not, x and y satisfy x + y = ${s} and xy = ${num(p)}. What is ${ask === 'squares' ? 'x<sup>2</sup> + y<sup>2</sup>' : 'x<sup>3</sup> + y<sup>3</sup>'}?`,
         answer: choices(d, value, ask === 'squares' ? [s * s - p, s * s + 2 * p, s * s, 2 * s - p] : [s ** 3 - s * p, s ** 3 + 3 * s * p, s ** 3, s ** 3 - 3 * p]),
         check: () => (Math.abs(powerSum(s, p, ask === 'squares' ? 2 : 3) - value) < 1e-6 ? '' : 'power sum wrong'),
@@ -469,7 +469,7 @@ export const classic = named({
       const [s, p, ask] = combo(ctx, [range(2, 11), [-6, -4, -3, -2, 2, 3, 4, 5, 6, 8, 10, 12], ['product', 'cubes']]);
       const q = s * s - 2 * p, value = ask === 'product' ? p : s * (q - p);
       return {
-        rank: 12,
+        rank: 8,
         text: `Two numbers have a sum of ${s}, and the sum of their squares is ${num(q)}. What is ${ask === 'product' ? 'their product' : 'the sum of their cubes'}?`,
         answer: choices(d, value, ask === 'product' ? [s * s - q, (q - s * s) / 2, q - s, (s * s + q) / 2] : [s * q, s ** 3 - q, s * (q + p), s ** 3]),
         check: () => (Math.abs(powerSum(s, p, ask === 'product' ? 0 : 3) - (ask === 'product' ? 2 : value)) < 1e-6 && Math.abs(powerSum(s, p, 2) - q) < 1e-6 ? '' : 'wrong'),
@@ -483,7 +483,7 @@ export const classic = named({
       const [t, p, ask] = combo(ctx, [range(1, 9), [2, 3, 4, 5, 6, 8, 10, 12, 15], ['squares', 'sum squared']]);
       const value = ask === 'squares' ? t * t + 2 * p : t * t + 4 * p;
       return {
-        rank: 12,
+        rank: 5,
         text: `The numbers x and y satisfy x − y = ${t} and xy = ${p}. What is ${ask === 'squares' ? 'x<sup>2</sup> + y<sup>2</sup>' : '(x + y)<sup>2</sup>'}?`,
         answer: choices(d, value, ask === 'squares' ? [t * t - 2 * p, t * t + p, t * t + 4 * p, t * t] : [t * t + 2 * p, t * t - 4 * p, t * t + p, (t + p) ** 2]),
         check: () => { const y = (-t + Math.sqrt(t * t + 4 * p)) / 2, x = y + t; const got = ask === 'squares' ? x * x + y * y : (x + y) ** 2; return Math.abs(x * y - p) < 1e-9 && Math.abs(got - value) < 1e-6 ? '' : `got ${got}`; },
@@ -497,7 +497,7 @@ export const classic = named({
       const [s, ask] = combo(ctx, [[3, 4, 5, 6, 7, 8, 9], [2, 3]]);
       const value = ask === 2 ? s * s - 2 : s ** 3 - 3 * s;
       return {
-        rank: 13,
+        rank: 5,
         text: `A number x satisfies x + 1/x = ${s}. What is x<sup>${ask}</sup> + 1/x<sup>${ask}</sup>?`,
         answer: choices(d, value, ask === 2 ? [s * s, s * s + 2, s * s - 1, 2 * s] : [s ** 3, s ** 3 - s, s ** 3 + 3 * s, s ** 3 - 3]),
         check: () => { const x = (s + Math.sqrt(s * s - 4)) / 2; return Math.abs(x ** ask + x ** -ask - value) < 1e-6 ? '' : 'wrong'; },
@@ -528,7 +528,7 @@ export const classic = named({
       const [pct, orig] = combo(ctx, [[10, 15, 20, 25, 30, 40, 50, 60, 75], [40, 60, 80, 120, 160, 200, 240, 300, 400]], (p, o) => (o * (100 - p)) % 100 === 0);
       const price = (orig * (100 - pct)) / 100, show = money;
       return {
-        rank: 4,
+        rank: 1,
         text: `After a ${pct}% discount, a jacket costs $${price}. What was its price before the discount?`,
         answer: choices(d, orig, [(price * (100 + pct)) / 100, price + pct, (price * 100) / pct, price + (price * pct) / 100 + 10], show),
         check: () => (orig - (orig * pct) / 100 === price ? '' : 'price wrong'),
@@ -540,7 +540,7 @@ export const classic = named({
       const [p] = combo(ctx, [[25, 60, 100, 150, 300, 400, 900]]);
       const value = (100 * p) / (100 + p), show = (v) => `${num(v, 2)}%`;
       return {
-        rank: 8,
+        rank: 5,
         text: `A number is increased by ${p}%. By what percent must the new number now be decreased to get back to the original number?`,
         answer: choices(d, value, [p, p / 2, 100 - value / 2, value + 10, 100], show),
         check: () => (Math.abs((1 + p / 100) * (1 - value / 100) - 1) < 1e-12 ? '' : 'does not undo'),
@@ -552,7 +552,7 @@ export const classic = named({
       const [A, pct] = combo(ctx, [[20, 25, 40, 50, 60, 80, 120, 160, 200, 250], [5, 10, 12, 15, 20, 25, 30, 35, 40, 60, 75]], (a, p) => (a * p) % 100 === 0);
       const B = (A * (100 + pct)) / 100, show = (v) => `${num(v, 2)}%`;
       return {
-        rank: 2,
+        rank: 1,
         text: `The price of a ticket went up from $${A} to $${num(B, 2)}. By what percent did it go up?`,
         answer: choices(d, pct, [Math.round(((B - A) / B) * 10000) / 100, B - A, Math.round((B / A) * 10000) / 100, pct + 5], show),
         check: () => (Math.abs(A * (1 + pct / 100) - B) < 1e-9 ? '' : 'wrong'),
@@ -567,7 +567,7 @@ export const classic = named({
     (d, ctx) => {
       const [a, b] = combo(ctx, [range(2, 12), range(3, 18)], (a, b) => b > a && (a * b) % (a + b) !== 0);
       return {
-        rank: 6,
+        rank: 3,
         text: `Alone, one pump fills a tank in ${a} hours and a second pump fills it in ${b} hours. How long do they take working together?`,
         answer: choices(d, [a * b, a + b], [[a + b, 2], [a, 2], [a * b, a + b + 1], [a * b - 1, a + b], [b - a, 1]], hours),
         check: () => { let filled = 0, t = 0; while (filled < 1 - 1e-12) { filled += (1 / a + 1 / b) / 1000; t += 1 / 1000; } return Math.abs(t - (a * b) / (a + b)) < 0.002 ? '' : `simulated ${t}`; },
@@ -580,7 +580,7 @@ export const classic = named({
       const [[a, b], unit, first] = combo(ctx, [PAIRS, ['hours', 'minutes'], [0, 1]]);
       const T = (a * b) / (a + b), known = first ? a : b, value = first ? b : a, show = (v) => `${num(v, 2)} ${unit}`;
       return {
-        rank: 8,
+        rank: 4,
         text: `Working together, two printers finish a job in ${T} ${unit}. Alone, the first printer takes ${known} ${unit}. How long would the second printer take alone?`,
         answer: choices(d, value, [known - T, 2 * T, known + T, (known * T) / (known + T), 2 * known], show),
         check: () => (known * value === T * (known + value) ? '' : 'rates do not add up'),
@@ -592,7 +592,7 @@ export const classic = named({
       const [a, b] = combo(ctx, [[3, 4, 5, 6, 8, 10, 12], [6, 8, 9, 10, 12, 15, 18, 20, 24, 30]], (a, b) => b > a && (a * b) % (b - a) === 0);
       const value = (a * b) / (b - a), show = (v) => `${num(v, 2)} minutes`;
       return {
-        rank: 7,
+        rank: 4,
         text: `A faucet fills a tub in ${a} minutes, and the open drain empties a full tub in ${b} minutes. With the faucet on and the drain open, how long does it take to fill the empty tub?`,
         answer: choices(d, value, [(a * b) / (a + b), b - a, (a + b) / 2, a + b, 2 * a], show),
         check: () => { let level = 0, t = 0; while (level < 1 - 1e-9) { level += 1 / a / 1000 - 1 / b / 1000; t += 1 / 1000; } return Math.abs(t - value) < 0.01 ? '' : `simulated ${t}`; },
@@ -605,7 +605,7 @@ export const classic = named({
       const [P, Q] = d.pick([['Ana', 'Ben'], ['Kim', 'Leo'], ['Maya', 'Noah'], ['Rita', 'Sam']]);
       const value = [(a - h) * b, a + b];
       return {
-        rank: 9,
+        rank: 5,
         text: `${P} can paint a fence alone in ${a} hours, and ${Q} can paint it alone in ${b} hours. ${P} paints alone for ${h} hour${h === 1 ? '' : 's'}, then ${Q} joins and they finish the fence together. How long do they work together?`,
         answer: choices(d, value, [[a * b, a + b], [a * b - h * (a + b), a + b], [(a - h) * b, a], [b - h, 2], [(a - h) * a, a + b]], hours),
         check: () => { const [p, q] = value; return h * b * q + p * (a + b) === a * b * q ? '' : 'the work does not add up to one fence'; },
@@ -621,7 +621,7 @@ export const classic = named({
       const [n, change] = combo(ctx, [range(4, 12), [-4, -3, -2, -1, 1, 2, 3, 4, 5]], (n, ch) => Math.max(50, 5 - (n + 1) * ch) <= Math.min(90, 95 - (n + 1) * ch));
       const m = d.int(Math.max(50, 5 - (n + 1) * change), Math.min(90, 95 - (n + 1) * change)), m2 = m + change, x = (n + 1) * m2 - n * m;
       return {
-        rank: 4,
+        rank: 2,
         text: `The average of ${n} test scores is ${m}. After one more test, the average of all ${n + 1} scores is ${m2}. What was the score on the new test?`,
         answer: choices(d, x, [m2 + change, n * m2 - (n - 1) * m, m2, x + n, x - change]),
         check: () => (Math.abs((n * m + x) / (n + 1) - m2) < 1e-9 && x >= 0 && x <= 100 ? '' : 'average wrong'),
@@ -633,7 +633,7 @@ export const classic = named({
       const [n, change] = combo(ctx, [range(5, 12), [-3, -2, -1, 1, 2, 3, 4]]);
       const m = d.int(40, 80), m2 = m + change, x = n * m - (n - 1) * m2;
       return {
-        rank: 5,
+        rank: 2,
         text: `The average of ${n} numbers is ${m}. When one of the numbers is taken away, the average of the other ${n - 1} is ${m2}. What number was taken away?`,
         answer: choices(d, x, [m - change, n * m - n * m2, m2 - change, x + n, x - change]),
         check: () => (Math.abs((n * m - x) / (n - 1) - m2) < 1e-9 ? '' : 'average wrong'),
@@ -645,7 +645,7 @@ export const classic = named({
       const [a, b] = combo(ctx, [[10, 12, 15, 18, 20, 24, 25, 30], [8, 10, 12, 15, 16, 20, 25]], (a, b) => a !== b && averagePairs(a, b).length > 0);
       const [x, y] = d.pick(averagePairs(a, b)), value = (a * x + b * y) / (a + b);
       return {
-        rank: 4,
+        rank: 2,
         text: `On a test, a class of ${a} students averaged ${x} and another class of ${b} students averaged ${y}. What was the average score of all ${a + b} students?`,
         answer: choices(d, value, [(x + y) / 2, (a * y + b * x) / (a + b), Math.round((x + y) / 2) + 1, value + 1, value - 2]),
         check: () => { const all = [...Array(a).fill(x), ...Array(b).fill(y)]; return Math.abs(all.reduce((s, v) => s + v, 0) / all.length - value) < 1e-9 ? '' : 'average wrong'; },
@@ -660,7 +660,7 @@ export const classic = named({
       if (kind !== 'integers') { const want = kind === 'even numbers' ? (n % 2 ? 0 : 1) : n % 2 ? 1 : 0; if (m % 2 !== want) m++; }
       const largest = m + ((n - 1) / 2) * step;
       return {
-        rank: 3,
+        rank: 2,
         text: `The average of ${n} consecutive ${kind} is ${m}. What is the largest of them?`,
         answer: choices(d, largest, [m + (n - 1) * step, m - ((n - 1) / 2) * step, largest + step, largest - step, largest + 2 * step]),
         check: () => { const first = largest - (n - 1) * step, list = range(0, n - 1).map((i) => first + i * step); const avg = list.reduce((s, v) => s + v, 0) / n; return avg === m && list.every((v) => (kind === 'integers' ? true : (v % 2 === 0) === (kind === 'even numbers'))) ? '' : 'list wrong'; },
@@ -682,7 +682,7 @@ export const classic = named({
       } while (area < 6);
       const xs = P.map((p) => p[0]), ys = P.map((p) => p[1]), boxA = (Math.max(...xs) - Math.min(...xs)) * (Math.max(...ys) - Math.min(...ys));
       return {
-        rank: 13,
+        rank: 5,
         text: `What is the area of the triangle with vertices ${pt(P[0])}, ${pt(P[1])} and ${pt(P[2])}?`,
         answer: choices(d, area, [2 * area, area + 1, boxA, area - 1, boxA / 2]),
         check: () => { const [u, v, w] = [0, 1, 2].map((i) => Math.hypot(P[i][0] - P[(i + 1) % 3][0], P[i][1] - P[(i + 1) % 3][1])), s = (u + v + w) / 2; return Math.abs(Math.sqrt(s * (s - u) * (s - v) * (s - w)) - area) < 1e-6 ? '' : 'Heron disagrees'; },
@@ -697,7 +697,7 @@ export const classic = named({
       const fix = ([p, q]) => (q < 0 ? [-p, -q] : [p, q]), val = ([p, q]) => p / q;
       const ans = fix(X), wrongs = [fix([x1 * dy + y1 * dx, dy]), fix([y1 * dx, dy]), fix([-ans[0], ans[1]]), fix([ans[0] + ans[1], ans[1]]), fix([x1 * dx - y1 * dy, dx])].filter((w) => Math.abs(val(w) - val(ans)) > 1e-9);
       return {
-        rank: 10,
+        rank: 4,
         text: `The line through ${pt([x1, y1])} and ${pt([x2, y2])} crosses the x-axis at the point (k, 0). What is k?`,
         answer: choices(d, ans, wrongs, showFrac),
         check: () => { const k = val(ans); return Math.abs((x2 - x1) * (0 - y1) - (k - x1) * (y2 - y1)) < 1e-9 ? '' : 'not on the line'; },
@@ -710,7 +710,7 @@ export const classic = named({
       const x1 = d.int(-5, 3), y1 = d.int(-6, 6);
       const x2 = x1 + dx, y2 = y1 + dy, x3 = x1 + j * dx, k = y1 + j * dy;
       return {
-        rank: 9,
+        rank: 4,
         text: `The points ${pt([x1, y1])}, ${pt([x2, y2])} and (${num(x3)}, k) all lie on one straight line. What is k?`,
         answer: choices(d, k, [y1 + j * dx, k + dy, y2 + j * dy, -k, y1 + (j - 1) * dy]),
         check: () => ((x2 - x1) * (k - y1) - (x3 - x1) * (y2 - y1) === 0 ? '' : 'not on the line'),
@@ -723,7 +723,7 @@ export const classic = named({
       const x1 = d.int(-9, 5), y1 = d.int(-9, 5), sx = d.pick([1, -1]), sy = d.pick([1, -1]);
       const [ex, ey] = swap ? [b, a] : [a, b], x2 = x1 + sx * ex, y2 = y1 + sy * ey, c = Math.hypot(a, b);
       return {
-        rank: 4,
+        rank: 1,
         text: `How far apart are the points ${pt([x1, y1])} and ${pt([x2, y2])}?`,
         answer: choices(d, c, [a + b, a * a + b * b, Math.abs(b - a), c + 1, c - 1]),
         check: () => (Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) === c ? '' : 'distance wrong'),

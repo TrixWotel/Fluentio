@@ -1,4 +1,4 @@
-// Harder geometry for the AMC 10 practice (ranks 12 to 19): power of a point, angle bisectors, angles in circles and
+// Harder geometry for the AMC 10 practice (ranks 4 to 11): power of a point, angle bisectors, angles in circles and
 // areas cut by a line, built on contest ideas with new numbers and wording. Each topic asks its idea four ways (another
 // unknown, the question turned around, another setting), every figure is drawn to scale from the variant's own numbers,
 // and every check() works the answer out again with coordinates: circles through three points, lines meeting, angles
@@ -378,7 +378,7 @@ export const hardGeometry = {
       const [pA, pB, pC, pD, pE, pO] = [Aw, Bw, Cw, Dw, [0, 0], o].map(T), eAt = along(pE, unit([0, 0], along(unit(pE, pD), unit(pE, pA), 1)), 15);
       const aAt = freeSide(pA, pE, [eAt]), bAt = freeSide(pE, pB, [eAt, aAt]);
       return {
-        topic: 'Power of a point', rank: 15,
+        topic: 'Power of a point', rank: 4,
         text: `Chords ${A}${B} and ${C}${D} of a circle cross at ${E}, with ${A}${E} = ${a} and ${E}${B} = ${b}. Chord ${C}${D} is ${L} long. How long is the shorter of its two pieces, ${C}${E} and ${E}${D}?`,
         figure: svg(340, 300, `Chords ${A}${B} and ${C}${D} crossing at ${E}`, [ring(pO, r * T.s), seg(pA, pB), seg(pC, pD, 'seg'), dot(pE),
           ...[[pA, A], [pB, B], [pC, C], [pD, D]].map(([p, s]) => label(away(p, pO, 14), s)), label(eAt, E), label(aAt, a, 'ang'), label(bAt, b, 'ang')]),
@@ -404,7 +404,7 @@ export const hardGeometry = {
       const T = frame([-PO, R], [-R, R], 400, 270, 28), [pP, pO, pA, pB, pC, pD] = [P, [0, 0], along(P, u1, x), along(P, u1, x + y), along(P, u2, c), along(P, u2, c + z)].map(T);
       const wrongs = tangent ? [[pw, y], [x + y, 1], [2 * x, 1], [c - y, 1]] : [[pw, y], [c * z, y], [x + y, 1], [2 * x, 1], [c, 1]];
       return {
-        topic: 'Power of a point', rank: 16,
+        topic: 'Power of a point', rank: 5,
         text: tangent
           ? `From a point P outside a circle, a tangent touches the circle at T, and a secant cuts the circle at A and then at B. If PT = ${c} and AB = ${y}, how long is PA?`
           : `From a point P outside a circle, two lines cut the circle: one at A and then at B, the other at C and then at D. If PC = ${c}, CD = ${z} and AB = ${y}, how long is PA?`,
@@ -437,7 +437,7 @@ export const hardGeometry = {
       const [pO, pP, pA, pB, pR, pF, pd] = [[0, 0], P, Aw, Bw, along([0, 0], dir(-60), r), project([0, 0], Aw, Bw), [-dMid, 0]].map(T);
       const AB = k === 1 ? 'x' : `${k}x`;
       return {
-        topic: 'Power of a point', rank: 17,
+        topic: 'Power of a point', rank: 8,
         text: inside
           ? `A circle has radius ${r}, and P is a point inside it, ${dd} from its centre. A chord through P is cut by P into two pieces, one ${{ 2: 'twice', 3: 'three times', 4: 'four times' }[k]} as long as the other. How long is the chord?`
           : `A circle has radius ${r}, and P is a point outside it, ${dd} from its centre. A line through P meets the circle at A and then at B, with AB ${k === 1 ? 'as long as' : 'twice as long as'} PA. How long is AB?`,
@@ -471,7 +471,7 @@ export const hardGeometry = {
       const centreAt = `(${frac(b - a, 2)}, ${frac(e - c, 2)})`;
       const start = `By power of a point, ${C}${E}·${E}${D} = ${A}${E}·${E}${B}, so the missing piece is ${E}${D} = ${a}·${b}/${c} = ${e}. Now take ${E} as the origin, with ${A}${B} on the x-axis and ${C}${D} on the y-axis: ${A} = (−${a}, 0), ${B} = (${b}, 0), ${C} = (0, −${c}) and ${D} = (0, ${e}). The centre is on the perpendicular bisector of each chord, so it is straight above or below the middle of ${A}${B} and level with the middle of ${C}${D}, at ${centreAt}.`;
       return {
-        topic: 'Power of a point', rank: ask === 'radius' ? 18 : 19,
+        topic: 'Power of a point', rank: ask === 'radius' ? 9 : 10,
         text: `Chords ${A}${B} and ${C}${D} of a circle are perpendicular and cross at ${E}, with ${A}${E} = ${a}, ${E}${B} = ${b} and ${C}${E} = ${c}. ${ask === 'radius' ? 'What is the radius of the circle?' : `How far is ${E} from the centre of the circle?`}`,
         figure: svg(340, 300, `Perpendicular chords ${A}${B} and ${C}${D} crossing at ${E}`, [ring(pO, R * T.s), seg(pA, pB), seg(pC, pD), corner(pE, sx > 0 ? pB : pA, sy > 0 ? pD : pC), dot(pO),
           ...(ask === 'centre' ? [seg(pE, pO, 'seg dash')] : []), ...[[pA, A], [pB, B], [pC, C], [pD, D]].map(([p, s]) => label(away(p, pO, 14), s)),
@@ -498,7 +498,7 @@ export const hardGeometry = {
       const BC = p + q, P = AB + AC + BC, ans = ask === 'AB' ? AB : AC, piece = ask === 'AB' ? p : q, k = lowest(P - BC, BC);
       const { A, B, C } = corners(BC, AC, AB), T = fit([A, B, C], 380, 250, 34), [pA, pB, pC, pD] = [A, B, C, [p, 0]].map(T), ctr = centre([pA, pB, pC]);
       return {
-        topic: 'Angle bisectors', rank: 14,
+        topic: 'Angle bisectors', rank: 4,
         text: `In triangle ABC, the bisector of angle A meets side BC at D, with BD = ${p} and DC = ${q}. The perimeter of triangle ABC is ${P}. How long is ${ask}?`,
         figure: svg(380, 250, 'Triangle ABC with the bisector of angle A', [poly([pA, pB, pC]), seg(pA, pD, 'seg'), arcMark(pA, pB, pD, 30, '', true), arcMark(pA, pD, pC, 30, '', true),
           ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)), label([pD[0], pD[1] + 17], 'D'),
@@ -519,7 +519,7 @@ export const hardGeometry = {
       const [a, b, c, bd, dc] = row, [correct, wrongs] = lengthAnswers(row), ad2 = b * c - bd * dc;
       const { A, B, C } = corners(a, b, c), T = fit([A, B, C], 380, 250, 34), [pA, pB, pC, pD] = [A, B, C, [bd, 0]].map(T), ctr = centre([pA, pB, pC]);
       return {
-        topic: 'Angle bisectors', rank: 16,
+        topic: 'Angle bisectors', rank: 8,
         text: `Triangle ABC has AB = ${c}, AC = ${b} and BC = ${a}. The bisector of angle A meets BC at D. How long is AD?`,
         figure: svg(380, 250, 'Triangle ABC with the bisector AD', [poly([pA, pB, pC]), seg(pA, pD, 'seg'), arcMark(pA, pB, pD, 30, '', true), arcMark(pA, pD, pC, 30, '', true),
           ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)), label([pD[0], pD[1] + 17], 'D'),
@@ -539,7 +539,7 @@ export const hardGeometry = {
         const { A, B, C } = corners(a, c2, c1), H = [p, 0], E = bisect(B, A, C), P = meet([B, E], [A, H]);
         const T = fit([A, B, C], 380, 260, 34), [pA, pB, pC, pH, pE, pP] = [A, B, C, H, E, P].map(T), ctr = centre([pA, pB, pC]);
         return {
-          topic: 'Angle bisectors', rank: 17,
+          topic: 'Angle bisectors', rank: 9,
           text: `Triangle ABC has AB = ${c1}, BC = ${a} and CA = ${c2}. The altitude from A meets BC at H, and the bisector of angle B meets AH at P. What is AP : PH?`,
           figure: svg(380, 260, 'Triangle ABC with the altitude AH and the bisector of angle B', [poly([pA, pB, pC]), seg(pA, pH, 'seg dash'), corner(pH, pB, pA), seg(pB, pE, 'seg'), dot(pP),
             arcMark(pB, pA, pE, 30, '', true), arcMark(pB, pE, pC, 30, '', true), ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)),
@@ -559,7 +559,7 @@ export const hardGeometry = {
       const { A, B, C } = corners(a, b, c), M = mid(A, C), D = bisect(A, B, C), P = meet([A, D], [B, M]);
       const T = fit([A, B, C], 380, 260, 34), [pA, pB, pC, pM, pD, pP] = [A, B, C, M, D, P].map(T), ctr = centre([pA, pB, pC]);
       return {
-        topic: 'Angle bisectors', rank: 17,
+        topic: 'Angle bisectors', rank: 7,
         text: `Triangle ABC has AB = ${c}, BC = ${a} and CA = ${b}. M is the midpoint of CA, and the bisector of angle A meets BM at P. What is BP : PM?`,
         figure: svg(380, 260, 'Triangle ABC with the median BM and the bisector of angle A', [poly([pA, pB, pC]), seg(pB, pM, 'seg dash'), seg(pA, pD, 'seg'), dot(pP),
           arcMark(pA, pB, pD, 28, '', true), arcMark(pA, pD, pC, 28, '', true), ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)),
@@ -581,7 +581,7 @@ export const hardGeometry = {
       const { A, B, C } = corners(a, b, c), D = [bd, 0], E = bisect(B, A, C), I = meet([A, D], [B, E]);
       const T = fit([A, B, C], 380, 260, 34), [pA, pB, pC, pD, pE, pI] = [A, B, C, D, E, I].map(T), ctr = centre([pA, pB, pC]);
       return {
-        topic: 'Angle bisectors', rank: 19,
+        topic: 'Angle bisectors', rank: 11,
         text: `Triangle ABC has AB = ${c}, BC = ${a} and CA = ${b}. The bisector of angle A meets BC at D, and I is the incentre, where the three angle bisectors meet. How long is ${ask}?`,
         figure: svg(380, 260, 'Triangle ABC with its incircle and the bisectors from A and B', [poly([pA, pB, pC]), ring(pI, I[1] * T.s, 'arc'), seg(pA, pD, 'seg'), seg(pB, pE, 'seg dash'), dot(pI),
           ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)), label([pD[0], pD[1] + 17], 'D'), nameAt(pI, [pA, pD, pB, pE], 'I', 13),
@@ -607,7 +607,7 @@ export const hardGeometry = {
       const th = [0, arcs[0], arcs[0] + arcs[1], arcs[0] + arcs[1] + arcs[2]].map((t) => 250 - arcs[0] / 2 + t), W = th.map(dir);
       const T = frame([-1, 1], [-1, 1], 320, 300, 30), pW = W.map(T), pO = T([0, 0]);
       return {
-        topic: 'Angles in circles', rank: 12,
+        topic: 'Angles in circles', rank: 4,
         text: `Points A, B, C and D lie on a circle in that order, and the four arcs between neighbours, AB, BC, CD and DA, are in the ratio ${p} : ${q} : ${r} : ${s}. What is the ${ask} angle of quadrilateral ABCD?`,
         figure: svg(320, 300, 'Quadrilateral ABCD with its corners on a circle', [poly(pW), ring(pO, T.s), ...pW.map((pp, i) => label(away(pp, pO, 14), 'ABCD'[i]))]),
         answer: choices(d, ans, [...ang.filter((v) => v !== ans), edge / 2, edge, 180 - ans], deg),
@@ -628,7 +628,7 @@ export const hardGeometry = {
       const W = range(0, n - 1).map((v) => corner0(n, v)), X = meet([W[i], W[k]], [W[j], W[l]]);
       const T = frame([-1, 1], [-1, 1], 330, 310, 30), pW = W.map(T), pO = T([0, 0]), pX = T(X), mid1 = along(pX, unit(pX, mid(along(pX, unit(pX, pW[s1]), 1), along(pX, unit(pX, pW[s2]), 1))), 9);
       return {
-        topic: 'Angles in circles', rank: 14,
+        topic: 'Angles in circles', rank: 7,
         text: `${name} is a regular ${POLYGON[n]}. Its diagonals ${V(i)}${V(k)} and ${V(j)}${V(l)} cross at X. What is the measure of ∠${V(s1)}X${V(s2)}?`,
         figure: svg(330, 310, `A regular ${POLYGON[n]} with two diagonals crossing at X`, [poly(pW), ring(pO, T.s, 'arc'), seg(pW[i], pW[k], 'seg'), seg(pW[j], pW[l], 'seg'), dot(pX),
           arcMark(pX, pW[s1], pW[s2], 18), ...pW.map((pp, v) => label(away(pp, pO, 13), V(v))), nameAt(pX, [pW[i], pW[k], pW[j], pW[l], mid1], 'X')]),
@@ -647,7 +647,7 @@ export const hardGeometry = {
       const back = tangent ? T(along(W[i], unit(X, W[i]), 0.45)) : pW[i];   // the tangent drawn a little past its point of contact
       const nearArc = tangent ? `${V(i)}${V(k)}` : `${V(j)}${V(k)}`;
       return {
-        topic: 'Angles in circles', rank: 16,
+        topic: 'Angles in circles', rank: 9,
         text: tangent
           ? `${name} is a regular ${POLYGON[n]}, and a circle passes through all of its corners. The tangent to that circle at ${V(i)} meets line ${V(l)}${V(k)}, extended past ${V(k)}, at X. What is the measure of ∠${V(i)}X${V(l)}?`
           : `${name} is a regular ${POLYGON[n]}. Lines ${V(i)}${V(j)} and ${V(l)}${V(k)} are extended past ${V(j)} and ${V(k)} until they meet at X. What is the measure of ∠${V(i)}X${V(l)}?`,
@@ -682,7 +682,7 @@ export const hardGeometry = {
       // the central angle on chord xy is twice the inscribed angle at z, and the isosceles triangle xOy gives ∠Oxy
       const iso = (x, y, z, angle, last) => `The central angle ∠${x}O${y} stands on the same arc ${x}${y} as the inscribed angle ∠${x}${z}${y}, so it is twice as big, ∠${x}O${y} = 2·${angle}° = ${2 * angle}°. O${x} and O${y} are both radii, so triangle ${x}O${y} is isosceles, and its two base angles are equal, so ∠O${x}${y} = (180° − ${2 * angle}°) ÷ 2 = ${last ? `<b>${deg(90 - angle)}</b>` : deg(90 - angle)}.`;
       return {
-        topic: 'Angles in circles', rank: ask === 'OAF' ? 17 : 15,
+        topic: 'Angles in circles', rank: ask === 'OAF' ? 9 : 6,
         text: `In acute triangle ABC, ∠ABC = ${be}° and ∠ACB = ${ga}°. O is the centre of the circle through A, B and C${ask === 'OAF' ? ', and F is the foot of the altitude from A to BC' : ''}. What is the measure of ∠${ask}?`,
         figure: svg(330, 300, 'Triangle ABC in its circle, with centre O', [poly([pA, pB, pC]), ring(pO, T.s), ...lines, dot(pO), valueAt(pB, pA, pC, `${be}°`, ask === 'OAF' ? [] : [pO]), valueAt(pC, pB, pA, `${ga}°`, ask === 'OBC' ? [pO] : []),
           ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, pO, 14), s)), nameAt(pO, ask === 'OBC' ? [pB, pC] : [pA, ask === 'OAB' ? pB : pA], 'O', 13)]),
@@ -713,7 +713,7 @@ export const hardGeometry = {
       const P = [(n * B[0] + m * C[0]) / (m + n), (n * B[1] + m * C[1]) / (m + n)];
       const { T, axes } = plane([A, B, C], 380, 280, 28), [pA, pB, pC, pP] = [A, B, C, P].map(T), ctr = centre([pA, pB, pC]);
       return {
-        topic: 'Areas cut by a line', rank: 15,
+        topic: 'Areas cut by a line', rank: 6,
         text: `Triangle ABC has corners A = ${pt(A)}, B = ${pt(B)} and C = ${pt(C)}. A line through A cuts it into two triangles, the one next to B and the one next to C, whose areas are in the ratio ${m} : ${n}. What is the slope of that line?`,
         figure: svg(380, 280, 'Triangle ABC on coordinate axes, cut by a line through A', [poly([pA, pB, pC]), ...axes, seg(pA, pP, 'seg'), dot(pP),
           ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)), nameAt(pP, [pA, pB, pC], 'P')]),
@@ -735,7 +735,7 @@ export const hardGeometry = {
         const A = [0.36 * L, 0.78 * L], B = [0, 0], C = [L, 0], E1 = along(A, unit(A, B), f * dist(A, B)), E2 = along(A, unit(A, C), f * dist(A, C));
         const T = fit([A, B, C], 380, 260, 32), [pA, pB, pC, p1, p2] = [A, B, C, E1, E2].map(T), ctr = centre([pA, pB, pC]);
         return {
-          topic: 'Areas cut by a line', rank: 16,
+          topic: 'Areas cut by a line', rank: 5,
           text: `A line parallel to side BC of triangle ABC cuts the triangle into a smaller triangle at A and a trapezoid, and their areas are in the ratio ${p} : ${q}. If BC = ${L}, how long is the part of the line inside triangle ABC?`,
           figure: svg(380, 260, 'Triangle ABC cut by a line parallel to BC', [poly([pA, p1, p2]), poly([pA, pB, pC]), seg(p1, p2, 'seg'),
             ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)), label(beside(pB, pC, ctr, -14), L, 'ang')]),
@@ -755,7 +755,7 @@ export const hardGeometry = {
       const H = 0.45 * b, sh = 0.3 * (b - a), at = (y) => [(sh * y) / H, b + ((sh + a - b) * y) / H], ym = (H * (b - correct[0])) / (b - a);
       const Q = [[0, 0], [b, 0], [sh + a, H], [sh, H]], T = fit(Q, 400, 250, 32), pQ = Q.map(T), [x1, x2] = at(ym), ctr = centre(pQ);
       return {
-        topic: 'Areas cut by a line', rank: 18,
+        topic: 'Areas cut by a line', rank: 10,
         text: `A trapezoid has parallel sides of lengths ${a} and ${b}. A segment parallel to those two sides, with its ends on the other two sides, cuts the trapezoid into two pieces of equal area. How long is the segment?`,
         figure: svg(400, 250, 'A trapezoid cut in half by a segment parallel to its bases', [poly(pQ), seg(T([x1, ym]), T([x2, ym]), 'seg'),
           label(beside(pQ[0], pQ[1], ctr, -14), b, 'ang'), label(beside(pQ[2], pQ[3], ctr, -14), a, 'ang')]),
@@ -791,7 +791,7 @@ export const hardGeometry = {
       const wide = high ? u3 - u2 : u2 - u1, end = high ? u3 : u1, gap = high ? `${u3} − k` : u1 === 0 ? 'k' : u1 < 0 ? `k + ${-u1}` : `k − ${u1}`;
       const bracket = gap === 'k' ? 'k' : `(${gap})`;   // the tip piece's width, in brackets when it is a difference
       return {
-        topic: 'Areas cut by a line', rank: 18,
+        topic: 'Areas cut by a line', rank: 11,
         text: `The ${upright ? 'vertical' : 'horizontal'} line ${c} = k cuts the triangle with corners ${pt(shown[0])}, ${pt(shown[1])} and ${pt(shown[2])} into two pieces of equal area. What is k?`,
         figure: svg(380, 290, `A triangle cut in half by the line ${c} = k`, [poly(piece.map(T)), poly(pV), seg(ends[0], ends[1], 'seg dash'),
           ...V.map((v, i) => label(at[i], pt(v), 'ang')), label(spots[pick2], `${c} = k`, 'ang', upright ? 'middle' : pick2 ? 'start' : 'end')]),
@@ -815,7 +815,7 @@ export const hardGeometry = {
       const T = fit([A, B, C], 380, 260, 32), [pA, pB, pC, pD, pE, pP] = [A, B, C, D, E, P].map(T), ctr = centre([pA, pB, pC]);
       const start = `Use mass points to see how P cuts AD. For D to balance BC with BD : DC = ${m} : ${n}, the weights at B and C are in the ratio ${n} : ${m}, and for E to balance CA with CE : EA = ${p} : ${q}, the weights at C and A are in the ratio ${q} : ${p}. Scaled to agree at C, the weights are A = ${wA}, B = ${wB} and C = ${wC}, so D carries ${wB} + ${wC} = ${wD}, and AP : PD = ${simplest(wD, wA)}. Triangle ABD has base BD, ${frac(m, m + n)} of BC, and the same height as ABC, so its area is ${frac(m, m + n)}·${Tot} = ${area(parts.ABD)}`;
       return {
-        topic: 'Areas cut by a line', rank: ask === 'ABP' ? 18 : 19,
+        topic: 'Areas cut by a line', rank: ask === 'ABP' ? 10 : 11,
         text: `Triangle ABC has area ${Tot}. Point D is on side BC with BD : DC = ${m} : ${n}, and point E is on side CA with CE : EA = ${p} : ${q}. Segments AD and BE cross at P. What is the area of ${ask === 'ABP' ? 'triangle ABP' : 'quadrilateral PDCE'}?`,
         figure: svg(380, 260, `Triangle ABC with segments AD and BE crossing at P`, [poly((ask === 'ABP' ? [A, B, P] : [P, D, C, E]).map(T)), poly([pA, pB, pC]), seg(pA, pD, 'seg'), seg(pB, pE, 'seg'), dot(pP),
           ...[[pA, 'A'], [pB, 'B'], [pC, 'C']].map(([pp, s]) => label(away(pp, ctr, 14), s)), label([pD[0], pD[1] + 17], 'D'), label(along(pE, unit(mid(pC, pA), beside(pC, pA, ctr, -1)), 14), 'E'), nameAt(pP, [pA, pD, pB, pE], 'P')]),
