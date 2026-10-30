@@ -16,7 +16,7 @@ const lessons = {
     how: ['Line up the three generations: Charles Martel (Tours, 732), then Charlemagne (crowned 800), then his grandsons (Verdun, 843).', 'Remember who crowned whom: the pope crowned Charlemagne.', 'Link Verdun to “split in three”.'],
     facts: ['732: Battle of Tours.', '800: Charlemagne crowned emperor by Pope Leo III.', '843: Treaty of Verdun.'],
     watch: ['Mixing up Charles Martel and Charlemagne: Martel won at Tours, Charlemagne was his grandson.', 'Thinking Charlemagne was a king of France: he was king of the Franks, whose lands spread far wider.'],
-    tip: 'Put it in the Frankish family order, grandfather, Charlemagne, then his grandsons: which generation is the question about?',
+    tip: 'Think of the Frankish family in turn, from the emperor’s grandfather who fought at Tours to the grandsons who split the empire: which of them is the question about?',
   },
   'The rise of Islam': {
     idea: '<p>The Prophet <b>Muhammad</b> was born in <b>Mecca</b> around 570. In <b>622</b> he and his followers moved to <b>Medina</b>, the <b>Hijra</b>, where the Islamic calendar begins. Within a century Muslim rule stretched from Spain to Central Asia, under caliphs.</p><p>The <b>Umayyads</b> ruled from Damascus, then the <b>Abbasids</b> founded <b>Baghdad</b> (<b>762</b>). Its <b>House of Wisdom</b> translated Greek, Persian and Indian works, and the digits <b>0 to 9</b> reached Europe from India through Arabic scholars.</p>',

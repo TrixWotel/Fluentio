@@ -17,7 +17,7 @@
     <header id="top">
       <a class="back" href="../study/">← <span data-fill="studyTitle">Study</span></a>
       <h1>🏰 History</h1>
-      <p class="lead">The Middle Ages, from the fall of Rome in 476 to the printing press and 1492: the people, the dates and the big ideas. Learn with lessons, practise, and take tests.</p>
+      <p class="lead">The Middle Ages, from the fall of Rome in 476 to the printing press and 1492: the people, the dates and the big ideas. Learn with lessons, practise in nine kinds of question, and take tests like the ones in class.</p>
     </header>
     <div id="app"><noscript>These tests need JavaScript.</noscript></div>
   </main>
@@ -25,12 +25,13 @@
     import { testsPage } from '../kit/tests.js';
     import { middleAges } from './middle-ages.js';
     import { middleAgesLearning, timeline } from './middle-ages-lessons.js';
+    import { middleAgesExam } from './middle-ages-exam.js';
 
     testsPage({ tests: [
       {
-        bank: middleAges, name: 'The Middle Ages', length: 20, learn: middleAgesLearning,
-        blurb: 'From the fall of Rome to the printing press: Charlemagne, the Vikings, feudalism, the Crusades, Magna Carta, the Black Death, the Hundred Years’ War, and the world beyond Europe.',
-        about: 'Each question has choices: who did something and why it mattered, what a word like fief or tithe means, the year or the century of an event, and which of four events came first or last. Learning goes in time order, in five units, each topic with a short lesson.',
+        bank: middleAges, name: 'The Middle Ages', length: 20, learn: middleAgesLearning, exam: middleAgesExam,
+        blurb: 'From the fall of Rome to the printing press: Charlemagne, the Vikings, feudalism, the Crusades, Magna Carta, the Black Death, the Hundred Years’ War, and the world beyond Europe. Tests like the ones in class, and practice.',
+        about: 'Practice asks nine ways: choose the answer, type a name or a year, put events in order, match people and words to what they were, true or false, choose all that fit, the odd one out, and the century. A test like the ones in class has key words and dates, a source to read and question, and an answer to explain, which you mark yourself against the mark scheme. Learning goes in time order, in five units, each topic with a short lesson.',
         asideName: 'The timeline', aside: timeline,
       },
     ] });
